@@ -22,11 +22,22 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - `/client` - Frontend (React)
 - `/server` - Backend (API & Baza podataka)
 
+## Kako pokrenuti projekt
+
+- Otvoriti terminal
+- npm i
+- cd client
+- npm i
+- cd ../server
+- npm i
+- cd ..
+- npm start
+
 ## TODO
 
 - [x] Inicijalizacija projekta
 - [x] Setup servera i spajanje na MongoDB
-- [] Inicijalizacija potrebnih paketa na frontend strani
+- [x] Inicijalizacija potrebnih paketa na frontend strani
 - [ ] User Auth (Register/Login)
 - [ ] Profil korisnika i Dashboard (XP/Level prikaz)
 - [ ] S&C Log sustav
