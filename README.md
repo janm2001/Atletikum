@@ -25,7 +25,8 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 ## TODO
 
 - [x] Inicijalizacija projekta
-- [ ] Setup servera i spajanje na MongoDB
+- [x] Setup servera i spajanje na MongoDB
+- [] Inicijalizacija potrebnih paketa na frontend strani
 - [ ] User Auth (Register/Login)
 - [ ] Profil korisnika i Dashboard (XP/Level prikaz)
 - [ ] S&C Log sustav
