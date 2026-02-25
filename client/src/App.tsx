@@ -6,23 +6,29 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Login from "./components/Login/Login";
 import Register from "./components/Register/Register";
+import { UserProvider } from "./context/UserContext";
+import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 
 const router = createBrowserRouter([
+  {
+    path: "login",
+    element: <Login />,
+  },
+  {
+    path: "register",
+    element: <Register />,
+  },
   {
     path: "/",
     element: <RootLayout />,
     children: [
       {
         index: true,
-        element: <Dashboard />,
-      },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "register",
-        element: <Register />,
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
@@ -31,7 +37,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <MantineProvider defaultColorScheme="dark">
-      <RouterProvider router={router} />
+      <UserProvider>
+        <RouterProvider router={router} />
+      </UserProvider>
     </MantineProvider>
   );
 }

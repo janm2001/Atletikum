@@ -1,8 +1,11 @@
 // src/components/Navbar.jsx
 import { Group, Button, Title } from "@mantine/core";
 import { Link } from "react-router-dom";
+import { IconLogout2, IconUser } from "@tabler/icons-react";
+import { useUser } from "../../hooks/useUser";
 
 const Navbar = () => {
+  const { logout } = useUser();
   return (
     <Group h="100%" px="md" justify="space-between">
       <Title
@@ -15,11 +18,11 @@ const Navbar = () => {
       </Title>
 
       <Group>
-        <Button component={Link} to="/login" variant="subtle" color="gray">
-          Prijava
-        </Button>
         <Button component={Link} to="/register" color="teal.5" radius="md">
-          Registracija
+          <IconUser />
+        </Button>
+        <Button onClick={logout} color="teal.5" radius="md">
+          <IconLogout2 />
         </Button>
       </Group>
     </Group>

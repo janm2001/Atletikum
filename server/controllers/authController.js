@@ -38,7 +38,7 @@ exports.login = async (req, res) => {
     }
 
     const token = signToken(user._id);
-    res.status(200).json({ status: "success", token, user });
+    res.status(200).json({ status: "success", token, data: { user } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });
   }

@@ -26,6 +26,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const login = (userData: User, newToken: string) => {
     setAuthState({ user: userData, token: newToken });
+    console.log(userData, newToken);
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(userData));
   };
