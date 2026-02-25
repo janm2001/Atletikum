@@ -10,10 +10,10 @@ import Register from "./components/Register/Register";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />, // The main frame
+    element: <RootLayout />,
     children: [
       {
-        index: true, // This means it renders when the path is exactly '/'
+        index: true,
         element: <Dashboard />,
       },
       {
@@ -24,8 +24,6 @@ const router = createBrowserRouter([
         path: "register",
         element: <Register />,
       },
-      // Later, we will add:
-      // { path: 'profile', element: <ProtectedRoute><Profile /></ProtectedRoute> }
     ],
   },
 ]);
