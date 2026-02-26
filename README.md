@@ -39,7 +39,8 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - [x] Setup servera i spajanje na MongoDB
 - [x] Inicijalizacija potrebnih paketa na frontend strani
 - [x] User Auth (Register/Login)
-- [] Add Validation logic to login and register
+- [ ] Refactor code with tanstack query
+- [ ] Add Validation logic to login and register
 - [ ] Profil korisnika i Dashboard (XP/Level prikaz)
 - [ ] S&C Log sustav
 - [ ] Knowledge Base & Quiz engine
@@ -47,5 +48,5 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 
 ## BUGS
 
-- [] Small flicker when directing to login page where you see the navbar
-- [] Register paper is increasing in width when some values are changed
+- [ ] Small flicker when directing to login page where you see the navbar
+- [ ] Register paper is increasing in width when some values are changed
