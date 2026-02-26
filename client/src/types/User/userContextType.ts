@@ -6,4 +6,5 @@ export type UserContextType = {
     login: (userData: User, token: string) => void;
     logout: () => void;
     isAuthenticated: boolean;
+    loading: boolean;
 }

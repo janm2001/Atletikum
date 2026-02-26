@@ -29,7 +29,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <RootLayout />,
+    element: (
+      <ProtectedRoute>
+        <RootLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -37,43 +41,23 @@ const router = createBrowserRouter([
       },
       {
         path: "pregled",
-        element: (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        ),
+        element: <Dashboard />,
       },
       {
         path: "profil",
-        element: (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        ),
+        element: <Profile />,
       },
       {
         path: "zapis-treninga",
-        element: (
-          <ProtectedRoute>
-            <TrainingLogs />
-          </ProtectedRoute>
-        ),
+        element: <TrainingLogs />,
       },
       {
         path: "edukacija",
-        element: (
-          <ProtectedRoute>
-            <KnowledgeBase />
-          </ProtectedRoute>
-        ),
+        element: <KnowledgeBase />,
       },
       {
         path: "upravljanje",
-        element: (
-          <ProtectedRoute>
-            <AdminPanel />
-          </ProtectedRoute>
-        ),
+        element: <AdminPanel />,
       },
     ],
   },
