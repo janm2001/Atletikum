@@ -1,21 +1,10 @@
 import { useUser } from "../../hooks/useUser";
-import {
-  Avatar,
-  Flex,
-  Progress,
-  Title,
-  Text,
-  Typography,
-  Container,
-} from "@mantine/core";
+import { Avatar, Flex, Title, Container } from "@mantine/core";
 import ProfileAchievements from "./ProfileAchievements/ProfileAchivements";
+import ProfileLevelXp from "./ProfileLevelXp/ProfileLevelXp";
 
 const Profile = () => {
   const { user } = useUser();
-  const xpPerLevel = 300;
-  const xpProgress = user
-    ? Math.min((user.totalXp / xpPerLevel) * 100, 100)
-    : 0;
 
   return (
     <Container size="lg" py="md">
@@ -27,21 +16,7 @@ const Profile = () => {
           name={user?.username}
           alt={user?.username}
         />
-        <Title order={3}>Level {user?.level}</Title>
-
-        <Flex direction="column" align="center" gap="xs" w="100%" maw={400}>
-          <Typography>XP Napredak</Typography>
-          <Progress
-            radius="xl"
-            size="lg"
-            value={xpProgress}
-            color="violet"
-            w="100%"
-          />
-          <Text size="sm" c="dimmed">
-            {user!.totalXp}/{xpPerLevel} XP
-          </Text>
-        </Flex>
+        <ProfileLevelXp user={user!} />
 
         <ProfileAchievements />
       </Flex>

@@ -1,5 +1,17 @@
+import { Container, Flex, Title } from "@mantine/core";
+import { useUser } from "../../hooks/useUser";
+import ProfileLevelXp from "../Profile/ProfileLevelXp/ProfileLevelXp";
+
 const Dashboard = () => {
-  return <div>Dashboard</div>;
+  const { user } = useUser();
+  return (
+    <Container size="lg" py="md">
+      <Flex direction="column" justify="center" align="center" gap="lg">
+        <Title order={1}>Pregled</Title>
+        <ProfileLevelXp user={user!} />
+      </Flex>
+    </Container>
+  );
 };
 
 export default Dashboard;
