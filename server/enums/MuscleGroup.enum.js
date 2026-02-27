@@ -1,0 +1,15 @@
+const MuscleGroup = Object.freeze({
+  QUADRICEPS: "QUADRICEPS",
+  HAMSTRINGS: "HAMSTRINGS",
+  GLUTES: "GLUTES",
+  CALVES: "CALVES",
+  HIP_FLEXORS: "HIP_FLEXORS",
+  CORE: "CORE",
+  LOWER_BACK: "LOWER_BACK",
+  BACK: "BACK",
+  SHOULDERS: "SHOULDERS",
+  ANKLES: "ANKLES",
+  THORACIC_SPINE: "THORACIC_SPINE",
+});
+
+module.exports = MuscleGroup;
