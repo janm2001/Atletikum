@@ -19,56 +19,53 @@ import { apiService } from "../../utils/apiService";
 import type { User } from "../../types/User/user";
 import { TRAINING_FOCUS_OPTIONS } from "../../enums/trainingFocus";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  registerSchema,
+  type RegisterInput,
+} from "../../schema/register.schema";
 
 interface RegisterResponse {
   user: User;
 }
 
 const Register = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [trainingFrequency, setTrainingFrequency] = useState(3);
-  const [focus, setFocus] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const { login } = useUser();
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      passwordConfirm: "",
+      trainingFrequency: 3,
+      focus: "snaga",
+    },
+  });
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const trainingFrequency = useWatch({
+    control,
+    name: "trainingFrequency",
+  });
+
+  const handleRegister = async (formData: RegisterInput) => {
     setError("");
-
-    if (!username || !password || !passwordConfirm) {
-      setError("Molimo popunite sva polja.");
-      return;
-    }
-
-    if (password !== passwordConfirm) {
-      setError("Lozinke se ne poklapaju.");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Lozinka mora biti najmanje 6 karaktera.");
-      return;
-    }
-
-    if (!focus) {
-      setError("Molimo odaberite fokus treninga.");
-      return;
-    }
-
-    setLoading(true);
 
     try {
       const response = await apiService.post<RegisterResponse>(
         "auth/register",
         {
-          username,
-          password,
-          trainingFrequency,
-          focus,
+          username: formData.username,
+          password: formData.password,
+          trainingFrequency: formData.trainingFrequency,
+          focus: formData.focus,
         },
       );
 
@@ -84,12 +81,10 @@ const Register = () => {
           ? error.message
           : "Došlo je do greške na serveru.",
       );
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (loading) {
+  if (isSubmitting) {
     return <SpinnerComponent />;
   }
 
@@ -113,13 +108,13 @@ const Register = () => {
         </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <form onSubmit={handleRegister}>
+          <form onSubmit={handleSubmit(handleRegister)}>
             <TextInput
               label="Korisničko ime"
               placeholder="Odaberite korisničko ime"
               required
-              value={username}
-              onChange={(e) => setUsername(e.currentTarget.value)}
+              error={errors.username?.message}
+              {...register("username")}
               mb="md"
             />
 
@@ -127,8 +122,8 @@ const Register = () => {
               label="Lozinka"
               placeholder="Unesite lozinku"
               required
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
+              error={errors.password?.message}
+              {...register("password")}
               mb="md"
             />
 
@@ -136,19 +131,26 @@ const Register = () => {
               label="Potvrdi lozinku"
               placeholder="Potvrdi lozinku"
               required
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.currentTarget.value)}
+              error={errors.passwordConfirm?.message}
+              {...register("passwordConfirm")}
               mb="md"
             />
 
-            <Select
-              label="Fokus treninga"
-              placeholder="Odaberite fokus"
-              data={TRAINING_FOCUS_OPTIONS}
-              value={focus}
-              onChange={setFocus}
-              required
-              mb="md"
+            <Controller
+              control={control}
+              name="focus"
+              render={({ field }) => (
+                <Select
+                  label="Fokus treninga"
+                  placeholder="Odaberite fokus"
+                  data={TRAINING_FOCUS_OPTIONS}
+                  value={field.value}
+                  onChange={(value) => field.onChange(value)}
+                  error={errors.focus?.message}
+                  required
+                  mb="md"
+                />
+              )}
             />
 
             <div>
@@ -160,18 +162,29 @@ const Register = () => {
                   {trainingFrequency}/7 dana
                 </Badge>
               </Group>
-              <Slider
-                value={trainingFrequency}
-                onChange={setTrainingFrequency}
-                min={0}
-                max={7}
-                step={1}
-                marks={[
-                  { value: 0, label: "0" },
-                  { value: 7, label: "7" },
-                ]}
-                mb="md"
+              <Controller
+                control={control}
+                name="trainingFrequency"
+                render={({ field }) => (
+                  <Slider
+                    value={field.value}
+                    onChange={field.onChange}
+                    min={0}
+                    max={7}
+                    step={1}
+                    marks={[
+                      { value: 0, label: "0" },
+                      { value: 7, label: "7" },
+                    ]}
+                    mb="md"
+                  />
+                )}
               />
+              {errors.trainingFrequency?.message && (
+                <Text c="red" size="sm" mt="xs" mb="md">
+                  {errors.trainingFrequency.message}
+                </Text>
+              )}
             </div>
 
             {error && (

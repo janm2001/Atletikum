@@ -13,26 +13,37 @@ import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import { apiService } from "../../utils/apiService";
 import type { User } from "../../types/User/user";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginInput } from "../../schema/login.schema";
 
 interface LoginResponse {
   user: User;
 }
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useUser();
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (formData: LoginInput) => {
     setError("");
 
     try {
       const response = await apiService.post<LoginResponse>("auth/login", {
-        username,
-        password,
+        username: formData.username,
+        password: formData.password,
       });
 
       if (response.status === "success" && response.data && response.token) {
@@ -70,21 +81,21 @@ const Login = () => {
         </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSubmit(handleLogin)}>
             <TextInput
               label="Korisničko ime"
               placeholder="Vaše korisničko ime"
               required
-              value={username}
-              onChange={(e) => setUsername(e.currentTarget.value)}
+              error={errors.username?.message}
+              {...register("username")}
             />
             <PasswordInput
               label="Lozinka"
               placeholder="Vaša lozinka"
               required
               mt="md"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
+              error={errors.password?.message}
+              {...register("password")}
             />
 
             {error && (
@@ -93,7 +104,7 @@ const Login = () => {
               </Text>
             )}
 
-            <Button fullWidth mt="xl" type="submit">
+            <Button fullWidth mt="xl" type="submit" loading={isSubmitting}>
               Prijavi se
             </Button>
           </form>
