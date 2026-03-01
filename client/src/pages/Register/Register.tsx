@@ -18,7 +18,7 @@ import { useUser } from "../../hooks/useUser";
 import { apiService } from "../../utils/apiService";
 import type { User } from "../../types/User/user";
 import { TRAINING_FOCUS_OPTIONS } from "../../enums/trainingFocus";
-import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 
 interface RegisterResponse {
   user: User;

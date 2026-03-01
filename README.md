@@ -40,7 +40,8 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - [x] Inicijalizacija potrebnih paketa na frontend strani
 - [x] User Auth (Register/Login)
 - [ ] Refactor code with tanstack query
-- [ ] Add Validation logic to login and register
+- [ ] Use react hook form for each form validations
+- [x] Add Validation logic to login and register
 - [x] Profil korisnika i Dashboard (XP/Level prikaz)
 - [ ] S&C Log sustav
 - [ ] Knowledge Base & Quiz engine
