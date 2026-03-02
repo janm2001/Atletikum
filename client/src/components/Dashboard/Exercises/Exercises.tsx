@@ -25,7 +25,7 @@ const Exercises = () => {
     );
   }, [exercises, selectedMuscleGroup]);
 
-  const visibleExercises = filteredExercises.slice(0, 10);
+  const visibleExercises = filteredExercises.slice(0, 9);
 
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
@@ -33,7 +33,7 @@ const Exercises = () => {
 
   return (
     <Stack gap="md" w="100%">
-      <Title order={3}>Atletske vježbe (drillovi i plyo)</Title>
+      <Title order={3}>Atletske vježbe</Title>
       <Select
         label="Filtriraj po mišićnoj skupini"
         data={MUSCLE_GROUP_OPTIONS}

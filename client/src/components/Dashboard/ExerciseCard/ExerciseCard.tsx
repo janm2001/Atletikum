@@ -14,7 +14,7 @@ const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
             exercise.imageLink || "https://placehold.co/800x500?text=Exercise"
           }
           alt={exercise.title}
-          h={180}
+          h={350}
           fit="cover"
         />
       </Card.Section>
