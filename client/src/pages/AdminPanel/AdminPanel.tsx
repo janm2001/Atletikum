@@ -18,12 +18,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { apiService } from "../../utils/apiService";
 import type { Exercise } from "../../types/Exercise/exercise";
 import { MuscleGroup, type MuscleGroupValue } from "../../enums/muscleGroup";
-import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import ExercisesTable from "./ExercisesTable";
 import {
   exerciseSchema,
   type ExerciseInput,
 } from "../../schema/exercise.schema";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 
 const getDefaultFormValues = (): ExerciseInput => ({
   title: "",

@@ -7,6 +7,8 @@ import {
   Burger,
   Stack,
   Box,
+  Badge,
+  Flex,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { IconLogout2, IconUser } from "@tabler/icons-react";
@@ -17,6 +19,7 @@ import { useState } from "react";
 const Navbar = () => {
   const { logout } = useUser();
   const [opened, setOpened] = useState(false);
+  const { user } = useUser();
 
   const close = () => {
     setOpened(false);
@@ -75,6 +78,8 @@ const Navbar = () => {
           </Anchor>
         ))}
 
+        <Badge>Level {user?.level}</Badge>
+
         <Button
           component={Link}
           variant="subtle"
@@ -94,13 +99,14 @@ const Navbar = () => {
           <IconLogout2 size={20} />
         </Button>
       </Group>
-
-      <Burger
-        opened={opened}
-        onClick={() => setOpened((o) => !o)}
-        hiddenFrom="md"
-        aria-label="Toggle navigation"
-      />
+      <Flex gap={16} hiddenFrom="md" align="center">
+        <Badge>Level {user?.level}</Badge>
+        <Burger
+          opened={opened}
+          onClick={() => setOpened((o) => !o)}
+          aria-label="Toggle navigation"
+        />
+      </Flex>
 
       {opened && (
         <>
