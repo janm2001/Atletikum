@@ -25,7 +25,7 @@ const Exercises = () => {
     );
   }, [exercises, selectedMuscleGroup]);
 
-  const visibleExercises = filteredExercises.slice(0, 5);
+  const visibleExercises = filteredExercises.slice(0, 10);
 
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
