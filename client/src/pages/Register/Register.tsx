@@ -18,13 +18,13 @@ import { useUser } from "../../hooks/useUser";
 import { apiService } from "../../utils/apiService";
 import type { User } from "../../types/User/user";
 import { TRAINING_FOCUS_OPTIONS } from "../../enums/trainingFocus";
-import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   registerSchema,
   type RegisterInput,
 } from "../../schema/register.schema";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 
 interface RegisterResponse {
   user: User;

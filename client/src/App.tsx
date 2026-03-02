@@ -7,15 +7,15 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import Dashboard from "./components/Dashboard/Dashboard";
-import Login from "./components/Login/Login";
-import Register from "./components/Register/Register";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import Login from "./pages/Login/Login";
+import Register from "./pages/Register/Register";
 import { UserProvider } from "./context/UserContext";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
-import Profile from "./components/Profile/Profile";
-import TrainingLogs from "./components/TrainingLogs/TrainingLogs";
-import KnowledgeBase from "./components/KnowledgeBase/KnowledgeBase";
-import AdminPanel from "./components/AdminPanel/AdminPanel";
+import Profile from "./pages/Profile/Profile";
+import TrainingLogs from "./pages/TrainingLogs/TrainingLogs";
+import KnowledgeBase from "./pages/KnowledgeBase/KnowledgeBase";
+import AdminPanel from "./pages/AdminPanel/AdminPanel";
 import NotFoundPage from "./components/NotFound/NotFoundPage";
 
 const router = createBrowserRouter([
