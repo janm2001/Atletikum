@@ -6,10 +6,10 @@ import {
   type MuscleGroupValue,
 } from "../../../enums/muscleGroup";
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
-import { useExercises } from "../../../hooks/useExercise";
+import { useExerciseDbExercises } from "../../../hooks/useExerciseDb";
 
 const Exercises = () => {
-  const { data, isLoading, error } = useExercises();
+  const { data, isLoading, error } = useExerciseDbExercises();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("ALL");
 
   const exercises = useMemo(() => data ?? [], [data]);
@@ -33,7 +33,7 @@ const Exercises = () => {
 
   return (
     <Stack gap="md" w="100%">
-      <Title order={3}>Popularne vježbe</Title>
+      <Title order={3}>Atletske vježbe (drillovi i plyo)</Title>
       <Select
         label="Filtriraj po mišićnoj skupini"
         data={MUSCLE_GROUP_OPTIONS}

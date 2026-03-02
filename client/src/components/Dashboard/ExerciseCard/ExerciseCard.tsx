@@ -5,51 +5,13 @@ interface ExerciseCardProps {
   exercise: Exercise;
 }
 
-const getYoutubeThumbnail = (videoLink?: string) => {
-  if (!videoLink) {
-    return undefined;
-  }
-
-  try {
-    const url = new URL(videoLink);
-
-    if (url.hostname.includes("youtu.be")) {
-      const videoId = url.pathname.replace("/", "");
-      return videoId
-        ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-        : undefined;
-    }
-
-    if (url.hostname.includes("youtube.com")) {
-      const videoIdFromQuery = url.searchParams.get("v");
-      if (videoIdFromQuery) {
-        return `https://img.youtube.com/vi/${videoIdFromQuery}/hqdefault.jpg`;
-      }
-
-      const pathParts = url.pathname.split("/").filter(Boolean);
-      const shortsIndex = pathParts.findIndex((part) => part === "shorts");
-      if (shortsIndex !== -1 && pathParts[shortsIndex + 1]) {
-        return `https://img.youtube.com/vi/${pathParts[shortsIndex + 1]}/hqdefault.jpg`;
-      }
-    }
-  } catch {
-    return undefined;
-  }
-
-  return undefined;
-};
-
 const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
-  const thumbnail = getYoutubeThumbnail(exercise.videoLink);
-
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
       <Card.Section>
         <Image
           src={
-            thumbnail ||
-            exercise.imageLink ||
-            "https://placehold.co/800x500?text=Exercise"
+            exercise.imageLink || "https://placehold.co/800x500?text=Exercise"
           }
           alt={exercise.title}
           h={180}
