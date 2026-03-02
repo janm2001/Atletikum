@@ -15,8 +15,6 @@ import {
 } from "@mantine/core";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
-import { apiService } from "../../utils/apiService";
-import type { User } from "../../types/User/user";
 import { TRAINING_FOCUS_OPTIONS } from "../../enums/trainingFocus";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,15 +23,13 @@ import {
   type RegisterInput,
 } from "../../schema/register.schema";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
-
-interface RegisterResponse {
-  user: User;
-}
+import { useRegister } from "../../hooks/useAuth";
 
 const Register = () => {
   const [error, setError] = useState("");
   const { login } = useUser();
   const navigate = useNavigate();
+  const registerMutation = useRegister();
   const {
     register,
     handleSubmit,
@@ -59,15 +55,12 @@ const Register = () => {
     setError("");
 
     try {
-      const response = await apiService.post<RegisterResponse>(
-        "auth/register",
-        {
-          username: formData.username,
-          password: formData.password,
-          trainingFrequency: formData.trainingFrequency,
-          focus: formData.focus,
-        },
-      );
+      const response = await registerMutation.mutateAsync({
+        username: formData.username,
+        password: formData.password,
+        trainingFrequency: formData.trainingFrequency,
+        focus: formData.focus,
+      });
 
       if (response.status === "success" && response.data && response.token) {
         login(response.data.user, response.token);
@@ -84,7 +77,7 @@ const Register = () => {
     }
   };
 
-  if (isSubmitting) {
+  if (isSubmitting || registerMutation.isPending) {
     return <SpinnerComponent />;
   }
 

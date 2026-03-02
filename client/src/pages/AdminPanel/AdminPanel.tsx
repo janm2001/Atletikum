@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Button,
   Group,
@@ -15,7 +15,6 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { apiService } from "../../utils/apiService";
 import type { Exercise } from "../../types/Exercise/exercise";
 import { MuscleGroup, type MuscleGroupValue } from "../../enums/muscleGroup";
 import ExercisesTable from "./ExercisesTable";
@@ -24,6 +23,12 @@ import {
   type ExerciseInput,
 } from "../../schema/exercise.schema";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
+import {
+  useCreateExercise,
+  useDeleteExercise,
+  useExercises,
+  useUpdateExercise,
+} from "../../hooks/useExercise";
 
 const getDefaultFormValues = (): ExerciseInput => ({
   title: "",
@@ -35,13 +40,17 @@ const getDefaultFormValues = (): ExerciseInput => ({
 });
 
 const AdminPanel = () => {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [opened, setOpened] = useState(false);
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
     null,
   );
+  const [actionError, setActionError] = useState("");
+  const { data, isLoading, error } = useExercises();
+  const createExerciseMutation = useCreateExercise();
+  const updateExerciseMutation = useUpdateExercise();
+  const deleteExerciseMutation = useDeleteExercise();
+
+  const exercises = data ?? [];
   const {
     control,
     register,
@@ -62,31 +71,9 @@ const AdminPanel = () => {
     [],
   );
 
-  const loadExercises = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await apiService.get<{ exercises: Exercise[] }>(
-        "exercises",
-      );
-      setExercises(response.data?.exercises ?? []);
-    } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Greška pri dohvaćanju vježbi.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadExercises();
-  }, []);
-
   const openCreateModal = () => {
     setEditingExerciseId(null);
+    setActionError("");
     reset(getDefaultFormValues());
     setOpened(true);
   };
@@ -106,7 +93,7 @@ const AdminPanel = () => {
 
   const handleSave = async (values: ExerciseInput) => {
     try {
-      setError("");
+      setActionError("");
 
       const payload = {
         title: values.title.trim(),
@@ -118,15 +105,17 @@ const AdminPanel = () => {
       };
 
       if (editingExerciseId) {
-        await apiService.patch(`exercises/${editingExerciseId}`, payload);
+        await updateExerciseMutation.mutateAsync({
+          id: editingExerciseId,
+          payload,
+        });
       } else {
-        await apiService.post("exercises", payload);
+        await createExerciseMutation.mutateAsync(payload);
       }
 
       setOpened(false);
-      await loadExercises();
     } catch (saveError) {
-      setError(
+      setActionError(
         saveError instanceof Error
           ? saveError.message
           : "Greška pri spremanju vježbe.",
@@ -143,11 +132,10 @@ const AdminPanel = () => {
     }
 
     try {
-      setError("");
-      await apiService.delete(`exercises/${exerciseId}`);
-      await loadExercises();
+      setActionError("");
+      await deleteExerciseMutation.mutateAsync(exerciseId);
     } catch (deleteError) {
-      setError(
+      setActionError(
         deleteError instanceof Error
           ? deleteError.message
           : "Greška pri brisanju vježbe.",
@@ -155,7 +143,7 @@ const AdminPanel = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <SpinnerComponent />;
   }
 
@@ -163,7 +151,8 @@ const AdminPanel = () => {
     <Stack gap="md">
       <Title order={2}>Upravljanje</Title>
 
-      {error && <Text c="red">{error}</Text>}
+      {error && <Text c="red">{error.message}</Text>}
+      {actionError && <Text c="red">{actionError}</Text>}
 
       <Tabs defaultValue="vjezbe">
         <Tabs.List>
@@ -268,7 +257,14 @@ const AdminPanel = () => {
             <Button variant="default" onClick={() => setOpened(false)}>
               Odustani
             </Button>
-            <Button type="submit" loading={isSubmitting}>
+            <Button
+              type="submit"
+              loading={
+                isSubmitting ||
+                createExerciseMutation.isPending ||
+                updateExerciseMutation.isPending
+              }
+            >
               Spremi
             </Button>
           </Group>

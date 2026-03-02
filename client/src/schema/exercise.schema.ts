@@ -10,7 +10,7 @@ const optionalUrlSchema = z
 export const exerciseSchema = z.object({
     title: z.string().trim().min(1, "Naziv je obavezan"),
     description: z.string().trim().min(1, "Opis je obavezan"),
-    muscleGroup: z.enum(Object.values(MuscleGroup) as [string, ...string[]]),
+    muscleGroup: z.nativeEnum(MuscleGroup),
     level: z.number().min(1, "Razina mora biti najmanje 1").max(100, "Razina može biti najviše 100"),
     imageLink: optionalUrlSchema,
     videoLink: optionalUrlSchema,

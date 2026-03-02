@@ -1,42 +1,18 @@
 import { Grid, Select, Stack, Text, Title } from "@mantine/core";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ExerciseCard from "../ExerciseCard/ExerciseCard";
-import { apiService } from "../../../utils/apiService";
-import type { Exercise } from "../../../types/Exercise/exercise";
 import {
   MUSCLE_GROUP_OPTIONS,
   type MuscleGroupValue,
 } from "../../../enums/muscleGroup";
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
+import { useExercises } from "../../../hooks/useExercise";
 
 const Exercises = () => {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { data, isLoading, error } = useExercises();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("ALL");
 
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const response = await apiService.get<{ exercises: Exercise[] }>(
-          "exercises",
-        );
-        setExercises(response.data?.exercises ?? []);
-      } catch (fetchError) {
-        setError(
-          fetchError instanceof Error
-            ? fetchError.message
-            : "Greška pri dohvaćanju vježbi.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchExercises();
-  }, []);
+  const exercises = useMemo(() => data ?? [], [data]);
 
   const filteredExercises = useMemo(() => {
     if (selectedMuscleGroup === "ALL") {
@@ -51,7 +27,7 @@ const Exercises = () => {
 
   const visibleExercises = filteredExercises.slice(0, 5);
 
-  if (loading) {
+  if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
   }
 
@@ -66,7 +42,7 @@ const Exercises = () => {
         w={{ base: "100%", sm: 320 }}
       />
 
-      {error && <Text c="red">{error}</Text>}
+      {error && <Text c="red">{error.message}</Text>}
 
       <Grid>
         {visibleExercises.map((exercise) => (

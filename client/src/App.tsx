@@ -17,6 +17,7 @@ import TrainingLogs from "./pages/TrainingLogs/TrainingLogs";
 import KnowledgeBase from "./pages/KnowledgeBase/KnowledgeBase";
 import AdminPanel from "./pages/AdminPanel/AdminPanel";
 import NotFoundPage from "./components/NotFound/NotFoundPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {
@@ -67,11 +68,21 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30000, // 5 min
+    },
+  },
+});
+
 function App() {
   return (
     <MantineProvider defaultColorScheme="dark">
       <UserProvider>
-        <RouterProvider router={router} />
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
       </UserProvider>
     </MantineProvider>
   );

@@ -11,20 +11,16 @@ import {
 } from "@mantine/core";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
-import { apiService } from "../../utils/apiService";
-import type { User } from "../../types/User/user";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../../schema/login.schema";
-
-interface LoginResponse {
-  user: User;
-}
+import { useLogin } from "../../hooks/useAuth";
 
 const Login = () => {
   const [error, setError] = useState("");
   const { login } = useUser();
   const navigate = useNavigate();
+  const loginMutation = useLogin();
   const {
     register,
     handleSubmit,
@@ -41,10 +37,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await apiService.post<LoginResponse>("auth/login", {
-        username: formData.username,
-        password: formData.password,
-      });
+      const response = await loginMutation.mutateAsync(formData);
 
       if (response.status === "success" && response.data && response.token) {
         login(response.data.user, response.token);
@@ -104,7 +97,12 @@ const Login = () => {
               </Text>
             )}
 
-            <Button fullWidth mt="xl" type="submit" loading={isSubmitting}>
+            <Button
+              fullWidth
+              mt="xl"
+              type="submit"
+              loading={isSubmitting || loginMutation.isPending}
+            >
               Prijavi se
             </Button>
           </form>
