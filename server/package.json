@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch index.js",
     "seed:exercises": "node seed/exerciseSeeder.js",
-    "seed:exercises:delete": "node seed/exerciseSeeder.js --delete"
+    "seed:exercises:delete": "node seed/exerciseSeeder.js --delete",
+    "seed:workouts": "node seed/workoutSeeder.js",
+    "seed:workouts:delete": "node seed/workoutSeeder.js --delete"
   },
   "keywords": [],
   "author": "",
