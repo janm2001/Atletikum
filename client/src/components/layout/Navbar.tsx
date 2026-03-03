@@ -78,7 +78,7 @@ const Navbar = () => {
           </Anchor>
         ))}
 
-        <Badge>Level {user?.level}</Badge>
+        <Badge color="violet">Level {user?.level}</Badge>
 
         <Button
           component={Link}
