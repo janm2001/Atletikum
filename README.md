@@ -46,9 +46,9 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - [x] Use ExerciseDb RapidApi for displaying exercises
 - [ ] S&C Log sustav
   - [x] workout and workout logs backend logic
-  - [ ] Tabs for workouts and workout logs
-  - [ ] workouts card
-  - [ ] exercise details based on exerciseId
+  - [x] Tabs for workouts and workout logs
+  - [x] workouts card
+  - [x] exercise details based on exerciseId
   - [ ] Update user xp when completing a workout
 
 - [ ] Knowledge Base & Quiz engine

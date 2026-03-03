@@ -4,7 +4,7 @@ import Workouts from "@/components/Workouts/Workouts";
 import WorkoutLogs from "@/components/WorkoutLogs/WorkoutLogs";
 
 const TrainingLogs = () => {
-  const [activeTab, setActiveTab] = useState<string | null>("first");
+  const [activeTab, setActiveTab] = useState<string | null>("workouts");
   return (
     <Tabs value={activeTab} onChange={setActiveTab} my={8}>
       <Tabs.List justify="center" grow>
