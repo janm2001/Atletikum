@@ -1,5 +1,6 @@
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { User } = require("../models/User");
+const { getLevelFromTotalXp } = require("../utils/leveling");
 
 exports.getMyWorkoutLogs = async (req, res) => {
   try {
@@ -37,10 +38,7 @@ exports.createWorkoutLog = async (req, res) => {
 
     if (updatedUser) {
       updatedUser.totalXp += xpGain;
-      updatedUser.level = Math.max(
-        1,
-        Math.floor(updatedUser.totalXp / 300) + 1,
-      );
+      updatedUser.level = getLevelFromTotalXp(updatedUser.totalXp);
       await updatedUser.save();
     }
 

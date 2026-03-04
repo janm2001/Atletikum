@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, Text } from "@mantine/core";
+import { Box, Flex, Grid, Stack, Text, Title } from "@mantine/core";
 import WorkoutCard from "./WorkoutCard";
 import { useWorkouts } from "@/hooks/useWorkout";
 import { useExercises } from "@/hooks/useExercise";
@@ -22,8 +22,11 @@ const Workouts = () => {
   }
 
   return (
-    <Stack w="100%" mih="80vh" align="center" justify="center" px="md" py="lg">
+    <Stack w="100%" mih="60vh" align="center" justify="center" px="md" py="lg">
       <Box w="100%" maw={1200}>
+        <Flex my={16} align="center" justify="center">
+          <Title order={1}>Gotovi treninzi</Title>
+        </Flex>
         <Grid my={8}>
           {workouts.map((workout) => (
             <Grid.Col key={workout.title} span={{ base: 12, sm: 6, md: 4 }}>
