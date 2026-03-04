@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { Tabs } from "@mantine/core";
+import { useLocation } from "react-router-dom";
 import Workouts from "@/components/Workouts/Workouts";
 import WorkoutLogs from "@/components/WorkoutLogs/WorkoutLogs";
 
+type TrainingLogsLocationState = {
+  activeTab?: "workouts" | "workout-log";
+};
+
 const TrainingLogs = () => {
-  const [activeTab, setActiveTab] = useState<string | null>("workouts");
+  const location = useLocation();
+  const locationState = location.state as TrainingLogsLocationState | null;
+  const [activeTab, setActiveTab] = useState<string | null>(
+    locationState?.activeTab ?? "workouts",
+  );
+
   return (
     <Tabs value={activeTab} onChange={setActiveTab} my={8}>
       <Tabs.List justify="center" grow>

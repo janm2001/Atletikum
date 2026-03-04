@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Button,
   Card,
   Divider,
   Group,
@@ -10,6 +11,7 @@ import {
   Title,
 } from "@mantine/core";
 import type { Workout } from "@/types/Workout/workout";
+import { useNavigate } from "react-router-dom";
 
 interface WorkoutCardProps {
   workout: Workout;
@@ -40,6 +42,13 @@ const WorkoutCard = ({ workout, exerciseNameById }: WorkoutCardProps) => {
     100,
     Math.max(0, (Number(avgRpe) / 10) * 100),
   );
+  const navigate = useNavigate();
+
+  const handleStartTraining = () => {
+    navigate(`/zapis-treninga/${workout._id}`, {
+      state: { workout },
+    });
+  };
 
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
@@ -109,6 +118,9 @@ const WorkoutCard = ({ workout, exerciseNameById }: WorkoutCardProps) => {
               +{exerciseCount - 5} dodatnih vježbi
             </Text>
           )}
+          <Button onClick={handleStartTraining} color="violet">
+            Započni trening
+          </Button>
         </Stack>
       </Stack>
     </Card>

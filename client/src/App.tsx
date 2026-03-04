@@ -18,6 +18,7 @@ import KnowledgeBase from "./pages/KnowledgeBase/KnowledgeBase";
 import AdminPanel from "./pages/AdminPanel/AdminPanel";
 import NotFoundPage from "./components/NotFound/NotFoundPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import TrackWorkout from "./pages/TrackWorkout/TrackWorkout";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "zapis-treninga",
         element: <TrainingLogs />,
+      },
+      {
+        path: "zapis-treninga/:id",
+        element: <TrackWorkout />,
       },
       {
         path: "edukacija",
