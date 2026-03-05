@@ -3,6 +3,59 @@ const mongoose = require("mongoose");
 const { Exercise } = require("../models/Exercise");
 const MuscleGroup = require("../enums/MuscleGroup.enum");
 
+// Public-domain exercise images from https://github.com/yuhonas/free-exercise-db (Unlicense)
+const EXERCISE_IMG_BASE =
+  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+
+/**
+ * Maps each exercise title to the closest matching directory in free-exercise-db.
+ * Image URL = EXERCISE_IMG_BASE + directoryName + "/0.jpg"
+ */
+const exerciseImageMap = {
+  "A-Skips": "Fast_Skipping",
+  "B-Skips": "Moving_Claw_Series",
+  "High Knees": "Mountain_Climbers",
+  "Butt Kicks": "Double_Leg_Butt_Kick",
+  Bounding: "Alternate_Leg_Diagonal_Bound",
+  "Box Jumps": "Front_Box_Jump",
+  "Depth Jumps": "Depth_Jump_Leap",
+  "Tuck Jumps": "Knee_Tuck_Jump",
+  "Split Squat Jumps": "Freehand_Jump_Squat",
+  "Lateral Skater Jumps": "Lateral_Bound",
+  "Broad Jumps": "Frog_Hops",
+  "Single-Leg Hops": "Hurdle_Hops",
+  "Pogo Jumps": "Calf_Raise_On_A_Dumbbell",
+  "Wall Drill (Switches)": "Linear_Acceleration_Wall_Drill",
+  "Medicine Ball Chest Throw": "Medicine_Ball_Chest_Pass",
+  "Medicine Ball Overhead Slam": "One-Arm_Medicine_Ball_Slam",
+  "Romanian Deadlift": "Romanian_Deadlift",
+  "Walking Lunges": "Bodyweight_Walking_Lunge",
+  "Calf Raises": "Standing_Calf_Raises",
+  "Single-Leg Calf Raises": "Dumbbell_Seated_One-Leg_Calf_Raise",
+  "Glute Bridge": "Barbell_Glute_Bridge",
+  "Hip Thrust": "Barbell_Hip_Thrust",
+  "Plank Hold": "Plank",
+  "Side Plank": "Side_Bridge",
+  "Dead Bug": "Dead_Bug",
+  "Back Extensions": "Hyperextensions_Back_Extensions",
+  "Bird Dog": "Downward_Facing_Balance",
+  "Overhead Press": "Barbell_Shoulder_Press",
+  "Push Press": "Double_Kettlebell_Push_Press",
+  "Pull-Ups": "Pullups",
+  "Inverted Rows": "Inverted_Row",
+  "Ankle Dorsiflexion Rocks": "Ankle_Circles",
+  "Thoracic Rotation Mobility": "Iron_Crosses_stretch",
+  "Thoracic Extension on Foam Roller": "Lower_Back-SMR",
+  "Hip Flexor Stretch": "Kneeling_Hip_Flexor",
+  "Hamstring Bridge Walkouts": "Hamstring_Stretch",
+};
+
+const getExerciseImageUrl = (title) => {
+  const dir = exerciseImageMap[title];
+  if (!dir) return "";
+  return `${EXERCISE_IMG_BASE}${dir}/0.jpg`;
+};
+
 const exercises = [
   {
     title: "A-Skips",
@@ -359,8 +412,13 @@ const exercises = [
 
 const importData = async () => {
   try {
+    const exercisesWithMappedImages = exercises.map((exercise) => ({
+      ...exercise,
+      imageLink: getExerciseImageUrl(exercise.title),
+    }));
+
     await Exercise.deleteMany();
-    await Exercise.insertMany(exercises);
+    await Exercise.insertMany(exercisesWithMappedImages);
     console.log("Exercise seed imported successfully.");
     process.exit(0);
   } catch (err) {

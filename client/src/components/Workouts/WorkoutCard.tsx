@@ -113,7 +113,7 @@ const WorkoutCard = ({ workout, exerciseNameById }: WorkoutCardProps) => {
             </Group>
           ))}
 
-          {exerciseCount > 4 && (
+          {exerciseCount > 5 && (
             <Text size="xs" c="dimmed">
               +{exerciseCount - 5} dodatnih vježbi
             </Text>

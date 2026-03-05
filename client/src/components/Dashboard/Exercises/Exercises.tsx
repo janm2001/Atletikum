@@ -6,10 +6,10 @@ import {
   type MuscleGroupValue,
 } from "../../../enums/muscleGroup";
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
-import { useExerciseDbExercises } from "../../../hooks/useExerciseDb";
+import { useExercises } from "@/hooks/useExercise";
 
 const Exercises = () => {
-  const { data, isLoading, error } = useExerciseDbExercises();
+  const { data, isLoading, error } = useExercises();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("ALL");
 
   const exercises = useMemo(() => data ?? [], [data]);
