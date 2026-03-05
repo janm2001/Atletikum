@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Avatar,
   Badge,
   Box,
   Button,
   Card,
+  Flex,
   Grid,
   Group,
   Modal,
@@ -16,6 +18,7 @@ import {
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import type { Workout } from "@/types/Workout/workout";
+import { getExerciseId, getExerciseImage } from "@/types/Workout/workout";
 import { useWorkouts } from "@/hooks/useWorkout";
 import { useExercises } from "@/hooks/useExercise";
 import { useCreateWorkoutLog } from "@/hooks/useWorkoutLogs";
@@ -143,7 +146,7 @@ const TrackWorkout = () => {
 
     const trackedExerciseSets: CompletedExercise[] = values.sets.map(
       (setItem) => ({
-        exerciseId: currentExercise.exerciseId,
+        exerciseId: getExerciseId(currentExercise.exerciseId),
         weight: Number(setItem.weight ?? 0),
         reps: Number(setItem.reps ?? 0),
         rpe: Number(setItem.rpe ?? 0),
@@ -237,10 +240,24 @@ const TrackWorkout = () => {
           <Card withBorder radius="md" shadow="sm">
             <Stack gap="sm">
               <Text fw={600}>Trenutna vježba</Text>
-              <Text size="lg" fw={700}>
-                {exerciseById.get(currentExercise?.exerciseId ?? "")?.title ??
-                  `Vježba ${currentIndex + 1}`}
-              </Text>
+              <Flex
+                align="center"
+                justify={"center"}
+                direction={"column"}
+                gap={16}
+              >
+                <Text size="lg" fw={700}>
+                  {exerciseById.get(
+                    getExerciseId(currentExercise?.exerciseId ?? ""),
+                  )?.title ?? `Vježba ${currentIndex + 1}`}
+                </Text>
+                <Avatar
+                  src={getExerciseImage(currentExercise?.exerciseId ?? "")}
+                  size={210}
+                  radius="sm"
+                  style={{ flexShrink: 0 }}
+                ></Avatar>
+              </Flex>
               <Text size="sm" c="dimmed">
                 Plan: {currentExercise?.sets} × {currentExercise?.reps} · RPE{" "}
                 {currentExercise?.rpe}
@@ -407,7 +424,7 @@ const TrackWorkout = () => {
               <Text fw={600}>Vježbe u treningu</Text>
               {workout.exercises.map((exercise, index) => {
                 const exerciseName =
-                  exerciseById.get(exercise.exerciseId)?.title ??
+                  exerciseById.get(getExerciseId(exercise.exerciseId))?.title ??
                   `Vježba ${index + 1}`;
 
                 const isCompleted = index < completedExerciseCount;
@@ -415,11 +432,13 @@ const TrackWorkout = () => {
 
                 return (
                   <Button
-                    key={`${exercise.exerciseId}-${index}`}
+                    key={`${getExerciseId(exercise.exerciseId)}-${index}`}
                     variant={isCurrent ? "filled" : "light"}
                     color={isCompleted ? "teal" : isCurrent ? "violet" : "gray"}
                     justify="space-between"
-                    onClick={() => setSelectedExerciseId(exercise.exerciseId)}
+                    onClick={() =>
+                      setSelectedExerciseId(getExerciseId(exercise.exerciseId))
+                    }
                   >
                     <Text size="sm" fw={500}>
                       {exerciseName}

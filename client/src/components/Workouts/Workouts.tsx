@@ -1,21 +1,12 @@
 import { Box, Flex, Grid, Stack, Text, Title } from "@mantine/core";
 import WorkoutCard from "./WorkoutCard";
 import { useWorkouts } from "@/hooks/useWorkout";
-import { useExercises } from "@/hooks/useExercise";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { useMemo } from "react";
 
 const Workouts = () => {
   const { data, isLoading, error } = useWorkouts();
-  const { data: exercises } = useExercises();
   const workouts = useMemo(() => data ?? [], [data]);
-  const exerciseNameById = useMemo(
-    () =>
-      new Map(
-        (exercises ?? []).map((exercise) => [exercise._id, exercise.title]),
-      ),
-    [exercises],
-  );
 
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
@@ -30,10 +21,7 @@ const Workouts = () => {
         <Grid my={8}>
           {workouts.map((workout) => (
             <Grid.Col key={workout.title} span={{ base: 12, sm: 6, md: 4 }}>
-              <WorkoutCard
-                workout={workout}
-                exerciseNameById={exerciseNameById}
-              />
+              <WorkoutCard workout={workout} />
             </Grid.Col>
           ))}
         </Grid>

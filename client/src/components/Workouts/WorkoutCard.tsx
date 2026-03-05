@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Badge,
   Box,
   Button,
@@ -11,14 +12,15 @@ import {
   Title,
 } from "@mantine/core";
 import type { Workout } from "@/types/Workout/workout";
+import { getExerciseName, getExerciseImage } from "@/types/Workout/workout";
 import { useNavigate } from "react-router-dom";
+import { IconBarbell } from "@tabler/icons-react";
 
 interface WorkoutCardProps {
   workout: Workout;
-  exerciseNameById: Map<string, string>;
 }
 
-const WorkoutCard = ({ workout, exerciseNameById }: WorkoutCardProps) => {
+const WorkoutCard = ({ workout }: WorkoutCardProps) => {
   const exerciseCount = workout.exercises.length;
   const totalSets = workout.exercises.reduce(
     (sum, exercise) => sum + (exercise.sets ?? 0),
@@ -97,21 +99,40 @@ const WorkoutCard = ({ workout, exerciseNameById }: WorkoutCardProps) => {
             Plan treninga
           </Text>
 
-          {workout.exercises.slice(0, 5).map((exercise, index) => (
-            <Group
-              key={`${exercise.exerciseId}-${index}`}
-              justify="space-between"
-              align="center"
-            >
-              <Text size="sm" c="dimmed">
-                {exerciseNameById.get(exercise.exerciseId) ??
-                  `Vježba ${index + 1}`}
-              </Text>
-              <Text size="sm" fw={500}>
-                {exercise.sets} × {exercise.reps} · RPE {exercise.rpe}
-              </Text>
-            </Group>
-          ))}
+          {workout.exercises.slice(0, 5).map((exercise, index) => {
+            const name =
+              getExerciseName(exercise.exerciseId) ?? `Vježba ${index + 1}`;
+            const image = getExerciseImage(exercise.exerciseId);
+            return (
+              <Group
+                key={`${typeof exercise.exerciseId === "object" ? exercise.exerciseId._id : exercise.exerciseId}-${index}`}
+                justify="space-between"
+                align="center"
+                wrap="nowrap"
+              >
+                <Group gap="xs" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+                  <Avatar
+                    src={image}
+                    size={56}
+                    radius="sm"
+                    style={{ flexShrink: 0 }}
+                  >
+                    <IconBarbell size={16} />
+                  </Avatar>
+                  <Text size="sm" c="dimmed" truncate>
+                    {name}
+                  </Text>
+                </Group>
+                <Text
+                  size="sm"
+                  fw={500}
+                  style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+                >
+                  {exercise.sets} × {exercise.reps} · RPE {exercise.rpe}
+                </Text>
+              </Group>
+            );
+          })}
 
           {exerciseCount > 5 && (
             <Text size="xs" c="dimmed">

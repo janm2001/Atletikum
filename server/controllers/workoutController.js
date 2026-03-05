@@ -2,7 +2,10 @@ const { Workout } = require("../models/Workout");
 
 exports.getAllWorkouts = async (request, response) => {
   try {
-    const workouts = await Workout.find();
+    const workouts = await Workout.find().populate(
+      "exercises.exerciseId",
+      "title imageLink",
+    );
     response.status(200).json({
       status: "success",
       results: workouts.length,
