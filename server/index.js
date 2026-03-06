@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
 const workoutLogRoutes = require("./routes/workoutLogRoutes");
+const articleRoutes = require("./routes/articleRoutes");
 
 require("dotenv").config();
 
@@ -17,6 +18,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/exercises", exerciseRoutes);
 app.use("/api/v1/workouts", workoutRoutes);
 app.use("/api/v1/workout-logs", workoutLogRoutes);
+app.use("/api/v1/articles", articleRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)

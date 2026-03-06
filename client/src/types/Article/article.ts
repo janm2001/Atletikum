@@ -1,0 +1,35 @@
+export const ArticleTag = {
+    TRAINING: "TRAINING",
+    NUTRITION: "NUTRITION",
+    RECOVERY: "RECOVERY",
+    PHYSIOLOGY: "PHYSIOLOGY",
+    PSYCHOLOGY: "PSYCHOLOGY",
+    BIOMECHANICS: "BIOMECHANICS",
+    PERIODIZATION: "PERIODIZATION",
+} as const;
+
+export type ArticleTagType = typeof ArticleTag[keyof typeof ArticleTag];
+
+export interface QuizQuestion {
+    _id?: string;
+    question: string;
+    options: string[];
+    correctIndex: number;
+}
+
+export interface Article {
+    _id: string;
+    title: string;
+    summary: string;
+    content: string;
+    tag: ArticleTagType;
+    sourceUrl?: string;
+    sourceTitle?: string;
+    coverImage?: string;
+    quiz?: QuizQuestion[];
+    author: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type ArticleSummary = Omit<Article, 'content' | 'quiz'>;

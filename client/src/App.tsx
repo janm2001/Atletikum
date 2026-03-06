@@ -15,6 +15,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 import Profile from "./pages/Profile/Profile";
 import TrainingLogs from "./pages/TrainingLogs/TrainingLogs";
 import KnowledgeBase from "./pages/KnowledgeBase/KnowledgeBase";
+import ArticleDetail from "./pages/KnowledgeBase/ArticleDetail";
 import AdminPanel from "./pages/AdminPanel/AdminPanel";
 import NotFoundPage from "./components/NotFound/NotFoundPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: "edukacija",
         element: <KnowledgeBase />,
+      },
+      {
+        path: "edukacija/:id",
+        element: <ArticleDetail />,
       },
       {
         path: "upravljanje",

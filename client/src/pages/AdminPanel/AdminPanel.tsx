@@ -29,6 +29,8 @@ import {
   useExercises,
   useUpdateExercise,
 } from "../../hooks/useExercise";
+import ArticlesTab from "./ArticlesTab";
+import WorkoutsTab from "./WorkoutsTab";
 
 const getDefaultFormValues = (): ExerciseInput => ({
   title: "",
@@ -158,6 +160,7 @@ const AdminPanel = () => {
         <Tabs.List>
           <Tabs.Tab value="vjezbe">Vježbe</Tabs.Tab>
           <Tabs.Tab value="edukacija">Edukacija</Tabs.Tab>
+          <Tabs.Tab value="treninzi">Treninzi</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="vjezbe" pt="md">
@@ -181,7 +184,11 @@ const AdminPanel = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="edukacija" pt="md">
-          <Text c="dimmed">Edukacija modul dolazi uskoro.</Text>
+          <ArticlesTab />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="treninzi" pt="md">
+          <WorkoutsTab />
         </Tabs.Panel>
       </Tabs>
 

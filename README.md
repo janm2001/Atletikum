@@ -54,9 +54,10 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - [ ] Knowledge Base & Quiz engine
 - [ ] Admin Dashboard
 
-## BUGS
+## BUGS AND REFACTORS
 
 - [x] Navbar for mobile
 - [x] Small flicker when directing to login page where you see the navbar
 - [ ] Register paper is increasing in width when some values are changed
-- [x] Fix rate limits for the exercisedb rapidapi
+- [ ] Error boundry when there is an error
+- [ ] Suspense and lazy loading

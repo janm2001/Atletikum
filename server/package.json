@@ -9,7 +9,9 @@
     "seed:exercises": "node seed/exerciseSeeder.js",
     "seed:exercises:delete": "node seed/exerciseSeeder.js --delete",
     "seed:workouts": "node seed/workoutSeeder.js",
-    "seed:workouts:delete": "node seed/workoutSeeder.js --delete"
+    "seed:workouts:delete": "node seed/workoutSeeder.js --delete",
+    "seed:articles": "node seed/articleSeeder.js",
+    "seed:articles:delete": "node seed/articleSeeder.js --delete"
   },
   "keywords": [],
   "author": "",
