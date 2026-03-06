@@ -7,28 +7,27 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import Login from "./pages/Login/Login";
-import Register from "./pages/Register/Register";
 import { UserProvider } from "./context/UserContext";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
-import Profile from "./pages/Profile/Profile";
-import TrainingLogs from "./pages/TrainingLogs/TrainingLogs";
-import KnowledgeBase from "./pages/KnowledgeBase/KnowledgeBase";
-import ArticleDetail from "./pages/KnowledgeBase/ArticleDetail";
-import AdminPanel from "./pages/AdminPanel/AdminPanel";
-import NotFoundPage from "./components/NotFound/NotFoundPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import TrackWorkout from "./pages/TrackWorkout/TrackWorkout";
+import { Suspense } from "react";
+import SpinnerComponent from "./components/SpinnerComponent/SpinnerComponent.tsx";
 
 const router = createBrowserRouter([
   {
     path: "login",
-    element: <Login />,
+    lazy: async () => {
+      const { default: Login } = await import("./pages/Login/Login.tsx");
+      return { Component: Login };
+    },
   },
   {
     path: "register",
-    element: <Register />,
+    lazy: async () => {
+      const { default: Register } =
+        await import("./pages/Register/Register.tsx");
+      return { Component: Register };
+    },
   },
   {
     path: "/",
@@ -44,44 +43,76 @@ const router = createBrowserRouter([
       },
       {
         path: "pregled",
-        element: <Dashboard />,
+        lazy: async () => {
+          const { default: Dashboard } =
+            await import("./pages/Dashboard/Dashboard.tsx");
+          return { Component: Dashboard };
+        },
       },
       {
         path: "profil",
-        element: <Profile />,
+        lazy: async () => {
+          const { default: Profile } =
+            await import("./pages/Profile/Profile.tsx");
+          return { Component: Profile };
+        },
       },
       {
         path: "zapis-treninga",
-        element: <TrainingLogs />,
+        lazy: async () => {
+          const { default: TrainingLogs } =
+            await import("./pages/TrainingLogs/TrainingLogs.tsx");
+          return { Component: TrainingLogs };
+        },
       },
       {
         path: "zapis-treninga/:id",
-        element: <TrackWorkout />,
+        lazy: async () => {
+          const { default: TrackWorkout } =
+            await import("./pages/TrackWorkout/TrackWorkout.tsx");
+          return { Component: TrackWorkout };
+        },
       },
       {
         path: "edukacija",
-        element: <KnowledgeBase />,
+        lazy: async () => {
+          const { default: KnowledgeBase } =
+            await import("./pages/KnowledgeBase/KnowledgeBase.tsx");
+          return { Component: KnowledgeBase };
+        },
       },
       {
         path: "edukacija/:id",
-        element: <ArticleDetail />,
+        lazy: async () => {
+          const { default: ArticleDetail } =
+            await import("./pages/KnowledgeBase/ArticleDetail.tsx");
+          return { Component: ArticleDetail };
+        },
       },
       {
         path: "upravljanje",
-        element: <AdminPanel />,
+        lazy: async () => {
+          const { default: AdminPanel } =
+            await import("./pages/AdminPanel/AdminPanel.tsx");
+          return { Component: AdminPanel };
+        },
       },
     ],
   },
   {
     path: "*",
-    element: <NotFoundPage />,
+    lazy: async () => {
+      const { default: NotFoundPage } =
+        await import("./pages/NotFound/NotFoundPage.tsx");
+      return { Component: NotFoundPage };
+    },
   },
 ]);
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30000, // 5 min
+      staleTime: 30000,
     },
   },
 });
@@ -91,7 +122,9 @@ function App() {
     <MantineProvider defaultColorScheme="dark">
       <UserProvider>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <Suspense fallback={<SpinnerComponent />}>
+            <RouterProvider router={router} />
+          </Suspense>
         </QueryClientProvider>
       </UserProvider>
     </MantineProvider>
