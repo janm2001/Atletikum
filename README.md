@@ -52,9 +52,9 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
   - [x] Update user xp when completing a workout
   - [ ] Make an option for the user to make a custom workout
 
-- [ ] Knowledge Base & Quiz engine
-  - [ ] Extract quizes to the seperate page
-  - [ ] Give interactive xp gains after the user completes the quiz
+- [x] Knowledge Base & Quiz engine
+  - [x] Extract quizes to the seperate page
+  - [x] Give interactive xp gains after the user completes the quiz
 
 - [ ] Admin Dashboard
   - [ ] Make sure that content in the articles are working
@@ -67,3 +67,4 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - [x] Error boundry when there is an error
 - [x] Suspense and lazy loading
 - [ ] Refactor everything to a proper component
+- [ ] Workout logs are the same for all the users, it needs to show for the specific user

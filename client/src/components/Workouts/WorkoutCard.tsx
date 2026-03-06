@@ -15,6 +15,7 @@ import type { Workout } from "@/types/Workout/workout";
 import { getExerciseName, getExerciseImage } from "@/types/Workout/workout";
 import { useNavigate } from "react-router-dom";
 import { IconBarbell } from "@tabler/icons-react";
+import { useUser } from "@/hooks/useUser";
 
 interface WorkoutCardProps {
   workout: Workout;
@@ -45,12 +46,15 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
     Math.max(0, (Number(avgRpe) / 10) * 100),
   );
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const handleStartTraining = () => {
     navigate(`/zapis-treninga/${workout._id}`, {
       state: { workout },
     });
   };
+
+  console.log(user!.level, workout.requiredLevel);
 
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
@@ -139,7 +143,11 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
               +{exerciseCount - 5} dodatnih vježbi
             </Text>
           )}
-          <Button onClick={handleStartTraining} color="violet">
+          <Button
+            onClick={handleStartTraining}
+            color="violet"
+            disabled={user!.level < workout.requiredLevel}
+          >
             Započni trening
           </Button>
         </Stack>
