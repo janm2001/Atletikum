@@ -12,7 +12,7 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
+import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useArticles,
   useCreateArticle,
@@ -24,6 +24,7 @@ import {
   type ArticleFormValues,
 } from "../../schema/article.schema";
 import { ArticleTag } from "../../types/Article/article";
+import type { ArticleSummary } from "../../types/Article/article";
 import ArticlesTable from "./ArticlesTable";
 
 const getDefaultFormValues = (): ArticleFormValues => ({
@@ -66,7 +67,7 @@ const ArticlesTab = () => {
     setOpened(true);
   };
 
-  const handleOpenEdit = (article: any) => {
+  const handleOpenEdit = (article: ArticleSummary) => {
     setEditingArticleId(article._id);
     reset({
       title: article.title,
@@ -104,10 +105,10 @@ const ArticlesTab = () => {
         await createMutation.mutateAsync(data);
       }
       setOpened(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
       setActionError(
-        error.response?.data?.message ||
-          "Došlo je do greške prilikom spremanja.",
+        err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
       );
     }
   };

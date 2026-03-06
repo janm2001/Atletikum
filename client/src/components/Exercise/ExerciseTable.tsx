@@ -8,7 +8,7 @@ interface WorkoutsTableProps {
   onDelete: (id: string) => void;
 }
 
-const WorkoutsTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
+const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
   if (!workouts || workouts.length === 0) {
     return (
       <Text c="dimmed" ta="center" py="xl">
@@ -76,4 +76,4 @@ const WorkoutsTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
   );
 };
 
-export default WorkoutsTable;
+export default ExerciseTable;

@@ -11,14 +11,14 @@ import {
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useForm, Controller } from "react-hook-form";
-import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
+import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useWorkouts,
   useCreateWorkout,
   useUpdateWorkout,
   useDeleteWorkout,
 } from "../../hooks/useWorkout";
-import WorkoutsTable from "./WorkoutsTable";
+import ExerciseTable from "./ExerciseTable";
 import type { Workout } from "@/types/Workout/workout";
 
 interface WorkoutFormValues {
@@ -33,7 +33,7 @@ const getDefaultFormValues = (): WorkoutFormValues => ({
   requiredLevel: 1,
 });
 
-const WorkoutsTab = () => {
+const ExerciseTab = () => {
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
@@ -93,7 +93,8 @@ const WorkoutsTab = () => {
         await createMutation.mutateAsync({ ...data, exercises: [] }); // Start with empty exercises
       }
       setOpened(false);
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
       setActionError(
         err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
       );
@@ -111,7 +112,7 @@ const WorkoutsTab = () => {
         </Button>
       </Group>
 
-      <WorkoutsTable
+      <ExerciseTable
         workouts={workouts || []}
         onEdit={handleOpenEdit}
         onDelete={handleDelete}
@@ -183,4 +184,4 @@ const WorkoutsTab = () => {
   );
 };
 
-export default WorkoutsTab;
+export default ExerciseTab;

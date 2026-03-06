@@ -17,7 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Exercise } from "../../types/Exercise/exercise";
 import { MuscleGroup, type MuscleGroupValue } from "../../enums/muscleGroup";
-import ExercisesTable from "./ExercisesTable";
+import ExercisesTable from "../../components/Exercise/ExercisesTable";
 import {
   exerciseSchema,
   type ExerciseInput,
@@ -29,8 +29,8 @@ import {
   useExercises,
   useUpdateExercise,
 } from "../../hooks/useExercise";
-import ArticlesTab from "./ArticlesTab";
-import WorkoutsTab from "./WorkoutsTab";
+import ArticlesTab from "../../components/Article/ArticlesTab";
+import ExerciseTab from "../../components/Exercise/ExerciseTab";
 
 const getDefaultFormValues = (): ExerciseInput => ({
   title: "",
@@ -188,7 +188,7 @@ const AdminPanel = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="treninzi" pt="md">
-          <WorkoutsTab />
+          <ExerciseTab />
         </Tabs.Panel>
       </Tabs>
 

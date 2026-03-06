@@ -32,4 +32,4 @@ export interface Article {
     updatedAt: string;
 }
 
-export type ArticleSummary = Omit<Article, 'content' | 'quiz'>;
+export type ArticleSummary = Omit<Article, 'quiz'>;

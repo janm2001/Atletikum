@@ -7,7 +7,7 @@ exports.getAllArticles = async (req, res) => {
       filter.tag = req.query.tag;
     }
     const articles = await Article.find(filter)
-      .select("-content -quiz")
+      .select("-quiz")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
