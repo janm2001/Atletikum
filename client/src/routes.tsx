@@ -81,6 +81,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "edukacija/:id/kviz",
+        lazy: async () => {
+          const { default: QuizPage } =
+            await import("./pages/KnowledgeBase/QuizPage.tsx");
+          return { Component: QuizPage };
+        },
+      },
+      {
         path: "upravljanje",
         lazy: async () => {
           const { default: AdminPanel } =

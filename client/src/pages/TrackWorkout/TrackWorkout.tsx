@@ -178,7 +178,13 @@ const TrackWorkout = () => {
 
       navigate("/zapis-treninga", {
         replace: true,
-        state: { activeTab: "workout-log" },
+        state: {
+          activeTab: "workout-log",
+          xpResult: {
+            xpGained: totalXpGained,
+            workoutTitle: workout.title,
+          },
+        },
       });
       return;
     }
