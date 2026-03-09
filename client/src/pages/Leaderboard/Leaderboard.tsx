@@ -22,9 +22,9 @@ import { getLevelFromTotalXp } from "../../utils/leveling";
 
 const podiumColors = ["#FFD700", "#C0C0C0", "#CD7F32"] as const;
 const podiumIcons = [
-  <IconCrown key="1" size={28} color="#FFD700" />,
-  <IconMedal key="2" size={24} color="#C0C0C0" />,
-  <IconMedal key="3" size={24} color="#CD7F32" />,
+  <IconCrown key="1" size={28} color={podiumColors[0]} />,
+  <IconMedal key="2" size={24} color={podiumColors[1]} />,
+  <IconMedal key="3" size={24} color={podiumColors[2]} />,
 ];
 
 const Leaderboard = () => {
@@ -65,7 +65,6 @@ const Leaderboard = () => {
         )}
       </Group>
 
-      {/* Podium for top 3 */}
       {top3.length > 0 && (
         <Group justify="center" align="flex-end" gap="lg" mb="xl">
           {[1, 0, 2].map((position) => {
@@ -73,7 +72,7 @@ const Leaderboard = () => {
             if (!entry) return null;
 
             const isCurrentUser = entry._id === user?._id;
-            const height = position === 0 ? 180 : position === 1 ? 150 : 130;
+            const height = position === 0 ? 210 : position === 1 ? 180 : 150;
 
             return (
               <Card
@@ -121,13 +120,12 @@ const Leaderboard = () => {
         </Group>
       )}
 
-      {/* Rest of leaderboard */}
       {rest.length > 0 && (
         <Card withBorder radius="md" shadow="sm">
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th w={60}>#</Table.Th>
+                <Table.Th w={60}>Poredak</Table.Th>
                 <Table.Th>Korisnik</Table.Th>
                 <Table.Th ta="center">Razina</Table.Th>
                 <Table.Th ta="center">

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
+  Divider,
   Group,
+  Loader,
   Modal,
   Select,
   Stack,
@@ -10,11 +12,12 @@ import {
   Text,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useArticles,
+  useArticleDetail,
   useCreateArticle,
   useUpdateArticle,
   useDeleteArticle,
@@ -26,6 +29,8 @@ import {
 import { ArticleTag } from "../../types/Article/article";
 import type { ArticleSummary } from "../../types/Article/article";
 import ArticlesTable from "./ArticlesTable";
+import ArticleRichEditor from "./ArticleRichEditor";
+import QuizEditor from "./QuizEditor";
 
 const getDefaultFormValues = (): ArticleFormValues => ({
   title: "",
@@ -49,16 +54,40 @@ const ArticlesTab = () => {
   const updateMutation = useUpdateArticle();
   const deleteMutation = useDeleteArticle();
 
+  const form = useForm<ArticleFormValues>({
+    resolver: zodResolver(articleSchema),
+    defaultValues: getDefaultFormValues(),
+  });
+
   const {
     register,
     handleSubmit,
     control,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ArticleFormValues>({
-    resolver: zodResolver(articleSchema),
-    defaultValues: getDefaultFormValues(),
-  });
+  } = form;
+
+  // Fetch full article (with quiz) when editing
+  const { data: fullArticle, isLoading: isLoadingDetail } = useArticleDetail(
+    editingArticleId ?? "",
+  );
+
+  // Populate form with full article data (including quiz) when loaded
+  useEffect(() => {
+    if (fullArticle && editingArticleId) {
+      reset({
+        title: fullArticle.title,
+        summary: fullArticle.summary,
+        content: fullArticle.content || "",
+        tag: fullArticle.tag,
+        sourceUrl: fullArticle.sourceUrl || "",
+        sourceTitle: fullArticle.sourceTitle || "",
+        coverImage: fullArticle.coverImage || "",
+        author: fullArticle.author || "Atletikum Tim",
+        quiz: fullArticle.quiz ?? [],
+      });
+    }
+  }, [fullArticle, editingArticleId, reset]);
 
   const handleOpenCreate = () => {
     setEditingArticleId(null);
@@ -69,6 +98,7 @@ const ArticlesTab = () => {
 
   const handleOpenEdit = (article: ArticleSummary) => {
     setEditingArticleId(article._id);
+    // Reset with basic data first; full data (with quiz) loaded via useEffect
     reset({
       title: article.title,
       summary: article.summary,
@@ -78,6 +108,7 @@ const ArticlesTab = () => {
       sourceTitle: article.sourceTitle || "",
       coverImage: article.coverImage || "",
       author: article.author || "Atletikum Tim",
+      quiz: [],
     });
     setActionError("");
     setOpened(true);
@@ -134,101 +165,118 @@ const ArticlesTab = () => {
         opened={opened}
         onClose={() => setOpened(false)}
         title={editingArticleId ? "Uredi članak" : "Dodaj novi članak"}
-        size="lg"
+        size="xl"
       >
-        <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
-          {actionError && (
-            <Text c="red" size="sm">
-              {actionError}
+        {editingArticleId && isLoadingDetail ? (
+          <Group justify="center" py="xl">
+            <Loader size="md" />
+            <Text size="sm" c="dimmed">
+              Učitavanje podataka...
             </Text>
-          )}
+          </Group>
+        ) : (
+          <FormProvider {...form}>
+            <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
+              {actionError && (
+                <Text c="red" size="sm">
+                  {actionError}
+                </Text>
+              )}
 
-          <TextInput
-            label="Naslov"
-            placeholder="Unesite naslov"
-            {...register("title")}
-            error={errors.title?.message}
-            required
-          />
-
-          <Controller
-            name="tag"
-            control={control}
-            render={({ field }) => (
-              <Select
-                label="Kategorija (Tag)"
-                data={Object.values(ArticleTag).map((tag) => ({
-                  value: tag,
-                  label: tag,
-                }))}
-                {...field}
-                error={errors.tag?.message}
+              <TextInput
+                label="Naslov"
+                placeholder="Unesite naslov"
+                {...register("title")}
+                error={errors.title?.message}
                 required
               />
-            )}
-          />
 
-          <Textarea
-            label="Kratki sažetak"
-            placeholder="Sažetak članka"
-            {...register("summary")}
-            error={errors.summary?.message}
-            rows={2}
-          />
+              <Controller
+                name="tag"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    label="Kategorija (Tag)"
+                    data={Object.values(ArticleTag).map((tag) => ({
+                      value: tag,
+                      label: tag,
+                    }))}
+                    {...field}
+                    error={errors.tag?.message}
+                    required
+                  />
+                )}
+              />
 
-          <Textarea
-            label="Sadržaj članka"
-            placeholder="Pun tekst članka..."
-            {...register("content")}
-            error={errors.content?.message}
-            required
-            rows={10}
-            description="Imajte na umu kod uređivanja iz liste da sadržaj možda nije prikazan. Kviz je potrebno preuređivati iz posebne forme ili direktno iz baze."
-          />
+              <Textarea
+                label="Kratki sažetak"
+                placeholder="Sažetak članka"
+                {...register("summary")}
+                error={errors.summary?.message}
+                rows={2}
+              />
 
-          <TextInput
-            label="URL naslovne slike"
-            placeholder="https://..."
-            {...register("coverImage")}
-            error={errors.coverImage?.message}
-          />
+              <Controller
+                name="content"
+                control={control}
+                render={({ field }) => (
+                  <ArticleRichEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.content?.message}
+                  />
+                )}
+              />
 
-          <TextInput
-            label="URL istraživanja"
-            placeholder="https://pubmed..."
-            {...register("sourceUrl")}
-            error={errors.sourceUrl?.message}
-          />
+              <TextInput
+                label="URL naslovne slike"
+                placeholder="https://..."
+                {...register("coverImage")}
+                error={errors.coverImage?.message}
+              />
 
-          <TextInput
-            label="Ime izvora"
-            placeholder="Naziv studije"
-            {...register("sourceTitle")}
-            error={errors.sourceTitle?.message}
-          />
+              <TextInput
+                label="URL istraživanja"
+                placeholder="https://pubmed..."
+                {...register("sourceUrl")}
+                error={errors.sourceUrl?.message}
+              />
 
-          <TextInput
-            label="Autor"
-            {...register("author")}
-            error={errors.author?.message}
-          />
+              <TextInput
+                label="Ime izvora"
+                placeholder="Naziv studije"
+                {...register("sourceTitle")}
+                error={errors.sourceTitle?.message}
+              />
 
-          <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={() => setOpened(false)}>
-              Odustani
-            </Button>
-            <Button
-              type="submit"
-              loading={
-                isSubmitting ||
-                createMutation.isPending ||
-                updateMutation.isPending
-              }
-            >
-              Spremi
-            </Button>
-          </Group>
-        </Stack>
+              <TextInput
+                label="Autor"
+                {...register("author")}
+                error={errors.author?.message}
+              />
+
+              <Divider my="sm" label="Kviz" labelPosition="center" />
+
+              <QuizEditor />
+
+              <Group justify="flex-end" mt="md">
+                <Button variant="default" onClick={() => setOpened(false)}>
+                  Odustani
+                </Button>
+                <Button
+                  type="submit"
+                  loading={
+                    isSubmitting ||
+                    createMutation.isPending ||
+                    updateMutation.isPending
+                  }
+                >
+                  Spremi
+                </Button>
+              </Group>
+            </Stack>
+          </FormProvider>
+        )}
       </Modal>
     </>
   );

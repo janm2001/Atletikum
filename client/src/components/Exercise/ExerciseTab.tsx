@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Button,
+  Divider,
   Group,
   Modal,
   NumberInput,
@@ -10,7 +11,8 @@ import {
   Text,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { useForm, Controller } from "react-hook-form";
+import { FormProvider, useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useWorkouts,
@@ -19,18 +21,19 @@ import {
   useDeleteWorkout,
 } from "../../hooks/useWorkout";
 import ExerciseTable from "./ExerciseTable";
+import ExerciseBuilder from "./ExerciseBuilder";
+import { getExerciseId } from "@/types/Workout/workout";
 import type { Workout } from "@/types/Workout/workout";
-
-interface WorkoutFormValues {
-  title: string;
-  description: string;
-  requiredLevel: number;
-}
+import {
+  workoutSchema,
+  type WorkoutFormValues,
+} from "../../schema/workout.schema";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
   title: "",
   description: "",
   requiredLevel: 1,
+  exercises: [],
 });
 
 const ExerciseTab = () => {
@@ -43,15 +46,18 @@ const ExerciseTab = () => {
   const updateMutation = useUpdateWorkout();
   const deleteMutation = useDeleteWorkout();
 
+  const form = useForm<WorkoutFormValues>({
+    resolver: zodResolver(workoutSchema),
+    defaultValues: getDefaultFormValues(),
+  });
+
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { isSubmitting },
-  } = useForm<WorkoutFormValues>({
-    defaultValues: getDefaultFormValues(),
-  });
+    formState: { errors, isSubmitting },
+  } = form;
 
   const handleOpenCreate = () => {
     setEditingWorkoutId(null);
@@ -66,6 +72,13 @@ const ExerciseTab = () => {
       title: workout.title,
       description: workout.description,
       requiredLevel: workout.requiredLevel,
+      exercises: workout.exercises.map((ex) => ({
+        exerciseId: getExerciseId(ex.exerciseId),
+        sets: ex.sets,
+        reps: ex.reps,
+        rpe: ex.rpe ?? "",
+        baseXp: ex.baseXp,
+      })),
     });
     setActionError("");
     setOpened(true);
@@ -90,7 +103,7 @@ const ExerciseTab = () => {
           updatedData: data,
         });
       } else {
-        await createMutation.mutateAsync({ ...data, exercises: [] }); // Start with empty exercises
+        await createMutation.mutateAsync(data);
       }
       setOpened(false);
     } catch (error: unknown) {
@@ -122,63 +135,68 @@ const ExerciseTab = () => {
         opened={opened}
         onClose={() => setOpened(false)}
         title={editingWorkoutId ? "Uredi trening" : "Dodaj novi trening"}
-        size="lg"
+        size="xl"
       >
-        <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
-          {actionError && (
-            <Text c="red" size="sm">
-              {actionError}
-            </Text>
-          )}
-
-          <TextInput
-            label="Naslov treninga"
-            {...register("title", { required: true })}
-            required
-          />
-
-          <Textarea
-            label="Opis treninga"
-            {...register("description")}
-            rows={3}
-          />
-
-          <Controller
-            name="requiredLevel"
-            control={control}
-            rules={{ required: true, min: 1 }}
-            render={({ field }) => (
-              <NumberInput
-                label="Potrebna razina (Level)"
-                min={1}
-                {...field}
-                required
-              />
+        <FormProvider {...form}>
+          <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
+            {actionError && (
+              <Text c="red" size="sm">
+                {actionError}
+              </Text>
             )}
-          />
 
-          <Text size="sm" c="dimmed" mt="xs">
-            Napomena: Za dodavanje ili uređivanje pojedinačnih vježbi unutar
-            treninga, potrebno je pristupiti naprednom uređivaču u bazi, ili
-            ćemo tu opciju dodati kasnije.
-          </Text>
+            <TextInput
+              label="Naslov treninga"
+              {...register("title")}
+              error={errors.title?.message}
+              required
+            />
 
-          <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={() => setOpened(false)}>
-              Odustani
-            </Button>
-            <Button
-              type="submit"
-              loading={
-                isSubmitting ||
-                createMutation.isPending ||
-                updateMutation.isPending
-              }
-            >
-              Spremi
-            </Button>
-          </Group>
-        </Stack>
+            <Textarea
+              label="Opis treninga"
+              {...register("description")}
+              error={errors.description?.message}
+              rows={3}
+            />
+
+            <Controller
+              name="requiredLevel"
+              control={control}
+              render={({ field }) => (
+                <NumberInput
+                  label="Potrebna razina (Level)"
+                  min={1}
+                  value={field.value}
+                  onChange={(val) =>
+                    field.onChange(typeof val === "number" ? val : field.value)
+                  }
+                  error={errors.requiredLevel?.message}
+                  required
+                />
+              )}
+            />
+
+            <Divider my="sm" label="Vježbe" labelPosition="center" />
+
+            <ExerciseBuilder />
+
+            <Group justify="flex-end" mt="md">
+              <Button variant="default" onClick={() => setOpened(false)}>
+                Odustani
+              </Button>
+              <Button
+                type="submit"
+                loading={
+                  isSubmitting ||
+                  createMutation.isPending ||
+                  updateMutation.isPending
+                }
+              >
+                Spremi
+              </Button>
+            </Group>
+          </Stack>
+        </FormProvider>
       </Modal>
     </>
   );

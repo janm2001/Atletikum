@@ -80,10 +80,13 @@ const ArticleDetail = () => {
     </Text>,
   ];
 
-  const formattedContent = article.content
-    .split("\n\n")
-    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br/>")}</p>`)
-    .join("");
+  const isHtml = /<[a-z][\s\S]*>/i.test(article.content);
+  const renderedContent = isHtml
+    ? article.content
+    : article.content
+        .split("\n\n")
+        .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br/>")}</p>`)
+        .join("");
 
   return (
     <Container size="md" py="xl">
@@ -138,7 +141,7 @@ const ArticleDetail = () => {
       </Text>
 
       <TypographyStylesProvider>
-        <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
+        <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
       </TypographyStylesProvider>
 
       {article.sourceUrl && (
