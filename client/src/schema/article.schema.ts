@@ -6,7 +6,10 @@ const quizQuestionSchema = z.object({
     question: z.string().min(3, "Pitanje mora imati barem 3 znaka"),
     options: z.array(z.string().min(1, "Opcija ne može biti prazna")).min(2, "Potrebne su barem dvije opcije"),
     correctIndex: z.number().min(0, "Točan odgovor mora biti odabran"),
-});
+}).refine(
+    (q) => q.correctIndex < q.options.length,
+    { message: "Točan odgovor mora biti unutar raspona opcija", path: ["correctIndex"] },
+);
 
 export const articleSchema = z.object({
     title: z.string().min(3, "Naslov mora imati barem 3 znaka"),

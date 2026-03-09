@@ -56,7 +56,7 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
 
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
-      <Stack gap="sm" h="100%">
+      <Stack gap="sm" h="100%" justify="space-between">
         <Group justify="space-between" align="flex-start">
           <Box>
             <Title order={4}>{workout.title}</Title>

@@ -1,6 +1,6 @@
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
-const bcyrpt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 
 const signToken = (id) => {
@@ -21,7 +21,11 @@ exports.register = async (req, res) => {
     const token = signToken(newUser._id);
     res
       .status(201)
-      .json({ status: "success", token, data: { user: sanitizeUser(newUser) } });
+      .json({
+        status: "success",
+        token,
+        data: { user: sanitizeUser(newUser) },
+      });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });
   }
@@ -34,7 +38,7 @@ exports.login = async (req, res) => {
       throw new Error("Molimo unesite username i lozinku");
 
     const user = await User.findOne({ username });
-    if (!user || !(await bcyrpt.compare(password, user.password))) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res
         .status(401)
         .json({ status: "fail", message: "Pogrešni podaci" });

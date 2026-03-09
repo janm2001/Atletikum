@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --verbose",
     "dev": "node --watch index.js",
     "seed:exercises": "node seed/exerciseSeeder.js",
     "seed:exercises:delete": "node seed/exerciseSeeder.js --delete",
@@ -31,6 +31,7 @@
     "mongoose": "^9.2.2"
   },
   "devDependencies": {
+    "jest": "^30.2.0",
     "nodemon": "^3.1.14"
   }
 }

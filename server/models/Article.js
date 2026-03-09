@@ -9,7 +9,17 @@ const quizQuestionSchema = new mongoose.Schema(
       required: true,
       validate: [(arr) => arr.length >= 2, "Pitanje mora imati barem 2 opcije"],
     },
-    correctIndex: { type: Number, required: true, min: 0 },
+    correctIndex: {
+      type: Number,
+      required: true,
+      min: 0,
+      validate: {
+        validator: function () {
+          return this.correctIndex < this.options.length;
+        },
+        message: "correctIndex mora biti manji od broja opcija",
+      },
+    },
   },
   { _id: true },
 );

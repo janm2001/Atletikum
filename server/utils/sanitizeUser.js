@@ -12,6 +12,7 @@ const sanitizeUser = (user) => {
     dailyStreak: user.dailyStreak,
     role: user.role,
     profilePicture: user.profilePicture,
+    achievements: user.achievements || [],
   };
 };
 
