@@ -19,3 +19,15 @@ export const getTotalXpForLevelStart = (level: number): number => {
         2
     );
 };
+
+export const getLevelFromTotalXp = (totalXp: number): number => {
+    let level = 1;
+    let remainingXp = Math.max(0, Number(totalXp) || 0);
+
+    while (remainingXp >= getXpRequiredForLevelUp(level)) {
+        remainingXp -= getXpRequiredForLevelUp(level);
+        level += 1;
+    }
+
+    return level;
+};

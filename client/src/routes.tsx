@@ -96,6 +96,22 @@ export const router = createBrowserRouter([
           return { Component: AdminPanel };
         },
       },
+      {
+        path: "ljestvica",
+        lazy: async () => {
+          const { default: Leaderboard } =
+            await import("./pages/Leaderboard/Leaderboard.tsx");
+          return { Component: Leaderboard };
+        },
+      },
+      {
+        path: "slavlje",
+        lazy: async () => {
+          const { default: XpCelebration } =
+            await import("./pages/XpCelebration/XpCelebration.tsx");
+          return { Component: XpCelebration };
+        },
+      },
     ],
   },
   {

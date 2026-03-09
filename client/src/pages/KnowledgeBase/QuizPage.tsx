@@ -196,17 +196,20 @@ const QuizPage = () => {
         userCtx.updateUser(result.data.user);
       }
 
-      // Navigate back to article with XP data for the popover
-      navigate(`/edukacija/${id}`, {
+      // Navigate to celebration page
+      navigate("/slavlje", {
         replace: true,
         state: {
-          quizResult: {
-            xpGained: xp,
-            score: finalScore,
-            totalQuestions: questions.length,
-            level: result.data.user?.level,
-            totalXp: result.data.user?.totalXp,
-          },
+          type: "quiz",
+          xpGained: xp,
+          score: finalScore,
+          totalQuestions: questions.length,
+          title: article.title,
+          newAchievements: result.data.newAchievements ?? [],
+          level: result.data.user?.level,
+          totalXp: result.data.user?.totalXp,
+          brainXp: result.data.user?.brainXp,
+          bodyXp: result.data.user?.bodyXp,
         },
       });
     } catch {

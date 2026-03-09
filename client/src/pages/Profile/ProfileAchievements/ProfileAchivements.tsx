@@ -2,43 +2,53 @@ import {
   Container,
   Grid,
   Card,
-  Image,
-  Badge,
   Group,
   Text,
-  Tooltip,
   Stack,
   Title,
+  Center,
+  Loader,
 } from "@mantine/core";
 import { IconTrendingUp } from "@tabler/icons-react";
-import { MOCK_ACHIEVEMENTS } from "../../../data/mockAchievements";
-import { colors } from "../../../styles/colors";
+import { useAchievements } from "../../../hooks/useAchievements";
+import { AchievementCard } from "../../../components/Achievements/AchievementCard";
+
+const categoryLabels: Record<string, string> = {
+  milestone: "Glavne dostige",
+  consistency: "Konzistencija",
+  performance: "Performanse",
+  special: "Posebne",
+};
 
 const ProfileAchievements = () => {
-  const unlockedCount = MOCK_ACHIEVEMENTS.filter((a) => a.isUnlocked).length;
-  const totalXpEarned = MOCK_ACHIEVEMENTS.filter((a) => a.isUnlocked).reduce(
-    (sum, a) => sum + a.xpReward,
-    0,
-  );
+  const { data: achievements, isLoading } = useAchievements();
 
-  const categorizedAchievements = {
-    milestone: MOCK_ACHIEVEMENTS.filter((a) => a.category === "milestone"),
-    consistency: MOCK_ACHIEVEMENTS.filter((a) => a.category === "consistency"),
-    performance: MOCK_ACHIEVEMENTS.filter((a) => a.category === "performance"),
-    special: MOCK_ACHIEVEMENTS.filter((a) => a.category === "special"),
-  };
+  if (isLoading) {
+    return (
+      <Center py="xl">
+        <Loader size="md" />
+      </Center>
+    );
+  }
 
-  const categoryLabels = {
-    milestone: "Glavne dostige",
-    consistency: "Konzistencija",
-    performance: "Performanse",
-    special: "Posebne",
-  };
+  const all = achievements ?? [];
+  const unlockedCount = all.filter((a) => a.isUnlocked).length;
+  const totalXpEarned = all
+    .filter((a) => a.isUnlocked)
+    .reduce((sum, a) => sum + a.xpReward, 0);
+
+  const categories = ["milestone", "consistency", "performance", "special"];
+  const categorized = categories
+    .map((cat) => ({
+      key: cat,
+      label: categoryLabels[cat] ?? cat,
+      items: all.filter((a) => a.category === cat),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <Container size="lg" py="md">
       <Stack gap="lg">
-        {/* Stats Section */}
         <Card withBorder shadow="sm" radius="md">
           <Group justify="space-around">
             <div style={{ textAlign: "center" }}>
@@ -46,117 +56,40 @@ const ProfileAchievements = () => {
                 Otključane dostige
               </Text>
               <Text size="xl" fw={700} c="violet">
-                {unlockedCount}/{MOCK_ACHIEVEMENTS.length}
+                {unlockedCount}/{all.length}
               </Text>
             </div>
             <div style={{ textAlign: "center" }}>
               <Group gap={4} justify="center">
-                <IconTrendingUp size={20} color={colors.semantic.info} />
+                <IconTrendingUp size={20} color="var(--mantine-color-blue-6)" />
                 <Text size="sm" c="dimmed">
                   XP Zaradio/la
                 </Text>
               </Group>
-              <Text size="xl" fw={700} c={colors.primary.light}>
+              <Text size="xl" fw={700} c="teal">
                 {totalXpEarned}
               </Text>
             </div>
           </Group>
         </Card>
 
-        {/* Achievements by Category */}
-        {Object.entries(categorizedAchievements).map(
-          ([category, achievements]) => (
-            <Stack key={category} gap="md">
-              <Title order={4} size="h5">
-                {categoryLabels[category as keyof typeof categoryLabels]}
-              </Title>
-              <Grid>
-                {achievements.map((achievement) => (
-                  <Grid.Col
-                    key={achievement.id}
-                    span={{ base: 6, sm: 4, md: 3 }}
-                  >
-                    <Tooltip
-                      label={
-                        <Stack gap={4}>
-                          <Text fw={600} size="sm">
-                            {achievement.title}
-                          </Text>
-                          <Text size="xs">{achievement.description}</Text>
-                          <Group gap={4}>
-                            <Badge size="sm" variant="dot" color="yellow">
-                              +{achievement.xpReward} XP
-                            </Badge>
-                          </Group>
-                          {achievement.isUnlocked && achievement.unlockedAt && (
-                            <Text size="xs" c="dimmed">
-                              Otključano:{" "}
-                              {new Date(
-                                achievement.unlockedAt,
-                              ).toLocaleDateString("hr-HR")}
-                            </Text>
-                          )}
-                        </Stack>
-                      }
-                      withArrow
-                      position="top"
-                    >
-                      <Card
-                        padding={0}
-                        radius="md"
-                        style={{
-                          cursor: "pointer",
-                          opacity: achievement.isUnlocked ? 1 : 0.4,
-                          transition:
-                            "transform 0.2s ease, box-shadow 0.2s ease",
-                          border: achievement.isUnlocked
-                            ? `2px solid ${colors.primary.light}`
-                            : `2px solid ${colors.text.secondary}`,
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = "scale(1.05)";
-                          e.currentTarget.style.boxShadow =
-                            achievement.isUnlocked
-                              ? `0 0 15px ${colors.primary.light}`
-                              : "none";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = "scale(1)";
-                          e.currentTarget.style.boxShadow = "none";
-                        }}
-                      >
-                        <Card.Section>
-                          <Image
-                            src={achievement.badgeUrl}
-                            height={120}
-                            alt={achievement.title}
-                          />
-                        </Card.Section>
-
-                        <Group justify="space-between" mt="xs" px="sm" pb="sm">
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <Text size="sm" fw={600} truncate>
-                              {achievement.title}
-                            </Text>
-                            {achievement.isUnlocked ? (
-                              <Badge size="xs" color="green" variant="dot">
-                                Otključano
-                              </Badge>
-                            ) : (
-                              <Badge size="xs" color="gray" variant="outline">
-                                Zaključano
-                              </Badge>
-                            )}
-                          </div>
-                        </Group>
-                      </Card>
-                    </Tooltip>
-                  </Grid.Col>
-                ))}
-              </Grid>
-            </Stack>
-          ),
-        )}
+        {categorized.map((group) => (
+          <Stack key={group.key} gap="md">
+            <Title order={4} size="h5">
+              {group.label}
+            </Title>
+            <Grid>
+              {group.items.map((achievement) => (
+                <Grid.Col
+                  key={achievement._id}
+                  span={{ base: 6, sm: 4, md: 3 }}
+                >
+                  <AchievementCard achievement={achievement} />
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Stack>
+        ))}
       </Stack>
     </Container>
   );

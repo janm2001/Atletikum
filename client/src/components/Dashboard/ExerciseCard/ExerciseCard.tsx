@@ -6,8 +6,6 @@ interface ExerciseCardProps {
 }
 
 const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
-  console.log("exercise", exercise);
-
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
       <Card.Section>

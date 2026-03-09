@@ -160,30 +160,27 @@ const TrackWorkout = () => {
     const isLastExercise = currentIndex >= workout.exercises.length - 1;
 
     if (isLastExercise) {
-      const totalXpGained = workout.exercises.reduce(
-        (sum, exercise) => sum + (exercise.baseXp ?? 0),
-        0,
-      );
-
       const result = await createWorkoutLogMutation.mutateAsync({
         workout: workout.title,
         requiredLevel: workout.requiredLevel,
         completedExercises: updatedCompletedExercises,
-        totalXpGained,
       });
 
       if (result.user) {
         updateUser(result.user);
       }
 
-      navigate("/zapis-treninga", {
+      navigate("/slavlje", {
         replace: true,
         state: {
-          activeTab: "workout-log",
-          xpResult: {
-            xpGained: totalXpGained,
-            workoutTitle: workout.title,
-          },
+          type: "workout",
+          xpGained: result.totalXpGained,
+          title: workout.title,
+          newAchievements: result.newAchievements,
+          level: result.user?.level,
+          totalXp: result.user?.totalXp,
+          brainXp: result.user?.brainXp,
+          bodyXp: result.user?.bodyXp,
         },
       });
       return;

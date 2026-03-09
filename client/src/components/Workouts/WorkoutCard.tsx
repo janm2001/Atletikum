@@ -54,8 +54,6 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
     });
   };
 
-  console.log(user!.level, workout.requiredLevel);
-
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
       <Stack gap="sm" h="100%">
