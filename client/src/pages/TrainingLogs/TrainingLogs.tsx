@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { Tabs } from "@mantine/core";
+import { Container, Tabs } from "@mantine/core";
 import { useLocation } from "react-router-dom";
 import Workouts from "@/components/Workouts/Workouts";
 import WorkoutLogs from "@/components/WorkoutLogs/WorkoutLogs";
-import { XpNotification } from "@/components/XpNotification/XpNotification";
+import { XpProgressSection } from "@/components/XpProgress/XpProgressSection";
 
 type TrainingLogsLocationState = {
   activeTab?: "workouts" | "workout-log";
-  xpResult?: {
-    xpGained: number;
-    workoutTitle: string;
-  };
 };
 
 const TrainingLogs = () => {
@@ -19,15 +15,11 @@ const TrainingLogs = () => {
   const [activeTab, setActiveTab] = useState<string | null>(
     locationState?.activeTab ?? "workouts",
   );
-  const [xpResult, setXpResult] = useState(locationState?.xpResult ?? null);
-
-  // Clear location state so refresh doesn't re-show notification
-  if (locationState?.xpResult) {
-    window.history.replaceState({}, "");
-  }
 
   return (
-    <>
+    <Container size="xl" py="md">
+      <XpProgressSection variant="body" />
+
       <Tabs value={activeTab} onChange={setActiveTab} my={8}>
         <Tabs.List justify="center" grow>
           <Tabs.Tab value="workouts">Predloženi set vježbi</Tabs.Tab>
@@ -41,14 +33,7 @@ const TrainingLogs = () => {
           <WorkoutLogs />
         </Tabs.Panel>
       </Tabs>
-
-      {xpResult && (
-        <XpNotification
-          xpGained={xpResult.xpGained}
-          onClose={() => setXpResult(null)}
-        />
-      )}
-    </>
+    </Container>
   );
 };
 

@@ -213,15 +213,16 @@ const QuizPage = () => {
         },
       });
     } catch {
-      // Still navigate back even if submission fails
-      navigate(`/edukacija/${id}`, {
+      // Navigate to celebration page with estimated XP even on error
+      navigate("/slavlje", {
         replace: true,
         state: {
-          quizResult: {
-            xpGained: finalScore * 25,
-            score: finalScore,
-            totalQuestions: questions.length,
-          },
+          type: "quiz",
+          xpGained: finalScore * 25,
+          score: finalScore,
+          totalQuestions: questions.length,
+          title: article.title,
+          newAchievements: [],
         },
       });
     }

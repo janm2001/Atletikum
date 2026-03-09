@@ -1,10 +1,3 @@
-/**
- * Custom MongoDB query injection sanitizer compatible with Express 5.
- *
- * express-mongo-sanitize tries to reassign req.query which is read-only
- * in Express 5, so we sanitize objects in-place instead.
- */
-
 const FORBIDDEN_PATTERN = /^\$|\..*\$/;
 
 function sanitizeValue(value) {
@@ -45,7 +38,6 @@ function sanitizeMongo(req, _res, next) {
   if (req.body) sanitizeObject(req.body);
   if (req.params) sanitizeObject(req.params);
 
-  // req.query is read-only in Express 5, so mutate in-place
   if (req.query && typeof req.query === "object") {
     sanitizeObject(req.query);
   }

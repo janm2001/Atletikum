@@ -15,6 +15,7 @@ import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { ArticleTag } from "../../types/Article/article";
 import { IconBook } from "@tabler/icons-react";
 import { ArticleCard } from "../../components/KnowledgeBase/ArticleCard";
+import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
 
 const KnowledgeBase = () => {
   const navigate = useNavigate();
@@ -54,6 +55,8 @@ const KnowledgeBase = () => {
           w={200}
         />
       </Group>
+
+      <XpProgressSection variant="brain" />
 
       {isLoading ? (
         <Center py="xl">
