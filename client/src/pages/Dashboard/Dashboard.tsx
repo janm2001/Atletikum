@@ -58,7 +58,6 @@ const Dashboard = () => {
     <Container size="lg" py="md">
       <Stack gap="lg">
         <div>
-          <Title order={1}>Dobrodošli{user ? `, ${user.username}` : ""}!</Title>
           <Text c="dimmed" mt={4}>
             Pratite svoj napredak, učite i trenirajte — sve na jednom mjestu.
           </Text>

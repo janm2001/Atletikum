@@ -4,6 +4,7 @@ const { Workout } = require("../models/Workout");
 const { getLevelFromTotalXp } = require("../utils/leveling");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
+const { updateDailyStreak } = require("../utils/updateDailyStreak");
 
 exports.getMyWorkoutLogs = async (req, res) => {
   try {
@@ -50,16 +51,19 @@ exports.createWorkoutLog = async (req, res) => {
       await updatedUser.save();
     }
 
-    // --- Check achievements ---
+    await updateDailyStreak(req.user._id);
+
     const newAchievements = await checkAndUnlockAchievements(
       req.user._id.toString(),
     );
+
+    const freshUser = await User.findById(req.user._id);
 
     res.status(201).json({
       status: "success",
       data: {
         workoutLog: newWorkoutLog,
-        user: sanitizeUser(updatedUser),
+        user: sanitizeUser(freshUser),
         newAchievements,
         totalXpGained: xpGain,
       },

@@ -3,6 +3,7 @@ const { User } = require("../models/User");
 const { getLevelFromTotalXp } = require("../utils/leveling");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
+const { updateDailyStreak } = require("../utils/updateDailyStreak");
 
 const QUIZ_COOLDOWN_DAYS = 3;
 const XP_PER_CORRECT_ANSWER = 25;
@@ -79,7 +80,6 @@ exports.submitQuiz = async (req, res) => {
       xpGained,
     });
 
-    // --- Update user XP (brain category) ---
     const updatedUser = await User.findById(req.user._id);
     if (updatedUser) {
       updatedUser.brainXp += xpGained;
@@ -88,13 +88,16 @@ exports.submitQuiz = async (req, res) => {
       await updatedUser.save();
     }
 
-    // --- Check achievements ---
+    await updateDailyStreak(req.user._id);
+
     const newAchievements = await checkAndUnlockAchievements(
       req.user._id.toString(),
     );
 
     const cooldownEnd = new Date();
     cooldownEnd.setDate(cooldownEnd.getDate() + QUIZ_COOLDOWN_DAYS);
+
+    const freshUser = await User.findById(req.user._id);
 
     res.status(201).json({
       status: "success",
@@ -105,7 +108,7 @@ exports.submitQuiz = async (req, res) => {
           xpGained: completion.xpGained,
           completedAt: completion.completedAt,
         },
-        user: sanitizeUser(updatedUser),
+        user: sanitizeUser(freshUser),
         newAchievements,
         nextAvailableAt: cooldownEnd,
       },

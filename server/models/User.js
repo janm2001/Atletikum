@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     brainXp: { type: Number, default: 0 },
     bodyXp: { type: Number, default: 0 },
     dailyStreak: { type: Number, default: 0 },
+    lastActivityDate: { type: Date, default: null },
     achievements: [
       {
         achievement: {

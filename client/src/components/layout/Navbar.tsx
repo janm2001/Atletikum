@@ -11,7 +11,7 @@ import {
   Flex,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { IconLogout2, IconUser } from "@tabler/icons-react";
+import { IconFlame, IconLogout2, IconUser } from "@tabler/icons-react";
 import { useUser } from "../../hooks/useUser";
 import { colors, styles } from "../../styles/colors";
 import { useState } from "react";
@@ -82,6 +82,13 @@ const Navbar = () => {
         ))}
 
         <Badge color="violet">Level {user?.level}</Badge>
+        <Badge
+          color="orange"
+          variant="light"
+          leftSection={<IconFlame size={14} />}
+        >
+          {user?.dailyStreak ?? 0}
+        </Badge>
 
         <Button
           component={Link}
@@ -104,6 +111,13 @@ const Navbar = () => {
       </Group>
       <Flex gap={16} hiddenFrom="md" align="center">
         <Badge>Level {user?.level}</Badge>
+        <Badge
+          color="orange"
+          variant="light"
+          leftSection={<IconFlame size={14} />}
+        >
+          {user?.dailyStreak ?? 0}
+        </Badge>
         <Burger
           opened={opened}
           onClick={() => setOpened((o) => !o)}

@@ -443,6 +443,7 @@ const TrackWorkout = () => {
                 fullWidth
                 loading={createWorkoutLogMutation.isPending}
                 style={{ position: "sticky", bottom: 12, zIndex: 10 }}
+                my={16}
               >
                 {currentIndex >= workout.exercises.length - 1
                   ? "Završi trening i spremi"
