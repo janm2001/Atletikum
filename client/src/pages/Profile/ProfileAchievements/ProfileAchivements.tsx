@@ -6,9 +6,8 @@ import {
   Text,
   Stack,
   Title,
-  Center,
-  Loader,
 } from "@mantine/core";
+import SpinnerComponent from "../../../components/SpinnerComponent/SpinnerComponent";
 import { IconTrendingUp } from "@tabler/icons-react";
 import { useAchievements } from "../../../hooks/useAchievements";
 import { AchievementCard } from "../../../components/Achievements/AchievementCard";
@@ -24,11 +23,7 @@ const ProfileAchievements = () => {
   const { data: achievements, isLoading } = useAchievements();
 
   if (isLoading) {
-    return (
-      <Center py="xl">
-        <Loader size="md" />
-      </Center>
-    );
+    return <SpinnerComponent size="md" fullHeight={false} />;
   }
 
   const all = achievements ?? [];

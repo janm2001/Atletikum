@@ -50,21 +50,21 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
   - [x] workouts card
   - [x] exercise details based on exerciseId
   - [x] Update user xp when completing a workout
-  - [ ] Make an option for the user to make a custom workout
+  - [x] Make an option for the user to make a custom workout
 
 - [x] Knowledge Base & Quiz engine
   - [x] Extract quizes to the seperate page
   - [x] Give interactive xp gains after the user completes the quiz
 
-- [ ] Admin Dashboard
-  - [ ] Make sure that content in the articles are working
+- [x] Admin Dashboard
+  - [x] Make sure that content in the articles are working
 
 ## BUGS AND REFACTORS
 
 - [x] Navbar for mobile
 - [x] Small flicker when directing to login page where you see the navbar
-- [ ] Register paper is increasing in width when some values are changed
+- [x] Register paper is increasing in width when some values are changed
 - [x] Error boundry when there is an error
 - [x] Suspense and lazy loading
-- [ ] Refactor everything to a proper component
-- [ ] Workout logs are the same for all the users, it needs to show for the specific user
+- [x] Refactor everything to a proper component
+- [x] Workout logs are the same for all the users, it needs to show for the specific user

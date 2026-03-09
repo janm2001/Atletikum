@@ -5,11 +5,11 @@ import {
   Center,
   Container,
   Group,
-  Loader,
   Table,
   Text,
   Title,
 } from "@mantine/core";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import {
   IconCrown,
   IconMedal,
@@ -32,11 +32,7 @@ const Leaderboard = () => {
   const { user } = useUser();
 
   if (isLoading) {
-    return (
-      <Center style={{ height: "calc(100vh - 100px)" }}>
-        <Loader size="xl" />
-      </Center>
-    );
+    return <SpinnerComponent />;
   }
 
   const leaderboard = data?.leaderboard ?? [];

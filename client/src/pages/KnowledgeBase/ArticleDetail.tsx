@@ -8,7 +8,6 @@ import {
   Badge,
   Group,
   Button,
-  Loader,
   Center,
   Breadcrumbs,
   Anchor,
@@ -16,6 +15,7 @@ import {
   Paper,
   Divider,
 } from "@mantine/core";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import {
   IconArrowLeft,
   IconExternalLink,
@@ -51,11 +51,7 @@ const ArticleDetail = () => {
   }
 
   if (isLoading) {
-    return (
-      <Center style={{ height: "calc(100vh - 100px)" }}>
-        <Loader size="xl" />
-      </Center>
-    );
+    return <SpinnerComponent />;
   }
 
   if (error || !article) {

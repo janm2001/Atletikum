@@ -10,8 +10,6 @@ import {
   Title,
   ThemeIcon,
   Button,
-  Center,
-  Loader,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import {
@@ -29,6 +27,7 @@ import { useArticles } from "../../hooks/useArticle";
 import { useWorkouts } from "../../hooks/useWorkout";
 import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { getLevelFromTotalXp } from "../../utils/leveling";
+import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -125,9 +124,7 @@ const Dashboard = () => {
             </Button>
           </Group>
           {articlesLoading ? (
-            <Center py="xl">
-              <Loader size="md" />
-            </Center>
+            <SpinnerComponent size="md" fullHeight={false} />
           ) : (
             <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
               {topArticles.map((article) => (

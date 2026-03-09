@@ -8,13 +8,13 @@ import {
   Center,
   Container,
   Group,
-  Loader,
   Paper,
   Radio,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import {
   IconArrowLeft,
   IconCheck,
@@ -43,11 +43,7 @@ const QuizPage = () => {
   const [score, setScore] = useState(0);
 
   if (articleLoading || statusLoading) {
-    return (
-      <Center style={{ height: "calc(100vh - 100px)" }}>
-        <Loader size="xl" />
-      </Center>
-    );
+    return <SpinnerComponent />;
   }
 
   if (!article || !article.quiz || article.quiz.length === 0) {

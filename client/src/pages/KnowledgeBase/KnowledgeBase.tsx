@@ -5,9 +5,9 @@ import {
   Text,
   SimpleGrid,
   Select,
-  Loader,
   Center,
 } from "@mantine/core";
+import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { useArticles } from "../../hooks/useArticle";
@@ -59,9 +59,7 @@ const KnowledgeBase = () => {
       <XpProgressSection variant="brain" />
 
       {isLoading ? (
-        <Center py="xl">
-          <Loader size="lg" />
-        </Center>
+        <SpinnerComponent size="lg" fullHeight={false} />
       ) : articles?.length === 0 ? (
         <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
           <IconBook size={48} color="gray" />
