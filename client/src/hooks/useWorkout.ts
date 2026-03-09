@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keys } from '../lib/query-keys';
 import { apiClient } from '../utils/apiService';
 import type { Workout } from '@/types/Workout/workout';
 
@@ -12,7 +13,7 @@ type WorkoutsResponse = {
 
 export function useWorkouts() {
     return useQuery<Workout[], Error>({
-        queryKey: ['workout'],
+        queryKey: keys.workouts.all,
         queryFn: async () => {
             const { data } = await apiClient.get<WorkoutsResponse>('/workouts');
             return data.data.workouts;
@@ -28,7 +29,7 @@ export function useCreateWorkout() {
             return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['workout'] });
+            queryClient.invalidateQueries({ queryKey: keys.workouts.all });
         },
     });
 }
@@ -41,7 +42,7 @@ export function useUpdateWorkout() {
             return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['workout'] });
+            queryClient.invalidateQueries({ queryKey: keys.workouts.all });
         },
     });
 }
@@ -54,7 +55,7 @@ export function useDeleteWorkout() {
             return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['workout'] });
+            queryClient.invalidateQueries({ queryKey: keys.workouts.all });
         },
     });
 }

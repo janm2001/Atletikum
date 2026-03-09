@@ -1,28 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keys } from "@/lib/query-keys";
 import { apiClient } from "@/utils/apiService";
 import type { User } from "@/types/User/user";
+import type { NewAchievement } from "@/types/Achievement/achievement";
+import type {
+    WorkoutLog,
+    WorkoutLogPayload,
+    CreateWorkoutLogResult,
+} from "@/types/WorkoutLog/workoutLog";
 
-import type { NewAchievement } from "@/hooks/useQuiz";
-
-type CompletedExercisePayload = {
-    exerciseId: string;
-    weight: number;
-    reps: number;
-    rpe: number;
-};
-
-export type WorkoutLogPayload = {
-    workout?: string;
-    requiredLevel?: number;
-    completedExercises: CompletedExercisePayload[];
-    date?: string;
-};
-
-export type WorkoutLog = WorkoutLogPayload & {
-    _id: string;
-    user: string;
-    totalXpGained?: number;
-};
+export type { WorkoutLog, WorkoutLogPayload, CreateWorkoutLogResult };
 
 type WorkoutLogsResponse = {
     status: string;
@@ -42,18 +29,9 @@ type WorkoutLogResponse = {
     };
 };
 
-export type CreateWorkoutLogResult = {
-    workoutLog: WorkoutLog;
-    user: User | null;
-    newAchievements: NewAchievement[];
-    totalXpGained: number;
-};
-
-const WORKOUT_LOGS_QUERY_KEY = ["workout-logs"] as const;
-
 export function useWorkoutLogs() {
     return useQuery<WorkoutLog[], Error>({
-        queryKey: WORKOUT_LOGS_QUERY_KEY,
+        queryKey: keys.workoutLogs.all,
         queryFn: async () => {
             const { data } = await apiClient.get<WorkoutLogsResponse>("/workout-logs");
             return data.data.workoutLogs;
@@ -78,7 +56,7 @@ export function useCreateWorkoutLog() {
             };
         },
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: WORKOUT_LOGS_QUERY_KEY });
+            await queryClient.invalidateQueries({ queryKey: keys.workoutLogs.all });
         },
     });
 }

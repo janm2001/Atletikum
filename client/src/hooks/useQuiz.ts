@@ -1,16 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { keys } from "../lib/query-keys";
 import { apiClient } from "../utils/apiService";
 import type { User } from "../types/User/user";
+import type { NewAchievement } from "../types/Achievement/achievement";
 
-export interface NewAchievement {
-    _id: string;
-    key: string;
-    title: string;
-    description: string;
-    xpReward: number;
-    category: string;
-    badgeIcon: string;
-}
+export type { NewAchievement };
 
 interface QuizStatus {
     canTakeQuiz: boolean;
@@ -59,7 +53,7 @@ interface RevisionResult {
 
 export const useQuizStatus = (articleId: string) => {
     return useQuery<QuizStatus>({
-        queryKey: ["quiz-status", articleId],
+        queryKey: keys.quiz.status(articleId),
         queryFn: async () => {
             const { data } = await apiClient.get(`/quiz/${articleId}/status`);
             return data;
@@ -85,10 +79,10 @@ export const useSubmitQuiz = () => {
         },
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({
-                queryKey: ["quiz-status", variables.articleId],
+                queryKey: keys.quiz.status(variables.articleId),
             });
             queryClient.invalidateQueries({
-                queryKey: ["quiz-completions"],
+                queryKey: keys.quiz.completions(),
             });
         },
     });
@@ -96,7 +90,7 @@ export const useSubmitQuiz = () => {
 
 export const useMyQuizCompletions = () => {
     return useQuery<string[]>({
-        queryKey: ["quiz-completions"],
+        queryKey: keys.quiz.completions(),
         queryFn: async () => {
             const { data } = await apiClient.get<MyCompletionsResult>("/quiz/my-completions");
             return data.data.completedArticleIds;
@@ -106,7 +100,7 @@ export const useMyQuizCompletions = () => {
 
 export const useRevisionQuiz = () => {
     return useQuery({
-        queryKey: ["quiz-revision"],
+        queryKey: keys.quiz.revision(),
         queryFn: async () => {
             const { data } = await apiClient.get<RevisionResult>("/quiz/revision");
             return data.data.revision;

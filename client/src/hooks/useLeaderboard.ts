@@ -1,17 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { keys } from "../lib/query-keys";
 import { apiClient } from "../utils/apiService";
 import type { User } from "../types/User/user";
+import type { LeaderboardUser } from "../types/Leaderboard/leaderboard";
 
-export interface LeaderboardUser {
-    _id: string;
-    username: string;
-    level: number;
-    totalXp: number;
-    brainXp: number;
-    bodyXp: number;
-    profilePicture: string;
-    dailyStreak: number;
-}
+export type { LeaderboardUser };
 
 interface LeaderboardResponse {
     status: string;
@@ -24,7 +17,7 @@ interface LeaderboardResponse {
 
 export const useLeaderboard = () => {
     return useQuery({
-        queryKey: ["leaderboard"],
+        queryKey: keys.leaderboard.all,
         queryFn: async () => {
             const { data } =
                 await apiClient.get<LeaderboardResponse>("/leaderboard");

@@ -1,20 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { keys } from "../lib/query-keys";
 import { apiClient } from "../utils/apiService";
+import type { Achievement } from "../types/Achievement/achievement";
 
-export interface Achievement {
-    _id: string;
-    key: string;
-    title: string;
-    description: string;
-    xpReward: number;
-    xpCategory: "brain" | "body" | "both";
-    category: "milestone" | "consistency" | "performance" | "special";
-    trigger: string;
-    threshold: number;
-    badgeIcon: string;
-    isUnlocked: boolean;
-    unlockedAt: string | null;
-}
+export type { Achievement };
 
 interface AchievementsResponse {
     status: string;
@@ -26,7 +15,7 @@ interface AchievementsResponse {
 
 export const useAchievements = () => {
     return useQuery<Achievement[]>({
-        queryKey: ["achievements"],
+        queryKey: keys.achievements.all,
         queryFn: async () => {
             const { data } =
                 await apiClient.get<AchievementsResponse>("/achievements");

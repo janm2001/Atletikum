@@ -8,7 +8,7 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import type { WorkoutLog } from "../../hooks/useWorkoutLogs";
+import type { WorkoutLog } from "../../types/WorkoutLog/workoutLog";
 
 interface WorkoutLogExerciseGroupProps {
   exerciseName: string;

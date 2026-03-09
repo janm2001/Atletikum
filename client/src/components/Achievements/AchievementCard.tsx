@@ -1,6 +1,6 @@
 import { Card, Image, Badge, Text, Tooltip, Stack, Group } from "@mantine/core";
 import { IconLock, IconCheck } from "@tabler/icons-react";
-import type { Achievement } from "../../hooks/useAchievements";
+import type { Achievement } from "../../types/Achievement/achievement";
 
 interface AchievementCardProps {
   achievement: Achievement;

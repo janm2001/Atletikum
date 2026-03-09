@@ -26,7 +26,7 @@ import {
   getXpRequiredForLevelUp,
   getTotalXpForLevelStart,
 } from "../../utils/leveling";
-import type { NewAchievement } from "../../hooks/useQuiz";
+import type { NewAchievement } from "../../types/Achievement/achievement";
 
 type CelebrationState = {
   type: "quiz" | "workout";

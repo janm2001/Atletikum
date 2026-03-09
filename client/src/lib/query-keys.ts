@@ -9,5 +9,23 @@ export const keys = {
         category: (cat: string) => [...keys.knowledgeBase.all, cat] as const,
         list: () => [...keys.knowledgeBase.all, 'list'] as const,
         detail: (id: string) => [...keys.knowledgeBase.all, 'detail', id] as const,
-    }
+    },
+    achievements: {
+        all: ['achievements'] as const,
+    },
+    leaderboard: {
+        all: ['leaderboard'] as const,
+    },
+    quiz: {
+        all: ['quiz'] as const,
+        status: (articleId: string) => [...keys.quiz.all, 'status', articleId] as const,
+        completions: () => [...keys.quiz.all, 'completions'] as const,
+        revision: () => [...keys.quiz.all, 'revision'] as const,
+    },
+    workouts: {
+        all: ['workouts'] as const,
+    },
+    workoutLogs: {
+        all: ['workout-logs'] as const,
+    },
 }
