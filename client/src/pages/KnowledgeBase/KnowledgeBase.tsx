@@ -4,7 +4,7 @@ import {
   Title,
   Text,
   SimpleGrid,
-  Select,
+  MultiSelect,
   Center,
 } from "@mantine/core";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
@@ -12,15 +12,18 @@ import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { useArticles } from "../../hooks/useArticle";
 import { useMyQuizCompletions } from "../../hooks/useQuiz";
-import { ArticleTag } from "../../types/Article/article";
+import { ArticleTag, ARTICLE_TAG_LABELS } from "../../types/Article/article";
+import type { ArticleTagType } from "../../types/Article/article";
 import { IconBook } from "@tabler/icons-react";
 import { ArticleCard } from "../../components/KnowledgeBase/ArticleCard";
 import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
 
 const KnowledgeBase = () => {
   const navigate = useNavigate();
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const { data, isLoading } = useArticles(selectedTag || undefined);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { data, isLoading } = useArticles(
+    selectedTags.length > 0 ? selectedTags : undefined,
+  );
   const { data: completedArticleIds } = useMyQuizCompletions();
   const articles = useMemo(() => data ?? [], [data]);
   const completedSet = useMemo(
@@ -40,19 +43,17 @@ const KnowledgeBase = () => {
           </Text>
         </div>
 
-        <Select
+        <MultiSelect
           placeholder="Sve kategorije"
-          value={selectedTag}
-          onChange={setSelectedTag}
-          data={[
-            { value: "", label: "Sve kategorije" },
-            ...Object.values(ArticleTag).map((tag) => ({
-              value: tag,
-              label: tag,
-            })),
-          ]}
+          value={selectedTags}
+          onChange={setSelectedTags}
+          data={Object.values(ArticleTag).map((tag) => ({
+            value: tag,
+            label: ARTICLE_TAG_LABELS[tag as ArticleTagType],
+          }))}
           clearable
-          w={200}
+          searchable
+          w={250}
         />
       </Group>
 
@@ -66,7 +67,7 @@ const KnowledgeBase = () => {
           <Text c="dimmed">Nema pronađenih članaka za ovu kategoriju.</Text>
         </Center>
       ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" my={16}>
           {articles?.map((article) => (
             <ArticleCard
               key={article._id}

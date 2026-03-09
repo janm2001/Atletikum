@@ -14,6 +14,8 @@ const quizRoutes = require("./routes/quizRoutes");
 const achievementRoutes = require("./routes/achievementRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 
+const path = require("path");
+
 require("dotenv").config();
 
 const app = express();
@@ -29,6 +31,9 @@ app.use(
 app.use(express.json({ limit: "10kb" }));
 app.use(sanitizeMongo);
 app.use(hpp());
+
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

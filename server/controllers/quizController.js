@@ -35,6 +35,9 @@ exports.getQuizStatus = async (req, res) => {
         totalQuestions: lastCompletion.totalQuestions,
         xpGained: lastCompletion.xpGained,
         completedAt: lastCompletion.completedAt,
+        passed:
+          lastCompletion.passed ??
+          lastCompletion.score / lastCompletion.totalQuestions >= 0.5,
       },
       nextAvailableAt: canTakeQuiz ? null : cooldownEnd,
     });
@@ -69,7 +72,9 @@ exports.submitQuiz = async (req, res) => {
     }
 
     // --- Calculate XP ---
-    const xpGained = Math.max(0, score) * XP_PER_CORRECT_ANSWER;
+    const percentage = totalQuestions > 0 ? score / totalQuestions : 0;
+    const passed = percentage >= 0.5;
+    const xpGained = passed ? Math.max(0, score) * XP_PER_CORRECT_ANSWER : 0;
 
     // --- Save completion ---
     const completion = await QuizCompletion.create({
@@ -78,21 +83,24 @@ exports.submitQuiz = async (req, res) => {
       score,
       totalQuestions,
       xpGained,
+      passed,
     });
 
     const updatedUser = await User.findById(req.user._id);
-    if (updatedUser) {
+    if (updatedUser && passed) {
       updatedUser.brainXp += xpGained;
       updatedUser.totalXp = updatedUser.brainXp + updatedUser.bodyXp;
       updatedUser.level = getLevelFromTotalXp(updatedUser.totalXp);
       await updatedUser.save();
     }
 
-    await updateDailyStreak(req.user._id);
+    if (passed) {
+      await updateDailyStreak(req.user._id);
+    }
 
-    const newAchievements = await checkAndUnlockAchievements(
-      req.user._id.toString(),
-    );
+    const newAchievements = passed
+      ? await checkAndUnlockAchievements(req.user._id.toString())
+      : [];
 
     const cooldownEnd = new Date();
     cooldownEnd.setDate(cooldownEnd.getDate() + QUIZ_COOLDOWN_DAYS);
@@ -107,6 +115,7 @@ exports.submitQuiz = async (req, res) => {
           totalQuestions: completion.totalQuestions,
           xpGained: completion.xpGained,
           completedAt: completion.completedAt,
+          passed: completion.passed,
         },
         user: sanitizeUser(freshUser),
         newAchievements,

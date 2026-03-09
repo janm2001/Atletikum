@@ -14,14 +14,21 @@ import {
   TypographyStylesProvider,
   Paper,
   Divider,
+  Stack,
+  Alert,
 } from "@mantine/core";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import {
   IconArrowLeft,
   IconExternalLink,
   IconBrain,
+  IconLock,
+  IconCheck,
+  IconX,
+  IconClock,
 } from "@tabler/icons-react";
 import { useArticleDetail } from "../../hooks/useArticle";
+import { useQuizStatus } from "../../hooks/useQuiz";
 import { XpNotification } from "../../components/XpNotification/XpNotification";
 
 type ArticleDetailLocationState = {
@@ -31,6 +38,7 @@ type ArticleDetailLocationState = {
     totalQuestions: number;
     level?: number;
     totalXp?: number;
+    passed?: boolean;
   };
 } | null;
 
@@ -39,6 +47,9 @@ const ArticleDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: article, isLoading, error } = useArticleDetail(id!);
+
+  const hasQuiz = !!(article?.quiz && article.quiz.length > 0);
+  const { data: quizStatus } = useQuizStatus(hasQuiz ? id! : "");
 
   const locationState = location.state as ArticleDetailLocationState;
   const [quizResult, setQuizResult] = useState(
@@ -158,28 +169,165 @@ const ArticleDetail = () => {
         </Paper>
       )}
 
-      {article.quiz && article.quiz.length > 0 && (
+      {hasQuiz && (
         <>
           <Divider my="xl" label="Provjera znanja" labelPosition="center" />
           <Paper p="xl" withBorder radius="md" ta="center">
-            <IconBrain size={48} color="var(--mantine-color-blue-5)" />
-            <Title order={3} mt="sm">
-              Testiraj svoje znanje
-            </Title>
-            <Text c="dimmed" mt="xs" mb="lg">
-              Riješite kviz i zaradite XP bodove!
-            </Text>
-            <Button
-              size="lg"
-              onClick={() => navigate(`/edukacija/${article._id}/kviz`)}
-            >
-              Započni Kviz
-            </Button>
+            {/* Quiz locked - on cooldown */}
+            {quizStatus &&
+            !quizStatus.canTakeQuiz &&
+            quizStatus.lastCompletion ? (
+              <Stack align="center" gap="md">
+                <IconLock size={48} color="var(--mantine-color-gray-5)" />
+                <Title order={3}>Kviz je zaključan</Title>
+                <Text c="dimmed">
+                  Već ste riješili ovaj kviz. Pokušajte ponovo nakon isteka
+                  vremena.
+                </Text>
+
+                <Group justify="center" gap="lg" mt="xs">
+                  <Stack gap={2} align="center">
+                    <Text size="xl" fw={700}>
+                      {quizStatus.lastCompletion.score}/
+                      {quizStatus.lastCompletion.totalQuestions}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Točnih
+                    </Text>
+                  </Stack>
+                  <Stack gap={2} align="center">
+                    <Text size="xl" fw={700} c="teal">
+                      +{quizStatus.lastCompletion.xpGained}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      XP zarađeno
+                    </Text>
+                  </Stack>
+                  <Stack gap={2} align="center">
+                    <Badge
+                      size="lg"
+                      color={quizStatus.lastCompletion.passed ? "green" : "red"}
+                      variant="light"
+                      leftSection={
+                        quizStatus.lastCompletion.passed ? (
+                          <IconCheck size={14} />
+                        ) : (
+                          <IconX size={14} />
+                        )
+                      }
+                    >
+                      {quizStatus.lastCompletion.passed
+                        ? "Položen"
+                        : "Nije položen"}
+                    </Badge>
+                    <Text size="xs" c="dimmed">
+                      Status
+                    </Text>
+                  </Stack>
+                </Group>
+
+                {quizStatus.nextAvailableAt && (
+                  <Alert
+                    icon={<IconClock size={18} />}
+                    color="blue"
+                    variant="light"
+                    w="100%"
+                    maw={400}
+                    mx="auto"
+                  >
+                    Kviz će biti dostupan{" "}
+                    <Text span fw={600}>
+                      {new Date(quizStatus.nextAvailableAt).toLocaleDateString(
+                        "hr-HR",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
+                    </Text>
+                  </Alert>
+                )}
+              </Stack>
+            ) : quizStatus?.lastCompletion ? (
+              <Stack align="center" gap="md">
+                <IconBrain size={48} color="var(--mantine-color-blue-5)" />
+                <Title order={3}>Testiraj svoje znanje</Title>
+
+                <Group justify="center" gap="md">
+                  <Badge
+                    size="lg"
+                    color={quizStatus.lastCompletion.passed ? "green" : "red"}
+                    variant="light"
+                    leftSection={
+                      quizStatus.lastCompletion.passed ? (
+                        <IconCheck size={14} />
+                      ) : (
+                        <IconX size={14} />
+                      )
+                    }
+                  >
+                    Prethodni rezultat: {quizStatus.lastCompletion.score}/
+                    {quizStatus.lastCompletion.totalQuestions} -{" "}
+                    {quizStatus.lastCompletion.passed
+                      ? "Položen"
+                      : "Nije položen"}
+                  </Badge>
+                </Group>
+
+                <Text c="dimmed" size="sm">
+                  Riješite kviz ponovo i poboljšajte rezultat!
+                </Text>
+
+                <Badge size="lg" variant="light" color="grape">
+                  Do {article!.quiz!.length * 25} XP (min. 50% za prolaz)
+                </Badge>
+
+                <Button
+                  size="lg"
+                  onClick={() => navigate(`/edukacija/${article!._id}/kviz`)}
+                >
+                  Ponovi Kviz
+                </Button>
+              </Stack>
+            ) : (
+              <Stack align="center" gap="md">
+                <IconBrain size={48} color="var(--mantine-color-blue-5)" />
+                <Title order={3}>Testiraj svoje znanje</Title>
+                <Text c="dimmed">Riješite kviz i zaradite XP bodove!</Text>
+                <Badge size="lg" variant="light" color="grape">
+                  Do {article!.quiz!.length * 25} XP (min. 50% za prolaz)
+                </Badge>
+                <Button
+                  size="lg"
+                  onClick={() => navigate(`/edukacija/${article!._id}/kviz`)}
+                >
+                  Započni Kviz
+                </Button>
+              </Stack>
+            )}
           </Paper>
         </>
       )}
 
-      {quizResult && (
+      {quizResult && quizResult.passed === false && (
+        <Alert
+          mt="xl"
+          color="red"
+          variant="light"
+          icon={<IconX size={20} />}
+          title="Kviz nije položen"
+          withCloseButton
+          onClose={() => setQuizResult(null)}
+        >
+          Rezultat: {quizResult.score}/{quizResult.totalQuestions} (
+          {Math.round((quizResult.score / quizResult.totalQuestions) * 100)}%).
+          Potrebno je minimalno 50% za prolaz. Pokušajte ponovo nakon isteka
+          vremena!
+        </Alert>
+      )}
+
+      {quizResult && quizResult.passed !== false && (
         <XpNotification
           xpGained={quizResult.xpGained}
           score={quizResult.score}

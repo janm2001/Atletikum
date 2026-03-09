@@ -1,0 +1,258 @@
+import { useMemo, useState } from "react";
+import {
+  Box,
+  MultiSelect,
+  Paper,
+  SegmentedControl,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { LineChart, BarChart } from "@mantine/charts";
+import type { WorkoutLog } from "../../types/WorkoutLog/workoutLog";
+
+interface WorkoutLogChartsProps {
+  workoutLogs: WorkoutLog[];
+  exerciseNameById: Map<string, string>;
+}
+
+type ChartView = "weight" | "volume" | "frequency";
+
+const CHART_COLORS = [
+  "violet.6",
+  "blue.6",
+  "teal.6",
+  "grape.6",
+  "orange.6",
+  "cyan.6",
+  "pink.6",
+  "lime.6",
+];
+
+const WorkoutLogCharts = ({
+  workoutLogs,
+  exerciseNameById,
+}: WorkoutLogChartsProps) => {
+  const [chartView, setChartView] = useState<ChartView>("weight");
+
+  const exerciseFrequency = useMemo(() => {
+    const freq = new Map<string, number>();
+    for (const log of workoutLogs) {
+      const seen = new Set<string>();
+      for (const ex of log.completedExercises) {
+        if (!seen.has(ex.exerciseId)) {
+          seen.add(ex.exerciseId);
+          freq.set(ex.exerciseId, (freq.get(ex.exerciseId) ?? 0) + 1);
+        }
+      }
+    }
+    return [...freq.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+  }, [workoutLogs]);
+
+  const exerciseOptions = useMemo(
+    () =>
+      exerciseFrequency.map((id) => ({
+        value: id,
+        label: exerciseNameById.get(id) ?? "Nepoznata vježba",
+      })),
+    [exerciseFrequency, exerciseNameById],
+  );
+
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+
+  const effectiveExercises = useMemo(
+    () =>
+      selectedExercises.length > 0
+        ? selectedExercises
+        : exerciseFrequency.slice(0, 3),
+    [selectedExercises, exerciseFrequency],
+  );
+
+  const weightData = useMemo(() => {
+    if (effectiveExercises.length === 0) return [];
+
+    const sortedLogs = [...workoutLogs].sort(
+      (a, b) =>
+        new Date(a.date ?? 0).getTime() - new Date(b.date ?? 0).getTime(),
+    );
+
+    return sortedLogs
+      .map((log) => {
+        const dateStr = log.date
+          ? new Date(log.date).toLocaleDateString("hr-HR", {
+              day: "2-digit",
+              month: "2-digit",
+            })
+          : "N/A";
+
+        const entry: Record<string, string | number> = { date: dateStr };
+
+        for (const exId of effectiveExercises) {
+          const sets = log.completedExercises.filter(
+            (s) => s.exerciseId === exId,
+          );
+          if (sets.length > 0) {
+            const maxWeight = Math.max(...sets.map((s) => s.weight));
+            const name = exerciseNameById.get(exId) ?? exId;
+            entry[name] = maxWeight;
+          }
+        }
+
+        return entry;
+      })
+      .filter((entry) => Object.keys(entry).length > 1);
+  }, [workoutLogs, effectiveExercises, exerciseNameById]);
+
+  const weightSeries = effectiveExercises.map((exId, idx) => ({
+    name: exerciseNameById.get(exId) ?? exId,
+    color: CHART_COLORS[idx % CHART_COLORS.length],
+  }));
+
+  const volumeData = useMemo(() => {
+    const sortedLogs = [...workoutLogs].sort(
+      (a, b) =>
+        new Date(a.date ?? 0).getTime() - new Date(b.date ?? 0).getTime(),
+    );
+
+    return sortedLogs.map((log) => {
+      const totalVolume = log.completedExercises.reduce(
+        (sum, ex) => sum + ex.weight * ex.reps,
+        0,
+      );
+      return {
+        date: log.date
+          ? new Date(log.date).toLocaleDateString("hr-HR", {
+              day: "2-digit",
+              month: "2-digit",
+            })
+          : "N/A",
+        Volumen: totalVolume,
+      };
+    });
+  }, [workoutLogs]);
+
+  // --- Frequency Data ---
+  const frequencyData = useMemo(() => {
+    const weekMap = new Map<string, number>();
+    for (const log of workoutLogs) {
+      if (!log.date) continue;
+      const d = new Date(log.date);
+      const startOfWeek = new Date(d);
+      const day = startOfWeek.getDay();
+      const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+      startOfWeek.setDate(diff);
+      const weekKey = startOfWeek.toLocaleDateString("hr-HR", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+      weekMap.set(weekKey, (weekMap.get(weekKey) ?? 0) + 1);
+    }
+    return [...weekMap.entries()]
+      .sort(
+        (a, b) => parseWeekDate(a[0]).getTime() - parseWeekDate(b[0]).getTime(),
+      )
+      .map(([week, count]) => ({
+        "Tjedan od": week,
+        Treninzi: count,
+      }));
+  }, [workoutLogs]);
+
+  if (workoutLogs.length < 2) {
+    return (
+      <Paper withBorder p="md" radius="md" mb="md">
+        <Text c="dimmed" ta="center" size="sm">
+          Potrebna su barem 2 treninga za prikaz statistike.
+        </Text>
+      </Paper>
+    );
+  }
+
+  return (
+    <Paper withBorder p="md" radius="md" mb="md">
+      <Stack gap="md">
+        <Title order={3}>Statistika treninga</Title>
+
+        <SegmentedControl
+          value={chartView}
+          onChange={(v) => setChartView(v as ChartView)}
+          data={[
+            { value: "weight", label: "Progresija težine" },
+            { value: "volume", label: "Volumen" },
+            { value: "frequency", label: "Učestalost" },
+          ]}
+          fullWidth
+        />
+
+        {chartView === "weight" && (
+          <Stack gap="sm">
+            <MultiSelect
+              label="Odaberi vježbe"
+              placeholder="Odaberi vježbe za prikaz"
+              data={exerciseOptions}
+              value={selectedExercises}
+              onChange={setSelectedExercises}
+              maxValues={5}
+              clearable
+              searchable
+            />
+            {weightData.length > 0 && weightSeries.length > 0 ? (
+              <Box>
+                <LineChart
+                  h={300}
+                  data={weightData}
+                  dataKey="date"
+                  series={weightSeries}
+                  curveType="monotone"
+                  connectNulls
+                  withLegend
+                  withDots
+                  yAxisProps={{ label: "kg" }}
+                  tooltipAnimationDuration={200}
+                />
+              </Box>
+            ) : (
+              <Text c="dimmed" ta="center" size="sm">
+                Nema podataka za odabrane vježbe.
+              </Text>
+            )}
+          </Stack>
+        )}
+
+        {chartView === "volume" && (
+          <Box>
+            <BarChart
+              h={300}
+              data={volumeData}
+              dataKey="date"
+              series={[{ name: "Volumen", color: "violet.6" }]}
+              withLegend
+              yAxisProps={{ label: "kg" }}
+              tooltipAnimationDuration={200}
+            />
+          </Box>
+        )}
+
+        {chartView === "frequency" && (
+          <Box>
+            <BarChart
+              h={300}
+              data={frequencyData}
+              dataKey="Tjedan od"
+              series={[{ name: "Treninzi", color: "teal.6" }]}
+              withLegend
+              tooltipAnimationDuration={200}
+            />
+          </Box>
+        )}
+      </Stack>
+    </Paper>
+  );
+};
+
+function parseWeekDate(dateStr: string): Date {
+  const [day, month] = dateStr.split(".").map((s) => parseInt(s, 10));
+  const now = new Date();
+  return new Date(now.getFullYear(), (month ?? 1) - 1, day ?? 1);
+}
+
+export default WorkoutLogCharts;

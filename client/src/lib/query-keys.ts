@@ -6,7 +6,7 @@ export const keys = {
     },
     knowledgeBase: {
         all: ['articles'] as const,
-        category: (cat: string) => [...keys.knowledgeBase.all, cat] as const,
+        categories: (cats: string[]) => [...keys.knowledgeBase.all, 'categories', ...cats] as const,
         list: () => [...keys.knowledgeBase.all, 'list'] as const,
         detail: (id: string) => [...keys.knowledgeBase.all, 'detail', id] as const,
     },

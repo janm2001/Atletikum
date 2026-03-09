@@ -4,6 +4,7 @@ import {
   Divider,
   Group,
   Modal,
+  MultiSelect,
   NumberInput,
   Stack,
   TextInput,
@@ -28,11 +29,13 @@ import {
   workoutSchema,
   type WorkoutFormValues,
 } from "../../schema/workout.schema";
+import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
   title: "",
   description: "",
   requiredLevel: 1,
+  tags: [],
   exercises: [],
 });
 
@@ -72,6 +75,7 @@ const ExerciseTab = () => {
       title: workout.title,
       description: workout.description,
       requiredLevel: workout.requiredLevel,
+      tags: workout.tags ?? [],
       exercises: workout.exercises.map((ex) => ({
         exerciseId: getExerciseId(ex.exerciseId),
         sets: ex.sets,
@@ -157,6 +161,22 @@ const ExerciseTab = () => {
               {...register("description")}
               error={errors.description?.message}
               rows={3}
+            />
+
+            <Controller
+              name="tags"
+              control={control}
+              render={({ field }) => (
+                <MultiSelect
+                  label="Kategorije"
+                  placeholder="Odaberite kategorije"
+                  data={WORKOUT_TAG_OPTIONS}
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  clearable
+                  searchable
+                />
+              )}
             />
 
             <Controller

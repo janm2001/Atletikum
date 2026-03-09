@@ -4,7 +4,11 @@ exports.getAllArticles = async (req, res) => {
   try {
     const filter = {};
     if (req.query.tag) {
-      filter.tag = req.query.tag;
+      if (Array.isArray(req.query.tag)) {
+        filter.tag = { $in: req.query.tag };
+      } else {
+        filter.tag = req.query.tag;
+      }
     }
     const articles = await Article.find(filter)
       .select("-quiz")
@@ -36,7 +40,21 @@ exports.getArticleById = async (req, res) => {
 
 exports.createArticle = async (req, res) => {
   try {
-    const newArticle = await Article.create(req.body);
+    const articleData = { ...req.body };
+
+    if (typeof articleData.quiz === "string") {
+      try {
+        articleData.quiz = JSON.parse(articleData.quiz);
+      } catch {
+        /* keep as-is */
+      }
+    }
+
+    if (req.file) {
+      articleData.coverImage = `/uploads/articles/${req.file.filename}`;
+    }
+
+    const newArticle = await Article.create(articleData);
     res.status(201).json({ status: "success", data: { article: newArticle } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });
@@ -45,9 +63,24 @@ exports.createArticle = async (req, res) => {
 
 exports.updateArticle = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+
+    // Parse quiz if it's a JSON string (from FormData)
+    if (typeof updateData.quiz === "string") {
+      try {
+        updateData.quiz = JSON.parse(updateData.quiz);
+      } catch {
+        /* keep as-is */
+      }
+    }
+
+    if (req.file) {
+      updateData.coverImage = `/uploads/articles/${req.file.filename}`;
+    }
+
     const updatedArticle = await Article.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true },
     );
     if (!updatedArticle) {

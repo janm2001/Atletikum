@@ -9,12 +9,19 @@ import {
   Box,
   Badge,
   Flex,
+  HoverCard,
+  Text,
+  Progress,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { IconFlame, IconLogout2, IconUser } from "@tabler/icons-react";
 import { useUser } from "../../hooks/useUser";
 import { colors, styles } from "../../styles/colors";
 import { useState } from "react";
+import {
+  getXpRequiredForLevelUp,
+  getTotalXpForLevelStart,
+} from "../../utils/leveling";
 
 const Navbar = () => {
   const { logout } = useUser();
@@ -81,7 +88,46 @@ const Navbar = () => {
           </Anchor>
         ))}
 
-        <Badge color="violet">Level {user?.level}</Badge>
+        <HoverCard width={240} shadow="md" position="bottom" withArrow>
+          <HoverCard.Target>
+            <Badge color="violet" style={{ cursor: "pointer" }}>
+              Level {user?.level}
+            </Badge>
+          </HoverCard.Target>
+          <HoverCard.Dropdown>
+            {(() => {
+              const level = user?.level ?? 1;
+              const totalXp = user?.totalXp ?? 0;
+              const xpForNext = getXpRequiredForLevelUp(level);
+              const levelStart = getTotalXpForLevelStart(level);
+              const currentProgress = totalXp - levelStart;
+              const remaining = xpForNext - currentProgress;
+              const percent = Math.min(
+                100,
+                Math.round((currentProgress / xpForNext) * 100),
+              );
+              return (
+                <Stack gap={6}>
+                  <Text size="sm" fw={600}>
+                    Level {level} → Level {level + 1}
+                  </Text>
+                  <Progress
+                    value={percent}
+                    color="violet"
+                    radius="xl"
+                    size="md"
+                  />
+                  <Text size="xs" c="dimmed">
+                    {currentProgress} / {xpForNext} XP ({percent}%)
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    Još {remaining} XP do sljedećeg levela
+                  </Text>
+                </Stack>
+              );
+            })()}
+          </HoverCard.Dropdown>
+        </HoverCard>
         <Badge
           color="orange"
           variant="light"
@@ -110,7 +156,44 @@ const Navbar = () => {
         </Button>
       </Group>
       <Flex gap={16} hiddenFrom="md" align="center">
-        <Badge>Level {user?.level}</Badge>
+        <HoverCard width={220} shadow="md" position="bottom" withArrow>
+          <HoverCard.Target>
+            <Badge style={{ cursor: "pointer" }}>Level {user?.level}</Badge>
+          </HoverCard.Target>
+          <HoverCard.Dropdown>
+            {(() => {
+              const level = user?.level ?? 1;
+              const totalXp = user?.totalXp ?? 0;
+              const xpForNext = getXpRequiredForLevelUp(level);
+              const levelStart = getTotalXpForLevelStart(level);
+              const currentProgress = totalXp - levelStart;
+              const remaining = xpForNext - currentProgress;
+              const percent = Math.min(
+                100,
+                Math.round((currentProgress / xpForNext) * 100),
+              );
+              return (
+                <Stack gap={6}>
+                  <Text size="sm" fw={600}>
+                    Level {level} → Level {level + 1}
+                  </Text>
+                  <Progress
+                    value={percent}
+                    color="violet"
+                    radius="xl"
+                    size="md"
+                  />
+                  <Text size="xs" c="dimmed">
+                    {currentProgress} / {xpForNext} XP ({percent}%)
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    Još {remaining} XP do sljedećeg levela
+                  </Text>
+                </Stack>
+              );
+            })()}
+          </HoverCard.Dropdown>
+        </HoverCard>
         <Badge
           color="orange"
           variant="light"

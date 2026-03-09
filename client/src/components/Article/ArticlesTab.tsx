@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import {
   Button,
   Divider,
+  FileInput,
   Group,
+  Image,
   Loader,
   Modal,
   Select,
@@ -11,7 +13,7 @@ import {
   Textarea,
   Text,
 } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPhoto, IconPlus } from "@tabler/icons-react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
@@ -26,8 +28,11 @@ import {
   articleSchema,
   type ArticleFormValues,
 } from "../../schema/article.schema";
-import { ArticleTag } from "../../types/Article/article";
-import type { ArticleSummary } from "../../types/Article/article";
+import { ArticleTag, ARTICLE_TAG_LABELS } from "../../types/Article/article";
+import type {
+  ArticleSummary,
+  ArticleTagType,
+} from "../../types/Article/article";
 import ArticlesTable from "./ArticlesTable";
 import ArticleRichEditor from "./ArticleRichEditor";
 import QuizEditor from "./QuizEditor";
@@ -48,6 +53,8 @@ const ArticlesTab = () => {
   const [opened, setOpened] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   const { data: articles, isLoading, error } = useArticles();
   const createMutation = useCreateArticle();
@@ -92,13 +99,16 @@ const ArticlesTab = () => {
   const handleOpenCreate = () => {
     setEditingArticleId(null);
     reset(getDefaultFormValues());
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
     setActionError("");
     setOpened(true);
   };
 
   const handleOpenEdit = (article: ArticleSummary) => {
     setEditingArticleId(article._id);
-    // Reset with basic data first; full data (with quiz) loaded via useEffect
+    setThumbnailFile(null);
+    setThumbnailPreview(article.coverImage || null);
     reset({
       title: article.title,
       summary: article.summary,
@@ -127,13 +137,46 @@ const ArticlesTab = () => {
   const onSubmit = async (data: ArticleFormValues) => {
     try {
       setActionError("");
-      if (editingArticleId) {
-        await updateMutation.mutateAsync({
-          id: editingArticleId,
-          updatedData: data,
-        });
+
+      if (thumbnailFile) {
+        const formData = new FormData();
+        formData.append("thumbnail", thumbnailFile);
+        formData.append("title", data.title);
+        formData.append("tag", data.tag);
+        if (data.summary) formData.append("summary", data.summary);
+        formData.append("content", data.content);
+        if (data.sourceUrl) formData.append("sourceUrl", data.sourceUrl);
+        if (data.sourceTitle) formData.append("sourceTitle", data.sourceTitle);
+        if (data.author) formData.append("author", data.author);
+        if (data.quiz && data.quiz.length > 0) {
+          formData.append("quiz", JSON.stringify(data.quiz));
+        }
+
+        if (editingArticleId) {
+          await updateMutation.mutateAsync({
+            id: editingArticleId,
+            updatedData: formData as unknown as Partial<
+              import("../../types/Article/article").Article
+            >,
+            isFormData: true,
+          });
+        } else {
+          await createMutation.mutateAsync({
+            articleData: formData as unknown as Partial<
+              import("../../types/Article/article").Article
+            >,
+            isFormData: true,
+          });
+        }
       } else {
-        await createMutation.mutateAsync(data);
+        if (editingArticleId) {
+          await updateMutation.mutateAsync({
+            id: editingArticleId,
+            updatedData: data,
+          });
+        } else {
+          await createMutation.mutateAsync({ articleData: data });
+        }
       }
       setOpened(false);
     } catch (error: unknown) {
@@ -199,7 +242,7 @@ const ArticlesTab = () => {
                     label="Kategorija (Tag)"
                     data={Object.values(ArticleTag).map((tag) => ({
                       value: tag,
-                      label: tag,
+                      label: ARTICLE_TAG_LABELS[tag as ArticleTagType],
                     }))}
                     {...field}
                     error={errors.tag?.message}
@@ -228,12 +271,41 @@ const ArticlesTab = () => {
                 )}
               />
 
+              <Divider my="xs" label="Naslovna slika" labelPosition="center" />
+
+              <FileInput
+                label="Učitaj naslovnu sliku"
+                placeholder="Odaberite datoteku..."
+                accept="image/*"
+                leftSection={<IconPhoto size={16} />}
+                value={thumbnailFile}
+                onChange={(file) => {
+                  setThumbnailFile(file);
+                  if (file) {
+                    setThumbnailPreview(URL.createObjectURL(file));
+                  } else {
+                    setThumbnailPreview(null);
+                  }
+                }}
+                clearable
+              />
+
               <TextInput
-                label="URL naslovne slike"
+                label="Ili unesite URL naslovne slike"
                 placeholder="https://..."
                 {...register("coverImage")}
                 error={errors.coverImage?.message}
               />
+
+              {(thumbnailPreview || form.getValues("coverImage")) && (
+                <Image
+                  src={thumbnailPreview || form.getValues("coverImage")}
+                  height={120}
+                  radius="md"
+                  fit="contain"
+                  alt="Pregled naslovne slike"
+                />
+              )}
 
               <TextInput
                 label="URL istraživanja"

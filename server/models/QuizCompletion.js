@@ -10,6 +10,7 @@ const quizCompletionSchema = new mongoose.Schema({
   score: { type: Number, required: true },
   totalQuestions: { type: Number, required: true },
   xpGained: { type: Number, default: 0 },
+  passed: { type: Boolean, default: false },
   completedAt: { type: Date, default: Date.now },
 });
 

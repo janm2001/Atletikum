@@ -3,6 +3,7 @@ import { useWorkoutLogs } from "@/hooks/useWorkoutLogs";
 import { useExercises } from "@/hooks/useExercise";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { WorkoutLogCard } from "./WorkoutLogCard";
+import WorkoutLogCharts from "./WorkoutLogCharts";
 
 const WorkoutLogs = () => {
   const { data, isLoading, error } = useWorkoutLogs();
@@ -26,6 +27,10 @@ const WorkoutLogs = () => {
 
   return (
     <Stack gap="md" mt="md">
+      <WorkoutLogCharts
+        workoutLogs={workoutLogs}
+        exerciseNameById={exerciseNameById}
+      />
       {workoutLogs.map((workoutLog) => (
         <WorkoutLogCard
           key={workoutLog._id}

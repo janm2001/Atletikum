@@ -4,6 +4,7 @@ const workoutSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   requiredLevel: { type: Number, default: 1 },
+  tags: [{ type: String, trim: true }],
   exercises: [
     {
       exerciseId: { type: mongoose.Schema.Types.ObjectId, ref: "Exercise" },

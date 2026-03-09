@@ -20,6 +20,7 @@ import {
   IconCheck,
   IconClock,
   IconLock,
+  IconTrophy,
   IconX,
 } from "@tabler/icons-react";
 import { useArticleDetail } from "../../hooks/useArticle";
@@ -61,7 +62,6 @@ const QuizPage = () => {
 
   const questions: QuizQuestion[] = article.quiz;
 
-  // --- Cooldown lock ---
   if (quizStatus && !quizStatus.canTakeQuiz) {
     const nextDate = quizStatus.nextAvailableAt
       ? new Date(quizStatus.nextAvailableAt)
@@ -186,10 +186,27 @@ const QuizPage = () => {
       });
 
       const xp = result.data.completion.xpGained;
+      const passed = result.data.completion.passed;
 
       // Update user context with new XP/level
       if (result.data.user && userCtx) {
         userCtx.updateUser(result.data.user);
+      }
+
+      if (!passed) {
+        // Navigate back to article with fail info
+        navigate(`/edukacija/${id}`, {
+          replace: true,
+          state: {
+            quizResult: {
+              xpGained: 0,
+              score: finalScore,
+              totalQuestions: questions.length,
+              passed: false,
+            },
+          },
+        });
+        return;
       }
 
       // Navigate to celebration page
@@ -243,9 +260,26 @@ const QuizPage = () => {
       <Title order={2} mb="xs">
         {article.title}
       </Title>
-      <Text c="dimmed" mb="xl">
+      <Text c="dimmed" mb="sm">
         Provjera znanja
       </Text>
+
+      <Alert
+        icon={<IconTrophy size={18} />}
+        color="grape"
+        variant="light"
+        mb="xl"
+      >
+        Ovaj kviz nosi do{" "}
+        <Text span fw={700}>
+          {questions.length * 25} XP
+        </Text>{" "}
+        bodova. Potrebno je minimalno{" "}
+        <Text span fw={700}>
+          50%
+        </Text>{" "}
+        točnih odgovora za prolaz.
+      </Alert>
 
       <Card withBorder padding="xl" radius="md">
         <Group justify="space-between" mb="md">
