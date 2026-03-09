@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const mongoSanitize = require("express-mongo-sanitize");
+const sanitizeMongo = require("./middleware/sanitizeMongo");
 const hpp = require("hpp");
 const authRoutes = require("./routes/authRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
@@ -27,7 +27,7 @@ app.use(
   }),
 );
 app.use(express.json({ limit: "10kb" }));
-app.use(mongoSanitize());
+app.use(sanitizeMongo);
 app.use(hpp());
 
 const authLimiter = rateLimit({
