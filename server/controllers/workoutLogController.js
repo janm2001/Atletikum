@@ -1,6 +1,9 @@
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { User } = require("../models/User");
+const { Workout } = require("../models/Workout");
 const { getLevelFromTotalXp } = require("../utils/leveling");
+const { sanitizeUser } = require("../utils/sanitizeUser");
+const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
 
 exports.getMyWorkoutLogs = async (req, res) => {
   try {
@@ -20,10 +23,13 @@ exports.getMyWorkoutLogs = async (req, res) => {
 
 exports.createWorkoutLog = async (req, res) => {
   try {
-    const { workout, requiredLevel, completedExercises, totalXpGained, date } =
-      req.body;
+    const { workout, requiredLevel, completedExercises, date } = req.body;
 
-    const xpGain = Math.max(0, Number(totalXpGained) || 0);
+    // --- Compute XP server-side from workout data ---
+    const workoutDoc = await Workout.findOne({ title: workout });
+    const xpGain = workoutDoc
+      ? workoutDoc.exercises.reduce((sum, ex) => sum + (ex.baseXp || 0), 0)
+      : 0;
 
     const newWorkoutLog = await WorkoutLog.create({
       user: req.user._id.toString(),
@@ -34,31 +40,29 @@ exports.createWorkoutLog = async (req, res) => {
       date,
     });
 
+    // --- Update user XP (body category) ---
     const updatedUser = await User.findById(req.user._id);
 
     if (updatedUser) {
-      updatedUser.totalXp += xpGain;
+      updatedUser.bodyXp += xpGain;
+      updatedUser.totalXp = updatedUser.brainXp + updatedUser.bodyXp;
       updatedUser.level = getLevelFromTotalXp(updatedUser.totalXp);
       await updatedUser.save();
     }
 
-    const safeUser = updatedUser
-      ? {
-          _id: updatedUser._id,
-          username: updatedUser.username,
-          trainingFrequency: updatedUser.trainingFrequency,
-          focus: updatedUser.focus,
-          level: updatedUser.level,
-          totalXp: updatedUser.totalXp,
-          dailyStreak: updatedUser.dailyStreak,
-          role: updatedUser.role,
-          profilePicture: updatedUser.profilePicture,
-        }
-      : null;
+    // --- Check achievements ---
+    const newAchievements = await checkAndUnlockAchievements(
+      req.user._id.toString(),
+    );
 
     res.status(201).json({
       status: "success",
-      data: { workoutLog: newWorkoutLog, user: safeUser },
+      data: {
+        workoutLog: newWorkoutLog,
+        user: sanitizeUser(updatedUser),
+        newAchievements,
+        totalXpGained: xpGain,
+      },
     });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });

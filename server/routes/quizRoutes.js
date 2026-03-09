@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.use(protect);
 
+router.get("/my-completions", quizController.getMyCompletions);
+router.get("/revision", quizController.getRevisionQuiz);
 router.get("/:articleId/status", quizController.getQuizStatus);
 router.post("/:articleId/submit", quizController.submitQuiz);
 

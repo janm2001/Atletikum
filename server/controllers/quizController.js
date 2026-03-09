@@ -1,6 +1,8 @@
 const { QuizCompletion } = require("../models/QuizCompletion");
 const { User } = require("../models/User");
 const { getLevelFromTotalXp } = require("../utils/leveling");
+const { sanitizeUser } = require("../utils/sanitizeUser");
+const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
 
 const QUIZ_COOLDOWN_DAYS = 3;
 const XP_PER_CORRECT_ANSWER = 25;
@@ -77,27 +79,19 @@ exports.submitQuiz = async (req, res) => {
       xpGained,
     });
 
-    // --- Update user XP ---
+    // --- Update user XP (brain category) ---
     const updatedUser = await User.findById(req.user._id);
     if (updatedUser) {
-      updatedUser.totalXp += xpGained;
+      updatedUser.brainXp += xpGained;
+      updatedUser.totalXp = updatedUser.brainXp + updatedUser.bodyXp;
       updatedUser.level = getLevelFromTotalXp(updatedUser.totalXp);
       await updatedUser.save();
     }
 
-    const safeUser = updatedUser
-      ? {
-          _id: updatedUser._id,
-          username: updatedUser.username,
-          trainingFrequency: updatedUser.trainingFrequency,
-          focus: updatedUser.focus,
-          level: updatedUser.level,
-          totalXp: updatedUser.totalXp,
-          dailyStreak: updatedUser.dailyStreak,
-          role: updatedUser.role,
-          profilePicture: updatedUser.profilePicture,
-        }
-      : null;
+    // --- Check achievements ---
+    const newAchievements = await checkAndUnlockAchievements(
+      req.user._id.toString(),
+    );
 
     const cooldownEnd = new Date();
     cooldownEnd.setDate(cooldownEnd.getDate() + QUIZ_COOLDOWN_DAYS);
@@ -111,8 +105,72 @@ exports.submitQuiz = async (req, res) => {
           xpGained: completion.xpGained,
           completedAt: completion.completedAt,
         },
-        user: safeUser,
+        user: sanitizeUser(updatedUser),
+        newAchievements,
         nextAvailableAt: cooldownEnd,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: err.message });
+  }
+};
+
+/**
+ * Return all article IDs the user has completed quizzes for.
+ */
+exports.getMyCompletions = async (req, res) => {
+  try {
+    const completions = await QuizCompletion.find({
+      user: req.user._id.toString(),
+    })
+      .sort({ completedAt: -1 })
+      .lean();
+
+    const completedArticleIds = [
+      ...new Set(completions.map((c) => c.article.toString())),
+    ];
+
+    res.status(200).json({
+      status: "success",
+      data: { completedArticleIds, completions },
+    });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: err.message });
+  }
+};
+
+/**
+ * Return a random quiz completion from 7+ days ago for weekly revision.
+ */
+exports.getRevisionQuiz = async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const oldCompletions = await QuizCompletion.find({
+      user: req.user._id.toString(),
+      completedAt: { $lte: sevenDaysAgo },
+    }).lean();
+
+    if (oldCompletions.length === 0) {
+      return res.status(200).json({
+        status: "success",
+        data: { revision: null },
+      });
+    }
+
+    const random =
+      oldCompletions[Math.floor(Math.random() * oldCompletions.length)];
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        revision: {
+          articleId: random.article,
+          lastScore: random.score,
+          totalQuestions: random.totalQuestions,
+          completedAt: random.completedAt,
+        },
       },
     });
   } catch (err) {

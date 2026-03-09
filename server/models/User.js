@@ -16,7 +16,18 @@ const userSchema = new mongoose.Schema(
 
     level: { type: Number, default: 1 },
     totalXp: { type: Number, default: 0 },
+    brainXp: { type: Number, default: 0 },
+    bodyXp: { type: Number, default: 0 },
     dailyStreak: { type: Number, default: 0 },
+    achievements: [
+      {
+        achievement: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Achievement",
+        },
+        unlockedAt: { type: Date, default: Date.now },
+      },
+    ],
     role: {
       type: String,
       enum: ["user", "admin"],

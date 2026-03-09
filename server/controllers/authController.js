@@ -1,6 +1,7 @@
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcyrpt = require("bcryptjs");
+const { sanitizeUser } = require("../utils/sanitizeUser");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -18,7 +19,9 @@ exports.register = async (req, res) => {
     });
 
     const token = signToken(newUser._id);
-    res.status(201).json({ status: "success", token, data: { user: newUser } });
+    res
+      .status(201)
+      .json({ status: "success", token, data: { user: sanitizeUser(newUser) } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });
   }
@@ -38,7 +41,9 @@ exports.login = async (req, res) => {
     }
 
     const token = signToken(user._id);
-    res.status(200).json({ status: "success", token, data: { user } });
+    res
+      .status(200)
+      .json({ status: "success", token, data: { user: sanitizeUser(user) } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });
   }

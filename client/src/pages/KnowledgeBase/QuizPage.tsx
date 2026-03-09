@@ -26,6 +26,7 @@ import { useArticleDetail } from "../../hooks/useArticle";
 import { useQuizStatus, useSubmitQuiz } from "../../hooks/useQuiz";
 import { UserContext } from "../../context/UserContextCreate";
 import type { QuizQuestion } from "../../types/Article/article";
+import { QuizOptionCard } from "../../components/KnowledgeBase/QuizOptionCard";
 
 const QuizPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -264,71 +265,17 @@ const QuizPage = () => {
           name="quiz-options"
         >
           <Stack gap="sm">
-            {currentQuestion.options.map((option, idx) => {
-              let color = undefined;
-              if (isAnswered) {
-                if (idx === currentQuestion.correctIndex) {
-                  color = "green.6";
-                } else if (
-                  option === selectedOption &&
-                  idx !== currentQuestion.correctIndex
-                ) {
-                  color = "red.6";
-                }
-              }
-
-              return (
-                <Card
-                  key={idx}
-                  p="sm"
-                  withBorder
-                  style={{
-                    cursor: isAnswered ? "default" : "pointer",
-                    borderColor: color
-                      ? `var(--mantine-color-${color})`
-                      : undefined,
-                    backgroundColor: color
-                      ? `var(--mantine-color-${color.replace(".6", ".1")})`
-                      : undefined,
-                    transition: "border-color 0.2s, background-color 0.2s",
-                  }}
-                  onClick={() => !isAnswered && setSelectedOption(option)}
-                >
-                  <Group wrap="nowrap">
-                    <Radio
-                      value={option}
-                      label={option}
-                      disabled={isAnswered}
-                      color={color ? color.split(".")[0] : undefined}
-                      styles={{
-                        label: {
-                          color: color
-                            ? `var(--mantine-color-${color})`
-                            : undefined,
-                          fontWeight: color ? 600 : undefined,
-                        },
-                      }}
-                    />
-                    {isAnswered && idx === currentQuestion.correctIndex && (
-                      <IconCheck
-                        color="var(--mantine-color-green-6)"
-                        size={20}
-                        style={{ marginLeft: "auto" }}
-                      />
-                    )}
-                    {isAnswered &&
-                      option === selectedOption &&
-                      idx !== currentQuestion.correctIndex && (
-                        <IconX
-                          color="var(--mantine-color-red-6)"
-                          size={20}
-                          style={{ marginLeft: "auto" }}
-                        />
-                      )}
-                  </Group>
-                </Card>
-              );
-            })}
+            {currentQuestion.options.map((option, idx) => (
+              <QuizOptionCard
+                key={idx}
+                option={option}
+                index={idx}
+                correctIndex={currentQuestion.correctIndex}
+                isAnswered={isAnswered}
+                isSelected={option === selectedOption}
+                onSelect={setSelectedOption}
+              />
+            ))}
           </Stack>
         </Radio.Group>
 

@@ -29,7 +29,10 @@ const Navbar = () => {
     { to: "/pregled", label: "Pregled" },
     { to: "/zapis-treninga", label: "Zapis treninga" },
     { to: "/edukacija", label: "Edukacija" },
-    { to: "/upravljanje", label: "Upravljanje" },
+    { to: "/ljestvica", label: "Ljestvica" },
+    ...(user?.role === "admin"
+      ? [{ to: "/upravljanje", label: "Upravljanje" }]
+      : []),
   ];
 
   const navLinkStyles = {

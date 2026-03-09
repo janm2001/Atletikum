@@ -5,6 +5,8 @@ export type User = {
     focus: string;
     level: number;
     totalXp: number;
+    brainXp: number;
+    bodyXp: number;
     dailyStreak: number;
     role: string;
     profilePicture: string;
