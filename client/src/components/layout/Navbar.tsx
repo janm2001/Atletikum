@@ -13,7 +13,7 @@ import {
   Text,
   Progress,
 } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { IconFlame, IconLogout2, IconUser } from "@tabler/icons-react";
 import { useUser } from "../../hooks/useUser";
 import { colors, styles } from "../../styles/colors";
@@ -22,11 +22,11 @@ import {
   getXpRequiredForLevelUp,
   getTotalXpForLevelStart,
 } from "../../utils/leveling";
-
 const Navbar = () => {
   const { logout } = useUser();
   const [opened, setOpened] = useState(false);
   const { user } = useUser();
+  const location = useLocation();
 
   const close = () => {
     setOpened(false);
@@ -48,9 +48,29 @@ const Navbar = () => {
     fontSize: "15px",
     fontWeight: 500,
     padding: "8px 16px",
-    borderRadius: "8px",
+    borderRadius: "8px 8px 0 0",
+    borderBottom: "2px solid transparent",
     transition: "all 0.2s ease",
   };
+
+  const isActive = (path: string) => {
+    const pathname = location.pathname;
+
+    if (pathname === path) {
+      return true;
+    }
+
+    return pathname.startsWith(`${path}/`);
+  };
+
+  const getNavLinkStyle = (path: string) => ({
+    ...navLinkStyles,
+    color: isActive(path) ? colors.primary.light : colors.text.primary,
+    fontWeight: isActive(path) ? 700 : 500,
+    borderBottom: isActive(path)
+      ? `2px solid ${colors.primary.light}`
+      : "2px solid transparent",
+  });
 
   return (
     <Group h="100%" px="md" justify="space-between">
@@ -74,14 +94,19 @@ const Navbar = () => {
             key={item.to}
             component={Link}
             to={item.to}
-            style={navLinkStyles}
+            style={getNavLinkStyle(item.to)}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colors.interactive.hover;
-              e.currentTarget.style.color = colors.primary.light;
+              if (!isActive(item.to)) {
+                e.currentTarget.style.backgroundColor =
+                  colors.interactive.hover;
+                e.currentTarget.style.color = colors.primary.light;
+              }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = colors.text.primary;
+              e.currentTarget.style.color = isActive(item.to)
+                ? colors.primary.light
+                : colors.text.primary;
             }}
           >
             {item.label}
@@ -257,7 +282,7 @@ const Navbar = () => {
                   to={item.to}
                   onClick={close}
                   style={{
-                    ...navLinkStyles,
+                    ...getNavLinkStyle(item.to),
                     display: "block",
                   }}
                 >
