@@ -6,7 +6,7 @@ import type { NewAchievement } from "../types/Achievement/achievement";
 
 export type { NewAchievement };
 
-interface QuizStatus {
+export interface QuizStatus {
   canTakeQuiz: boolean;
   lastCompletion: {
     score: number;

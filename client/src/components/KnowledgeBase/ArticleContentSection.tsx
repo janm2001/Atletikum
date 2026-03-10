@@ -1,0 +1,42 @@
+import { Image, Text, TypographyStylesProvider } from "@mantine/core";
+
+interface ArticleContentSectionProps {
+  title: string;
+  coverImage?: string;
+  summary: string;
+  renderedContent: string;
+}
+
+const ArticleContentSection = ({
+  title,
+  coverImage,
+  summary,
+  renderedContent,
+}: ArticleContentSectionProps) => {
+  return (
+    <>
+      {coverImage && (
+        <Image src={coverImage} height={400} radius="md" mb="xl" alt={title} />
+      )}
+
+      <Text
+        size="xl"
+        fw={500}
+        mb="xl"
+        style={{
+          fontStyle: "italic",
+          borderLeft: "4px solid var(--mantine-color-blue-6)",
+          paddingLeft: "1rem",
+        }}
+      >
+        {summary}
+      </Text>
+
+      <TypographyStylesProvider>
+        <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
+      </TypographyStylesProvider>
+    </>
+  );
+};
+
+export default ArticleContentSection;
