@@ -266,8 +266,18 @@ describe("WorkoutLog schema", () => {
   it("accepts a valid log", () => {
     const log = {
       user: "user123",
+      workoutId: new mongoose.Types.ObjectId(),
       workout: "Leg Day",
-      completedExercises: [{ exerciseId: "ex1", weight: 80, reps: 10, rpe: 7 }],
+      completedExercises: [
+        {
+          exerciseId: "ex1",
+          metricType: "reps",
+          unitLabel: "reps",
+          resultValue: 10,
+          loadKg: 80,
+          rpe: 7,
+        },
+      ],
       totalXpGained: 150,
     };
     expect(validate(workoutLogSchema, log)).toBeUndefined();
@@ -286,6 +296,12 @@ describe("WorkoutLog schema", () => {
   it("WARNING: workout field is String (title), not ObjectId ref", () => {
     const path = workoutLogSchema.path("workout");
     expect(path.instance).toBe("String");
+  });
+
+  it("uses ObjectId ref for workoutId", () => {
+    const path = workoutLogSchema.path("workoutId");
+    expect(path.instance).toBe("ObjectId");
+    expect(path.options.ref).toBe("Workout");
   });
 });
 

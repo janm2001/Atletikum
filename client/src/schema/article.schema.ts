@@ -19,6 +19,7 @@ export const articleSchema = z.object({
   title: z.string().min(3, "Naslov mora imati barem 3 znaka"),
   summary: z.string().optional(),
   content: z.string().min(10, "Sadržaj mora imati barem 10 znakova"),
+  actionSummary: z.array(z.string().min(2, "Akcijska stavka je prekratka")).optional(),
   tag: z.nativeEnum(ArticleTag),
   sourceUrl: z
     .string()
@@ -33,6 +34,7 @@ export const articleSchema = z.object({
     .or(z.literal(""))
     .or(z.undefined()),
   author: z.string().optional(),
+  relatedArticleIds: z.array(z.string()).optional(),
   quiz: z.array(quizQuestionSchema).optional(),
 });
 

@@ -23,12 +23,13 @@ import WorkoutCard from "../../components/Workouts/WorkoutCard";
 import { ArticleCard } from "../../components/KnowledgeBase/ArticleCard";
 import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
 import { useUser } from "../../hooks/useUser";
-import { useArticles } from "../../hooks/useArticle";
+import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
 import { useWorkouts } from "../../hooks/useWorkout";
 import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { getLevelFromTotalXp } from "../../utils/leveling";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
+import type { ArticleSummary } from "@/types/Article/article";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const { data: articles, isLoading: articlesLoading } = useArticles();
   const { data: workouts } = useWorkouts();
   const { data: completedArticleIds } = useMyQuizCompletions();
+  const toggleBookmarkMutation = useToggleArticleBookmark();
   const { data: recommendations, isLoading: recommendationsLoading } =
     useWeeklyRecommendations();
 
@@ -65,6 +67,13 @@ const Dashboard = () => {
 
     return (articles ?? []).slice(0, 3);
   }, [articles, recommendations]);
+
+  const handleToggleBookmark = (article: ArticleSummary) => {
+    toggleBookmarkMutation.mutate({
+      articleId: article._id,
+      shouldBookmark: !article.bookmark?.isBookmarked,
+    });
+  };
 
   return (
     <Container size="lg" py="md">
@@ -149,21 +158,29 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {recommendations?.insight && (
+        {recommendations?.personalBestSummaries?.length ? (
           <Card withBorder radius="md" shadow="sm" p="md">
-            <Stack gap={4}>
-              <Title order={4}>Tjedni fokus</Title>
-              <Text size="sm" c="dimmed">
-                {recommendations.insight.focusReason}
-              </Text>
-              <Text size="sm">
-                Ovaj tjedan: {recommendations.insight.completedThisWeek}/
-                {recommendations.insight.weeklyTarget} treninga · spremnost{" "}
-                {recommendations.insight.readinessScore}/5
-              </Text>
-            </Stack>
+            <Title order={4} mb="sm">
+              Najnoviji osobni rekordi
+            </Title>
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+              {recommendations.personalBestSummaries.map((summary) => (
+                <Card
+                  key={`${summary.exerciseId}-${summary.metricType}`}
+                  withBorder
+                  p="sm"
+                >
+                  <Text fw={600}>{summary.exerciseName}</Text>
+                  <Text size="sm" c="dimmed">
+                    {summary.label}:{" "}
+                    {summary.loadKg ? `${summary.loadKg} kg · ` : ""}
+                    {summary.bestValue} {summary.unitLabel}
+                  </Text>
+                </Card>
+              ))}
+            </SimpleGrid>
           </Card>
-        )}
+        ) : null}
 
         <div>
           <Group justify="space-between" align="center" mb="sm">
@@ -186,6 +203,7 @@ const Dashboard = () => {
                   article={article}
                   isQuizCompleted={completedSet.has(article._id)}
                   onNavigate={(id) => navigate(`/edukacija/${id}`)}
+                  onToggleBookmark={handleToggleBookmark}
                 />
               ))}
             </SimpleGrid>

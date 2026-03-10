@@ -4,6 +4,28 @@ import { apiClient } from "@/utils/apiService";
 import type { Workout } from "@/types/Workout/workout";
 import type { ArticleSummary } from "@/types/Article/article";
 
+type PersonalBestSummary = {
+  exerciseId: string;
+  exerciseName: string;
+  metricType: "reps" | "distance" | "time";
+  unitLabel: string;
+  bestValue: number;
+  loadKg: number | null;
+  label: string;
+  achievedAt?: string;
+  workoutTitle?: string;
+};
+
+type NextSessionSuggestion = {
+  exerciseId: string;
+  exerciseName: string;
+  metricType: "reps" | "distance" | "time";
+  unitLabel: string;
+  suggestedValue: number | null;
+  suggestedLoadKg: number | null;
+  reason: string;
+};
+
 type RevisionRecommendation = {
   articleId: string;
   lastScore: number;
@@ -26,6 +48,8 @@ type WeeklyRecommendationsResponse = {
     workouts: Workout[];
     articles: ArticleSummary[];
     revision: RevisionRecommendation | null;
+    personalBestSummaries: PersonalBestSummary[];
+    nextSessionSuggestions: NextSessionSuggestion[];
     insight: RecommendationInsight;
   };
 };

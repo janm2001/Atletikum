@@ -8,6 +8,7 @@ import type {
     WorkoutLogPayload,
     CreateWorkoutLogResult,
 } from "@/types/WorkoutLog/workoutLog";
+import { workoutLogSchema } from "@/schema/workoutLog.schema";
 
 export type { WorkoutLog, WorkoutLogPayload, CreateWorkoutLogResult };
 
@@ -45,9 +46,15 @@ export function useCreateWorkoutLog() {
 
     return useMutation<CreateWorkoutLogResult, Error, WorkoutLogPayload>({
         mutationFn: async (payload) => {
+            const parsedPayload = workoutLogSchema.safeParse(payload);
+
+            if (!parsedPayload.success) {
+                throw new Error(parsedPayload.error.issues[0]?.message || "Workout log nije valjan.");
+            }
+
             const { data } = await apiClient.post<WorkoutLogResponse>(
                 "/workout-logs",
-                payload
+                parsedPayload.data
             );
             return {
                 workoutLog: data.data.workoutLog,

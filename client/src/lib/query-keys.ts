@@ -9,6 +9,8 @@ export const keys = {
         categories: (cats: string[]) => [...keys.knowledgeBase.all, 'categories', ...cats] as const,
         list: () => [...keys.knowledgeBase.all, 'list'] as const,
         detail: (id: string) => [...keys.knowledgeBase.all, 'detail', id] as const,
+        saved: () => [...keys.knowledgeBase.all, 'saved'] as const,
+        bookmark: (id: string) => [...keys.knowledgeBase.all, 'bookmark', id] as const,
     },
     achievements: {
         all: ['achievements'] as const,

@@ -1,19 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { keys } from "../lib/query-keys";
 import { apiClient } from "../utils/apiService";
-import type { Article, ArticleSummary } from "../types/Article/article";
+import type {
+  Article,
+  ArticleBookmarkState,
+  ArticleSummary,
+} from "../types/Article/article";
 
 const API_URL = "/articles";
 
-export const useArticles = (tags?: string[]) => {
+export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean }) => {
+  const tags = options?.tags;
+  const savedOnly = options?.savedOnly ?? false;
+
   return useQuery({
     queryKey:
-      tags && tags.length > 0
-        ? keys.knowledgeBase.categories(tags)
-        : keys.knowledgeBase.all,
+      savedOnly
+        ? [...keys.knowledgeBase.saved(), ...(tags ?? [])]
+        : tags && tags.length > 0
+          ? keys.knowledgeBase.categories(tags)
+          : keys.knowledgeBase.all,
     queryFn: async (): Promise<ArticleSummary[]> => {
       const { data } = await apiClient.get(API_URL, {
-        params: tags && tags.length > 0 ? { tag: tags } : {},
+        params: {
+          ...(tags && tags.length > 0 ? { tag: tags } : {}),
+          ...(savedOnly ? { saved: true } : {}),
+        },
       });
       return data.data.articles;
     },
@@ -94,6 +106,55 @@ export const useDeleteArticle = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
+    },
+  });
+};
+
+export const useToggleArticleBookmark = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ArticleBookmarkState,
+    Error,
+    { articleId: string; shouldBookmark: boolean }
+  >({
+    mutationFn: async ({ articleId, shouldBookmark }) => {
+      const method = shouldBookmark ? "post" : "delete";
+      const { data } = await apiClient[method](`${API_URL}/${articleId}/bookmark`);
+      return data.data.bookmark;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
+      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.saved() });
+      await queryClient.invalidateQueries({
+        queryKey: keys.knowledgeBase.detail(variables.articleId),
+      });
+      await queryClient.invalidateQueries({ queryKey: keys.recommendations.all });
+    },
+  });
+};
+
+export const useUpdateArticleProgress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ArticleBookmarkState,
+    Error,
+    { articleId: string; progressPercent: number; isCompleted?: boolean }
+  >({
+    mutationFn: async ({ articleId, progressPercent, isCompleted }) => {
+      const { data } = await apiClient.patch(`${API_URL}/${articleId}/progress`, {
+        progressPercent,
+        isCompleted,
+      });
+      return data.data.bookmark;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
+      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.saved() });
+      await queryClient.invalidateQueries({
+        queryKey: keys.knowledgeBase.detail(variables.articleId),
+      });
     },
   });
 };

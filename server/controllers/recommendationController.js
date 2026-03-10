@@ -1,7 +1,13 @@
 const { Workout } = require("../models/Workout");
 const { Article } = require("../models/Article");
+const { ArticleBookmark } = require("../models/ArticleBookmark");
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");
+const { Exercise } = require("../models/Exercise");
+const {
+  summarizePersonalBests,
+  buildNextSessionSuggestions,
+} = require("../utils/workoutMetrics");
 
 const FOCUS_CONFIG = {
   mobilnost: {
@@ -45,6 +51,14 @@ const getRevisionRecommendation = async (userId) => {
   };
 };
 
+const normalizeBookmarkState = (bookmark) => ({
+  isBookmarked: Boolean(bookmark?.isBookmarked),
+  progressPercent: Number(bookmark?.progressPercent ?? 0),
+  isCompleted: Boolean(bookmark?.isCompleted),
+  savedAt: bookmark?.savedAt ?? null,
+  lastViewedAt: bookmark?.lastViewedAt ?? null,
+});
+
 exports.getWeeklyRecommendations = async (req, res) => {
   try {
     const userId = req.user._id.toString();
@@ -61,6 +75,28 @@ exports.getWeeklyRecommendations = async (req, res) => {
     })
       .populate("exercises.exerciseId", "title imageLink")
       .lean();
+
+    const exerciseIds = new Set();
+    availableWorkouts.forEach((workout) => {
+      (workout.exercises ?? []).forEach((exercise) => {
+        exerciseIds.add(
+          String(exercise.exerciseId?._id ?? exercise.exerciseId),
+        );
+      });
+    });
+    recentLogs.forEach((log) => {
+      (log.completedExercises ?? []).forEach((exercise) => {
+        exerciseIds.add(String(exercise.exerciseId));
+      });
+    });
+
+    const exerciseDocs = await Exercise.find(
+      { _id: { $in: [...exerciseIds] } },
+      { title: 1 },
+    ).lean();
+    const exerciseNameById = new Map(
+      exerciseDocs.map((exercise) => [String(exercise._id), exercise.title]),
+    );
 
     const completedArticleIds = new Set(
       completedQuizzes.map((completion) => String(completion.article)),
@@ -123,7 +159,34 @@ exports.getWeeklyRecommendations = async (req, res) => {
       .limit(3)
       .lean();
 
+    const articleBookmarks = await ArticleBookmark.find({
+      user: userId,
+      article: { $in: recommendedArticles.map((article) => article._id) },
+    }).lean();
+    const bookmarkMap = new Map(
+      articleBookmarks.map((bookmark) => [
+        String(bookmark.article),
+        normalizeBookmarkState(bookmark),
+      ]),
+    );
+    const enrichedRecommendedArticles = recommendedArticles.map((article) => ({
+      ...article,
+      bookmark:
+        bookmarkMap.get(String(article._id)) ?? normalizeBookmarkState(),
+    }));
+
     const revision = await getRevisionRecommendation(userId);
+    const personalBestSummaries = summarizePersonalBests(
+      recentLogs,
+      exerciseNameById,
+    ).slice(0, 4);
+    const nextSessionSuggestions = buildNextSessionSuggestions({
+      recommendedWorkouts,
+      workoutLogs: recentLogs,
+      readinessScore: averageReadiness,
+      feedbackScore: averageFeedback,
+      exerciseNameById,
+    });
     const completedThisWeek = recentLogs.filter((log) => {
       const createdAt = new Date(log.date ?? 0);
       const now = new Date();
@@ -135,8 +198,10 @@ exports.getWeeklyRecommendations = async (req, res) => {
       status: "success",
       data: {
         workouts: recommendedWorkouts,
-        articles: recommendedArticles,
+        articles: enrichedRecommendedArticles,
         revision,
+        personalBestSummaries,
+        nextSessionSuggestions,
         insight: {
           focusReason: focusConfig.reason,
           lowReadiness,

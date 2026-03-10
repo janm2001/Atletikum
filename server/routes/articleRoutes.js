@@ -17,6 +17,13 @@ router
   );
 
 router
+  .route("/:id/bookmark")
+  .post(articleController.toggleBookmark)
+  .delete(articleController.removeBookmark);
+
+router.patch("/:id/progress", articleController.updateReadingProgress);
+
+router
   .route("/:id")
   .get(articleController.getArticleById)
   .patch(

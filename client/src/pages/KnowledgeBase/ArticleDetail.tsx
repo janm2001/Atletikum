@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
+  ActionIcon,
   Container,
   Title,
   Text,
@@ -16,6 +17,7 @@ import {
   Divider,
   Stack,
   Alert,
+  SimpleGrid,
 } from "@mantine/core";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import {
@@ -26,10 +28,17 @@ import {
   IconCheck,
   IconX,
   IconClock,
+  IconBookmark,
+  IconBookmarkFilled,
 } from "@tabler/icons-react";
-import { useArticleDetail } from "../../hooks/useArticle";
+import {
+  useArticleDetail,
+  useToggleArticleBookmark,
+  useUpdateArticleProgress,
+} from "../../hooks/useArticle";
 import { useQuizStatus } from "../../hooks/useQuiz";
 import { XpNotification } from "../../components/XpNotification/XpNotification";
+import { ArticleCard } from "../../components/KnowledgeBase/ArticleCard";
 
 type ArticleDetailLocationState = {
   quizResult?: {
@@ -47,6 +56,9 @@ const ArticleDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: article, isLoading, error } = useArticleDetail(id!);
+  const toggleBookmarkMutation = useToggleArticleBookmark();
+  const updateProgressMutation = useUpdateArticleProgress();
+  const hasTrackedOpenRef = useRef(false);
 
   const hasQuiz = !!(article?.quiz && article.quiz.length > 0);
   const { data: quizStatus } = useQuizStatus(hasQuiz ? id! : "");
@@ -60,6 +72,22 @@ const ArticleDetail = () => {
   if (locationState?.quizResult) {
     window.history.replaceState({}, "");
   }
+
+  useEffect(() => {
+    if (!article || hasTrackedOpenRef.current) {
+      return;
+    }
+
+    hasTrackedOpenRef.current = true;
+    const currentProgress = article.bookmark?.progressPercent ?? 0;
+
+    if (currentProgress < 25) {
+      updateProgressMutation.mutate({
+        articleId: article._id,
+        progressPercent: 25,
+      });
+    }
+  }, [article, updateProgressMutation]);
 
   if (isLoading) {
     return <SpinnerComponent />;
@@ -112,15 +140,38 @@ const ArticleDetail = () => {
         {article.tag}
       </Badge>
 
-      <Title order={1} mb="xs" style={{ lineHeight: 1.3 }}>
-        {article.title}
-      </Title>
+      <Group justify="space-between" align="flex-start" gap="sm">
+        <Title order={1} mb="xs" style={{ lineHeight: 1.3 }}>
+          {article.title}
+        </Title>
+        <ActionIcon
+          variant="light"
+          color={article.bookmark?.isBookmarked ? "grape" : "gray"}
+          size="lg"
+          onClick={() =>
+            toggleBookmarkMutation.mutate({
+              articleId: article._id,
+              shouldBookmark: !article.bookmark?.isBookmarked,
+            })
+          }
+        >
+          {article.bookmark?.isBookmarked ? (
+            <IconBookmarkFilled size={18} />
+          ) : (
+            <IconBookmark size={18} />
+          )}
+        </ActionIcon>
+      </Group>
 
       <Group mb="xl" c="dimmed">
         <Text size="sm">Autor: {article.author}</Text>
         <Text size="sm">•</Text>
         <Text size="sm">
           {new Date(article.createdAt).toLocaleDateString("hr-HR")}
+        </Text>
+        <Text size="sm">•</Text>
+        <Text size="sm">
+          Napredak: {article.bookmark?.progressPercent ?? 0}%
         </Text>
       </Group>
 
@@ -150,6 +201,44 @@ const ArticleDetail = () => {
       <TypographyStylesProvider>
         <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
       </TypographyStylesProvider>
+
+      {article.actionSummary && article.actionSummary.length > 0 && (
+        <Paper my="xl" p="md" withBorder radius="md">
+          <Title order={4} mb="sm">
+            Primijeni odmah
+          </Title>
+          <Stack gap="xs">
+            {article.actionSummary.map((item, index) => (
+              <Text key={`${item}-${index}`} size="sm">
+                {index + 1}. {item}
+              </Text>
+            ))}
+          </Stack>
+        </Paper>
+      )}
+
+      <Group my="lg" justify="space-between" align="center">
+        <Button
+          variant="light"
+          onClick={() =>
+            updateProgressMutation.mutate({
+              articleId: article._id,
+              progressPercent: 100,
+              isCompleted: true,
+            })
+          }
+        >
+          Označi kao pročitano
+        </Button>
+        {article.bookmark?.lastViewedAt && (
+          <Text size="sm" c="dimmed">
+            Zadnje čitanje:{" "}
+            {new Date(article.bookmark.lastViewedAt).toLocaleDateString(
+              "hr-HR",
+            )}
+          </Text>
+        )}
+      </Group>
 
       {article.sourceUrl && (
         <Paper my="xl" p="md" withBorder radius="md" bg="dark.7">
@@ -336,6 +425,27 @@ const ArticleDetail = () => {
           totalXp={quizResult.totalXp}
           onClose={() => setQuizResult(null)}
         />
+      )}
+
+      {article.relatedArticles && article.relatedArticles.length > 0 && (
+        <>
+          <Divider my="xl" label="Povezani članci" labelPosition="center" />
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+            {article.relatedArticles.map((relatedArticle) => (
+              <ArticleCard
+                key={relatedArticle._id}
+                article={relatedArticle}
+                onNavigate={(nextId) => navigate(`/edukacija/${nextId}`)}
+                onToggleBookmark={(related) =>
+                  toggleBookmarkMutation.mutate({
+                    articleId: related._id,
+                    shouldBookmark: !related.bookmark?.isBookmarked,
+                  })
+                }
+              />
+            ))}
+          </SimpleGrid>
+        </>
       )}
     </Container>
   );

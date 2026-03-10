@@ -7,8 +7,10 @@ import {
   Image,
   Loader,
   Modal,
+  MultiSelect,
   Select,
   Stack,
+  TagsInput,
   TextInput,
   Textarea,
   Text,
@@ -41,10 +43,12 @@ const getDefaultFormValues = (): ArticleFormValues => ({
   title: "",
   summary: "",
   content: "",
+  actionSummary: [],
   tag: ArticleTag.TRAINING,
   sourceUrl: "",
   sourceTitle: "",
   coverImage: "",
+  relatedArticleIds: [],
   author: "Atletikum Tim",
   quiz: [],
 });
@@ -86,10 +90,12 @@ const ArticlesTab = () => {
         title: fullArticle.title,
         summary: fullArticle.summary,
         content: fullArticle.content || "",
+        actionSummary: fullArticle.actionSummary ?? [],
         tag: fullArticle.tag,
         sourceUrl: fullArticle.sourceUrl || "",
         sourceTitle: fullArticle.sourceTitle || "",
         coverImage: fullArticle.coverImage || "",
+        relatedArticleIds: fullArticle.relatedArticleIds ?? [],
         author: fullArticle.author || "Atletikum Tim",
         quiz: fullArticle.quiz ?? [],
       });
@@ -113,10 +119,12 @@ const ArticlesTab = () => {
       title: article.title,
       summary: article.summary,
       content: article.content || "",
+      actionSummary: article.actionSummary ?? [],
       tag: article.tag,
       sourceUrl: article.sourceUrl || "",
       sourceTitle: article.sourceTitle || "",
       coverImage: article.coverImage || "",
+      relatedArticleIds: article.relatedArticleIds ?? [],
       author: article.author || "Atletikum Tim",
       quiz: [],
     });
@@ -145,9 +153,18 @@ const ArticlesTab = () => {
         formData.append("tag", data.tag);
         if (data.summary) formData.append("summary", data.summary);
         formData.append("content", data.content);
+        if (data.actionSummary && data.actionSummary.length > 0) {
+          formData.append("actionSummary", JSON.stringify(data.actionSummary));
+        }
         if (data.sourceUrl) formData.append("sourceUrl", data.sourceUrl);
         if (data.sourceTitle) formData.append("sourceTitle", data.sourceTitle);
         if (data.author) formData.append("author", data.author);
+        if (data.relatedArticleIds && data.relatedArticleIds.length > 0) {
+          formData.append(
+            "relatedArticleIds",
+            JSON.stringify(data.relatedArticleIds),
+          );
+        }
         if (data.quiz && data.quiz.length > 0) {
           formData.append("quiz", JSON.stringify(data.quiz));
         }
@@ -260,6 +277,21 @@ const ArticlesTab = () => {
               />
 
               <Controller
+                name="actionSummary"
+                control={control}
+                render={({ field }) => (
+                  <TagsInput
+                    label="Akcijski sažetak"
+                    description="Dodajte kratke, primjenjive korake koje čitatelj može odmah primijeniti."
+                    placeholder="Dodaj stavku i pritisni Enter"
+                    value={field.value ?? []}
+                    onChange={field.onChange}
+                    error={errors.actionSummary?.message}
+                  />
+                )}
+              />
+
+              <Controller
                 name="content"
                 control={control}
                 render={({ field }) => (
@@ -325,6 +357,26 @@ const ArticlesTab = () => {
                 label="Autor"
                 {...register("author")}
                 error={errors.author?.message}
+              />
+
+              <Controller
+                name="relatedArticleIds"
+                control={control}
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Povezani članci"
+                    data={(articles ?? [])
+                      .filter((article) => article._id !== editingArticleId)
+                      .map((article) => ({
+                        value: article._id,
+                        label: article.title,
+                      }))}
+                    searchable
+                    clearable
+                    value={field.value ?? []}
+                    onChange={field.onChange}
+                  />
+                )}
               />
 
               <Divider my="sm" label="Kviz" labelPosition="center" />

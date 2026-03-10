@@ -1,5 +1,17 @@
-import { Card, Image, Badge, Group, Button, Text } from "@mantine/core";
-import { IconCheck } from "@tabler/icons-react";
+import {
+  Card,
+  Image,
+  Badge,
+  Group,
+  Button,
+  Text,
+  ActionIcon,
+} from "@mantine/core";
+import {
+  IconCheck,
+  IconBookmark,
+  IconBookmarkFilled,
+} from "@tabler/icons-react";
 import type {
   ArticleSummary,
   ArticleTagType,
@@ -23,12 +35,14 @@ interface ArticleCardProps {
   article: ArticleSummary;
   isQuizCompleted?: boolean;
   onNavigate: (id: string) => void;
+  onToggleBookmark?: (article: ArticleSummary) => void;
 }
 
 export const ArticleCard = ({
   article,
   isQuizCompleted,
   onNavigate,
+  onToggleBookmark,
 }: ArticleCardProps) => {
   return (
     <Card
@@ -62,10 +76,38 @@ export const ArticleCard = ({
               Kviz
             </Badge>
           )}
+          {article.bookmark?.isCompleted && (
+            <Badge color="grape" variant="light">
+              Pročitano
+            </Badge>
+          )}
+          {article.bookmark &&
+            article.bookmark.progressPercent > 0 &&
+            !article.bookmark.isCompleted && (
+              <Badge color="gray" variant="light">
+                {article.bookmark.progressPercent}%
+              </Badge>
+            )}
         </Group>
-        <Text size="xs" c="dimmed">
-          {new Date(article.createdAt).toLocaleDateString("hr-HR")}
-        </Text>
+        <Group gap="xs">
+          {onToggleBookmark && (
+            <ActionIcon
+              variant="subtle"
+              color={article.bookmark?.isBookmarked ? "grape" : "gray"}
+              onClick={() => onToggleBookmark(article)}
+              aria-label="Spremi članak"
+            >
+              {article.bookmark?.isBookmarked ? (
+                <IconBookmarkFilled size={16} />
+              ) : (
+                <IconBookmark size={16} />
+              )}
+            </ActionIcon>
+          )}
+          <Text size="xs" c="dimmed">
+            {new Date(article.createdAt).toLocaleDateString("hr-HR")}
+          </Text>
+        </Group>
       </Group>
 
       <Text fw={500} size="lg" mt="md" lineClamp={2}>

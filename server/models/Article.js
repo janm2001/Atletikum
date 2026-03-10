@@ -29,6 +29,7 @@ const articleSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     summary: { type: String, required: true, trim: true },
     content: { type: String, required: true },
+    actionSummary: [{ type: String, trim: true }],
     tag: {
       type: String,
       required: true,
@@ -37,6 +38,12 @@ const articleSchema = new mongoose.Schema(
     sourceUrl: { type: String, trim: true },
     sourceTitle: { type: String, trim: true },
     coverImage: { type: String, trim: true },
+    relatedArticleIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Article",
+      },
+    ],
     quiz: [quizQuestionSchema],
     author: { type: String, default: "Atletikum Tim" },
   },

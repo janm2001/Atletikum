@@ -27,15 +27,27 @@ export interface QuizQuestion {
   correctIndex: number;
 }
 
+export interface ArticleBookmarkState {
+  isBookmarked: boolean;
+  progressPercent: number;
+  isCompleted: boolean;
+  savedAt?: string | null;
+  lastViewedAt?: string | null;
+}
+
 export interface Article {
   _id: string;
   title: string;
   summary: string;
   content: string;
+  actionSummary?: string[];
   tag: ArticleTagType;
   sourceUrl?: string;
   sourceTitle?: string;
   coverImage?: string;
+  relatedArticleIds?: string[];
+  relatedArticles?: ArticleSummary[];
+  bookmark?: ArticleBookmarkState;
   quiz?: QuizQuestion[];
   author: string;
   createdAt: string;
