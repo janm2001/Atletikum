@@ -1,12 +1,13 @@
 const { QuizCompletion } = require("../models/QuizCompletion");
+const { Article } = require("../models/Article");
 const { User } = require("../models/User");
 const { getLevelFromTotalXp } = require("../utils/leveling");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
 const { updateDailyStreak } = require("../utils/updateDailyStreak");
+const { scoreQuizSubmission } = require("../utils/quizScoring");
 
 const QUIZ_COOLDOWN_DAYS = 3;
-const XP_PER_CORRECT_ANSWER = 25;
 
 exports.getQuizStatus = async (req, res) => {
   try {
@@ -49,8 +50,16 @@ exports.getQuizStatus = async (req, res) => {
 exports.submitQuiz = async (req, res) => {
   try {
     const { articleId } = req.params;
-    const { score, totalQuestions } = req.body;
+    const { submittedAnswers } = req.body;
     const userId = req.user._id.toString();
+    const article = await Article.findById(articleId).lean();
+
+    if (!article || !Array.isArray(article.quiz) || article.quiz.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Kviz nije dostupan za ovaj članak.",
+      });
+    }
 
     // --- Cooldown check ---
     const lastCompletion = await QuizCompletion.findOne({
@@ -71,10 +80,10 @@ exports.submitQuiz = async (req, res) => {
       }
     }
 
-    // --- Calculate XP ---
-    const percentage = totalQuestions > 0 ? score / totalQuestions : 0;
-    const passed = percentage >= 0.5;
-    const xpGained = passed ? Math.max(0, score) * XP_PER_CORRECT_ANSWER : 0;
+    const { score, totalQuestions, passed, xpGained } = scoreQuizSubmission(
+      article.quiz,
+      submittedAnswers,
+    );
 
     // --- Save completion ---
     const completion = await QuizCompletion.create({
@@ -84,6 +93,7 @@ exports.submitQuiz = async (req, res) => {
       totalQuestions,
       xpGained,
       passed,
+      submittedAnswers,
     });
 
     const updatedUser = await User.findById(req.user._id);

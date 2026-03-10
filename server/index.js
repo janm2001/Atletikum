@@ -13,6 +13,7 @@ const articleRoutes = require("./routes/articleRoutes");
 const quizRoutes = require("./routes/quizRoutes");
 const achievementRoutes = require("./routes/achievementRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
 
 const path = require("path");
 
@@ -52,6 +53,7 @@ app.use("/api/v1/articles", articleRoutes);
 app.use("/api/v1/quiz", quizRoutes);
 app.use("/api/v1/achievements", achievementRoutes);
 app.use("/api/v1/leaderboard", leaderboardRoutes);
+app.use("/api/v1/recommendations", recommendationRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)

@@ -41,7 +41,7 @@ const QuizPage = () => {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [score, setScore] = useState(0);
+  const [submittedAnswers, setSubmittedAnswers] = useState<number[]>([]);
 
   if (articleLoading || statusLoading) {
     return <SpinnerComponent />;
@@ -157,11 +157,19 @@ const QuizPage = () => {
     if (selectedOption === null) return;
 
     const currentQuestion = questions[currentQuestionIdx];
-    const correctOption = currentQuestion.options[currentQuestion.correctIndex];
+    const selectedIndex = currentQuestion.options.findIndex(
+      (option) => option === selectedOption,
+    );
 
-    if (selectedOption === correctOption) {
-      setScore((prev) => prev + 1);
+    if (selectedIndex === -1) {
+      return;
     }
+
+    setSubmittedAnswers((previous) => {
+      const next = [...previous];
+      next[currentQuestionIdx] = selectedIndex;
+      return next;
+    });
 
     setIsAnswered(true);
   };
@@ -173,16 +181,19 @@ const QuizPage = () => {
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
-      handleQuizComplete(score);
+      handleQuizComplete(submittedAnswers);
     }
   };
 
-  const handleQuizComplete = async (finalScore: number) => {
+  const handleQuizComplete = async (answers: number[]) => {
+    const localScore = questions.reduce((sum, question, index) => {
+      return sum + (answers[index] === question.correctIndex ? 1 : 0);
+    }, 0);
+
     try {
       const result = await submitQuizMutation.mutateAsync({
         articleId: id!,
-        score: finalScore,
-        totalQuestions: questions.length,
+        submittedAnswers: answers,
       });
 
       const xp = result.data.completion.xpGained;
@@ -200,7 +211,7 @@ const QuizPage = () => {
           state: {
             quizResult: {
               xpGained: 0,
-              score: finalScore,
+              score: result.data.completion.score,
               totalQuestions: questions.length,
               passed: false,
             },
@@ -215,7 +226,7 @@ const QuizPage = () => {
         state: {
           type: "quiz",
           xpGained: xp,
-          score: finalScore,
+          score: result.data.completion.score,
           totalQuestions: questions.length,
           title: article.title,
           newAchievements: result.data.newAchievements ?? [],
@@ -231,8 +242,8 @@ const QuizPage = () => {
         replace: true,
         state: {
           type: "quiz",
-          xpGained: finalScore * 25,
-          score: finalScore,
+          xpGained: 0,
+          score: localScore,
           totalQuestions: questions.length,
           title: article.title,
           newAchievements: [],
@@ -241,7 +252,6 @@ const QuizPage = () => {
     }
   };
 
-  // --- Question display ---
   const currentQuestion = questions[currentQuestionIdx];
   const correctOption = currentQuestion.options[currentQuestion.correctIndex];
   const wasCorrect = selectedOption === correctOption;

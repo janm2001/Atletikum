@@ -8,11 +8,14 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import type { WorkoutLog } from "../../types/WorkoutLog/workoutLog";
+import {
+  formatCompletedExerciseResult,
+  type WorkoutLog,
+} from "../../types/WorkoutLog/workoutLog";
 
 interface WorkoutLogExerciseGroupProps {
   exerciseName: string;
-  sets: { weight: number; reps: number; rpe: number }[];
+  sets: WorkoutLog["completedExercises"];
 }
 
 export const WorkoutLogExerciseGroup = ({
@@ -28,8 +31,9 @@ export const WorkoutLogExerciseGroup = ({
         <List size="xs" spacing={2}>
           {sets.map((setItem, index) => (
             <List.Item key={index}>
-              Set {index + 1}: {setItem.weight} kg × {setItem.reps} reps · RPE{" "}
+              Set {index + 1}: {formatCompletedExerciseResult(setItem)} · RPE{" "}
               {setItem.rpe}
+              {setItem.isPersonalBest ? " · PR" : ""}
             </List.Item>
           ))}
         </List>
@@ -80,6 +84,13 @@ export const WorkoutLogCard = ({
           <Badge variant="dot" color="blue">
             {workoutLog.completedExercises.length} setova
           </Badge>
+          {workoutLog.completedExercises.some(
+            (exercise) => exercise.isPersonalBest,
+          ) && (
+            <Badge variant="light" color="orange">
+              Novi PR
+            </Badge>
+          )}
         </Group>
 
         <Text size="sm" c="dimmed">

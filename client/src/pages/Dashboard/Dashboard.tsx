@@ -28,6 +28,7 @@ import { useWorkouts } from "../../hooks/useWorkout";
 import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { getLevelFromTotalXp } from "../../utils/leveling";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
+import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ const Dashboard = () => {
   const { data: articles, isLoading: articlesLoading } = useArticles();
   const { data: workouts } = useWorkouts();
   const { data: completedArticleIds } = useMyQuizCompletions();
+  const { data: recommendations, isLoading: recommendationsLoading } =
+    useWeeklyRecommendations();
 
   const completedSet = useMemo(
     () => new Set(completedArticleIds ?? []),
@@ -44,14 +47,24 @@ const Dashboard = () => {
   const level = user ? getLevelFromTotalXp(user.totalXp) : 1;
 
   const suggestedWorkout = useMemo(() => {
+    if (recommendations?.workouts?.[0]) {
+      return recommendations.workouts[0];
+    }
+
     if (!workouts || !user) return null;
     const available = workouts
       .filter((w) => w.requiredLevel <= level)
       .sort((a, b) => b.requiredLevel - a.requiredLevel);
     return available[0] ?? workouts[0] ?? null;
-  }, [workouts, user, level]);
+  }, [recommendations?.workouts, workouts, user, level]);
 
-  const topArticles = useMemo(() => (articles ?? []).slice(0, 3), [articles]);
+  const topArticles = useMemo(() => {
+    if (recommendations?.articles?.length) {
+      return recommendations.articles;
+    }
+
+    return (articles ?? []).slice(0, 3);
+  }, [articles, recommendations]);
 
   return (
     <Container size="lg" py="md">
@@ -112,6 +125,46 @@ const Dashboard = () => {
 
         <XpProgressSection variant="full" />
 
+        {recommendations?.revision && (
+          <Card withBorder radius="md" shadow="sm" p="md">
+            <Group justify="space-between" align="center" wrap="wrap">
+              <div>
+                <Title order={4}>Vrijeme za ponavljanje</Title>
+                <Text c="dimmed" size="sm" mt={4}>
+                  Zadnji rezultat: {recommendations.revision.lastScore}/
+                  {recommendations.revision.totalQuestions}. Ponovi gradivo i
+                  osvoji novi XP.
+                </Text>
+              </div>
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/edukacija/${recommendations.revision?.articleId}/kviz`,
+                  )
+                }
+              >
+                Pokreni revision kviz
+              </Button>
+            </Group>
+          </Card>
+        )}
+
+        {recommendations?.insight && (
+          <Card withBorder radius="md" shadow="sm" p="md">
+            <Stack gap={4}>
+              <Title order={4}>Tjedni fokus</Title>
+              <Text size="sm" c="dimmed">
+                {recommendations.insight.focusReason}
+              </Text>
+              <Text size="sm">
+                Ovaj tjedan: {recommendations.insight.completedThisWeek}/
+                {recommendations.insight.weeklyTarget} treninga · spremnost{" "}
+                {recommendations.insight.readinessScore}/5
+              </Text>
+            </Stack>
+          </Card>
+        )}
+
         <div>
           <Group justify="space-between" align="center" mb="sm">
             <Title order={3}>Preporučeni članci</Title>
@@ -123,7 +176,7 @@ const Dashboard = () => {
               Svi članci
             </Button>
           </Group>
-          {articlesLoading ? (
+          {articlesLoading || recommendationsLoading ? (
             <SpinnerComponent size="md" fullHeight={false} />
           ) : (
             <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">

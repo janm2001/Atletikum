@@ -26,6 +26,7 @@ type WorkoutLogResponse = {
         user: User | null;
         newAchievements: NewAchievement[];
         totalXpGained: number;
+        personalBests?: WorkoutLogPayload["completedExercises"];
     };
 };
 
@@ -53,6 +54,7 @@ export function useCreateWorkoutLog() {
                 user: data.data.user,
                 newAchievements: data.data.newAchievements,
                 totalXpGained: data.data.totalXpGained,
+                personalBests: data.data.personalBests,
             };
         },
         onSuccess: async () => {

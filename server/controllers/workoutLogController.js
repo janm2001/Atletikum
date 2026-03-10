@@ -5,6 +5,11 @@ const { getLevelFromTotalXp } = require("../utils/leveling");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
 const { updateDailyStreak } = require("../utils/updateDailyStreak");
+const {
+  normalizeCompletedExercise,
+  calculateWorkoutXp,
+  flagPersonalBests,
+} = require("../utils/workoutMetrics");
 
 exports.getMyWorkoutLogs = async (req, res) => {
   try {
@@ -24,21 +29,87 @@ exports.getMyWorkoutLogs = async (req, res) => {
 
 exports.createWorkoutLog = async (req, res) => {
   try {
-    const { workout, requiredLevel, completedExercises, date } = req.body;
+    const {
+      workoutId,
+      completedExercises,
+      readinessScore,
+      sessionFeedbackScore,
+    } = req.body;
 
-    // --- Compute XP server-side from workout data ---
-    const workoutDoc = await Workout.findOne({ title: workout });
-    const xpGain = workoutDoc
-      ? workoutDoc.exercises.reduce((sum, ex) => sum + (ex.baseXp || 0), 0)
-      : 0;
+    if (
+      !workoutId ||
+      !Array.isArray(completedExercises) ||
+      completedExercises.length === 0
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Workout i odrađeni setovi su obavezni.",
+      });
+    }
+
+    const workoutDoc = await Workout.findById(workoutId).lean();
+
+    if (!workoutDoc) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Workout nije pronađen.",
+      });
+    }
+
+    if ((req.user.level ?? 1) < (workoutDoc.requiredLevel ?? 1)) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Ovaj workout još nije otključan.",
+      });
+    }
+
+    const workoutExercisesById = new Map(
+      workoutDoc.exercises.map((exercise) => [
+        String(exercise.exerciseId),
+        exercise,
+      ]),
+    );
+
+    const normalizedExercises = completedExercises.map((exercise) => {
+      const workoutExercise = workoutExercisesById.get(
+        String(exercise.exerciseId),
+      );
+
+      if (!workoutExercise) {
+        throw new Error("Workout sadrži nevažeću vježbu u logu.");
+      }
+
+      return normalizeCompletedExercise(exercise, workoutExercise);
+    });
+
+    const previousLogs = await WorkoutLog.find({
+      user: req.user._id.toString(),
+      "completedExercises.exerciseId": {
+        $in: normalizedExercises.map((exercise) => exercise.exerciseId),
+      },
+    })
+      .select("completedExercises")
+      .lean();
+
+    const previousExercises = previousLogs.flatMap(
+      (log) => log.completedExercises ?? [],
+    );
+    const completedWithPersonalBests = flagPersonalBests(
+      normalizedExercises,
+      previousExercises,
+    );
+
+    const xpGain = calculateWorkoutXp(workoutDoc, completedWithPersonalBests);
 
     const newWorkoutLog = await WorkoutLog.create({
       user: req.user._id.toString(),
-      workout,
-      requiredLevel,
-      completedExercises,
+      workoutId: workoutDoc._id,
+      workout: workoutDoc.title,
+      requiredLevel: workoutDoc.requiredLevel,
+      readinessScore: Number(readinessScore ?? 3),
+      sessionFeedbackScore: Number(sessionFeedbackScore ?? 3),
+      completedExercises: completedWithPersonalBests,
       totalXpGained: xpGain,
-      date,
     });
 
     // --- Update user XP (body category) ---
@@ -66,6 +137,9 @@ exports.createWorkoutLog = async (req, res) => {
         user: sanitizeUser(freshUser),
         newAchievements,
         totalXpGained: xpGain,
+        personalBests: completedWithPersonalBests.filter(
+          (exercise) => exercise.isPersonalBest,
+        ),
       },
     });
   } catch (err) {

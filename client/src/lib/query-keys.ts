@@ -28,4 +28,8 @@ export const keys = {
     workoutLogs: {
         all: ['workout-logs'] as const,
     },
+    recommendations: {
+        all: ['recommendations'] as const,
+        weekly: () => [...keys.recommendations.all, 'weekly'] as const,
+    },
 }

@@ -9,7 +9,11 @@ import {
   Title,
 } from "@mantine/core";
 import { LineChart, BarChart } from "@mantine/charts";
-import type { WorkoutLog } from "../../types/WorkoutLog/workoutLog";
+import {
+  getCompletedExerciseLoad,
+  getCompletedExerciseValue,
+  type WorkoutLog,
+} from "../../types/WorkoutLog/workoutLog";
 
 interface WorkoutLogChartsProps {
   workoutLogs: WorkoutLog[];
@@ -92,7 +96,18 @@ const WorkoutLogCharts = ({
             (s) => s.exerciseId === exId,
           );
           if (sets.length > 0) {
-            const maxWeight = Math.max(...sets.map((s) => s.weight));
+            const loads = sets
+              .map((set) => getCompletedExerciseLoad(set))
+              .filter(
+                (value): value is number =>
+                  value !== null && value !== undefined,
+              );
+
+            if (loads.length === 0) {
+              continue;
+            }
+
+            const maxWeight = Math.max(...loads);
             const name = exerciseNameById.get(exId) ?? exId;
             entry[name] = maxWeight;
           }
@@ -115,10 +130,15 @@ const WorkoutLogCharts = ({
     );
 
     return sortedLogs.map((log) => {
-      const totalVolume = log.completedExercises.reduce(
-        (sum, ex) => sum + ex.weight * ex.reps,
-        0,
-      );
+      const totalVolume = log.completedExercises.reduce((sum, ex) => {
+        const load = getCompletedExerciseLoad(ex) ?? 0;
+
+        if ((ex.metricType ?? "reps") !== "reps") {
+          return sum;
+        }
+
+        return sum + load * getCompletedExerciseValue(ex);
+      }, 0);
       return {
         date: log.date
           ? new Date(log.date).toLocaleDateString("hr-HR", {

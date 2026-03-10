@@ -11,12 +11,19 @@ import {
   NumberInput,
   Progress,
   ScrollArea,
+  SegmentedControl,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import {
+  Controller,
+  useFieldArray,
+  useForm,
+  useWatch,
+  type SubmitHandler,
+} from "react-hook-form";
 import type { Workout } from "@/types/Workout/workout";
 import { getExerciseId, getExerciseImage } from "@/types/Workout/workout";
 import { useWorkouts } from "@/hooks/useWorkout";
@@ -24,6 +31,10 @@ import { useExercises } from "@/hooks/useExercise";
 import { useCreateWorkoutLog } from "@/hooks/useWorkoutLogs";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useUser } from "@/hooks/useUser";
+import type {
+  CompletedExercisePayload,
+  WorkoutMetricType,
+} from "@/types/WorkoutLog/workoutLog";
 
 type TrackWorkoutLocationState = {
   workout?: Workout;
@@ -31,17 +42,45 @@ type TrackWorkoutLocationState = {
 
 type CompletedExercise = {
   exerciseId: string;
-  weight: number;
-  reps: number;
+  metricType: WorkoutMetricType;
+  unitLabel: string;
+  resultValue: number;
+  loadKg?: number | null;
   rpe: number;
 };
 
 type TrackWorkoutFormValues = {
   sets: {
-    weight: number;
-    reps: number;
+    loadKg: number | null;
+    resultValue: number;
     rpe: number;
   }[];
+};
+
+const getMetricFromPrescription = (prescription: string) => {
+  const normalized = prescription.trim().toLowerCase();
+
+  if (/(\d+(?:[.,]\d+)?)\s*(m|meter|metara|metar)$/.test(normalized)) {
+    return {
+      metricType: "distance" as const,
+      unitLabel: "m",
+      label: "Udaljenost (m)",
+    };
+  }
+
+  if (/(\d+(?:[.,]\d+)?)\s*(s|sec|sek|sekundi|min|minute)$/.test(normalized)) {
+    return {
+      metricType: "time" as const,
+      unitLabel: normalized.includes("min") ? "min" : "s",
+      label: normalized.includes("min") ? "Trajanje (min)" : "Trajanje (s)",
+    };
+  }
+
+  return {
+    metricType: "reps" as const,
+    unitLabel: "reps",
+    label: "Ponavljanja",
+  };
 };
 
 const TrackWorkout = () => {
@@ -61,7 +100,7 @@ const TrackWorkout = () => {
     formState: { errors },
   } = useForm<TrackWorkoutFormValues>({
     defaultValues: {
-      sets: [{ weight: 0, reps: 0, rpe: 6 }],
+      sets: [{ loadKg: null, resultValue: 0, rpe: 6 }],
     },
   });
 
@@ -93,8 +132,14 @@ const TrackWorkout = () => {
     null,
   );
   const [activeSetIndex, setActiveSetIndex] = useState(0);
+  const [readinessScore, setReadinessScore] = useState("3");
+  const [sessionFeedbackScore, setSessionFeedbackScore] = useState("3");
 
   const currentExercise = workout?.exercises[currentIndex];
+  const currentMetric = useMemo(
+    () => getMetricFromPrescription(currentExercise?.reps ?? ""),
+    [currentExercise?.reps],
+  );
   const selectedExerciseDetail = selectedExerciseId
     ? exerciseById.get(selectedExerciseId)
     : undefined;
@@ -110,8 +155,8 @@ const TrackWorkout = () => {
   useEffect(() => {
     reset({
       sets: Array.from({ length: plannedSetCount }, () => ({
-        weight: 0,
-        reps: 0,
+        loadKg: null,
+        resultValue: 0,
         rpe: 6,
       })),
     });
@@ -119,8 +164,8 @@ const TrackWorkout = () => {
 
   const handleNextSet = async () => {
     const isCurrentSetValid = await trigger([
-      `sets.${activeSetIndex}.weight`,
-      `sets.${activeSetIndex}.reps`,
+      `sets.${activeSetIndex}.loadKg`,
+      `sets.${activeSetIndex}.resultValue`,
       `sets.${activeSetIndex}.rpe`,
     ]);
 
@@ -137,9 +182,9 @@ const TrackWorkout = () => {
     setActiveSetIndex((previous) => Math.max(previous - 1, 0));
   };
 
-  const handleSubmitCurrentExercise = async (
-    values: TrackWorkoutFormValues,
-  ) => {
+  const handleSubmitCurrentExercise: SubmitHandler<
+    TrackWorkoutFormValues
+  > = async (values: TrackWorkoutFormValues) => {
     if (!workout || !currentExercise) {
       return;
     }
@@ -147,8 +192,13 @@ const TrackWorkout = () => {
     const trackedExerciseSets: CompletedExercise[] = values.sets.map(
       (setItem) => ({
         exerciseId: getExerciseId(currentExercise.exerciseId),
-        weight: Number(setItem.weight ?? 0),
-        reps: Number(setItem.reps ?? 0),
+        metricType: currentMetric.metricType,
+        unitLabel: currentMetric.unitLabel,
+        resultValue: Number(setItem.resultValue ?? 0),
+        loadKg:
+          setItem.loadKg === null || setItem.loadKg === undefined
+            ? null
+            : Number(setItem.loadKg),
         rpe: Number(setItem.rpe ?? 0),
       }),
     );
@@ -161,9 +211,11 @@ const TrackWorkout = () => {
 
     if (isLastExercise) {
       const result = await createWorkoutLogMutation.mutateAsync({
-        workout: workout.title,
-        requiredLevel: workout.requiredLevel,
-        completedExercises: updatedCompletedExercises,
+        workoutId: workout._id,
+        completedExercises:
+          updatedCompletedExercises as CompletedExercisePayload[],
+        readinessScore: Number(readinessScore),
+        sessionFeedbackScore: Number(sessionFeedbackScore),
       });
 
       if (result.user) {
@@ -190,8 +242,8 @@ const TrackWorkout = () => {
     setCurrentIndex((previous) => previous + 1);
     reset({
       sets: Array.from({ length: plannedSetCount }, () => ({
-        weight: 0,
-        reps: 0,
+        loadKg: null,
+        resultValue: 0,
         rpe: 6,
       })),
     });
@@ -274,6 +326,24 @@ const TrackWorkout = () => {
 
       <Card withBorder radius="md" shadow="sm" p="sm">
         <Stack gap="sm">
+          <Stack gap={6}>
+            <Text size="sm" fw={600}>
+              Spremnost za trening
+            </Text>
+            <SegmentedControl
+              fullWidth
+              value={readinessScore}
+              onChange={setReadinessScore}
+              data={[
+                { value: "1", label: "Niska" },
+                { value: "2", label: "Umorna" },
+                { value: "3", label: "OK" },
+                { value: "4", label: "Dobra" },
+                { value: "5", label: "Top" },
+              ]}
+            />
+          </Stack>
+
           <Text fw={600} size="sm">
             Trenutna vježba
           </Text>
@@ -323,8 +393,9 @@ const TrackWorkout = () => {
                       </Text>
                       {!isActive && (
                         <Text size="xs" c="dimmed">
-                          {watchedSets?.[setIndex]?.weight ?? 0} kg ·{" "}
-                          {watchedSets?.[setIndex]?.reps ?? 0} rep · RPE{" "}
+                          {watchedSets?.[setIndex]?.loadKg ?? "BW"} kg ·{" "}
+                          {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
+                          {currentMetric.unitLabel} · RPE{" "}
                           {watchedSets?.[setIndex]?.rpe ?? 0}
                         </Text>
                       )}
@@ -334,48 +405,56 @@ const TrackWorkout = () => {
                       <Stack gap="xs">
                         <Controller
                           control={control}
-                          name={`sets.${setIndex}.weight`}
+                          name={`sets.${setIndex}.loadKg`}
                           rules={{
-                            min: {
-                              value: 0,
-                              message: "Težina ne može biti negativna",
+                            validate: (value) => {
+                              if (value === null || value === undefined) {
+                                return true;
+                              }
+
+                              return (
+                                value >= 0 || "Težina ne može biti negativna"
+                              );
                             },
                           }}
                           render={({ field: setField }) => (
                             <NumberInput
-                              label="Težina (kg)"
+                              label="Težina (kg, opcionalno)"
                               min={0}
                               size="sm"
-                              value={setField.value}
+                              value={setField.value ?? undefined}
                               onChange={(value) =>
-                                setField.onChange(Number(value) || 0)
+                                setField.onChange(
+                                  typeof value === "number" ? value : null,
+                                )
                               }
-                              error={errors.sets?.[setIndex]?.weight?.message}
-                              required
+                              error={errors.sets?.[setIndex]?.loadKg?.message}
                             />
                           )}
                         />
 
                         <Controller
                           control={control}
-                          name={`sets.${setIndex}.reps`}
+                          name={`sets.${setIndex}.resultValue`}
                           rules={{
                             min: {
                               value: 1,
-                              message: "Ponavljanja moraju biti najmanje 1",
+                              message: "Vrijednost seta mora biti najmanje 1",
                             },
-                            required: "Unesi odrađena ponavljanja",
+                            required: "Unesi rezultat seta",
                           }}
                           render={({ field: setField }) => (
                             <NumberInput
-                              label="Ponavljanja"
+                              label={currentMetric.label}
                               min={1}
                               size="sm"
                               value={setField.value}
                               onChange={(value) =>
                                 setField.onChange(Number(value) || 0)
                               }
-                              error={errors.sets?.[setIndex]?.reps?.message}
+                              error={
+                                errors.sets?.[setIndex]?.resultValue?.message
+                              }
                               required
                             />
                           )}
@@ -449,6 +528,24 @@ const TrackWorkout = () => {
                   ? "Završi trening i spremi"
                   : "Spremi i nastavi →"}
               </Button>
+
+              <Stack gap={6}>
+                <Text size="sm" fw={600}>
+                  Kako je trening sjeo?
+                </Text>
+                <SegmentedControl
+                  fullWidth
+                  value={sessionFeedbackScore}
+                  onChange={setSessionFeedbackScore}
+                  data={[
+                    { value: "1", label: "Težak" },
+                    { value: "2", label: "Naporno" },
+                    { value: "3", label: "Solidno" },
+                    { value: "4", label: "Dobro" },
+                    { value: "5", label: "Lako" },
+                  ]}
+                />
+              </Stack>
             </Stack>
           </form>
         </Stack>

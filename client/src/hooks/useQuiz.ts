@@ -70,12 +70,11 @@ export const useSubmitQuiz = () => {
   return useMutation<
     QuizSubmitResult,
     Error,
-    { articleId: string; score: number; totalQuestions: number }
+    { articleId: string; submittedAnswers: number[] }
   >({
-    mutationFn: async ({ articleId, score, totalQuestions }) => {
+    mutationFn: async ({ articleId, submittedAnswers }) => {
       const { data } = await apiClient.post(`/quiz/${articleId}/submit`, {
-        score,
-        totalQuestions,
+        submittedAnswers,
       });
       return data;
     },
