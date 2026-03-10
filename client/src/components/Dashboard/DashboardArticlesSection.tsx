@@ -1,8 +1,8 @@
 import { SimpleGrid } from "@mantine/core";
-import { ArticleCard } from "@/components/KnowledgeBase/ArticleCard";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import type { ArticleSummary } from "@/types/Article/article";
 import DashboardSectionHeader from "./DashboardSectionHeader";
+import { ArticleCard } from "../KnowledgeBase/Article/ArticleCard";
 
 interface DashboardArticlesSectionProps {
   articles: ArticleSummary[];

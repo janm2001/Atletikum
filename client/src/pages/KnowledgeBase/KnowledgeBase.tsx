@@ -1,12 +1,12 @@
 import { Container, Group, SimpleGrid } from "@mantine/core";
-import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
+import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
-import { useMyQuizCompletions } from "../../hooks/useQuiz";
-import { type ArticleSummary } from "../../types/Article/article";
-import { ArticleCard } from "../../components/KnowledgeBase/ArticleCard";
-import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
+import { useMyQuizCompletions } from "@/hooks/useQuiz";
+import { type ArticleSummary } from "@/types/Article/article";
+import { ArticleCard } from "@/components/KnowledgeBase/Article/ArticleCard";
+import { XpProgressSection } from "@/components/XpProgress/XpProgressSection";
 import KnowledgeBaseEmptyState from "@/components/KnowledgeBase/KnowledgeBaseEmptyState";
 import KnowledgeBaseFilters, {
   type KnowledgeBaseArticleFilter,

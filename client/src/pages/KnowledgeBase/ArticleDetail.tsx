@@ -8,15 +8,15 @@ import {
   useUpdateArticleProgress,
 } from "../../hooks/useArticle";
 import { useQuizStatus } from "../../hooks/useQuiz";
-import ArticleActionSummary from "@/components/KnowledgeBase/ArticleActionSummary";
-import ArticleContentSection from "@/components/KnowledgeBase/ArticleContentSection";
-import ArticleDetailHeader from "@/components/KnowledgeBase/ArticleDetailHeader";
+import ArticleActionSummary from "@/components/KnowledgeBase/Article/ArticleActionSummary";
+import ArticleContentSection from "@/components/KnowledgeBase/Article/ArticleContentSection";
+import ArticleDetailHeader from "@/components/KnowledgeBase/Article/ArticleDetailHeader";
 import ArticleQuizResultFeedback, {
   type ArticleQuizResult,
-} from "@/components/KnowledgeBase/ArticleQuizResultFeedback";
-import ArticleQuizSection from "@/components/KnowledgeBase/ArticleQuizSection";
-import ArticleRelatedArticlesSection from "@/components/KnowledgeBase/ArticleRelatedArticlesSection";
-import ArticleSourceCard from "@/components/KnowledgeBase/ArticleSourceCard";
+} from "@/components/KnowledgeBase/Article/ArticleQuizResultFeedback";
+import ArticleQuizSection from "@/components/KnowledgeBase/Article/ArticleQuizSection";
+import ArticleRelatedArticlesSection from "@/components/KnowledgeBase/Article/ArticleRelatedArticlesSection";
+import ArticleSourceCard from "@/components/KnowledgeBase/Article/ArticleSourceCard";
 
 type ArticleDetailLocationState = {
   quizResult?: ArticleQuizResult;

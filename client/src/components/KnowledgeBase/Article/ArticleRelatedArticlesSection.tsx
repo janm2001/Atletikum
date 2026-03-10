@@ -1,6 +1,6 @@
 import { Divider, SimpleGrid } from "@mantine/core";
-import { ArticleCard } from "@/components/KnowledgeBase/ArticleCard";
 import type { ArticleSummary } from "@/types/Article/article";
+import { ArticleCard } from "./ArticleCard";
 
 interface ArticleRelatedArticlesSectionProps {
   articles?: ArticleSummary[];

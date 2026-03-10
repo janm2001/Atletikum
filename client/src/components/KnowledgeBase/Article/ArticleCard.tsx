@@ -16,7 +16,7 @@ import type {
   ArticleSummary,
   ArticleTagType,
 } from "../../types/Article/article";
-import { ARTICLE_TAG_LABELS } from "../../types/Article/article";
+import { ARTICLE_TAG_LABELS } from "@/types/Article/article";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=2970&ixlib=rb-4.0.3";
