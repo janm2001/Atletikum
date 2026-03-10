@@ -1,7 +1,13 @@
 import { Card, Image, Badge, Group, Button, Text } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
-import type { ArticleSummary, ArticleTagType } from "../../types/Article/article";
+import type {
+  ArticleSummary,
+  ArticleTagType,
+} from "../../types/Article/article";
 import { ARTICLE_TAG_LABELS } from "../../types/Article/article";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=2970&ixlib=rb-4.0.3";
 
 const tagColors: Record<string, string> = {
   TRAINING: "blue",
@@ -35,10 +41,7 @@ export const ArticleCard = ({
     >
       <Card.Section>
         <Image
-          src={
-            article.coverImage ||
-            "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=2970&ixlib=rb-4.0.3"
-          }
+          src={article.coverImage || FALLBACK_IMAGE}
           height={160}
           alt={article.title}
           fit="cover"

@@ -1,5 +1,6 @@
 import {
   Box,
+  Center,
   Chip,
   Flex,
   Grid,
@@ -15,6 +16,7 @@ import { useUser } from "@/hooks/useUser";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { useMemo, useState } from "react";
 import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
+import { IconBook } from "@tabler/icons-react";
 
 const Workouts = () => {
   const { data, isLoading, error } = useWorkouts();
@@ -80,9 +82,10 @@ const Workouts = () => {
         </Grid>
 
         {!error && workouts.length === 0 && (
-          <Text c="dimmed" ta="center">
-            Nema vježbi za odabrani filter.
-          </Text>
+          <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
+            <IconBook size={48} color="gray" />
+            <Text c="dimmed">Nema vježbi za odabrani filter.</Text>
+          </Center>
         )}
       </Box>
     </Stack>
