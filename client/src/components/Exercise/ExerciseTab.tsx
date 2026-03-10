@@ -1,222 +1,252 @@
-import { useState } from "react";
 import {
   Button,
-  Divider,
   Group,
   Modal,
-  MultiSelect,
   NumberInput,
+  Select,
   Stack,
-  TextInput,
-  Textarea,
   Text,
+  Textarea,
+  TextInput,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { FormProvider, useForm, Controller } from "react-hook-form";
+
+import ExercisesTable from "./ExercisesTable";
+import { useMemo, useState } from "react";
+import {
+  useCreateExercise,
+  useDeleteExercise,
+  useExercises,
+  useUpdateExercise,
+} from "@/hooks/useExercise";
+import { Controller, useForm } from "react-hook-form";
+import { MuscleGroup, type MuscleGroupValue } from "@/enums/muscleGroup";
+import { exerciseSchema, type ExerciseInput } from "@/schema/exercise.schema";
+import type { Exercise } from "@/types/Exercise/exercise";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
-import {
-  useWorkouts,
-  useCreateWorkout,
-  useUpdateWorkout,
-  useDeleteWorkout,
-} from "../../hooks/useWorkout";
-import ExerciseTable from "./ExerciseTable";
-import ExerciseBuilder from "./ExerciseBuilder";
-import { getExerciseId } from "@/types/Workout/workout";
-import type { Workout } from "@/types/Workout/workout";
-import {
-  workoutSchema,
-  type WorkoutFormValues,
-} from "../../schema/workout.schema";
-import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
 
-const getDefaultFormValues = (): WorkoutFormValues => ({
+const getDefaultFormValues = (): ExerciseInput => ({
   title: "",
   description: "",
-  requiredLevel: 1,
-  tags: [],
-  exercises: [],
+  muscleGroup: MuscleGroup.QUADRICEPS,
+  level: 1,
+  imageLink: "",
+  videoLink: "",
 });
 
 const ExerciseTab = () => {
   const [opened, setOpened] = useState(false);
-  const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
+  const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
+    null,
+  );
   const [actionError, setActionError] = useState("");
+  const { data, isLoading, error } = useExercises();
+  const createExerciseMutation = useCreateExercise();
+  const updateExerciseMutation = useUpdateExercise();
+  const deleteExerciseMutation = useDeleteExercise();
 
-  const { data: workouts, isLoading, error } = useWorkouts();
-  const createMutation = useCreateWorkout();
-  const updateMutation = useUpdateWorkout();
-  const deleteMutation = useDeleteWorkout();
-
-  const form = useForm<WorkoutFormValues>({
-    resolver: zodResolver(workoutSchema),
+  const exercises = data ?? [];
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ExerciseInput>({
+    resolver: zodResolver(exerciseSchema),
     defaultValues: getDefaultFormValues(),
   });
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors, isSubmitting },
-  } = form;
-
-  const handleOpenCreate = () => {
-    setEditingWorkoutId(null);
-    reset(getDefaultFormValues());
-    setActionError("");
-    setOpened(true);
-  };
-
-  const handleOpenEdit = (workout: Workout) => {
-    setEditingWorkoutId(workout._id);
-    reset({
-      title: workout.title,
-      description: workout.description,
-      requiredLevel: workout.requiredLevel,
-      tags: workout.tags ?? [],
-      exercises: workout.exercises.map((ex) => ({
-        exerciseId: getExerciseId(ex.exerciseId),
-        sets: ex.sets,
-        reps: ex.reps,
-        rpe: ex.rpe ?? "",
-        baseXp: ex.baseXp,
+  const muscleGroupOptions = useMemo(
+    () =>
+      Object.values(MuscleGroup).map((value) => ({
+        value,
+        label: value.replaceAll("_", " "),
       })),
-    });
+    [],
+  );
+
+  const openCreateModal = () => {
+    setEditingExerciseId(null);
     setActionError("");
+    reset(getDefaultFormValues());
     setOpened(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Jeste li sigurni da želite obrisati ovaj trening?")) {
-      try {
-        await deleteMutation.mutateAsync(id);
-      } catch (err) {
-        console.error(err);
-      }
-    }
+  const openEditModal = (exercise: Exercise) => {
+    setEditingExerciseId(exercise._id);
+    reset({
+      title: exercise.title,
+      description: exercise.description,
+      muscleGroup: exercise.muscleGroup,
+      level: exercise.level,
+      imageLink: exercise.imageLink ?? "",
+      videoLink: exercise.videoLink ?? "",
+    });
+    setOpened(true);
   };
 
-  const onSubmit = async (data: WorkoutFormValues) => {
+  const handleSave = async (values: ExerciseInput) => {
     try {
       setActionError("");
-      if (editingWorkoutId) {
-        await updateMutation.mutateAsync({
-          id: editingWorkoutId,
-          updatedData: data,
+
+      const payload = {
+        title: values.title.trim(),
+        description: values.description.trim(),
+        muscleGroup: values.muscleGroup,
+        level: values.level,
+        imageLink: values.imageLink.trim() || undefined,
+        videoLink: values.videoLink.trim() || undefined,
+      };
+
+      if (editingExerciseId) {
+        await updateExerciseMutation.mutateAsync({
+          id: editingExerciseId,
+          payload,
         });
       } else {
-        await createMutation.mutateAsync(data);
+        await createExerciseMutation.mutateAsync(payload);
       }
+
       setOpened(false);
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
+    } catch (saveError) {
       setActionError(
-        err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
+        saveError instanceof Error
+          ? saveError.message
+          : "Greška pri spremanju vježbe.",
       );
     }
   };
 
-  if (isLoading) return <SpinnerComponent />;
-  if (error) return <Text c="red">Greška pri učitavanju treninga.</Text>;
+  const handleDelete = async (exerciseId: string) => {
+    const confirmed = window.confirm(
+      "Jeste li sigurni da želite obrisati ovu vježbu?",
+    );
+    if (!confirmed) {
+      return;
+    }
 
+    try {
+      setActionError("");
+      await deleteExerciseMutation.mutateAsync(exerciseId);
+    } catch (deleteError) {
+      setActionError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Greška pri brisanju vježbe.",
+      );
+    }
+  };
+
+  if (isLoading) {
+    return <SpinnerComponent />;
+  }
   return (
     <>
-      <Group justify="flex-end" mb="md">
-        <Button leftSection={<IconPlus size={16} />} onClick={handleOpenCreate}>
-          Novi trening
-        </Button>
-      </Group>
+      {error && <Text c="red">{error.message}</Text>}
+      {actionError && <Text c="red">{actionError}</Text>}
+      <Stack gap="md">
+        <Group justify="space-between">
+          <Text fw={600}>Popis vježbi</Text>
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={openCreateModal}
+          >
+            Dodaj vježbu
+          </Button>
+        </Group>
 
-      <ExerciseTable
-        workouts={workouts || []}
-        onEdit={handleOpenEdit}
-        onDelete={handleDelete}
-      />
-
+        <ExercisesTable
+          exercises={exercises}
+          onEdit={openEditModal}
+          onDelete={handleDelete}
+        />
+      </Stack>
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={editingWorkoutId ? "Uredi trening" : "Dodaj novi trening"}
-        size="xl"
+        title={editingExerciseId ? "Uredi vježbu" : "Dodaj vježbu"}
+        centered
       >
-        <FormProvider {...form}>
-          <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
-            {actionError && (
-              <Text c="red" size="sm">
-                {actionError}
-              </Text>
-            )}
-
-            <TextInput
-              label="Naslov treninga"
-              {...register("title")}
-              error={errors.title?.message}
-              required
-            />
-
-            <Textarea
-              label="Opis treninga"
-              {...register("description")}
-              error={errors.description?.message}
-              rows={3}
-            />
-
-            <Controller
-              name="tags"
-              control={control}
-              render={({ field }) => (
-                <MultiSelect
-                  label="Kategorije"
-                  placeholder="Odaberite kategorije"
-                  data={WORKOUT_TAG_OPTIONS}
-                  value={field.value ?? []}
-                  onChange={field.onChange}
-                  clearable
-                  searchable
-                />
-              )}
-            />
-
-            <Controller
-              name="requiredLevel"
-              control={control}
-              render={({ field }) => (
-                <NumberInput
-                  label="Potrebna razina (Level)"
-                  min={1}
-                  value={field.value}
-                  onChange={(val) =>
-                    field.onChange(typeof val === "number" ? val : field.value)
+        <Stack component="form" onSubmit={handleSubmit(handleSave)}>
+          <TextInput
+            label="Naziv"
+            error={errors.title?.message}
+            {...register("title")}
+            required
+          />
+          <Textarea
+            label="Opis"
+            error={errors.description?.message}
+            {...register("description")}
+            minRows={3}
+            required
+          />
+          <Controller
+            control={control}
+            name="muscleGroup"
+            render={({ field }) => (
+              <Select
+                label="Mišićna skupina"
+                data={muscleGroupOptions}
+                value={field.value}
+                onChange={(value) => {
+                  if (value) {
+                    field.onChange(value as MuscleGroupValue);
                   }
-                  error={errors.requiredLevel?.message}
-                  required
-                />
-              )}
-            />
-
-            <Divider my="sm" label="Vježbe" labelPosition="center" />
-
-            <ExerciseBuilder />
-
-            <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={() => setOpened(false)}>
-                Odustani
-              </Button>
-              <Button
-                type="submit"
-                loading={
-                  isSubmitting ||
-                  createMutation.isPending ||
-                  updateMutation.isPending
+                }}
+                error={errors.muscleGroup?.message}
+                required
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="level"
+            render={({ field }) => (
+              <NumberInput
+                label="Razina"
+                min={1}
+                max={100}
+                value={field.value}
+                onChange={(value) =>
+                  field.onChange(
+                    typeof value === "number" ? value : field.value,
+                  )
                 }
-              >
-                Spremi
-              </Button>
-            </Group>
-          </Stack>
-        </FormProvider>
+                error={errors.level?.message}
+                required
+              />
+            )}
+          />
+          <TextInput
+            label="URL slike"
+            error={errors.imageLink?.message}
+            {...register("imageLink")}
+          />
+          <TextInput
+            label="URL videa"
+            error={errors.videoLink?.message}
+            {...register("videoLink")}
+          />
+
+          <Group justify="flex-end" mt="sm">
+            <Button variant="default" onClick={() => setOpened(false)}>
+              Odustani
+            </Button>
+            <Button
+              type="submit"
+              loading={
+                isSubmitting ||
+                createExerciseMutation.isPending ||
+                updateExerciseMutation.isPending
+              }
+            >
+              Spremi
+            </Button>
+          </Group>
+        </Stack>
       </Modal>
     </>
   );
