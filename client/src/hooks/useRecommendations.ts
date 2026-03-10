@@ -4,7 +4,7 @@ import { apiClient } from "@/utils/apiService";
 import type { Workout } from "@/types/Workout/workout";
 import type { ArticleSummary } from "@/types/Article/article";
 
-type PersonalBestSummary = {
+export type PersonalBestSummary = {
   exerciseId: string;
   exerciseName: string;
   metricType: "reps" | "distance" | "time";
@@ -16,7 +16,7 @@ type PersonalBestSummary = {
   workoutTitle?: string;
 };
 
-type NextSessionSuggestion = {
+export type NextSessionSuggestion = {
   exerciseId: string;
   exerciseName: string;
   metricType: "reps" | "distance" | "time";
@@ -26,14 +26,14 @@ type NextSessionSuggestion = {
   reason: string;
 };
 
-type RevisionRecommendation = {
+export type RevisionRecommendation = {
   articleId: string;
   lastScore: number;
   totalQuestions: number;
   completedAt: string;
 };
 
-type RecommendationInsight = {
+export type RecommendationInsight = {
   focusReason: string;
   lowReadiness: boolean;
   readinessScore: number;
@@ -53,6 +53,8 @@ type WeeklyRecommendationsResponse = {
     insight: RecommendationInsight;
   };
 };
+
+export type WeeklyRecommendations = WeeklyRecommendationsResponse["data"];
 
 export const useWeeklyRecommendations = () => {
   return useQuery({

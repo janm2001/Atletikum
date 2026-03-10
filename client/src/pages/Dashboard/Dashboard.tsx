@@ -1,35 +1,21 @@
 import { useMemo } from "react";
-import {
-  Card,
-  Container,
-  Grid,
-  Group,
-  SimpleGrid,
-  Stack,
-  Text,
-  Title,
-  ThemeIcon,
-  Button,
-} from "@mantine/core";
+import { Container, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import {
-  IconFlame,
-  IconStars,
-  IconTrophy,
-  IconArrowRight,
-} from "@tabler/icons-react";
 import Exercises from "../../components/Dashboard/Exercises/Exercises";
-import WorkoutCard from "../../components/Workouts/WorkoutCard";
-import { ArticleCard } from "../../components/KnowledgeBase/ArticleCard";
 import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
 import { useUser } from "../../hooks/useUser";
 import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
 import { useWorkouts } from "../../hooks/useWorkout";
 import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { getLevelFromTotalXp } from "../../utils/leveling";
-import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 import type { ArticleSummary } from "@/types/Article/article";
+import DashboardArticlesSection from "@/components/Dashboard/DashboardArticlesSection";
+import DashboardPersonalBests from "@/components/Dashboard/DashboardPersonalBests";
+import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard";
+import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
+import DashboardWelcomeText from "@/components/Dashboard/DashboardWelcomeText";
+import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSection";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -78,157 +64,40 @@ const Dashboard = () => {
   return (
     <Container size="lg" py="md">
       <Stack gap="lg">
-        <div>
-          <Text c="dimmed" mt={4}>
-            Pratite svoj napredak, učite i trenirajte — sve na jednom mjestu.
-          </Text>
-        </div>
+        <DashboardWelcomeText />
 
-        <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="md">
-          <Card withBorder radius="md" shadow="sm" p="md">
-            <Group gap="sm">
-              <ThemeIcon size="lg" radius="md" color="violet" variant="light">
-                <IconTrophy size={20} />
-              </ThemeIcon>
-              <div>
-                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                  Razina
-                </Text>
-                <Text size="xl" fw={700}>
-                  {level}
-                </Text>
-              </div>
-            </Group>
-          </Card>
-          <Card withBorder radius="md" shadow="sm" p="md">
-            <Group gap="sm">
-              <ThemeIcon size="lg" radius="md" color="blue" variant="light">
-                <IconStars size={20} />
-              </ThemeIcon>
-              <div>
-                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                  Ukupni XP
-                </Text>
-                <Text size="xl" fw={700}>
-                  {user?.totalXp ?? 0}
-                </Text>
-              </div>
-            </Group>
-          </Card>
-          <Card withBorder radius="md" shadow="sm" p="md">
-            <Group gap="sm">
-              <ThemeIcon size="lg" radius="md" color="orange" variant="light">
-                <IconFlame size={20} />
-              </ThemeIcon>
-              <div>
-                <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                  Dnevni niz
-                </Text>
-                <Text size="xl" fw={700}>
-                  {user?.dailyStreak ?? 0}
-                </Text>
-              </div>
-            </Group>
-          </Card>
-        </SimpleGrid>
+        <DashboardStatsGrid
+          level={level}
+          totalXp={user?.totalXp ?? 0}
+          dailyStreak={user?.dailyStreak ?? 0}
+        />
 
         <XpProgressSection variant="full" />
 
-        {recommendations?.revision && (
-          <Card withBorder radius="md" shadow="sm" p="md">
-            <Group justify="space-between" align="center" wrap="wrap">
-              <div>
-                <Title order={4}>Vrijeme za ponavljanje</Title>
-                <Text c="dimmed" size="sm" mt={4}>
-                  Zadnji rezultat: {recommendations.revision.lastScore}/
-                  {recommendations.revision.totalQuestions}. Ponovi gradivo i
-                  osvoji novi XP.
-                </Text>
-              </div>
-              <Button
-                onClick={() =>
-                  navigate(
-                    `/edukacija/${recommendations.revision?.articleId}/kviz`,
-                  )
-                }
-              >
-                Pokreni revision kviz
-              </Button>
-            </Group>
-          </Card>
-        )}
+        <DashboardRevisionCard
+          revision={recommendations?.revision}
+          onStartRevision={(articleId) =>
+            navigate(`/edukacija/${articleId}/kviz`)
+          }
+        />
 
-        {recommendations?.personalBestSummaries?.length ? (
-          <Card withBorder radius="md" shadow="sm" p="md">
-            <Title order={4} mb="sm">
-              Najnoviji osobni rekordi
-            </Title>
-            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-              {recommendations.personalBestSummaries.map((summary) => (
-                <Card
-                  key={`${summary.exerciseId}-${summary.metricType}`}
-                  withBorder
-                  p="sm"
-                >
-                  <Text fw={600}>{summary.exerciseName}</Text>
-                  <Text size="sm" c="dimmed">
-                    {summary.label}:{" "}
-                    {summary.loadKg ? `${summary.loadKg} kg · ` : ""}
-                    {summary.bestValue} {summary.unitLabel}
-                  </Text>
-                </Card>
-              ))}
-            </SimpleGrid>
-          </Card>
-        ) : null}
+        <DashboardPersonalBests
+          summaries={recommendations?.personalBestSummaries}
+        />
 
-        <div>
-          <Group justify="space-between" align="center" mb="sm">
-            <Title order={3}>Preporučeni članci</Title>
-            <Button
-              variant="subtle"
-              rightSection={<IconArrowRight size={16} />}
-              onClick={() => navigate("/edukacija")}
-            >
-              Svi članci
-            </Button>
-          </Group>
-          {articlesLoading || recommendationsLoading ? (
-            <SpinnerComponent size="md" fullHeight={false} />
-          ) : (
-            <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-              {topArticles.map((article) => (
-                <ArticleCard
-                  key={article._id}
-                  article={article}
-                  isQuizCompleted={completedSet.has(article._id)}
-                  onNavigate={(id) => navigate(`/edukacija/${id}`)}
-                  onToggleBookmark={handleToggleBookmark}
-                />
-              ))}
-            </SimpleGrid>
-          )}
-        </div>
+        <DashboardArticlesSection
+          articles={topArticles}
+          isLoading={articlesLoading || recommendationsLoading}
+          completedArticleIds={completedSet}
+          onNavigateArticle={(id) => navigate(`/edukacija/${id}`)}
+          onOpenArticles={() => navigate("/edukacija")}
+          onToggleBookmark={handleToggleBookmark}
+        />
 
-        {suggestedWorkout && (
-          <div>
-            <Group justify="space-between" align="center" mb="sm">
-              <Title order={3}>Predloženi trening</Title>
-              <Button
-                variant="subtle"
-                rightSection={<IconArrowRight size={16} />}
-                onClick={() => navigate("/zapis-treninga")}
-              >
-                Svi treninzi
-              </Button>
-            </Group>
-            <Grid>
-              <Grid.Col span={{ base: 12, sm: 6, md: 6 }}>
-                <WorkoutCard workout={suggestedWorkout} />
-              </Grid.Col>
-            </Grid>
-          </div>
-        )}
+        <DashboardWorkoutSection
+          workout={suggestedWorkout}
+          onOpenWorkouts={() => navigate("/zapis-treninga")}
+        />
 
         <Exercises />
       </Stack>
