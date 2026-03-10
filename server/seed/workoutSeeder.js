@@ -9,6 +9,7 @@ const workoutBlueprints = [
     description:
       "Basic sprint mechanics, core control, and foundational lower-body strength.",
     requiredLevel: 1,
+    tags: ["SPEED", "CORE", "STRENGTH"],
     exercises: [
       { title: "A-Skips", sets: 3, reps: "20m", rpe: "6", baseXp: 20 },
       { title: "High Knees", sets: 3, reps: "20m", rpe: "6", baseXp: 18 },
@@ -22,6 +23,7 @@ const workoutBlueprints = [
     description:
       "Intermediate plyometrics and unilateral control to build athletic power output.",
     requiredLevel: 2,
+    tags: ["PLYOMETRICS", "STRENGTH", "CORE"],
     exercises: [
       { title: "B-Skips", sets: 3, reps: "20m", rpe: "7", baseXp: 24 },
       { title: "Box Jumps", sets: 4, reps: "6", rpe: "7", baseXp: 26 },
@@ -47,6 +49,7 @@ const workoutBlueprints = [
     description:
       "Advanced reactive plyometrics and strength work for high-performance athletes.",
     requiredLevel: 3,
+    tags: ["SPEED", "PLYOMETRICS", "STRENGTH", "ENDURANCE"],
     exercises: [
       { title: "Bounding", sets: 4, reps: "25m", rpe: "8", baseXp: 30 },
       { title: "Depth Jumps", sets: 4, reps: "5", rpe: "8", baseXp: 32 },
@@ -101,6 +104,7 @@ const resolveWorkouts = async () => {
     title: workout.title,
     description: workout.description,
     requiredLevel: workout.requiredLevel,
+    tags: workout.tags ?? [],
     exercises: workout.exercises.map((exercise) => ({
       exerciseId: exerciseByTitle.get(exercise.title)._id,
       sets: exercise.sets,

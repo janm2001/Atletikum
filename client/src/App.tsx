@@ -1,5 +1,6 @@
 import "./App.css";
 import "@mantine/core/styles.css";
+import "@mantine/charts/styles.css";
 import "@mantine/tiptap/styles.css";
 import { MantineProvider } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";

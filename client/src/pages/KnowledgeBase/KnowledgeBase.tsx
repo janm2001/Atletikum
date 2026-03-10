@@ -1,11 +1,12 @@
 import {
+  Center,
+  Chip,
   Container,
   Group,
-  Title,
-  Text,
+  ScrollArea,
   SimpleGrid,
-  MultiSelect,
-  Center,
+  Text,
+  Title,
 } from "@mantine/core";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +34,13 @@ const KnowledgeBase = () => {
 
   return (
     <Container size="xl" py="xl">
-      <Group justify="space-between" align="flex-end" mb="xl">
+      <Group
+        justify="space-between"
+        align="flex-end"
+        mb="xl"
+        wrap="wrap"
+        gap="sm"
+      >
         <div>
           <Title order={1} mb="xs">
             Baza Znanja
@@ -43,18 +50,17 @@ const KnowledgeBase = () => {
           </Text>
         </div>
 
-        <MultiSelect
-          placeholder="Sve kategorije"
-          value={selectedTags}
-          onChange={setSelectedTags}
-          data={Object.values(ArticleTag).map((tag) => ({
-            value: tag,
-            label: ARTICLE_TAG_LABELS[tag as ArticleTagType],
-          }))}
-          clearable
-          searchable
-          w={250}
-        />
+        <ScrollArea type="never">
+          <Chip.Group multiple value={selectedTags} onChange={setSelectedTags}>
+            <Group gap="xs" wrap="nowrap">
+              {Object.values(ArticleTag).map((tag) => (
+                <Chip key={tag} value={tag} variant="outline" color="violet">
+                  {ARTICLE_TAG_LABELS[tag as ArticleTagType]}
+                </Chip>
+              ))}
+            </Group>
+          </Chip.Group>
+        </ScrollArea>
       </Group>
 
       <XpProgressSection variant="brain" />

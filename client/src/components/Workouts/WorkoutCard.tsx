@@ -78,39 +78,32 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
           blur={0}
           radius="md"
           style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            paddingTop: 60,
             pointerEvents: "none",
             zIndex: 2,
           }}
-        >
-          <IconLock size={40} color="var(--mantine-color-gray-5)" />
-        </Overlay>
+        />
       )}
 
       <Stack gap="sm" h="100%" justify="space-between">
         <Group justify="space-between" align="flex-start">
-          <Box>
+          <Box style={{ flex: 1, minWidth: 0 }}>
             <Title order={4}>{workout.title}</Title>
             <Text size="sm" c="dimmed" lineClamp={2} mt={2}>
               {workout.description || "Workout plan bez dodatnog opisa."}
             </Text>
           </Box>
 
-          <Badge variant="light" color={isLocked ? "red" : "violet"}>
+          <Badge
+            variant="light"
+            color={isLocked ? "red" : "violet"}
+            style={{ flexShrink: 0 }}
+          >
             Lvl {workout.requiredLevel}
           </Badge>
         </Group>
 
         {isLocked ? (
-          <Stack gap="sm" style={{ flex: 1 }}>
-            <Text size="sm" c="dimmed" lineClamp={4}>
-              {workout.description ||
-                "Ovaj trening sadrži napredne vježbe za poboljšanje atletskih performansi."}
-            </Text>
-
+          <Stack gap="sm" style={{ flex: 1 }} justify="space-between">
             <Group gap="xs">
               <Badge variant="dot" color="blue">
                 {exerciseCount} vježbi
@@ -123,9 +116,8 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
               </Badge>
             </Group>
 
-            <Divider />
-
             <Stack align="center" gap={4} py="sm">
+              <IconLock size={36} color="var(--mantine-color-gray-5)" />
               <Text size="sm" fw={600} c="dimmed" ta="center">
                 Potreban Level {workout.requiredLevel} za pristup
               </Text>

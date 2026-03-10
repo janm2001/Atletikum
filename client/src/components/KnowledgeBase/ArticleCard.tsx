@@ -1,6 +1,7 @@
 import { Card, Image, Badge, Group, Button, Text } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
-import type { ArticleSummary } from "../../types/Article/article";
+import type { ArticleSummary, ArticleTagType } from "../../types/Article/article";
+import { ARTICLE_TAG_LABELS } from "../../types/Article/article";
 
 const tagColors: Record<string, string> = {
   TRAINING: "blue",
@@ -40,13 +41,14 @@ export const ArticleCard = ({
           }
           height={160}
           alt={article.title}
+          fit="cover"
         />
       </Card.Section>
 
       <Group justify="space-between" mt="md" mb="xs">
         <Group gap="xs">
           <Badge color={tagColors[article.tag] || "blue"} variant="light">
-            {article.tag}
+            {ARTICLE_TAG_LABELS[article.tag as ArticleTagType] ?? article.tag}
           </Badge>
           {isQuizCompleted && (
             <Badge

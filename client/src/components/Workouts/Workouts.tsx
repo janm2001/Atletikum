@@ -1,8 +1,10 @@
 import {
   Box,
+  Chip,
   Flex,
   Grid,
-  MultiSelect,
+  Group,
+  ScrollArea,
   Stack,
   Text,
   Title,
@@ -38,19 +40,36 @@ const Workouts = () => {
   }
 
   return (
-    <Stack w="100%" mih="60vh" align="center" justify="center" px="md" py="lg">
+    <Stack w="100%" mih="60vh" align="center" px="md" py="lg">
       <Box w="100%" maw={1200}>
-        <Flex my={16} align="center" justify="space-between">
+        <Flex
+          my={16}
+          align="center"
+          justify="space-between"
+          wrap="wrap"
+          gap="sm"
+        >
           <Title order={1}>Gotovi treninzi</Title>
-          <MultiSelect
-            placeholder="Sve kategorije"
-            value={selectedTags}
-            onChange={setSelectedTags}
-            data={WORKOUT_TAG_OPTIONS}
-            clearable
-            searchable
-            w={280}
-          />
+          <ScrollArea type="never">
+            <Chip.Group
+              multiple
+              value={selectedTags}
+              onChange={setSelectedTags}
+            >
+              <Group gap="xs" wrap="nowrap">
+                {WORKOUT_TAG_OPTIONS.map((opt) => (
+                  <Chip
+                    key={opt.value}
+                    value={opt.value}
+                    variant="outline"
+                    color="violet"
+                  >
+                    {opt.label}
+                  </Chip>
+                ))}
+              </Group>
+            </Chip.Group>
+          </ScrollArea>
         </Flex>
         <Grid my={8}>
           {workouts.map((workout) => (

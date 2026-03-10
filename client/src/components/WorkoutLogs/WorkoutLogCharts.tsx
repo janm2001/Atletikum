@@ -20,13 +20,13 @@ type ChartView = "weight" | "volume" | "frequency";
 
 const CHART_COLORS = [
   "violet.6",
+  "grape.6",
+  "indigo.6",
   "blue.6",
   "teal.6",
-  "grape.6",
   "orange.6",
   "cyan.6",
   "pink.6",
-  "lime.6",
 ];
 
 const WorkoutLogCharts = ({
@@ -196,18 +196,29 @@ const WorkoutLogCharts = ({
               searchable
             />
             {weightData.length > 0 && weightSeries.length > 0 ? (
-              <Box>
+              <Box w="100%" style={{ minWidth: 0 }}>
                 <LineChart
                   h={300}
                   data={weightData}
                   dataKey="date"
                   series={weightSeries}
                   curveType="monotone"
-                  connectNulls
                   withLegend
-                  withDots
-                  yAxisProps={{ label: "kg" }}
+                  legendProps={{
+                    verticalAlign: "bottom",
+                  }}
+                  yAxisProps={{
+                    width: 50,
+                    domain: [0, (max: number) => Math.ceil(max * 1.15)],
+                  }}
+                  xAxisProps={{
+                    tickMargin: 6,
+                    angle: -35,
+                    textAnchor: "end",
+                    height: 50,
+                  }}
                   tooltipAnimationDuration={200}
+                  withDots
                 />
               </Box>
             ) : (
@@ -219,28 +230,57 @@ const WorkoutLogCharts = ({
         )}
 
         {chartView === "volume" && (
-          <Box>
+          <Box w="100%" style={{ minWidth: 0 }}>
             <BarChart
               h={300}
               data={volumeData}
               dataKey="date"
               series={[{ name: "Volumen", color: "violet.6" }]}
               withLegend
-              yAxisProps={{ label: "kg" }}
+              legendProps={{
+                verticalAlign: "bottom",
+              }}
+              yAxisProps={{
+                width: 60,
+                domain: [0, (max: number) => Math.ceil(max * 1.15)],
+              }}
+              xAxisProps={{
+                tickMargin: 6,
+                angle: -35,
+                textAnchor: "end",
+                height: 50,
+              }}
               tooltipAnimationDuration={200}
+              tooltipProps={{ cursor: { fill: "transparent" } }}
+              barProps={{ isAnimationActive: false }}
             />
           </Box>
         )}
 
         {chartView === "frequency" && (
-          <Box>
+          <Box w="100%" style={{ minWidth: 0 }}>
             <BarChart
               h={300}
               data={frequencyData}
               dataKey="Tjedan od"
-              series={[{ name: "Treninzi", color: "teal.6" }]}
+              series={[{ name: "Treninzi", color: "grape.6" }]}
               withLegend
+              legendProps={{
+                verticalAlign: "bottom",
+              }}
+              yAxisProps={{
+                domain: [0, (max: number) => Math.ceil(max * 1.15)],
+                allowDecimals: false,
+              }}
+              xAxisProps={{
+                tickMargin: 6,
+                angle: -35,
+                textAnchor: "end",
+                height: 50,
+              }}
               tooltipAnimationDuration={200}
+              tooltipProps={{ cursor: { fill: "transparent" } }}
+              barProps={{ isAnimationActive: false }}
             />
           </Box>
         )}
