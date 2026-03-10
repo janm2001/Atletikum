@@ -7,10 +7,10 @@ import {
   Stack,
   Title,
 } from "@mantine/core";
-import SpinnerComponent from "../../../components/SpinnerComponent/SpinnerComponent";
+import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
 import { IconTrendingUp } from "@tabler/icons-react";
 import { useAchievements } from "../../../hooks/useAchievements";
-import { AchievementCard } from "../../../components/Achievements/AchievementCard";
+import { AchievementCard } from "../../Achievements/AchievementCard";
 
 const categoryLabels: Record<string, string> = {
   milestone: "Glavne dostige",

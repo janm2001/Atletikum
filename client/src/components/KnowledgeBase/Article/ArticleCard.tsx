@@ -12,16 +12,13 @@ import {
   IconBookmark,
   IconBookmarkFilled,
 } from "@tabler/icons-react";
-import type {
-  ArticleSummary,
-  ArticleTagType,
-} from "../../types/Article/article";
+import type { ArticleSummary, ArticleTagType } from "@/types/Article/article";
 import { ARTICLE_TAG_LABELS } from "@/types/Article/article";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=2970&ixlib=rb-4.0.3";
 
-const tagColors: Record<string, string> = {
+const tagColors: Record<ArticleTagType, string> = {
   TRAINING: "blue",
   NUTRITION: "green",
   RECOVERY: "teal",
@@ -65,7 +62,7 @@ export const ArticleCard = ({
       <Group justify="space-between" mt="md" mb="xs">
         <Group gap="xs">
           <Badge color={tagColors[article.tag] || "blue"} variant="light">
-            {ARTICLE_TAG_LABELS[article.tag as ArticleTagType] ?? article.tag}
+            {ARTICLE_TAG_LABELS[article.tag]}
           </Badge>
           {isQuizCompleted && (
             <Badge

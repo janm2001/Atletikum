@@ -1,6 +1,6 @@
 import { useUser } from "../../hooks/useUser";
 import { Avatar, Flex, Title, Container } from "@mantine/core";
-import ProfileAchievements from "./ProfileAchievements/ProfileAchivements";
+import ProfileAchievements from "../../components/Profile/ProfileAchievements/ProfileAchivements";
 import ProfileLevelXp from "../../components/Profile/ProfileLevelXp/ProfileLevelXp";
 
 const Profile = () => {
