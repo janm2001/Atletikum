@@ -4,8 +4,7 @@ import {
   ARTICLE_TAG_LABELS,
   type ArticleTagType,
 } from "@/types/Article/article";
-
-export type KnowledgeBaseArticleFilter = "all" | "saved";
+import type { KnowledgeBaseArticleFilter } from "@/types/Article/knowledgeBase";
 
 interface KnowledgeBaseFiltersProps {
   articleFilter: KnowledgeBaseArticleFilter;

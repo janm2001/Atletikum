@@ -5,12 +5,11 @@ import { useMemo, useState } from "react";
 import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
 import { useMyQuizCompletions } from "@/hooks/useQuiz";
 import { type ArticleSummary } from "@/types/Article/article";
+import type { KnowledgeBaseArticleFilter } from "@/types/Article/knowledgeBase";
 import { ArticleCard } from "@/components/KnowledgeBase/Article/ArticleCard";
 import { XpProgressSection } from "@/components/XpProgress/XpProgressSection";
 import KnowledgeBaseEmptyState from "@/components/KnowledgeBase/KnowledgeBaseEmptyState";
-import KnowledgeBaseFilters, {
-  type KnowledgeBaseArticleFilter,
-} from "@/components/KnowledgeBase/KnowledgeBaseFilters";
+import KnowledgeBaseFilters from "@/components/KnowledgeBase/KnowledgeBaseFilters";
 import KnowledgeBaseHeader from "@/components/KnowledgeBase/KnowledgeBaseHeader";
 
 const KnowledgeBase = () => {

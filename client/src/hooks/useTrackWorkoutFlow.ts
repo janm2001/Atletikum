@@ -8,6 +8,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useCreateWorkoutLog } from "@/hooks/useWorkoutLogs";
 import { useUser } from "@/hooks/useUser";
+import type {
+    TrackWorkoutFormValues,
+    TrackWorkoutMetric,
+} from "@/types/Workout/trackWorkout";
 import { getExerciseId, type Workout } from "@/types/Workout/workout";
 import type {
     CompletedExercisePayload,
@@ -25,20 +29,6 @@ type CompletedExercise = {
     resultValue: number;
     loadKg?: number | null;
     rpe: number;
-};
-
-export type TrackWorkoutFormValues = {
-    sets: {
-        loadKg: number | null;
-        resultValue: number;
-        rpe: number;
-    }[];
-};
-
-export type TrackWorkoutMetric = {
-    metricType: WorkoutMetricType;
-    unitLabel: string;
-    label: string;
 };
 
 const createDefaultSets = (setCount: number): TrackWorkoutFormValues["sets"] =>

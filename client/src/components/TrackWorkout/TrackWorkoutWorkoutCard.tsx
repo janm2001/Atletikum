@@ -19,7 +19,7 @@ import type { Exercise } from "@/types/Exercise/exercise";
 import type {
   TrackWorkoutFormValues,
   TrackWorkoutMetric,
-} from "@/hooks/useTrackWorkoutFlow";
+} from "@/types/Workout/trackWorkout";
 
 const READINESS_OPTIONS = [
   { value: "1", label: "Niska" },

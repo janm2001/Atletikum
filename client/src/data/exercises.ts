@@ -1,11 +1,4 @@
-export type DashboardExercise = {
-    title: string;
-    description: string;
-    muscleGroup: string;
-    imageLink: string;
-    videoLink: string;
-    level: number;
-};
+import type { DashboardExercise } from "@/types/Exercise/dashboardExercise";
 
 export const EXERCISES: DashboardExercise[] = [
     {

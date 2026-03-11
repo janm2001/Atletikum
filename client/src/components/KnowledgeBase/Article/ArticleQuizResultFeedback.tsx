@@ -1,15 +1,7 @@
 import { Alert } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { XpNotification } from "@/components/XpNotification/XpNotification";
-
-export interface ArticleQuizResult {
-  xpGained: number;
-  score: number;
-  totalQuestions: number;
-  level?: number;
-  totalXp?: number;
-  passed?: boolean;
-}
+import type { ArticleQuizResult } from "@/types/Article/quiz";
 
 interface ArticleQuizResultFeedbackProps {
   quizResult: ArticleQuizResult | null;

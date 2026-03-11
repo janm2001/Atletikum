@@ -1,65 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getMyQuizCompletions,
+  getQuizStatus,
+  getRevisionQuiz,
+  submitQuiz,
+} from "@/api/quiz";
 import { keys } from "../lib/query-keys";
-import { apiClient } from "../utils/apiService";
-import type { User } from "../types/User/user";
 import type { NewAchievement } from "../types/Achievement/achievement";
+import type { QuizStatus, QuizSubmitResult } from "@/types/Article/quiz";
 
 export type { NewAchievement };
-
-export interface QuizStatus {
-  canTakeQuiz: boolean;
-  lastCompletion: {
-    score: number;
-    totalQuestions: number;
-    xpGained: number;
-    completedAt: string;
-    passed?: boolean;
-  } | null;
-  nextAvailableAt: string | null;
-}
-
-interface QuizSubmitResult {
-  status: string;
-  data: {
-    completion: {
-      score: number;
-      totalQuestions: number;
-      xpGained: number;
-      completedAt: string;
-      passed: boolean;
-    };
-    user: User | null;
-    newAchievements: NewAchievement[];
-    nextAvailableAt: string;
-  };
-}
-
-interface MyCompletionsResult {
-  status: string;
-  data: {
-    completedArticleIds: string[];
-  };
-}
-
-interface RevisionResult {
-  status: string;
-  data: {
-    revision: {
-      articleId: string;
-      lastScore: number;
-      totalQuestions: number;
-      completedAt: string;
-    } | null;
-  };
-}
+export type { QuizStatus, QuizSubmitResult } from "@/types/Article/quiz";
 
 export const useQuizStatus = (articleId: string) => {
   return useQuery<QuizStatus>({
     queryKey: keys.quiz.status(articleId),
-    queryFn: async () => {
-      const { data } = await apiClient.get(`/quiz/${articleId}/status`);
-      return data;
-    },
+    queryFn: () => getQuizStatus(articleId),
     enabled: !!articleId,
   });
 };
@@ -72,12 +28,7 @@ export const useSubmitQuiz = () => {
     Error,
     { articleId: string; submittedAnswers: number[] }
   >({
-    mutationFn: async ({ articleId, submittedAnswers }) => {
-      const { data } = await apiClient.post(`/quiz/${articleId}/submit`, {
-        submittedAnswers,
-      });
-      return data;
-    },
+    mutationFn: submitQuiz,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: keys.quiz.status(variables.articleId),
@@ -92,21 +43,13 @@ export const useSubmitQuiz = () => {
 export const useMyQuizCompletions = () => {
   return useQuery<string[]>({
     queryKey: keys.quiz.completions(),
-    queryFn: async () => {
-      const { data } = await apiClient.get<MyCompletionsResult>(
-        "/quiz/my-completions",
-      );
-      return data.data.completedArticleIds;
-    },
+    queryFn: getMyQuizCompletions,
   });
 };
 
 export const useRevisionQuiz = () => {
   return useQuery({
     queryKey: keys.quiz.revision(),
-    queryFn: async () => {
-      const { data } = await apiClient.get<RevisionResult>("/quiz/revision");
-      return data.data.revision;
-    },
+    queryFn: getRevisionQuiz,
   });
 };
