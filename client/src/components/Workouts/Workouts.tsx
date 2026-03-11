@@ -190,12 +190,12 @@ const Workouts = () => {
 
         {customWorkouts.length > 0 && (
           <Stack gap="sm" my="lg">
-            <Group justify="space-between">
+            <Stack gap="sm">
               <Title order={3}>Moji treninzi</Title>
               <Text size="sm" c="dimmed">
                 Privatni treninzi vidljivi samo vama.
               </Text>
-            </Group>
+            </Stack>
             <Grid my={0}>
               {customWorkouts.map((workout) => (
                 <Grid.Col key={workout._id} span={{ base: 12, sm: 6, md: 4 }}>
