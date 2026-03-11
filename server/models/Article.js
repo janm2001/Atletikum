@@ -44,6 +44,12 @@ const articleSchema = new mongoose.Schema(
         ref: "Article",
       },
     ],
+    relatedExerciseIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Exercise",
+      },
+    ],
     quiz: [quizQuestionSchema],
     author: { type: String, default: "Atletikum Tim" },
   },

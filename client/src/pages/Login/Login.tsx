@@ -8,6 +8,7 @@ import {
   Text,
   Anchor,
   Flex,
+  Group,
 } from "@mantine/core";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
@@ -90,6 +91,12 @@ const Login = () => {
               error={errors.password?.message}
               {...register("password")}
             />
+
+            <Group justify="flex-end" mt="xs">
+              <Anchor component={Link} to="/zaboravljena-lozinka" size="sm">
+                Zaboravili ste lozinku?
+              </Anchor>
+            </Group>
 
             {error && (
               <Text c="red" size="sm" mt="sm">

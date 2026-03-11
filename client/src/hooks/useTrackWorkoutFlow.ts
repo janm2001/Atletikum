@@ -38,6 +38,21 @@ const createDefaultSets = (setCount: number): TrackWorkoutFormValues["sets"] =>
         rpe: 6,
     }));
 
+const getFirstInvalidSetIndex = (sets: TrackWorkoutFormValues["sets"]) => {
+    return sets.findIndex((setItem) => {
+        const resultValue = Number(setItem.resultValue ?? 0);
+        const rpe = Number(setItem.rpe ?? 0);
+        const loadKg = setItem.loadKg;
+
+        return (
+            resultValue < 1 ||
+            rpe < 1 ||
+            rpe > 10 ||
+            (loadKg !== null && loadKg !== undefined && Number(loadKg) < 0)
+        );
+    });
+};
+
 export const getMetricFromPrescription = (
     prescription: string,
 ): TrackWorkoutMetric => {
@@ -144,6 +159,15 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
         values,
     ) => {
         if (!currentExercise) {
+            return;
+        }
+
+        const areAllSetsValid = await trigger("sets");
+        if (!areAllSetsValid) {
+            const firstInvalidSetIndex = getFirstInvalidSetIndex(values.sets);
+            if (firstInvalidSetIndex !== -1) {
+                setActiveSetIndex(firstInvalidSetIndex);
+            }
             return;
         }
 

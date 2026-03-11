@@ -29,6 +29,7 @@ afterAll(async () => {
 describe("User schema", () => {
   const validUser = {
     username: "ivan",
+    email: "ivan@example.com",
     password: "strongPass123",
     trainingFrequency: 4,
     focus: "snaga",
@@ -41,6 +42,16 @@ describe("User schema", () => {
   it("rejects without username", () => {
     const err = validate(userSchema, { ...validUser, username: undefined });
     expect(err.errors.username).toBeDefined();
+  });
+
+  it("rejects without email", () => {
+    const err = validate(userSchema, { ...validUser, email: undefined });
+    expect(err.errors.email).toBeDefined();
+  });
+
+  it("rejects invalid email", () => {
+    const err = validate(userSchema, { ...validUser, email: "not-an-email" });
+    expect(err.errors.email).toBeDefined();
   });
 
   it("rejects invalid focus enum", () => {
@@ -95,6 +106,16 @@ describe("Article schema", () => {
 
   it("accepts a valid article", () => {
     expect(validate(articleSchema, validArticle)).toBeUndefined();
+  });
+
+  it("accepts related article and exercise ids", () => {
+    expect(
+      validate(articleSchema, {
+        ...validArticle,
+        relatedArticleIds: [new mongoose.Types.ObjectId()],
+        relatedExerciseIds: [new mongoose.Types.ObjectId()],
+      }),
+    ).toBeUndefined();
   });
 
   it("rejects without required fields", () => {

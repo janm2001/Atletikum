@@ -1,5 +1,6 @@
 const { Article } = require("../models/Article");
 const { ArticleBookmark } = require("../models/ArticleBookmark");
+const { Exercise } = require("../models/Exercise");
 const AppError = require("../utils/AppError");
 
 const normalizeBookmarkState = (bookmark) => ({
@@ -62,8 +63,30 @@ const normalizeArticlePayload = (payload) => {
   )
     .filter(Boolean)
     .map((item) => String(item));
+  normalized.relatedExerciseIds = (
+    parseJsonArrayField(payload.relatedExerciseIds) ?? []
+  )
+    .filter(Boolean)
+    .map((item) => String(item));
 
   return normalized;
+};
+
+const getRelatedExercises = async (relatedExerciseIds) => {
+  if (!Array.isArray(relatedExerciseIds) || relatedExerciseIds.length === 0) {
+    return [];
+  }
+
+  const exercises = await Exercise.find({
+    _id: { $in: relatedExerciseIds },
+  }).lean();
+  const exerciseMap = new Map(
+    exercises.map((exercise) => [String(exercise._id), exercise]),
+  );
+
+  return relatedExerciseIds
+    .map((exerciseId) => exerciseMap.get(String(exerciseId)))
+    .filter(Boolean);
 };
 
 const buildArticleFilter = async ({ userId, query }) => {
@@ -151,11 +174,15 @@ const getArticleById = async ({ articleId, userId }) => {
     article._id,
     ...relatedArticles.map((relatedArticle) => relatedArticle._id),
   ]);
+  const relatedExercises = await getRelatedExercises(
+    article.relatedExerciseIds,
+  );
 
   return {
     ...article,
     bookmark: bookmarkMap.get(String(article._id)) ?? normalizeBookmarkState(),
     relatedArticles: attachBookmarkState(relatedArticles, bookmarkMap),
+    relatedExercises,
   };
 };
 
@@ -256,6 +283,7 @@ module.exports = {
   getBookmarkMap,
   attachBookmarkState,
   normalizeArticlePayload,
+  getRelatedExercises,
   getAllArticles,
   getArticleById,
   createArticle,

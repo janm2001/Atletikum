@@ -8,6 +8,7 @@ import ArticleDetailHeader from "@/components/KnowledgeBase/Article/ArticleDetai
 import ArticleQuizResultFeedback from "@/components/KnowledgeBase/Article/ArticleQuizResultFeedback";
 import ArticleQuizSection from "@/components/KnowledgeBase/Article/ArticleQuizSection";
 import ArticleRelatedArticlesSection from "@/components/KnowledgeBase/Article/ArticleRelatedArticlesSection";
+import ArticleRelatedExercisesSection from "@/components/KnowledgeBase/Article/ArticleRelatedExercisesSection";
 import ArticleSourceCard from "@/components/KnowledgeBase/Article/ArticleSourceCard";
 import { useArticleDetailFlow } from "@/hooks/useArticleDetailFlow";
 
@@ -109,6 +110,8 @@ const ArticleDetail = () => {
         onNavigateArticle={handleNavigateArticle}
         onToggleBookmark={handleToggleRelatedBookmark}
       />
+
+      <ArticleRelatedExercisesSection exercises={article.relatedExercises} />
     </Container>
   );
 };

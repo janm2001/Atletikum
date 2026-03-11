@@ -1,3 +1,5 @@
+import type { Exercise } from "@/types/Exercise/exercise";
+
 export const ArticleTag = {
   TRAINING: "TRAINING",
   NUTRITION: "NUTRITION",
@@ -46,7 +48,9 @@ export interface Article {
   sourceTitle?: string;
   coverImage?: string;
   relatedArticleIds?: string[];
+  relatedExerciseIds?: string[];
   relatedArticles?: ArticleSummary[];
+  relatedExercises?: Exercise[];
   bookmark?: ArticleBookmarkState;
   quiz?: QuizQuestion[];
   author: string;

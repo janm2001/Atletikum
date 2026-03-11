@@ -1,6 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const { Article } = require("../models/Article");
+const { Exercise } = require("../models/Exercise");
 const ArticleTag = require("../enums/ArticleTag.enum");
 
 const articles = [
@@ -199,10 +200,106 @@ const articles = [
   },
 ];
 
+const articleRelations = {
+  "Važnost VO2max u utrkama na srednje i duge pruge": {
+    relatedArticleTitles: [
+      "Laktatni prag i njegov utjecaj na izdržljivost",
+      "Biomehanika trčanja i ekonomičnost",
+    ],
+    relatedExerciseTitles: ["High Knees", "Bounding"],
+  },
+  "Laktatni prag i njegov utjecaj na izdržljivost": {
+    relatedArticleTitles: [
+      "Važnost VO2max u utrkama na srednje i duge pruge",
+      "Prehrana i unos ugljikohidrata prije utrke",
+    ],
+    relatedExerciseTitles: ["High Knees", "Butt Kicks"],
+  },
+  "Biomehanika trčanja i ekonomičnost": {
+    relatedArticleTitles: [
+      "Trening snage za trkače (Eksplozivnost i prevencija ozljeda)",
+      "Važnost VO2max u utrkama na srednje i duge pruge",
+    ],
+    relatedExerciseTitles: ["A-Skips", "Wall Drill (Switches)", "Pogo Jumps"],
+  },
+  "Prehrana i unos ugljikohidrata prije utrke": {
+    relatedArticleTitles: [
+      "Laktatni prag i njegov utjecaj na izdržljivost",
+      "Važnost VO2max u utrkama na srednje i duge pruge",
+    ],
+    relatedExerciseTitles: ["High Knees"],
+  },
+  "Trening snage za trkače (Eksplozivnost i prevencija ozljeda)": {
+    relatedArticleTitles: [
+      "Biomehanika trčanja i ekonomičnost",
+      "Važnost VO2max u utrkama na srednje i duge pruge",
+    ],
+    relatedExerciseTitles: ["Romanian Deadlift", "Walking Lunges", "Box Jumps"],
+  },
+};
+
+const applyArticleRelations = async (insertedArticles) => {
+  if (!insertedArticles.length) {
+    return;
+  }
+
+  const articlesByTitle = new Map(
+    insertedArticles.map((article) => [article.title, article]),
+  );
+  const allExerciseTitles = [
+    ...new Set(
+      Object.values(articleRelations).flatMap(
+        (relation) => relation.relatedExerciseTitles ?? [],
+      ),
+    ),
+  ];
+  const exerciseDocs = await Exercise.find({
+    title: { $in: allExerciseTitles },
+  })
+    .select("_id title")
+    .lean();
+  const exerciseIdsByTitle = new Map(
+    exerciseDocs.map((exercise) => [exercise.title, exercise._id]),
+  );
+
+  const operations = insertedArticles
+    .map((article) => {
+      const relation = articleRelations[article.title];
+      if (!relation) {
+        return null;
+      }
+
+      const relatedArticleIds = (relation.relatedArticleTitles ?? [])
+        .map((title) => articlesByTitle.get(title)?._id)
+        .filter(Boolean);
+      const relatedExerciseIds = (relation.relatedExerciseTitles ?? [])
+        .map((title) => exerciseIdsByTitle.get(title))
+        .filter(Boolean);
+
+      return {
+        updateOne: {
+          filter: { _id: article._id },
+          update: {
+            $set: {
+              relatedArticleIds,
+              relatedExerciseIds,
+            },
+          },
+        },
+      };
+    })
+    .filter(Boolean);
+
+  if (operations.length > 0) {
+    await Article.bulkWrite(operations);
+  }
+};
+
 const importData = async () => {
   try {
     await Article.deleteMany();
-    await Article.insertMany(articles);
+    const insertedArticles = await Article.insertMany(articles);
+    await applyArticleRelations(insertedArticles);
     console.log("Article seed imported successfully.");
     process.exit(0);
   } catch (err) {

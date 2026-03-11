@@ -3,6 +3,7 @@ const sanitizeUser = (user) => {
   return {
     _id: user._id,
     username: user.username,
+    email: user.email,
     trainingFrequency: user.trainingFrequency,
     focus: user.focus,
     level: user.level,

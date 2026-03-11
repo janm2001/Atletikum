@@ -4,6 +4,7 @@ describe("sanitizeUser", () => {
   const fullUser = {
     _id: "abc123",
     username: "testuser",
+    email: "test@example.com",
     password: "hashed_password_secret",
     trainingFrequency: 4,
     focus: "snaga",
@@ -31,6 +32,7 @@ describe("sanitizeUser", () => {
       expect.objectContaining({
         _id: "abc123",
         username: "testuser",
+        email: "test@example.com",
         trainingFrequency: 4,
         focus: "snaga",
         level: 5,

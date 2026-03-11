@@ -3,6 +3,7 @@ import { passwordSchema } from "./password.schema";
 
 export const registerSchema = z.object({
     username: z.string().min(3),
+    email: z.string().email("Unesite valjanu email adresu"),
     password: passwordSchema,
     passwordConfirm: passwordSchema,
     trainingFrequency: z.number().min(0).max(7),

@@ -35,6 +35,7 @@ export const articleSchema = z.object({
     .or(z.undefined()),
   author: z.string().optional(),
   relatedArticleIds: z.array(z.string()).optional(),
+  relatedExerciseIds: z.array(z.string()).optional(),
   quiz: z.array(quizQuestionSchema).optional(),
 });
 

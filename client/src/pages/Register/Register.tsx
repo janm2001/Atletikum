@@ -39,6 +39,7 @@ const Register = () => {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
       passwordConfirm: "",
       trainingFrequency: 3,
@@ -57,6 +58,7 @@ const Register = () => {
     try {
       const response = await registerMutation.mutateAsync({
         username: formData.username,
+        email: formData.email,
         password: formData.password,
         trainingFrequency: formData.trainingFrequency,
         focus: formData.focus,
@@ -108,6 +110,15 @@ const Register = () => {
               required
               error={errors.username?.message}
               {...register("username")}
+              mb="md"
+            />
+
+            <TextInput
+              label="Email"
+              placeholder="ime@primjer.hr"
+              required
+              error={errors.email?.message}
+              {...register("email")}
               mb="md"
             />
 

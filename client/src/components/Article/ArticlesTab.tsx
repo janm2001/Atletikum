@@ -19,6 +19,7 @@ import { IconPhoto, IconPlus } from "@tabler/icons-react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
+import { useExercises } from "@/hooks/useExercise";
 import {
   useArticles,
   useArticleDetail,
@@ -49,6 +50,7 @@ const getDefaultFormValues = (): ArticleFormValues => ({
   sourceTitle: "",
   coverImage: "",
   relatedArticleIds: [],
+  relatedExerciseIds: [],
   author: "Atletikum Tim",
   quiz: [],
 });
@@ -64,6 +66,7 @@ const ArticlesTab = () => {
   const createMutation = useCreateArticle();
   const updateMutation = useUpdateArticle();
   const deleteMutation = useDeleteArticle();
+  const { data: exercises } = useExercises();
 
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(articleSchema),
@@ -96,6 +99,7 @@ const ArticlesTab = () => {
         sourceTitle: fullArticle.sourceTitle || "",
         coverImage: fullArticle.coverImage || "",
         relatedArticleIds: fullArticle.relatedArticleIds ?? [],
+        relatedExerciseIds: fullArticle.relatedExerciseIds ?? [],
         author: fullArticle.author || "Atletikum Tim",
         quiz: fullArticle.quiz ?? [],
       });
@@ -125,6 +129,7 @@ const ArticlesTab = () => {
       sourceTitle: article.sourceTitle || "",
       coverImage: article.coverImage || "",
       relatedArticleIds: article.relatedArticleIds ?? [],
+      relatedExerciseIds: article.relatedExerciseIds ?? [],
       author: article.author || "Atletikum Tim",
       quiz: [],
     });
@@ -163,6 +168,12 @@ const ArticlesTab = () => {
           formData.append(
             "relatedArticleIds",
             JSON.stringify(data.relatedArticleIds),
+          );
+        }
+        if (data.relatedExerciseIds && data.relatedExerciseIds.length > 0) {
+          formData.append(
+            "relatedExerciseIds",
+            JSON.stringify(data.relatedExerciseIds),
           );
         }
         if (data.quiz && data.quiz.length > 0) {
@@ -371,6 +382,24 @@ const ArticlesTab = () => {
                         value: article._id,
                         label: article.title,
                       }))}
+                    searchable
+                    clearable
+                    value={field.value ?? []}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+
+              <Controller
+                name="relatedExerciseIds"
+                control={control}
+                render={({ field }) => (
+                  <MultiSelect
+                    label="Povezane vježbe"
+                    data={(exercises ?? []).map((exercise) => ({
+                      value: exercise._id,
+                      label: exercise.title,
+                    }))}
                     searchable
                     clearable
                     value={field.value ?? []}

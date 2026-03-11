@@ -1,4 +1,6 @@
+import type { ForgotPasswordInput } from "@/schema/forgotPassword.schema";
 import type { RegisterInput } from "@/schema/register.schema";
+import type { ResetPasswordInput } from "@/schema/resetPassword.schema";
 import type { User } from "@/types/User/user";
 
 export type AuthPayload = {
@@ -13,3 +15,20 @@ export type AuthResponse = {
 };
 
 export type RegisterPayload = Omit<RegisterInput, "passwordConfirm">;
+
+export type PasswordResetRequestPayload = ForgotPasswordInput;
+
+export type ResetPasswordPayload = Omit<ResetPasswordInput, "passwordConfirm">;
+
+export type StatusResponse = {
+    status: string;
+    message: string;
+};
+
+export type PasswordResetRequestResponse = StatusResponse & {
+    data: {
+        resetToken: string;
+        resetUrl: string;
+        expiresAt: string;
+    };
+};

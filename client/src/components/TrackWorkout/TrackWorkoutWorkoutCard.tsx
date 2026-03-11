@@ -157,125 +157,121 @@ const TrackWorkoutWorkoutCard = ({
                     )}
                   </Group>
 
-                  {isActive && (
-                    <Stack gap="xs">
-                      <Controller
-                        control={control}
-                        name={`sets.${setIndex}.loadKg`}
-                        rules={{
-                          validate: (value) => {
-                            if (value === null || value === undefined) {
-                              return true;
-                            }
+                  <Stack
+                    gap="xs"
+                    style={{ display: isActive ? undefined : "none" }}
+                    aria-hidden={!isActive}
+                  >
+                    <Controller
+                      control={control}
+                      name={`sets.${setIndex}.loadKg`}
+                      rules={{
+                        validate: (value) => {
+                          if (value === null || value === undefined) {
+                            return true;
+                          }
 
-                            return (
-                              value >= 0 || "Težina ne može biti negativna"
-                            );
-                          },
-                        }}
-                        render={({ field: setField }) => (
-                          <NumberInput
-                            label="Težina (kg, opcionalno)"
-                            min={0}
-                            size="sm"
-                            value={setField.value ?? undefined}
-                            onChange={(value) =>
-                              setField.onChange(
-                                typeof value === "number" ? value : null,
-                              )
-                            }
-                            error={errors.sets?.[setIndex]?.loadKg?.message}
-                          />
-                        )}
-                      />
+                          return value >= 0 || "Težina ne može biti negativna";
+                        },
+                      }}
+                      render={({ field: setField }) => (
+                        <NumberInput
+                          label="Težina (kg, opcionalno)"
+                          min={0}
+                          size="sm"
+                          value={setField.value ?? undefined}
+                          onChange={(value) =>
+                            setField.onChange(
+                              typeof value === "number" ? value : null,
+                            )
+                          }
+                          error={errors.sets?.[setIndex]?.loadKg?.message}
+                        />
+                      )}
+                    />
 
-                      <Controller
-                        control={control}
-                        name={`sets.${setIndex}.resultValue`}
-                        rules={{
-                          min: {
-                            value: 1,
-                            message: "Vrijednost seta mora biti najmanje 1",
-                          },
-                          required: "Unesi rezultat seta",
-                        }}
-                        render={({ field: setField }) => (
-                          <NumberInput
-                            label={currentMetric.label}
-                            min={1}
-                            size="sm"
-                            value={setField.value}
-                            onChange={(value) =>
-                              setField.onChange(Number(value) || 0)
-                            }
-                            error={
-                              errors.sets?.[setIndex]?.resultValue?.message
-                            }
-                            required
-                          />
-                        )}
-                      />
+                    <Controller
+                      control={control}
+                      name={`sets.${setIndex}.resultValue`}
+                      rules={{
+                        min: {
+                          value: 1,
+                          message: "Vrijednost seta mora biti najmanje 1",
+                        },
+                        required: "Unesi rezultat seta",
+                      }}
+                      render={({ field: setField }) => (
+                        <NumberInput
+                          label={currentMetric.label}
+                          min={1}
+                          size="sm"
+                          value={setField.value}
+                          onChange={(value) =>
+                            setField.onChange(Number(value) || 0)
+                          }
+                          error={errors.sets?.[setIndex]?.resultValue?.message}
+                          required
+                        />
+                      )}
+                    />
 
-                      <Controller
-                        control={control}
-                        name={`sets.${setIndex}.rpe`}
-                        rules={{
-                          min: {
-                            value: 1,
-                            message: "RPE mora biti najmanje 1",
-                          },
-                          max: {
-                            value: 10,
-                            message: "RPE može biti najviše 10",
-                          },
-                          required: "Unesi RPE",
-                        }}
-                        render={({ field: setField }) => (
-                          <NumberInput
-                            label="RPE"
-                            min={1}
-                            max={10}
-                            size="sm"
-                            value={setField.value}
-                            onChange={(value) =>
-                              setField.onChange(Number(value) || 1)
-                            }
-                            error={errors.sets?.[setIndex]?.rpe?.message}
-                            required
-                          />
-                        )}
-                      />
+                    <Controller
+                      control={control}
+                      name={`sets.${setIndex}.rpe`}
+                      rules={{
+                        min: {
+                          value: 1,
+                          message: "RPE mora biti najmanje 1",
+                        },
+                        max: {
+                          value: 10,
+                          message: "RPE može biti najviše 10",
+                        },
+                        required: "Unesi RPE",
+                      }}
+                      render={({ field: setField }) => (
+                        <NumberInput
+                          label="RPE"
+                          min={1}
+                          max={10}
+                          size="sm"
+                          value={setField.value}
+                          onChange={(value) =>
+                            setField.onChange(Number(value) || 1)
+                          }
+                          error={errors.sets?.[setIndex]?.rpe?.message}
+                          required
+                        />
+                      )}
+                    />
 
-                      <Group justify="space-between">
-                        <Button
-                          variant="light"
-                          color="gray"
-                          size="xs"
-                          onClick={onPreviousSet}
-                          disabled={activeSetIndex === 0}
-                        >
-                          Prethodni
-                        </Button>
-                        <Button
-                          variant="light"
-                          color="violet"
-                          size="xs"
-                          onClick={onNextSet}
-                          disabled={activeSetIndex >= plannedSetCount - 1}
-                        >
-                          Sljedeći set
-                        </Button>
-                      </Group>
-                    </Stack>
-                  )}
+                    <Group justify="space-between">
+                      <Button
+                        variant="light"
+                        color="gray"
+                        size="xs"
+                        onClick={onPreviousSet}
+                        disabled={activeSetIndex === 0}
+                      >
+                        Prethodni
+                      </Button>
+                      <Button
+                        variant="light"
+                        color="violet"
+                        size="xs"
+                        onClick={onNextSet}
+                        disabled={activeSetIndex >= plannedSetCount - 1}
+                      >
+                        Sljedeći set
+                      </Button>
+                    </Group>
+                  </Stack>
                 </Card>
               );
             })}
 
             <Button
               type="submit"
-              color="violet"
-              fullWidth
               loading={isSubmitting}
               style={{ position: "sticky", bottom: 12, zIndex: 10 }}
               my={16}

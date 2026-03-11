@@ -1,3 +1,8 @@
+jest.mock("crypto", () => ({
+  randomBytes: jest.fn(),
+  createHash: jest.fn(),
+}));
+
 jest.mock("../models/User", () => ({
   User: {
     create: jest.fn(),
@@ -18,6 +23,7 @@ jest.mock("../utils/sanitizeUser", () => ({
 }));
 
 const { User } = require("../models/User");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { sanitizeUser } = require("../utils/sanitizeUser");
@@ -27,6 +33,13 @@ describe("authService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.JWT_SECRET = "test-secret";
+    process.env.CLIENT_URL = "http://localhost:5173";
+
+    crypto.createHash.mockReturnValue({
+      update: jest.fn().mockReturnValue({
+        digest: jest.fn().mockReturnValue("hashed-reset-token"),
+      }),
+    });
   });
 
   it("registers a user and returns token plus sanitized payload", async () => {
@@ -43,6 +56,7 @@ describe("authService", () => {
 
     const result = await authService.register({
       username: "jan",
+      email: "jan@example.com",
       password: "secret123",
       trainingFrequency: 4,
       focus: "snaga",
@@ -50,6 +64,7 @@ describe("authService", () => {
 
     expect(User.create).toHaveBeenCalledWith({
       username: "jan",
+      email: "jan@example.com",
       password: "secret123",
       trainingFrequency: 4,
       focus: "snaga",
@@ -81,6 +96,61 @@ describe("authService", () => {
     ).rejects.toMatchObject({
       statusCode: 401,
       message: "Pogrešni podaci",
+    });
+  });
+
+  it("creates a password reset token for a matching username and email", async () => {
+    const save = jest.fn().mockResolvedValue(undefined);
+    User.findOne.mockResolvedValue({
+      _id: "user-1",
+      username: "jan",
+      email: "jan@example.com",
+      save,
+    });
+    crypto.randomBytes.mockReturnValue({
+      toString: jest.fn().mockReturnValue("raw-reset-token"),
+    });
+
+    const result = await authService.requestPasswordReset({
+      username: "jan",
+      email: "jan@example.com",
+    });
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      username: "jan",
+      email: "jan@example.com",
+    });
+    expect(save).toHaveBeenCalledWith({ validateBeforeSave: false });
+    expect(result).toEqual(
+      expect.objectContaining({
+        resetToken: "raw-reset-token",
+        resetUrl: "http://localhost:5173/reset-lozinka/raw-reset-token",
+      }),
+    );
+  });
+
+  it("resets password for a valid non-expired reset token", async () => {
+    const save = jest.fn().mockResolvedValue(undefined);
+    User.findOne.mockResolvedValue({
+      _id: "user-1",
+      password: "old-password",
+      passwordResetToken: "hashed-reset-token",
+      passwordResetExpires: new Date(Date.now() + 60_000),
+      save,
+    });
+
+    const result = await authService.resetPassword({
+      token: "raw-reset-token",
+      password: "NewSecret123!",
+    });
+
+    expect(User.findOne).toHaveBeenCalledWith({
+      passwordResetToken: "hashed-reset-token",
+      passwordResetExpires: { $gt: expect.any(Date) },
+    });
+    expect(save).toHaveBeenCalled();
+    expect(result).toEqual({
+      message: "Lozinka je uspješno promijenjena.",
     });
   });
 });

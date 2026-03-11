@@ -1,6 +1,7 @@
 export type User = {
     _id: string;
     username: string;
+    email?: string;
     trainingFrequency: number;
     focus: string;
     level: number;
@@ -10,4 +11,8 @@ export type User = {
     dailyStreak: number;
     role: string;
     profilePicture: string;
+    achievements?: Array<{
+        achievement: string;
+        unlockedAt: string;
+    }>;
 }
