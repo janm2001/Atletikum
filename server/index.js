@@ -4,7 +4,9 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const sanitizeMongo = require("./middleware/sanitizeMongo");
+const errorHandler = require("./middleware/errorHandler");
 const hpp = require("hpp");
+const AppError = require("./utils/AppError");
 const authRoutes = require("./routes/authRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
@@ -63,6 +65,12 @@ mongoose
 app.get("/", (req, res) => {
   res.send("Server radi!");
 });
+
+app.use((req, res, next) => {
+  next(new AppError(`Cannot ${req.method} ${req.originalUrl}`, 404));
+});
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server pokrenut na portu: ${PORT}`);

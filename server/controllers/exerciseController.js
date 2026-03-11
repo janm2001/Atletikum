@@ -1,84 +1,41 @@
-const { Exercise } = require("../models/Exercise");
+const asyncHandler = require("../middleware/asyncHandler");
+const exerciseService = require("../services/exerciseService");
 
-exports.getAllExercises = async (req, res) => {
-  try {
-    const exercises = await Exercise.find().sort({ createdAt: -1 });
+exports.getAllExercises = asyncHandler(async (req, res) => {
+  const exercises = await exerciseService.getAllExercises();
 
-    res.status(200).json({
-      status: "success",
-      results: exercises.length,
-      data: { exercises },
-    });
-  } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
-  }
-};
+  res.status(200).json({
+    status: "success",
+    results: exercises.length,
+    data: { exercises },
+  });
+});
 
-exports.getExerciseById = async (req, res) => {
-  try {
-    const exercise = await Exercise.findById(req.params.id);
+exports.getExerciseById = asyncHandler(async (req, res) => {
+  const exercise = await exerciseService.getExerciseById(req.params.id);
 
-    if (!exercise) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Exercise not found" });
-    }
+  res.status(200).json({ status: "success", data: { exercise } });
+});
 
-    res.status(200).json({ status: "success", data: { exercise } });
-  } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
-  }
-};
+exports.createExercise = asyncHandler(async (req, res) => {
+  const newExercise = await exerciseService.createExercise(req.body);
 
-exports.createExercise = async (req, res) => {
-  try {
-    const newExercise = await Exercise.create(req.body);
+  res.status(201).json({ status: "success", data: { exercise: newExercise } });
+});
 
-    res
-      .status(201)
-      .json({ status: "success", data: { exercise: newExercise } });
-  } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
-  }
-};
+exports.updateExercise = asyncHandler(async (req, res) => {
+  const updatedExercise = await exerciseService.updateExercise(
+    req.params.id,
+    req.body,
+  );
 
-exports.updateExercise = async (req, res) => {
-  try {
-    const updatedExercise = await Exercise.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+  res
+    .status(200)
+    .json({ status: "success", data: { exercise: updatedExercise } });
+});
 
-    if (!updatedExercise) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Exercise not found" });
-    }
+exports.deleteExercise = asyncHandler(async (req, res) => {
+  await exerciseService.deleteExercise(req.params.id);
 
-    res
-      .status(200)
-      .json({ status: "success", data: { exercise: updatedExercise } });
-  } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
-  }
-};
-
-exports.deleteExercise = async (req, res) => {
-  try {
-    const deletedExercise = await Exercise.findByIdAndDelete(req.params.id);
-
-    if (!deletedExercise) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Exercise not found" });
-    }
-
-    res.status(204).json({ status: "success", data: null });
-  } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
-  }
-};
+  res.status(204).json({ status: "success", data: null });
+});
