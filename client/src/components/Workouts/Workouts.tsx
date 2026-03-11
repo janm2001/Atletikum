@@ -1,4 +1,5 @@
 import {
+  Button,
   Box,
   Center,
   Chip,
@@ -11,17 +12,48 @@ import {
   Title,
 } from "@mantine/core";
 import WorkoutCard from "./WorkoutCard";
-import { useWorkouts } from "@/hooks/useWorkout";
+import {
+  useCreateCustomWorkout,
+  useDeleteWorkout,
+  useUpdateWorkout,
+  useWorkouts,
+} from "@/hooks/useWorkout";
 import { useUser } from "@/hooks/useUser";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { useMemo, useState } from "react";
 import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
-import { IconBook } from "@tabler/icons-react";
+import { IconBook, IconPlus } from "@tabler/icons-react";
+import {
+  getExerciseId,
+  isCustomWorkout,
+  isWorkoutOwnedByUser,
+  type Workout,
+} from "@/types/Workout/workout";
+import type { WorkoutFormValues } from "@/schema/workout.schema";
+import WorkoutFormModal from "./WorkoutFormModal";
+
+const getDefaultFormValues = (): WorkoutFormValues => ({
+  title: "",
+  description: "",
+  requiredLevel: 1,
+  tags: [],
+  exercises: [],
+});
 
 const Workouts = () => {
-  const { data, isLoading, error } = useWorkouts();
+  const { data, isLoading, error } = useWorkouts("available");
   const { user } = useUser();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [opened, setOpened] = useState(false);
+  const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
+  const [formValues, setFormValues] = useState<WorkoutFormValues>(
+    getDefaultFormValues(),
+  );
+  const createMutation = useCreateCustomWorkout();
+  const updateMutation = useUpdateWorkout();
+  const deleteMutation = useDeleteWorkout();
+
   const workouts = useMemo(() => {
     const all = data ?? [];
     const filtered =
@@ -37,6 +69,80 @@ const Workouts = () => {
     });
   }, [data, selectedTags, user?.level]);
 
+  const customWorkouts = workouts.filter((workout) => isCustomWorkout(workout));
+  const globalWorkouts = workouts.filter(
+    (workout) => !isCustomWorkout(workout),
+  );
+
+  const handleOpenCreate = () => {
+    setEditingWorkoutId(null);
+    setFormValues(getDefaultFormValues());
+    setActionError("");
+    setOpened(true);
+  };
+
+  const handleOpenEdit = (workout: Workout) => {
+    setEditingWorkoutId(workout._id);
+    setFormValues({
+      title: workout.title,
+      description: workout.description,
+      requiredLevel: workout.requiredLevel,
+      tags: workout.tags ?? [],
+      exercises: workout.exercises.map((exercise) => ({
+        exerciseId: getExerciseId(exercise.exerciseId),
+        sets: exercise.sets,
+        reps: exercise.reps,
+        rpe: exercise.rpe ?? "",
+        baseXp: exercise.baseXp,
+        progression: {
+          enabled: Boolean(exercise.progression?.enabled),
+          initialWeightKg: exercise.progression?.initialWeightKg ?? null,
+          incrementKg: exercise.progression?.incrementKg ?? 2.5,
+        },
+      })),
+    });
+    setActionError("");
+    setOpened(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Jeste li sigurni da želite obrisati ovaj trening?")) {
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSubmit = async (values: WorkoutFormValues) => {
+    const customWorkoutValues = {
+      ...values,
+      requiredLevel: 1,
+    };
+
+    try {
+      setActionError("");
+      if (editingWorkoutId) {
+        await updateMutation.mutateAsync({
+          id: editingWorkoutId,
+          updatedData: customWorkoutValues,
+        });
+      } else {
+        await createMutation.mutateAsync(customWorkoutValues);
+      }
+      setOpened(false);
+      setFormValues(getDefaultFormValues());
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      setActionError(
+        err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
+      );
+    }
+  };
+
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
   }
@@ -51,7 +157,15 @@ const Workouts = () => {
           wrap="wrap"
           gap="sm"
         >
-          <Title order={1}>Gotovi treninzi</Title>
+          <Group>
+            <Title order={1}>Treninzi</Title>
+            <Button
+              leftSection={<IconPlus size={16} />}
+              onClick={handleOpenCreate}
+            >
+              Moj trening
+            </Button>
+          </Group>
           <ScrollArea type="never">
             <Chip.Group
               multiple
@@ -73,13 +187,47 @@ const Workouts = () => {
             </Chip.Group>
           </ScrollArea>
         </Flex>
-        <Grid my={8}>
-          {workouts.map((workout) => (
-            <Grid.Col key={workout.title} span={{ base: 12, sm: 6, md: 4 }}>
-              <WorkoutCard workout={workout} />
-            </Grid.Col>
-          ))}
-        </Grid>
+
+        {customWorkouts.length > 0 && (
+          <Stack gap="sm" my="lg">
+            <Group justify="space-between">
+              <Title order={3}>Moji treninzi</Title>
+              <Text size="sm" c="dimmed">
+                Privatni treninzi vidljivi samo vama.
+              </Text>
+            </Group>
+            <Grid my={0}>
+              {customWorkouts.map((workout) => (
+                <Grid.Col key={workout._id} span={{ base: 12, sm: 6, md: 4 }}>
+                  <WorkoutCard
+                    workout={workout}
+                    onDelete={
+                      isWorkoutOwnedByUser(workout, user?._id)
+                        ? handleDelete
+                        : undefined
+                    }
+                    onEdit={
+                      isWorkoutOwnedByUser(workout, user?._id)
+                        ? handleOpenEdit
+                        : undefined
+                    }
+                  />
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Stack>
+        )}
+
+        <Stack gap="sm" my="lg">
+          <Title order={3}>Gotovi treninzi</Title>
+          <Grid my={0}>
+            {globalWorkouts.map((workout) => (
+              <Grid.Col key={workout._id} span={{ base: 12, sm: 6, md: 4 }}>
+                <WorkoutCard workout={workout} />
+              </Grid.Col>
+            ))}
+          </Grid>
+        </Stack>
 
         {!error && workouts.length === 0 && (
           <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
@@ -87,6 +235,17 @@ const Workouts = () => {
             <Text c="dimmed">Nema vježbi za odabrani filter.</Text>
           </Center>
         )}
+
+        <WorkoutFormModal
+          opened={opened}
+          onClose={() => setOpened(false)}
+          title={editingWorkoutId ? "Uredi moj trening" : "Izradi svoj trening"}
+          actionError={actionError}
+          initialValues={formValues}
+          loading={createMutation.isPending || updateMutation.isPending}
+          onSubmit={handleSubmit}
+          showRequiredLevel={false}
+        />
       </Box>
     </Stack>
   );

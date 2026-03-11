@@ -26,6 +26,7 @@ export const keys = {
     },
     workouts: {
         all: ['workouts'] as const,
+        list: (scope: string) => [...keys.workouts.all, 'list', scope] as const,
     },
     workoutLogs: {
         all: ['workout-logs'] as const,

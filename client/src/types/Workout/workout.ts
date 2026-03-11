@@ -4,12 +4,20 @@ type PopulatedExercise = {
   imageLink?: string;
 };
 
-type WorkoutExercise = {
+export type WorkoutExerciseProgression = {
+  enabled: boolean;
+  initialWeightKg: number | null;
+  incrementKg: number;
+  prescribedLoadKg?: number | null;
+};
+
+export type WorkoutExercise = {
   exerciseId: string | PopulatedExercise;
   sets: number;
   reps: string;
   rpe: string;
   baseXp: number;
+  progression?: WorkoutExerciseProgression;
 };
 
 export type Workout = {
@@ -18,6 +26,7 @@ export type Workout = {
   description: string;
   requiredLevel: number;
   tags?: string[];
+  createdBy?: string | null;
   exercises: WorkoutExercise[];
 };
 
@@ -42,4 +51,15 @@ export function getExerciseId(
 ): string {
   if (exerciseId == null) return "";
   return typeof exerciseId === "object" ? exerciseId._id : exerciseId;
+}
+
+export function isCustomWorkout(workout: Workout): boolean {
+  return Boolean(workout.createdBy);
+}
+
+export function isWorkoutOwnedByUser(
+  workout: Workout,
+  userId: string | null | undefined,
+): boolean {
+  return Boolean(userId && workout.createdBy && workout.createdBy === userId);
 }

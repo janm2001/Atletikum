@@ -15,6 +15,10 @@ jest.mock("../services/userProgressService", () => ({
   applyUserProgress: jest.fn(),
 }));
 
+jest.mock("../services/progressionService", () => ({
+  syncWorkoutProgressions: jest.fn(),
+}));
+
 jest.mock("../utils/workoutMetrics", () => ({
   normalizeCompletedExercise: jest.fn(),
   calculateWorkoutXp: jest.fn(),
@@ -24,6 +28,7 @@ jest.mock("../utils/workoutMetrics", () => ({
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { Workout } = require("../models/Workout");
 const { applyUserProgress } = require("../services/userProgressService");
+const { syncWorkoutProgressions } = require("../services/progressionService");
 const {
   normalizeCompletedExercise,
   calculateWorkoutXp,
@@ -84,8 +89,6 @@ describe("workoutLogService", () => {
         completedExercises: [
           { exerciseId: "exercise-1", resultValue: 6, rpe: 7 },
         ],
-        readinessScore: 4,
-        sessionFeedbackScore: 4,
       },
     });
 
@@ -94,6 +97,11 @@ describe("workoutLogService", () => {
         user: "user-1",
         workoutId: "workout-1",
         totalXpGained: 40,
+      }),
+    );
+    expect(syncWorkoutProgressions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-1",
       }),
     );
     expect(applyUserProgress).toHaveBeenCalledWith(
@@ -110,5 +118,31 @@ describe("workoutLogService", () => {
         isPersonalBest: true,
       }),
     ]);
+  });
+
+  it("rejects a private workout owned by another user", async () => {
+    Workout.findById.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        _id: "workout-1",
+        title: "Private Session",
+        requiredLevel: 1,
+        createdBy: "owner-1",
+        exercises: [
+          { exerciseId: "exercise-1", reps: "5", sets: 3, baseXp: 30 },
+        ],
+      }),
+    });
+
+    await expect(
+      workoutLogService.createWorkoutLog({
+        user: { _id: "user-1", role: "user", level: 2 },
+        payload: {
+          workoutId: "workout-1",
+          completedExercises: [
+            { exerciseId: "exercise-1", resultValue: 5, rpe: 7 },
+          ],
+        },
+      }),
+    ).rejects.toThrow("Workout nije pronađen.");
   });
 });

@@ -5,7 +5,7 @@ import {
   Flex,
   Group,
   NumberInput,
-  SegmentedControl,
+  SimpleGrid,
   Stack,
   Text,
 } from "@mantine/core";
@@ -21,39 +21,15 @@ import type {
   TrackWorkoutMetric,
 } from "@/types/Workout/trackWorkout";
 
-const READINESS_OPTIONS = [
-  { value: "1", label: "Niska" },
-  { value: "2", label: "Umorna" },
-  { value: "3", label: "OK" },
-  { value: "4", label: "Dobra" },
-  { value: "5", label: "Top" },
-];
-
-const SESSION_FEEDBACK_OPTIONS = [
-  { value: "1", label: "Težak" },
-  { value: "2", label: "Naporno" },
-  { value: "3", label: "Solidno" },
-  { value: "4", label: "Dobro" },
-  { value: "5", label: "Lako" },
-];
-
 type TrackWorkoutWorkoutCardProps = {
-  activeSetIndex: number;
   currentExercise: Workout["exercises"][number];
   currentIndex: number;
   currentMetric: TrackWorkoutMetric;
   errors: FieldErrors<TrackWorkoutFormValues>;
   exerciseById: Map<string, Exercise>;
   isSubmitting: boolean;
-  onNextSet: () => void;
-  onPreviousSet: () => void;
-  onSetActiveSetIndex: (index: number) => void;
-  onSetReadinessScore: (value: string) => void;
-  onSetSessionFeedbackScore: (value: string) => void;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   plannedSetCount: number;
-  readinessScore: string;
-  sessionFeedbackScore: string;
   setFields: { id: string }[];
   watchedSets: TrackWorkoutFormValues["sets"] | undefined;
   control: Control<TrackWorkoutFormValues>;
@@ -61,22 +37,13 @@ type TrackWorkoutWorkoutCardProps = {
 };
 
 const TrackWorkoutWorkoutCard = ({
-  activeSetIndex,
   currentExercise,
   currentIndex,
   currentMetric,
   errors,
   exerciseById,
   isSubmitting,
-  onNextSet,
-  onPreviousSet,
-  onSetActiveSetIndex,
-  onSetReadinessScore,
-  onSetSessionFeedbackScore,
   onSubmit,
-  plannedSetCount,
-  readinessScore,
-  sessionFeedbackScore,
   setFields,
   watchedSets,
   control,
@@ -89,18 +56,6 @@ const TrackWorkoutWorkoutCard = ({
   return (
     <Card withBorder radius="md" shadow="sm" p="sm">
       <Stack gap="sm">
-        <Stack gap={6}>
-          <Text size="sm" fw={600}>
-            Spremnost za trening
-          </Text>
-          <SegmentedControl
-            fullWidth
-            value={readinessScore}
-            onChange={onSetReadinessScore}
-            data={READINESS_OPTIONS}
-          />
-        </Stack>
-
         <Text fw={600} size="sm">
           Trenutna vježba
         </Text>
@@ -119,6 +74,15 @@ const TrackWorkoutWorkoutCard = ({
           Plan: {currentExercise.sets} × {currentExercise.reps} · RPE{" "}
           {currentExercise.rpe}
         </Text>
+        {currentExercise.progression?.enabled && (
+          <Text size="sm" c="teal" ta="center" fw={600}>
+            Ciljana težina:{" "}
+            {currentExercise.progression.prescribedLoadKg ??
+              currentExercise.progression.initialWeightKg ??
+              0}{" "}
+            kg
+          </Text>
+        )}
 
         <form onSubmit={onSubmit}>
           <Stack gap="xs">
@@ -127,41 +91,21 @@ const TrackWorkoutWorkoutCard = ({
             </Text>
 
             {setFields.map((field, setIndex) => {
-              const isActive = activeSetIndex === setIndex;
-
               return (
-                <Card
-                  key={field.id}
-                  withBorder
-                  radius="md"
-                  p="xs"
-                  bg={isActive ? undefined : "var(--mantine-color-gray-0)"}
-                  onClick={() => onSetActiveSetIndex(setIndex)}
-                  style={{ cursor: isActive ? undefined : "pointer" }}
-                >
-                  <Group
-                    justify="space-between"
-                    align="center"
-                    mb={isActive ? 8 : 0}
-                  >
+                <Card key={field.id} withBorder radius="md" p="xs">
+                  <Group justify="space-between" align="center" mb={8}>
                     <Text size="sm" fw={600}>
                       Set {setIndex + 1}
                     </Text>
-                    {!isActive && (
-                      <Text size="xs" c="dimmed">
-                        {watchedSets?.[setIndex]?.loadKg ?? "BW"} kg ·{" "}
-                        {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
-                        {currentMetric.unitLabel} · RPE{" "}
-                        {watchedSets?.[setIndex]?.rpe ?? 0}
-                      </Text>
-                    )}
+                    <Text size="xs" c="dimmed">
+                      {watchedSets?.[setIndex]?.loadKg ?? "BW"} kg ·{" "}
+                      {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
+                      {currentMetric.unitLabel} · RPE{" "}
+                      {watchedSets?.[setIndex]?.rpe ?? 0}
+                    </Text>
                   </Group>
 
-                  <Stack
-                    gap="xs"
-                    style={{ display: isActive ? undefined : "none" }}
-                    aria-hidden={!isActive}
-                  >
+                  <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xs">
                     <Controller
                       control={control}
                       name={`sets.${setIndex}.loadKg`}
@@ -244,28 +188,7 @@ const TrackWorkoutWorkoutCard = ({
                         />
                       )}
                     />
-
-                    <Group justify="space-between">
-                      <Button
-                        variant="light"
-                        color="gray"
-                        size="xs"
-                        onClick={onPreviousSet}
-                        disabled={activeSetIndex === 0}
-                      >
-                        Prethodni
-                      </Button>
-                      <Button
-                        variant="light"
-                        color="violet"
-                        size="xs"
-                        onClick={onNextSet}
-                        disabled={activeSetIndex >= plannedSetCount - 1}
-                      >
-                        Sljedeći set
-                      </Button>
-                    </Group>
-                  </Stack>
+                  </SimpleGrid>
                 </Card>
               );
             })}
@@ -280,18 +203,6 @@ const TrackWorkoutWorkoutCard = ({
                 ? "Završi trening i spremi"
                 : "Spremi i nastavi →"}
             </Button>
-
-            <Stack gap={6}>
-              <Text size="sm" fw={600}>
-                Kakav je bio trening?
-              </Text>
-              <SegmentedControl
-                fullWidth
-                value={sessionFeedbackScore}
-                onChange={onSetSessionFeedbackScore}
-                data={SESSION_FEEDBACK_OPTIONS}
-              />
-            </Stack>
           </Stack>
         </form>
       </Stack>

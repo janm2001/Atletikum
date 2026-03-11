@@ -1,19 +1,6 @@
 import { useState } from "react";
-import {
-  Button,
-  Divider,
-  Group,
-  Modal,
-  MultiSelect,
-  NumberInput,
-  Stack,
-  TextInput,
-  Textarea,
-  Text,
-} from "@mantine/core";
+import { Button, Group, Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { FormProvider, useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useWorkouts,
@@ -23,13 +10,9 @@ import {
 } from "../../hooks/useWorkout";
 import { getExerciseId } from "@/types/Workout/workout";
 import type { Workout } from "@/types/Workout/workout";
-import {
-  workoutSchema,
-  type WorkoutFormValues,
-} from "../../schema/workout.schema";
-import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
+import { type WorkoutFormValues } from "../../schema/workout.schema";
 import ExerciseTable from "../Exercise/ExerciseTable";
-import ExerciseBuilder from "../Exercise/ExerciseBuilder";
+import WorkoutFormModal from "./WorkoutFormModal";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
   title: "",
@@ -43,35 +26,25 @@ const WorkoutTab = () => {
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
+  const [formValues, setFormValues] = useState<WorkoutFormValues>(
+    getDefaultFormValues(),
+  );
 
-  const { data: workouts, isLoading, error } = useWorkouts();
+  const { data: workouts, isLoading, error } = useWorkouts("global");
   const createMutation = useCreateWorkout();
   const updateMutation = useUpdateWorkout();
   const deleteMutation = useDeleteWorkout();
 
-  const form = useForm<WorkoutFormValues>({
-    resolver: zodResolver(workoutSchema),
-    defaultValues: getDefaultFormValues(),
-  });
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors, isSubmitting },
-  } = form;
-
   const handleOpenCreate = () => {
     setEditingWorkoutId(null);
-    reset(getDefaultFormValues());
+    setFormValues(getDefaultFormValues());
     setActionError("");
     setOpened(true);
   };
 
   const handleOpenEdit = (workout: Workout) => {
     setEditingWorkoutId(workout._id);
-    reset({
+    setFormValues({
       title: workout.title,
       description: workout.description,
       requiredLevel: workout.requiredLevel,
@@ -82,6 +55,11 @@ const WorkoutTab = () => {
         reps: ex.reps,
         rpe: ex.rpe ?? "",
         baseXp: ex.baseXp,
+        progression: {
+          enabled: Boolean(ex.progression?.enabled),
+          initialWeightKg: ex.progression?.initialWeightKg ?? null,
+          incrementKg: ex.progression?.incrementKg ?? 2.5,
+        },
       })),
     });
     setActionError("");
@@ -110,6 +88,7 @@ const WorkoutTab = () => {
         await createMutation.mutateAsync(data);
       }
       setOpened(false);
+      setFormValues(getDefaultFormValues());
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       setActionError(
@@ -135,89 +114,16 @@ const WorkoutTab = () => {
         onDelete={handleDelete}
       />
 
-      <Modal
+      <WorkoutFormModal
         opened={opened}
         onClose={() => setOpened(false)}
         title={editingWorkoutId ? "Uredi trening" : "Dodaj novi trening"}
-        size="xl"
-      >
-        <FormProvider {...form}>
-          <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
-            {actionError && (
-              <Text c="red" size="sm">
-                {actionError}
-              </Text>
-            )}
-
-            <TextInput
-              label="Naslov treninga"
-              {...register("title")}
-              error={errors.title?.message}
-              required
-            />
-
-            <Textarea
-              label="Opis treninga"
-              {...register("description")}
-              error={errors.description?.message}
-              rows={3}
-            />
-
-            <Controller
-              name="tags"
-              control={control}
-              render={({ field }) => (
-                <MultiSelect
-                  label="Kategorije"
-                  placeholder="Odaberite kategorije"
-                  data={WORKOUT_TAG_OPTIONS}
-                  value={field.value ?? []}
-                  onChange={field.onChange}
-                  clearable
-                  searchable
-                />
-              )}
-            />
-
-            <Controller
-              name="requiredLevel"
-              control={control}
-              render={({ field }) => (
-                <NumberInput
-                  label="Potrebna razina (Level)"
-                  min={1}
-                  value={field.value}
-                  onChange={(val) =>
-                    field.onChange(typeof val === "number" ? val : field.value)
-                  }
-                  error={errors.requiredLevel?.message}
-                  required
-                />
-              )}
-            />
-
-            <Divider my="sm" label="Vježbe" labelPosition="center" />
-
-            <ExerciseBuilder />
-
-            <Group justify="flex-end" mt="md">
-              <Button variant="default" onClick={() => setOpened(false)}>
-                Odustani
-              </Button>
-              <Button
-                type="submit"
-                loading={
-                  isSubmitting ||
-                  createMutation.isPending ||
-                  updateMutation.isPending
-                }
-              >
-                Spremi
-              </Button>
-            </Group>
-          </Stack>
-        </FormProvider>
-      </Modal>
+        actionError={actionError}
+        initialValues={formValues}
+        loading={createMutation.isPending || updateMutation.isPending}
+        onSubmit={onSubmit}
+        showRequiredLevel
+      />
     </>
   );
 };

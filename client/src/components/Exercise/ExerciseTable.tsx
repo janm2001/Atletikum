@@ -124,6 +124,7 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
                       <Table.Th>Serije</Table.Th>
                       <Table.Th>Ponavljanja</Table.Th>
                       <Table.Th>RPE</Table.Th>
+                      <Table.Th>Progresija</Table.Th>
                       <Table.Th>XP</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
@@ -149,6 +150,13 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
                         </Table.Td>
                         <Table.Td>
                           <Text size="sm">{ex.rpe || "—"}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm">
+                            {ex.progression?.enabled
+                              ? `${ex.progression.initialWeightKg ?? 0} kg + ${ex.progression.incrementKg} kg`
+                              : "—"}
+                          </Text>
                         </Table.Td>
                         <Table.Td>
                           <Badge size="sm" variant="light" color="yellow">

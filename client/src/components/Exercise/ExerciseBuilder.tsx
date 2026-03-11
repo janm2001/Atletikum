@@ -6,6 +6,7 @@ import {
   Paper,
   Select,
   Stack,
+  Switch,
   Text,
   TextInput,
 } from "@mantine/core";
@@ -15,17 +16,23 @@ import {
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useFieldArray, useFormContext, Controller } from "react-hook-form";
+import {
+  useFieldArray,
+  useFormContext,
+  Controller,
+  useWatch,
+} from "react-hook-form";
 import { useExercises } from "../../hooks/useExercise";
 import type { WorkoutFormValues } from "../../schema/workout.schema";
 
 const ExerciseBuilder = () => {
-  const { data: exercises } = useExercises();
+  const { data: availableExercises } = useExercises();
   const {
     control,
     register,
     formState: { errors },
   } = useFormContext<WorkoutFormValues>();
+  const watchedExercises = useWatch({ control, name: "exercises" });
 
   const { fields, append, remove, swap } = useFieldArray({
     control,
@@ -33,7 +40,7 @@ const ExerciseBuilder = () => {
   });
 
   const exerciseOptions =
-    exercises?.map((ex) => ({
+    availableExercises?.map((ex) => ({
       value: ex._id,
       label: `${ex.title} (${ex.muscleGroup.replaceAll("_", " ")})`,
     })) ?? [];
@@ -45,6 +52,11 @@ const ExerciseBuilder = () => {
       reps: "10",
       rpe: "",
       baseXp: 50,
+      progression: {
+        enabled: false,
+        initialWeightKg: null,
+        incrementKg: 2.5,
+      },
     });
   };
 
@@ -72,6 +84,9 @@ const ExerciseBuilder = () => {
 
       {fields.map((field, index) => {
         const exerciseErrors = errors.exercises?.[index];
+        const isProgressionEnabled = Boolean(
+          watchedExercises?.[index]?.progression?.enabled,
+        );
 
         return (
           <Paper key={field.id} p="sm" withBorder radius="md">
@@ -182,6 +197,69 @@ const ExerciseBuilder = () => {
                   )}
                 />
               </Group>
+
+              <Controller
+                control={control}
+                name={`exercises.${index}.progression.enabled`}
+                render={({ field: switchField }) => (
+                  <Switch
+                    label="Uključi progresiju težine"
+                    checked={Boolean(switchField.value)}
+                    onChange={(event) =>
+                      switchField.onChange(event.currentTarget.checked)
+                    }
+                  />
+                )}
+              />
+
+              {isProgressionEnabled && (
+                <Group grow>
+                  <Controller
+                    control={control}
+                    name={`exercises.${index}.progression.initialWeightKg`}
+                    render={({ field: progressionField }) => (
+                      <NumberInput
+                        label="Početna težina (kg)"
+                        min={0}
+                        value={progressionField.value ?? undefined}
+                        onChange={(value) =>
+                          progressionField.onChange(
+                            typeof value === "number" ? value : null,
+                          )
+                        }
+                        error={
+                          exerciseErrors?.progression?.initialWeightKg?.message
+                        }
+                        required
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    control={control}
+                    name={`exercises.${index}.progression.incrementKg`}
+                    render={({ field: progressionField }) => (
+                      <NumberInput
+                        label="Korak progresije (kg)"
+                        min={0}
+                        step={0.5}
+                        value={progressionField.value}
+                        onChange={(value) =>
+                          progressionField.onChange(
+                            typeof value === "number"
+                              ? value
+                              : progressionField.value,
+                          )
+                        }
+                        error={
+                          exerciseErrors?.progression?.incrementKg?.message
+                        }
+                        required
+                      />
+                    )}
+                  />
+                </Group>
+              )}
             </Stack>
           </Paper>
         );

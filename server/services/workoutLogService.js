@@ -7,25 +7,30 @@ const {
   flagPersonalBests,
 } = require("../utils/workoutMetrics");
 const { applyUserProgress } = require("./userProgressService");
+const { syncWorkoutProgressions } = require("./progressionService");
 
 const getMyWorkoutLogs = async ({ userId }) => {
   return WorkoutLog.find({ user: userId }).sort({ date: -1 });
 };
 
 const createWorkoutLog = async ({ user, payload }) => {
-  const {
-    workoutId,
-    completedExercises,
-    readinessScore,
-    sessionFeedbackScore,
-  } = payload;
+  const { workoutId, completedExercises } = payload;
 
   const workoutDoc = await Workout.findById(workoutId).lean();
   if (!workoutDoc) {
     throw new AppError("Workout nije pronađen.", 404);
   }
 
-  if ((user.level ?? 1) < (workoutDoc.requiredLevel ?? 1)) {
+  const createdBy = workoutDoc.createdBy ? String(workoutDoc.createdBy) : null;
+  const isGlobal = createdBy === null;
+  const isOwner = createdBy === String(user._id);
+  const isAdmin = user.role === "admin";
+
+  if (!isGlobal && !isOwner && !isAdmin) {
+    throw new AppError("Workout nije pronađen.", 404);
+  }
+
+  if (isGlobal && (user.level ?? 1) < (workoutDoc.requiredLevel ?? 1)) {
     throw new AppError("Ovaj workout još nije otključan.", 403);
   }
 
@@ -71,10 +76,14 @@ const createWorkoutLog = async ({ user, payload }) => {
     workoutId: workoutDoc._id,
     workout: workoutDoc.title,
     requiredLevel: workoutDoc.requiredLevel,
-    readinessScore: Number(readinessScore ?? 3),
-    sessionFeedbackScore: Number(sessionFeedbackScore ?? 3),
     completedExercises: completedWithPersonalBests,
     totalXpGained: xpGain,
+  });
+
+  await syncWorkoutProgressions({
+    userId: user._id,
+    workout: workoutDoc,
+    completedExercises: completedWithPersonalBests,
   });
 
   const progress = await applyUserProgress({

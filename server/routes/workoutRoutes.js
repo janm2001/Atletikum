@@ -11,10 +11,12 @@ router
   .get(workoutController.getAllWorkouts)
   .post(restrictTo("admin"), workoutController.createWorkout);
 
+router.post("/custom", workoutController.createCustomWorkout);
+
 router
   .route("/:id")
   .get(workoutController.getWorkoutById)
-  .patch(restrictTo("admin"), workoutController.updateWorkout)
-  .delete(restrictTo("admin"), workoutController.deleteWorkout);
+  .patch(workoutController.updateWorkout)
+  .delete(workoutController.deleteWorkout);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Avatar,
   Badge,
   Box,
@@ -13,16 +14,27 @@ import {
   Title,
 } from "@mantine/core";
 import type { Workout } from "@/types/Workout/workout";
-import { getExerciseName, getExerciseImage } from "@/types/Workout/workout";
+import {
+  getExerciseName,
+  getExerciseImage,
+  isCustomWorkout,
+} from "@/types/Workout/workout";
 import { useNavigate } from "react-router-dom";
-import { IconBarbell, IconLock } from "@tabler/icons-react";
+import {
+  IconBarbell,
+  IconEdit,
+  IconLock,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useUser } from "@/hooks/useUser";
 
 interface WorkoutCardProps {
   workout: Workout;
+  onDelete?: (id: string) => void;
+  onEdit?: (workout: Workout) => void;
 }
 
-const WorkoutCard = ({ workout }: WorkoutCardProps) => {
+const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
   const exerciseCount = workout.exercises.length;
   const totalSets = workout.exercises.reduce(
     (sum, exercise) => sum + (exercise.sets ?? 0),
@@ -49,7 +61,8 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  const isLocked = user!.level < workout.requiredLevel;
+  const customWorkout = isCustomWorkout(workout);
+  const isLocked = !customWorkout && user!.level < workout.requiredLevel;
 
   const handleStartTraining = () => {
     if (isLocked) return;
@@ -93,14 +106,52 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
             </Text>
           </Box>
 
-          <Badge
-            variant="light"
-            color={isLocked ? "red" : "violet"}
-            style={{ flexShrink: 0 }}
-          >
-            Lvl {workout.requiredLevel}
-          </Badge>
+          {customWorkout ? (
+            <Badge variant="light" color="teal" style={{ flexShrink: 0 }}>
+              Moj trening
+            </Badge>
+          ) : (
+            <Badge
+              variant="light"
+              color={isLocked ? "red" : "violet"}
+              style={{ flexShrink: 0 }}
+            >
+              Lvl {workout.requiredLevel}
+            </Badge>
+          )}
         </Group>
+
+        {customWorkout && (
+          <Group justify="space-between" align="center">
+            <Text size="sm" c="dimmed">
+              Privatni trening bez level ograničenja.
+            </Text>
+            {(onEdit || onDelete) && (
+              <Group gap={6}>
+                {onEdit && (
+                  <ActionIcon
+                    variant="light"
+                    color="blue"
+                    onClick={() => onEdit(workout)}
+                    aria-label="Uredi trening"
+                  >
+                    <IconEdit size={16} />
+                  </ActionIcon>
+                )}
+                {onDelete && (
+                  <ActionIcon
+                    variant="light"
+                    color="red"
+                    onClick={() => onDelete(workout._id)}
+                    aria-label="Obriši trening"
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                )}
+              </Group>
+            )}
+          </Group>
+        )}
 
         {isLocked ? (
           <Stack gap="sm" style={{ flex: 1 }} justify="space-between">
@@ -196,7 +247,10 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
                       fw={500}
                       style={{ whiteSpace: "nowrap", flexShrink: 0 }}
                     >
-                      {exercise.sets} × {exercise.reps} · RPE {exercise.rpe}
+                      {exercise.sets} × {exercise.reps}
+                      {exercise.progression?.enabled
+                        ? ` · ${exercise.progression.prescribedLoadKg ?? exercise.progression.initialWeightKg ?? 0} kg`
+                        : ` · RPE ${exercise.rpe}`}
                     </Text>
                   </Group>
                 );

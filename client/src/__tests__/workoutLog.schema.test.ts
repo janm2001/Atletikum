@@ -22,8 +22,6 @@ describe("workoutLogSchema", () => {
         rpe: 6,
       },
     ],
-    readinessScore: 4,
-    sessionFeedbackScore: 3,
   };
 
   it("accepts a valid log", () => {
@@ -77,10 +75,15 @@ describe("workoutLogSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects invalid readinessScore", () => {
+  it("rejects invalid rpe", () => {
     const result = workoutLogSchema.safeParse({
       ...validLog,
-      readinessScore: 6,
+      completedExercises: [
+        {
+          ...validLog.completedExercises[0],
+          rpe: 11,
+        },
+      ],
     });
     expect(result.success).toBe(false);
   });

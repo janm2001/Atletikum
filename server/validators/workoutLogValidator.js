@@ -1,28 +1,8 @@
 const mongoose = require("mongoose");
 const AppError = require("../utils/AppError");
 
-const validateRange = ({ value, min, max, fieldName }) => {
-  if (value === undefined || value === null || value === "") {
-    return;
-  }
-
-  const numericValue = Number(value);
-  if (
-    !Number.isFinite(numericValue) ||
-    numericValue < min ||
-    numericValue > max
-  ) {
-    throw new AppError(`${fieldName} mora biti između ${min} i ${max}.`, 400);
-  }
-};
-
 const validateCreateWorkoutLogRequest = (request) => {
-  const {
-    workoutId,
-    completedExercises,
-    readinessScore,
-    sessionFeedbackScore,
-  } = request.body ?? {};
+  const { workoutId, completedExercises } = request.body ?? {};
 
   if (!mongoose.Types.ObjectId.isValid(workoutId)) {
     throw new AppError("Workout nije valjan.", 400);
@@ -70,19 +50,6 @@ const validateCreateWorkoutLogRequest = (request) => {
         );
       }
     }
-  });
-
-  validateRange({
-    value: readinessScore,
-    min: 1,
-    max: 5,
-    fieldName: "Spremnost",
-  });
-  validateRange({
-    value: sessionFeedbackScore,
-    min: 1,
-    max: 5,
-    fieldName: "Povratna ocjena treninga",
   });
 };
 

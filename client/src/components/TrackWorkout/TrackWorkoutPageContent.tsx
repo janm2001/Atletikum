@@ -17,27 +17,19 @@ const TrackWorkoutPageContent = ({
   exerciseById,
 }: TrackWorkoutPageContentProps) => {
   const {
-    activeSetIndex,
     completedExerciseCount,
     control,
     currentExercise,
     currentIndex,
     currentMetric,
     errors,
-    handleNextSet,
-    handlePreviousSet,
     isSubmitting,
     onSubmitCurrentExercise,
     plannedSetCount,
     progressValue,
-    readinessScore,
     selectedExerciseId,
-    sessionFeedbackScore,
-    setActiveSetIndex,
     setFields,
-    setReadinessScore,
     setSelectedExerciseId,
-    setSessionFeedbackScore,
     totalExercises,
     watchedSets,
   } = useTrackWorkoutFlow({ workout });
@@ -68,7 +60,6 @@ const TrackWorkoutPageContent = ({
       />
 
       <TrackWorkoutWorkoutCard
-        activeSetIndex={activeSetIndex}
         control={control}
         currentExercise={currentExercise}
         currentIndex={currentIndex}
@@ -76,15 +67,8 @@ const TrackWorkoutPageContent = ({
         errors={errors}
         exerciseById={exerciseById}
         isSubmitting={isSubmitting}
-        onNextSet={handleNextSet}
-        onPreviousSet={handlePreviousSet}
-        onSetActiveSetIndex={setActiveSetIndex}
-        onSetReadinessScore={setReadinessScore}
-        onSetSessionFeedbackScore={setSessionFeedbackScore}
         onSubmit={onSubmitCurrentExercise}
         plannedSetCount={plannedSetCount}
-        readinessScore={readinessScore}
-        sessionFeedbackScore={sessionFeedbackScore}
         setFields={setFields}
         totalExercises={totalExercises}
         watchedSets={watchedSets}

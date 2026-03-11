@@ -16,8 +16,6 @@ export type CompletedExercisePayload = {
 export type WorkoutLogPayload = {
     workoutId: string;
     completedExercises: CompletedExercisePayload[];
-    readinessScore?: number;
-    sessionFeedbackScore?: number;
 };
 
 export type WorkoutLog = WorkoutLogPayload & {

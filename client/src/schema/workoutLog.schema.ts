@@ -26,16 +26,6 @@ export const workoutLogSchema = z.object({
   completedExercises: z
     .array(completedExerciseSchema)
     .min(1, "Potrebno je unijeti barem jedan odrađeni set"),
-  readinessScore: z
-    .number({ error: "Spremnost mora biti broj" })
-    .min(1, "Spremnost mora biti između 1 i 5")
-    .max(5, "Spremnost mora biti između 1 i 5")
-    .optional(),
-  sessionFeedbackScore: z
-    .number({ error: "Povratna informacija mora biti broj" })
-    .min(1, "Povratna informacija mora biti između 1 i 5")
-    .max(5, "Povratna informacija mora biti između 1 i 5")
-    .optional(),
 });
 
 export type WorkoutLogFormValues = z.input<typeof workoutLogSchema>;

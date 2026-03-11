@@ -31,27 +31,15 @@ type CompletedExercise = {
     rpe: number;
 };
 
-const createDefaultSets = (setCount: number): TrackWorkoutFormValues["sets"] =>
+const createDefaultSets = (
+    setCount: number,
+    prescribedLoadKg: number | null | undefined,
+): TrackWorkoutFormValues["sets"] =>
     Array.from({ length: Math.max(1, setCount) }, () => ({
-        loadKg: null,
+        loadKg: prescribedLoadKg ?? null,
         resultValue: 0,
         rpe: 6,
     }));
-
-const getFirstInvalidSetIndex = (sets: TrackWorkoutFormValues["sets"]) => {
-    return sets.findIndex((setItem) => {
-        const resultValue = Number(setItem.resultValue ?? 0);
-        const rpe = Number(setItem.rpe ?? 0);
-        const loadKg = setItem.loadKg;
-
-        return (
-            resultValue < 1 ||
-            rpe < 1 ||
-            rpe > 10 ||
-            (loadKg !== null && loadKg !== undefined && Number(loadKg) < 0)
-        );
-    });
-};
 
 export const getMetricFromPrescription = (
     prescription: string,
@@ -96,7 +84,12 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
         formState: { errors },
     } = useForm<TrackWorkoutFormValues>({
         defaultValues: {
-            sets: createDefaultSets(workout.exercises[0]?.sets ?? 1),
+            sets: createDefaultSets(
+                workout.exercises[0]?.sets ?? 1,
+                workout.exercises[0]?.progression?.prescribedLoadKg ??
+                    workout.exercises[0]?.progression?.initialWeightKg ??
+                    null,
+            ),
         },
     });
 
@@ -112,9 +105,6 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(
         null,
     );
-    const [activeSetIndex, setActiveSetIndex] = useState(0);
-    const [readinessScore, setReadinessScore] = useState("3");
-    const [sessionFeedbackScore, setSessionFeedbackScore] = useState("3");
 
     const currentExercise = workout.exercises[currentIndex];
     const currentMetric = useMemo(
@@ -122,6 +112,10 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
         [currentExercise?.reps],
     );
     const plannedSetCount = Math.max(1, Number(currentExercise?.sets ?? 1));
+    const currentPrescribedLoadKg =
+        currentExercise?.progression?.prescribedLoadKg ??
+        currentExercise?.progression?.initialWeightKg ??
+        null;
     const watchedSets = useWatch({ control, name: "sets" });
 
     const totalExercises = workout.exercises.length;
@@ -131,29 +125,9 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
 
     useEffect(() => {
         reset({
-            sets: createDefaultSets(plannedSetCount),
+            sets: createDefaultSets(plannedSetCount, currentPrescribedLoadKg),
         });
-    }, [currentExercise?.exerciseId, plannedSetCount, reset]);
-
-    const handleNextSet = async () => {
-        const isCurrentSetValid = await trigger([
-            `sets.${activeSetIndex}.loadKg`,
-            `sets.${activeSetIndex}.resultValue`,
-            `sets.${activeSetIndex}.rpe`,
-        ]);
-
-        if (!isCurrentSetValid) {
-            return;
-        }
-
-        setActiveSetIndex((previous) =>
-            Math.min(previous + 1, plannedSetCount - 1),
-        );
-    };
-
-    const handlePreviousSet = () => {
-        setActiveSetIndex((previous) => Math.max(previous - 1, 0));
-    };
+    }, [currentExercise?.exerciseId, currentPrescribedLoadKg, plannedSetCount, reset]);
 
     const submitCurrentExercise: SubmitHandler<TrackWorkoutFormValues> = async (
         values,
@@ -164,10 +138,6 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
 
         const areAllSetsValid = await trigger("sets");
         if (!areAllSetsValid) {
-            const firstInvalidSetIndex = getFirstInvalidSetIndex(values.sets);
-            if (firstInvalidSetIndex !== -1) {
-                setActiveSetIndex(firstInvalidSetIndex);
-            }
             return;
         }
 
@@ -196,8 +166,6 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
                 workoutId: workout._id,
                 completedExercises:
                     updatedCompletedExercises as CompletedExercisePayload[],
-                readinessScore: Number(readinessScore),
-                sessionFeedbackScore: Number(sessionFeedbackScore),
             });
 
             if (result.user) {
@@ -221,32 +189,23 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
         }
 
         setCompletedExercises(updatedCompletedExercises);
-        setActiveSetIndex(0);
         setCurrentIndex((previous) => previous + 1);
     };
 
     return {
-        activeSetIndex,
         completedExerciseCount,
         control,
         currentExercise,
         currentIndex,
         currentMetric,
         errors,
-        handleNextSet,
-        handlePreviousSet,
         isSubmitting: createWorkoutLogMutation.isPending,
         onSubmitCurrentExercise: handleSubmit(submitCurrentExercise),
         plannedSetCount,
         progressValue,
-        readinessScore,
         selectedExerciseId,
-        sessionFeedbackScore,
-        setActiveSetIndex,
         setFields,
-        setReadinessScore,
         setSelectedExerciseId,
-        setSessionFeedbackScore,
         totalExercises,
         watchedSets,
     };

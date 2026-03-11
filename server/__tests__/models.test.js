@@ -6,6 +6,7 @@ const { workoutSchema } = require("../models/Workout");
 const { workoutLogSchema } = require("../models/WorkoutLog");
 const { quizCompletionSchema } = require("../models/QuizCompletion");
 const { achievementSchema } = require("../models/Achievement");
+const { exerciseProgressionSchema } = require("../models/ExerciseProgression");
 const ArticleTag = require("../enums/ArticleTag.enum");
 const MuscleGroup = require("../enums/MuscleGroup.enum");
 
@@ -234,6 +235,29 @@ describe("Workout schema", () => {
     expect(validate(workoutSchema, validWorkout)).toBeUndefined();
   });
 
+  it("accepts custom workout ownership and progression config", () => {
+    expect(
+      validate(workoutSchema, {
+        ...validWorkout,
+        createdBy: new mongoose.Types.ObjectId(),
+        exercises: [
+          {
+            exerciseId: new mongoose.Types.ObjectId(),
+            sets: 3,
+            reps: "5",
+            rpe: "8",
+            baseXp: 50,
+            progression: {
+              enabled: true,
+              initialWeightKg: 60,
+              incrementKg: 2.5,
+            },
+          },
+        ],
+      }),
+    ).toBeUndefined();
+  });
+
   it("rejects without title", () => {
     const err = validate(workoutSchema, { ...validWorkout, title: undefined });
     expect(err.errors.title).toBeDefined();
@@ -323,6 +347,31 @@ describe("WorkoutLog schema", () => {
     const path = workoutLogSchema.path("workoutId");
     expect(path.instance).toBe("ObjectId");
     expect(path.options.ref).toBe("Workout");
+  });
+});
+
+describe("ExerciseProgression schema", () => {
+  it("accepts a valid progression record", () => {
+    expect(
+      validate(exerciseProgressionSchema, {
+        userId: new mongoose.Types.ObjectId(),
+        workoutId: new mongoose.Types.ObjectId(),
+        exerciseId: new mongoose.Types.ObjectId(),
+        currentTargetKg: 62.5,
+        incrementKg: 2.5,
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects negative target weight", () => {
+    const err = validate(exerciseProgressionSchema, {
+      userId: new mongoose.Types.ObjectId(),
+      workoutId: new mongoose.Types.ObjectId(),
+      exerciseId: new mongoose.Types.ObjectId(),
+      currentTargetKg: -1,
+    });
+
+    expect(err.errors.currentTargetKg).toBeDefined();
   });
 });
 

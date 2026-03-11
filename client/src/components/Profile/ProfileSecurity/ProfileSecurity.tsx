@@ -1,9 +1,9 @@
-import React from "react";
 import { Button, Paper, Stack, Text, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import type { User } from "@/types/User/user";
 
 interface ProfileSecurityProps {
-  user: User;
+  user: User | null;
 }
 
 const ProfileSecurity = ({ user }: ProfileSecurityProps) => {
