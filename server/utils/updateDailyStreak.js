@@ -60,7 +60,7 @@ const updateDailyStreak = async (
         },
       },
     ],
-    { new: true },
+    { new: true, updatePipeline: true },
   );
 
   return attachSession(updateQuery, session);

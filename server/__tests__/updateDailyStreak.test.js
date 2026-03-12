@@ -28,8 +28,32 @@ describe("updateDailyStreak", () => {
     expect(User.findOneAndUpdate).toHaveBeenCalledWith(
       { _id: "user-1" },
       expect.any(Array),
-      { new: true },
+      { new: true, updatePipeline: true },
     );
+    expect(result).toBe(updatedUser);
+  });
+
+  it("keeps the update pipeline session-aware inside transactions", async () => {
+    const updatedUser = {
+      _id: "user-1",
+      dailyStreak: 3,
+    };
+    const updateQuery = {
+      session: jest.fn().mockResolvedValue(updatedUser),
+    };
+
+    User.findOneAndUpdate.mockReturnValue(updateQuery);
+
+    const result = await updateDailyStreak("user-1", {
+      session: { id: "session-1" },
+    });
+
+    expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: "user-1" },
+      expect.any(Array),
+      { new: true, updatePipeline: true },
+    );
+    expect(updateQuery.session).toHaveBeenCalledWith({ id: "session-1" });
     expect(result).toBe(updatedUser);
   });
 

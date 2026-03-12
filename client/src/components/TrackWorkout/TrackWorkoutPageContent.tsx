@@ -1,4 +1,8 @@
+import { useCallback, type FormEvent } from "react";
 import { Stack } from "@mantine/core";
+import { useTranslation } from "react-i18next";
+import ActionToast from "@/components/Common/ActionToast";
+import useActionFeedback from "@/hooks/useActionFeedback";
 import type { Exercise } from "@/types/Exercise/exercise";
 import type { Workout } from "@/types/Workout/workout";
 import { useTrackWorkoutFlow } from "@/hooks/useTrackWorkoutFlow";
@@ -16,6 +20,9 @@ const TrackWorkoutPageContent = ({
   workout,
   exerciseById,
 }: TrackWorkoutPageContentProps) => {
+  const { t } = useTranslation();
+  const { actionError, clearActionError, handleActionError } =
+    useActionFeedback();
   const {
     completedExerciseCount,
     control,
@@ -34,6 +41,19 @@ const TrackWorkoutPageContent = ({
     watchedSets,
   } = useTrackWorkoutFlow({ workout });
 
+  const handleSubmitCurrentExercise = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      clearActionError();
+
+      try {
+        await onSubmitCurrentExercise(event);
+      } catch (error) {
+        handleActionError(error, t("common.saveError"));
+      }
+    },
+    [clearActionError, handleActionError, onSubmitCurrentExercise, t],
+  );
+
   const selectedExerciseDetail = selectedExerciseId
     ? exerciseById.get(selectedExerciseId)
     : undefined;
@@ -44,6 +64,8 @@ const TrackWorkoutPageContent = ({
 
   return (
     <Stack w="100%" maw={700} mx="auto" px="sm" py="md" gap="sm">
+      <ActionToast message={actionError} onClose={clearActionError} />
+
       <TrackWorkoutOverview
         workout={workout}
         completedExerciseCount={completedExerciseCount}
@@ -67,7 +89,7 @@ const TrackWorkoutPageContent = ({
         errors={errors}
         exerciseById={exerciseById}
         isSubmitting={isSubmitting}
-        onSubmit={onSubmitCurrentExercise}
+        onSubmit={handleSubmitCurrentExercise}
         plannedSetCount={plannedSetCount}
         setFields={setFields}
         totalExercises={totalExercises}
