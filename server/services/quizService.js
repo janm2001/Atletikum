@@ -1,22 +1,129 @@
 const { QuizCompletion } = require("../models/QuizCompletion");
+const { QuizCooldown } = require("../models/QuizCooldown");
 const { Article } = require("../models/Article");
 const AppError = require("../utils/AppError");
+const { addUtcDays } = require("../utils/dateUtils");
+const {
+  attachSession,
+  createWithSession,
+  runInTransaction,
+} = require("../utils/mongoTransaction");
 const { scoreQuizSubmission } = require("../utils/quizScoring");
+const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 
 const QUIZ_COOLDOWN_DAYS = 3;
 
 const getCooldownEnd = (completedAt) => {
-  const cooldownEnd = new Date(completedAt);
-  cooldownEnd.setDate(cooldownEnd.getDate() + QUIZ_COOLDOWN_DAYS);
-  return cooldownEnd;
+  return addUtcDays(completedAt, QUIZ_COOLDOWN_DAYS);
 };
 
-const findLastCompletion = async ({ userId, articleId }) => {
-  return QuizCompletion.findOne({
-    user: userId,
-    article: articleId,
-  }).sort({ completedAt: -1 });
+const findLastCompletion = ({ userId, articleId, session = null }) =>
+  attachSession(
+    QuizCompletion.findOne({
+      user: userId,
+      article: articleId,
+    }).sort({ completedAt: -1 }),
+    session,
+  );
+
+const buildQuizCooldownError = (nextAvailableAt) =>
+  new AppError(
+    `Kviz možete ponoviti nakon ${nextAvailableAt.toLocaleDateString("hr-HR")}`,
+    429,
+    { nextAvailableAt },
+  );
+
+const buildRetryableQuizReservationConflict = () => {
+  const retryableConflictError = new Error(
+    "Quiz cooldown reservation conflicted with another submission.",
+  );
+  retryableConflictError.code = 112;
+  retryableConflictError.codeName = "WriteConflict";
+  return retryableConflictError;
+};
+
+const reserveQuizAttempt = async ({
+  userId,
+  articleId,
+  now,
+  session,
+  lastCompletion = null,
+}) => {
+  const nextAvailableAt = getCooldownEnd(now);
+
+  if (lastCompletion) {
+    const legacyCooldownEnd = getCooldownEnd(lastCompletion.completedAt);
+
+    if (now < legacyCooldownEnd) {
+      try {
+        await attachSession(
+          QuizCooldown.findOneAndUpdate(
+            { user: userId, article: articleId },
+            {
+              $set: { nextAvailableAt: legacyCooldownEnd },
+              $setOnInsert: {
+                user: userId,
+                article: articleId,
+              },
+            },
+            { new: true, upsert: true, runValidators: true },
+          ),
+          session,
+        );
+      } catch (error) {
+        if (error?.code === 11000) {
+          throw buildRetryableQuizReservationConflict();
+        }
+
+        throw error;
+      }
+
+      throw buildQuizCooldownError(legacyCooldownEnd);
+    }
+  }
+
+  try {
+    await attachSession(
+      QuizCooldown.findOneAndUpdate(
+        {
+          user: userId,
+          article: articleId,
+          $or: [
+            { nextAvailableAt: { $exists: false } },
+            { nextAvailableAt: null },
+            { nextAvailableAt: { $lte: now } },
+          ],
+        },
+        {
+          $set: { nextAvailableAt },
+          $setOnInsert: {
+            user: userId,
+            article: articleId,
+          },
+        },
+        { new: true, upsert: true, runValidators: true },
+      ),
+      session,
+    );
+
+    return nextAvailableAt;
+  } catch (error) {
+    if (error?.code !== 11000) {
+      throw error;
+    }
+
+    const existingCooldown = await attachSession(
+      QuizCooldown.findOne({ user: userId, article: articleId }).lean(),
+      session,
+    );
+
+    if (existingCooldown?.nextAvailableAt && now < existingCooldown.nextAvailableAt) {
+      throw buildQuizCooldownError(existingCooldown.nextAvailableAt);
+    }
+
+    throw buildRetryableQuizReservationConflict();
+  }
 };
 
 const buildQuizStatus = (lastCompletion) => {
@@ -47,65 +154,80 @@ const buildQuizStatus = (lastCompletion) => {
 };
 
 const getQuizStatus = async ({ userId, articleId }) => {
-  const lastCompletion = await findLastCompletion({ userId, articleId });
+  const normalizedUserId = requireUserId({ userId });
+  const lastCompletion = await findLastCompletion({
+    userId: normalizedUserId,
+    articleId,
+  });
   return buildQuizStatus(lastCompletion);
 };
 
 const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
-  const article = await Article.findById(articleId).lean();
+  const normalizedUserId = requireUserId({ userId });
 
-  if (!article || !Array.isArray(article.quiz) || article.quiz.length === 0) {
-    throw new AppError("Kviz nije dostupan za ovaj članak.", 404);
-  }
+  return runInTransaction(async (session) => {
+    const article = await attachSession(Article.findById(articleId).lean(), session);
 
-  const lastCompletion = await findLastCompletion({ userId, articleId });
-  if (lastCompletion) {
-    const cooldownEnd = getCooldownEnd(lastCompletion.completedAt);
-    if (new Date() < cooldownEnd) {
-      throw new AppError(
-        `Kviz možete ponoviti nakon ${cooldownEnd.toLocaleDateString("hr-HR")}`,
-        429,
-        { nextAvailableAt: cooldownEnd },
-      );
+    if (!article || !Array.isArray(article.quiz) || article.quiz.length === 0) {
+      throw new AppError("Kviz nije dostupan za ovaj članak.", 404);
     }
-  }
 
-  const quizResult = scoreQuizSubmission(article.quiz, submittedAnswers);
-  const completion = await QuizCompletion.create({
-    user: userId,
-    article: articleId,
-    score: quizResult.score,
-    totalQuestions: quizResult.totalQuestions,
-    xpGained: quizResult.xpGained,
-    passed: quizResult.passed,
-    submittedAnswers: quizResult.submittedAnswers,
+    const lastCompletion = await findLastCompletion({
+      userId: normalizedUserId,
+      articleId,
+      session,
+    });
+
+    const now = new Date();
+    const nextAvailableAt = await reserveQuizAttempt({
+      userId: normalizedUserId,
+      articleId,
+      now,
+      session,
+      lastCompletion,
+    });
+
+    const quizResult = scoreQuizSubmission(article.quiz, submittedAnswers);
+    const completion = await createWithSession(
+      QuizCompletion,
+      {
+        user: normalizedUserId,
+        article: articleId,
+        score: quizResult.score,
+        totalQuestions: quizResult.totalQuestions,
+        xpGained: quizResult.xpGained,
+        passed: quizResult.passed,
+        submittedAnswers: quizResult.submittedAnswers,
+      },
+      session,
+    );
+
+    const progress = await applyUserProgress({
+      userId: normalizedUserId,
+      brainXp: quizResult.passed ? quizResult.xpGained : 0,
+      shouldUpdateStreak: quizResult.passed,
+      shouldUnlockAchievements: quizResult.passed,
+      session,
+    });
+
+    return {
+      completion: {
+        score: completion.score,
+        totalQuestions: completion.totalQuestions,
+        xpGained: completion.xpGained,
+        completedAt: completion.completedAt,
+        passed: completion.passed,
+      },
+      user: progress.user,
+      newAchievements: progress.newAchievements,
+      nextAvailableAt,
+    };
   });
-
-  const progress = await applyUserProgress({
-    userId,
-    brainXp: quizResult.passed ? quizResult.xpGained : 0,
-    shouldUpdateStreak: quizResult.passed,
-    shouldUnlockAchievements: quizResult.passed,
-  });
-
-  const nextAvailableAt = getCooldownEnd(new Date());
-
-  return {
-    completion: {
-      score: completion.score,
-      totalQuestions: completion.totalQuestions,
-      xpGained: completion.xpGained,
-      completedAt: completion.completedAt,
-      passed: completion.passed,
-    },
-    user: progress.user,
-    newAchievements: progress.newAchievements,
-    nextAvailableAt,
-  };
 };
 
 const getMyCompletions = async ({ userId }) => {
-  const completions = await QuizCompletion.find({ user: userId })
+  const normalizedUserId = requireUserId({ userId });
+  const completions = await QuizCompletion.find({ user: normalizedUserId })
     .sort({ completedAt: -1 })
     .lean();
 
@@ -120,11 +242,12 @@ const getMyCompletions = async ({ userId }) => {
 };
 
 const getRevisionQuiz = async ({ userId }) => {
+  const normalizedUserId = requireUserId({ userId });
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const oldCompletions = await QuizCompletion.find({
-    user: userId,
+    user: normalizedUserId,
     completedAt: { $lte: sevenDaysAgo },
   }).lean();
 

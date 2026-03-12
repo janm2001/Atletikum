@@ -19,6 +19,12 @@ jest.mock("../services/progressionService", () => ({
   syncWorkoutProgressions: jest.fn(),
 }));
 
+jest.mock("../utils/mongoTransaction", () => ({
+  attachSession: jest.fn((operation) => operation),
+  createWithSession: jest.fn(async (Model, document) => Model.create(document)),
+  runInTransaction: jest.fn(async (work) => work({ id: "session-1" })),
+}));
+
 jest.mock("../utils/workoutMetrics", () => ({
   normalizeCompletedExercise: jest.fn(),
   calculateWorkoutXp: jest.fn(),
@@ -34,6 +40,10 @@ const {
   calculateWorkoutXp,
   flagPersonalBests,
 } = require("../utils/workoutMetrics");
+const {
+  createWithSession,
+  runInTransaction,
+} = require("../utils/mongoTransaction");
 const workoutLogService = require("../services/workoutLogService");
 
 const createSelectQuery = (value) => ({
@@ -92,16 +102,20 @@ describe("workoutLogService", () => {
       },
     });
 
-    expect(WorkoutLog.create).toHaveBeenCalledWith(
+    expect(runInTransaction).toHaveBeenCalled();
+    expect(createWithSession).toHaveBeenCalledWith(
+      WorkoutLog,
       expect.objectContaining({
         user: "user-1",
         workoutId: "workout-1",
         totalXpGained: 40,
       }),
+      expect.objectContaining({ id: "session-1" }),
     );
     expect(syncWorkoutProgressions).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
+        session: expect.objectContaining({ id: "session-1" }),
       }),
     );
     expect(applyUserProgress).toHaveBeenCalledWith(
@@ -110,6 +124,7 @@ describe("workoutLogService", () => {
         bodyXp: 40,
         shouldUpdateStreak: true,
         shouldUnlockAchievements: true,
+        session: expect.objectContaining({ id: "session-1" }),
       }),
     );
     expect(result.personalBests).toEqual([

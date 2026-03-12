@@ -2,46 +2,66 @@ const { Achievement } = require("../models/Achievement");
 const { User } = require("../models/User");
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");
+const { addUtcDays, startOfUtcDay } = require("./dateUtils");
 const { getLevelFromTotalXp } = require("./leveling");
+const { attachSession, saveWithSession } = require("./mongoTransaction");
 const { requireUserId } = require("./userIdentity");
 
-const checkAndUnlockAchievements = async (userId) => {
+const checkAndUnlockAchievements = async (
+  userId,
+  { session = null, user: existingUser = null } = {},
+) => {
   const normalizedUserId = requireUserId({ userId });
-  const user = await User.findById(normalizedUserId);
+  const user =
+    existingUser ??
+    (await attachSession(User.findById(normalizedUserId), session));
   if (!user) return [];
 
-  const allAchievements = await Achievement.find();
+  const allAchievements = await attachSession(Achievement.find(), session);
   const unlockedIds = new Set(
     user.achievements.map((a) => a.achievement.toString()),
   );
 
   const [workoutCount, quizCount, quizCompletions] = await Promise.all([
-    WorkoutLog.countDocuments({ user: normalizedUserId }),
-    QuizCompletion.countDocuments({ user: normalizedUserId }),
-    QuizCompletion.find({ user: normalizedUserId })
-      .sort({ completedAt: -1 })
-      .limit(50)
-      .lean(),
+    attachSession(
+      WorkoutLog.countDocuments({ user: normalizedUserId }),
+      session,
+    ),
+    attachSession(
+      QuizCompletion.countDocuments({ user: normalizedUserId }),
+      session,
+    ),
+    attachSession(
+      QuizCompletion.find({ user: normalizedUserId })
+        .sort({ completedAt: -1 })
+        .limit(50)
+        .lean(),
+      session,
+    ),
   ]);
 
   const hasPerfectQuiz = quizCompletions.some(
     (qc) => qc.score === qc.totalQuestions && qc.totalQuestions > 0,
   );
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const today = startOfUtcDay(new Date());
+  const tomorrow = addUtcDays(today, 1);
 
   const [todayWorkout, todayQuiz] = await Promise.all([
-    WorkoutLog.exists({
-      user: normalizedUserId,
-      date: { $gte: today, $lt: tomorrow },
-    }),
-    QuizCompletion.exists({
-      user: normalizedUserId,
-      completedAt: { $gte: today, $lt: tomorrow },
-    }),
+    attachSession(
+      WorkoutLog.exists({
+        user: normalizedUserId,
+        date: { $gte: today, $lt: tomorrow },
+      }),
+      session,
+    ),
+    attachSession(
+      QuizCompletion.exists({
+        user: normalizedUserId,
+        completedAt: { $gte: today, $lt: tomorrow },
+      }),
+      session,
+    ),
   ]);
   const sameDayBoth = !!(todayWorkout && todayQuiz);
 
@@ -108,7 +128,7 @@ const checkAndUnlockAchievements = async (userId) => {
   }
 
   if (newlyUnlocked.length > 0) {
-    await user.save();
+    await saveWithSession(user, session);
   }
 
   return newlyUnlocked;

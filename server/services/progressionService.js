@@ -1,4 +1,9 @@
 const { ExerciseProgression } = require("../models/ExerciseProgression");
+const {
+  attachSession,
+  createWithSession,
+  saveWithSession,
+} = require("../utils/mongoTransaction");
 
 const DEFAULT_INCREMENT_KG = 2.5;
 
@@ -19,7 +24,7 @@ const parseRepTarget = (reps) => {
   return Number(normalized);
 };
 
-const getProgressionRecords = async ({ userId, workouts }) => {
+const getProgressionRecords = async ({ userId, workouts, session = null }) => {
   const pairs = workouts.flatMap((workout) =>
     (workout.exercises ?? []).filter(isProgressionEnabled).map((exercise) => ({
       workoutId: workout._id,
@@ -31,21 +36,24 @@ const getProgressionRecords = async ({ userId, workouts }) => {
     return [];
   }
 
-  return ExerciseProgression.find({
-    userId,
-    $or: pairs.map(({ workoutId, exerciseId }) => ({
-      workoutId,
-      exerciseId,
-    })),
-  }).lean();
+  return attachSession(
+    ExerciseProgression.find({
+      userId,
+      $or: pairs.map(({ workoutId, exerciseId }) => ({
+        workoutId,
+        exerciseId,
+      })),
+    }).lean(),
+    session,
+  );
 };
 
-const attachWorkoutProgressions = async ({ userId, workouts }) => {
+const attachWorkoutProgressions = async ({ userId, workouts, session = null }) => {
   if (!userId || workouts.length === 0) {
     return workouts;
   }
 
-  const records = await getProgressionRecords({ userId, workouts });
+  const records = await getProgressionRecords({ userId, workouts, session });
   const progressionMap = new Map(
     records.map((record) => [
       createProgressionKey({
@@ -106,6 +114,7 @@ const syncWorkoutProgressions = async ({
   userId,
   workout,
   completedExercises,
+  session = null,
 }) => {
   const progressionExercises = (workout.exercises ?? []).filter(
     isProgressionEnabled,
@@ -115,13 +124,16 @@ const syncWorkoutProgressions = async ({
     return;
   }
 
-  const existingRecords = await ExerciseProgression.find({
-    userId,
-    workoutId: workout._id,
-    exerciseId: {
-      $in: progressionExercises.map((exercise) => exercise.exerciseId),
-    },
-  });
+  const existingRecords = await attachSession(
+    ExerciseProgression.find({
+      userId,
+      workoutId: workout._id,
+      exerciseId: {
+        $in: progressionExercises.map((exercise) => exercise.exerciseId),
+      },
+    }),
+    session,
+  );
 
   const recordMap = new Map(
     existingRecords.map((record) => [
@@ -195,19 +207,23 @@ const syncWorkoutProgressions = async ({
       record.incrementKg = incrementKg;
       record.lastSuccessfulLoadKg = lastSuccessfulLoadKg;
       record.lastCompletedAt = new Date();
-      await record.save();
+      await saveWithSession(record, session);
       continue;
     }
 
-    await ExerciseProgression.create({
-      userId,
-      workoutId: workout._id,
-      exerciseId: workoutExercise.exerciseId,
-      currentTargetKg: nextTargetKg,
-      incrementKg,
-      lastSuccessfulLoadKg,
-      lastCompletedAt: new Date(),
-    });
+    await createWithSession(
+      ExerciseProgression,
+      {
+        userId,
+        workoutId: workout._id,
+        exerciseId: workoutExercise.exerciseId,
+        currentTargetKg: nextTargetKg,
+        incrementKg,
+        lastSuccessfulLoadKg,
+        lastCompletedAt: new Date(),
+      },
+      session,
+    );
   }
 };
 

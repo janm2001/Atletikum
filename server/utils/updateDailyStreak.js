@@ -1,36 +1,69 @@
 const { User } = require("../models/User");
+const { addUtcDays, startOfUtcDay } = require("./dateUtils");
+const { attachSession } = require("./mongoTransaction");
+const { requireUserId } = require("./userIdentity");
 
-const updateDailyStreak = async (userId) => {
-  const user = await User.findById(userId);
-  if (!user) return null;
+const updateDailyStreak = async (
+  userId,
+  { session = null, now = new Date() } = {},
+) => {
+  const normalizedUserId = requireUserId({ userId });
+  const todayStart = startOfUtcDay(now);
+  const tomorrowStart = addUtcDays(todayStart, 1);
+  const yesterdayStart = addUtcDays(todayStart, -1);
 
-  const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const updateQuery = User.findOneAndUpdate(
+    { _id: normalizedUserId },
+    [
+      {
+        $set: {
+          dailyStreak: {
+            $switch: {
+              branches: [
+                {
+                  case: {
+                    $and: [
+                      { $ne: ["$lastActivityDate", null] },
+                      { $gte: ["$lastActivityDate", todayStart] },
+                      { $lt: ["$lastActivityDate", tomorrowStart] },
+                    ],
+                  },
+                  then: "$dailyStreak",
+                },
+                {
+                  case: {
+                    $and: [
+                      { $ne: ["$lastActivityDate", null] },
+                      { $gte: ["$lastActivityDate", yesterdayStart] },
+                      { $lt: ["$lastActivityDate", todayStart] },
+                    ],
+                  },
+                  then: { $add: ["$dailyStreak", 1] },
+                },
+              ],
+              default: 1,
+            },
+          },
+          lastActivityDate: {
+            $cond: [
+              {
+                $and: [
+                  { $ne: ["$lastActivityDate", null] },
+                  { $gte: ["$lastActivityDate", todayStart] },
+                  { $lt: ["$lastActivityDate", tomorrowStart] },
+                ],
+              },
+              "$lastActivityDate",
+              now,
+            ],
+          },
+        },
+      },
+    ],
+    { new: true },
+  );
 
-  if (user.lastActivityDate) {
-    const lastStr = new Date(user.lastActivityDate).toISOString().slice(0, 10);
-
-    if (lastStr === todayStr) {
-      return user;
-    }
-
-    const lastDay = new Date(lastStr);
-    const today = new Date(todayStr);
-    const diffMs = today.getTime() - lastDay.getTime();
-    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) {
-      user.dailyStreak += 1;
-    } else {
-      user.dailyStreak = 1;
-    }
-  } else {
-    user.dailyStreak = 1;
-  }
-
-  user.lastActivityDate = now;
-  await user.save();
-  return user;
+  return attachSession(updateQuery, session);
 };
 
 module.exports = { updateDailyStreak };
