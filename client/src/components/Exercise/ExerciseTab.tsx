@@ -11,6 +11,8 @@ import {
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import ActionFeedback from "@/components/Common/ActionFeedback";
+import useActionFeedback from "@/hooks/useActionFeedback";
 
 import ExercisesTable from "./ExercisesTable";
 import { useMemo, useState } from "react";
@@ -42,7 +44,8 @@ const ExerciseTab = () => {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
     null,
   );
-  const [actionError, setActionError] = useState("");
+  const { actionError, clearActionError, handleActionError } =
+    useActionFeedback();
   const { data, isLoading, error } = useExercises();
   const createExerciseMutation = useCreateExercise();
   const updateExerciseMutation = useUpdateExercise();
@@ -71,7 +74,7 @@ const ExerciseTab = () => {
 
   const openCreateModal = () => {
     setEditingExerciseId(null);
-    setActionError("");
+    clearActionError();
     reset(getDefaultFormValues());
     setOpened(true);
   };
@@ -86,12 +89,13 @@ const ExerciseTab = () => {
       imageLink: exercise.imageLink ?? "",
       videoLink: exercise.videoLink ?? "",
     });
+    clearActionError();
     setOpened(true);
   };
 
   const handleSave = async (values: ExerciseInput) => {
     try {
-      setActionError("");
+      clearActionError();
 
       const payload = {
         title: values.title.trim(),
@@ -113,11 +117,7 @@ const ExerciseTab = () => {
 
       setOpened(false);
     } catch (saveError) {
-      setActionError(
-        saveError instanceof Error
-          ? saveError.message
-          : t('admin.exercises.saveError'),
-      );
+      handleActionError(saveError, t('admin.exercises.saveError'));
     }
   };
 
@@ -130,14 +130,10 @@ const ExerciseTab = () => {
     }
 
     try {
-      setActionError("");
+      clearActionError();
       await deleteExerciseMutation.mutateAsync(exerciseId);
     } catch (deleteError) {
-      setActionError(
-        deleteError instanceof Error
-          ? deleteError.message
-          : t('admin.exercises.deleteError'),
-      );
+      handleActionError(deleteError, t('admin.exercises.deleteError'));
     }
   };
 
@@ -147,7 +143,7 @@ const ExerciseTab = () => {
   return (
     <>
       {error && <Text c="red">{error.message}</Text>}
-      {actionError && <Text c="red">{actionError}</Text>}
+      <ActionFeedback message={actionError} />
       <Stack gap="md">
         <Group justify="space-between">
           <Text fw={600}>{t('admin.exercises.list')}</Text>

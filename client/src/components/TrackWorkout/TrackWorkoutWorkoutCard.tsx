@@ -73,16 +73,20 @@ const TrackWorkoutWorkoutCard = ({
           />
         </Flex>
         <Text size="sm" c="dimmed" ta="center">
-          {t('training.track.plan')}: {currentExercise.sets} × {currentExercise.reps} · RPE{" "}
-          {currentExercise.rpe}
+          {t('training.track.plan', {
+            sets: currentExercise.sets,
+            reps: currentExercise.reps,
+            rpe: currentExercise.rpe,
+          })}
         </Text>
         {currentExercise.progression?.enabled && (
           <Text size="sm" c="teal" ta="center" fw={600}>
-            {t('training.track.targetWeight')}:{" "}
-            {currentExercise.progression.prescribedLoadKg ??
-              currentExercise.progression.initialWeightKg ??
-              0}{" "}
-            kg
+            {t('training.track.targetWeight', {
+              weight:
+                currentExercise.progression.prescribedLoadKg ??
+                currentExercise.progression.initialWeightKg ??
+                0,
+            })}
           </Text>
         )}
 

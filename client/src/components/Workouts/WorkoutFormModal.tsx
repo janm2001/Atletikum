@@ -6,19 +6,19 @@ import {
   MultiSelect,
   NumberInput,
   Stack,
-  Text,
   TextInput,
   Textarea,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
+import ActionFeedback from "@/components/Common/ActionFeedback";
 import ExerciseBuilder from "@/components/Exercise/ExerciseBuilder";
 import { getWorkoutTagOptions } from "@/enums/workoutTags";
 import { workoutSchema, type WorkoutFormValues } from "@/schema/workout.schema";
 
 type WorkoutFormModalProps = {
-  actionError?: string;
+  actionError?: string | null;
   initialValues: WorkoutFormValues;
   loading?: boolean;
   onClose: () => void;
@@ -56,11 +56,7 @@ const WorkoutFormModal = ({
     <Modal opened={opened} onClose={onClose} title={title} size="xl">
       <FormProvider {...form}>
         <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
-          {actionError && (
-            <Text c="red" size="sm">
-              {actionError}
-            </Text>
-          )}
+          <ActionFeedback message={actionError} size="sm" />
 
           <TextInput
             label={t('training.workoutForm.titleLabel')}

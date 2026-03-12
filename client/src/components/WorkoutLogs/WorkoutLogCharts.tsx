@@ -59,9 +59,9 @@ const WorkoutLogCharts = ({
     () =>
       exerciseFrequency.map((id) => ({
         value: id,
-        label: exerciseNameById.get(id) ?? t('training.logs.unknownExercise'),
+        label: exerciseNameById.get(id) ?? t("training.logs.unknownExercise"),
       })),
-    [exerciseFrequency, exerciseNameById],
+    [exerciseFrequency, exerciseNameById, t],
   );
 
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
@@ -74,9 +74,9 @@ const WorkoutLogCharts = ({
     [selectedExercises, exerciseFrequency],
   );
 
-  const volumeLabel = t('training.logs.volume');
-  const weekOfLabel = t('training.logs.weekOf');
-  const workoutsLabel = t('training.logs.workoutsChartLabel');
+  const volumeLabel = t("training.logs.volume");
+  const weekOfLabel = t("training.logs.weekOf");
+  const workoutsLabel = t("training.logs.workoutsChartLabel");
 
   const weightData = useMemo(() => {
     if (effectiveExercises.length === 0) return [];
@@ -187,7 +187,7 @@ const WorkoutLogCharts = ({
     return (
       <Paper withBorder p="md" radius="md" mb="md">
         <Text c="dimmed" ta="center" size="sm">
-          {t('training.logs.minWorkoutsRequired')}
+          {t("training.logs.minWorkoutsRequired")}
         </Text>
       </Paper>
     );
@@ -196,15 +196,15 @@ const WorkoutLogCharts = ({
   return (
     <Paper withBorder p="md" radius="md" mb="md">
       <Stack gap="md">
-        <Title order={3}>{t('training.logs.statistics')}</Title>
+        <Title order={3}>{t("training.logs.statistics")}</Title>
 
         <SegmentedControl
           value={chartView}
           onChange={(v) => setChartView(v as ChartView)}
           data={[
-            { value: "weight", label: t('training.logs.weightProgression') },
-            { value: "volume", label: t('training.logs.volume') },
-            { value: "frequency", label: t('training.logs.frequency') },
+            { value: "weight", label: t("training.logs.weightProgression") },
+            { value: "volume", label: t("training.logs.volume") },
+            { value: "frequency", label: t("training.logs.frequency") },
           ]}
           fullWidth
         />
@@ -212,8 +212,8 @@ const WorkoutLogCharts = ({
         {chartView === "weight" && (
           <Stack gap="sm">
             <MultiSelect
-              label={t('training.logs.selectExercises')}
-              placeholder={t('training.logs.selectExercisesPlaceholder')}
+              label={t("training.logs.selectExercises")}
+              placeholder={t("training.logs.selectExercisesPlaceholder")}
               data={exerciseOptions}
               value={selectedExercises}
               onChange={setSelectedExercises}
@@ -249,7 +249,7 @@ const WorkoutLogCharts = ({
               </Box>
             ) : (
               <Text c="dimmed" ta="center" size="sm">
-                {t('training.logs.noDataForExercises')}
+                {t("training.logs.noDataForExercises")}
               </Text>
             )}
           </Stack>

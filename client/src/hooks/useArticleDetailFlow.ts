@@ -1,42 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     useToggleArticleBookmark,
     useUpdateArticleProgress,
 } from "@/hooks/useArticle";
+import { useArticleDetailQuizResultState } from "@/hooks/useArticleDetailQuizResultState";
 import { useQuizStatus } from "@/hooks/useQuiz";
 import type { Article, ArticleSummary } from "@/types/Article/article";
-import type { ArticleQuizResult } from "@/types/Article/quiz";
-import {
-    clearPersistedArticleQuizResult,
-    getPersistedArticleQuizResult,
-    persistArticleQuizResult,
-} from "@/utils/flowSessionStorage";
-
-type ArticleDetailLocationState = {
-    quizResult?: ArticleQuizResult;
-} | null;
+import type { ArticleDetailLocationState } from "@/utils/articleDetailQuizResult";
+import { clearPersistedArticleQuizResult } from "@/utils/flowSessionStorage";
 
 type UseArticleDetailFlowParams = {
     article?: Article | null;
-};
-
-const getQuizResultIdentity = (
-    articleId: string,
-    quizResult: ArticleQuizResult | null,
-) => {
-    if (!quizResult) {
-        return null;
-    }
-
-    const fallbackIdentity = [
-        quizResult.score,
-        quizResult.totalQuestions,
-        quizResult.passed,
-        quizResult.xpGained,
-    ].join(":");
-
-    return `${articleId}:${quizResult.completedAt ?? fallbackIdentity}`;
 };
 
 export const useArticleDetailFlow = ({
@@ -54,103 +29,13 @@ export const useArticleDetailFlow = ({
     const { data: quizStatus } = useQuizStatus(hasQuiz ? articleId : "");
 
     const locationState = location.state as ArticleDetailLocationState;
-    const [dismissedQuizResultId, setDismissedQuizResultId] = useState<string | null>(
-        null,
-    );
-    const persistedQuizResult = articleId
-        ? getPersistedArticleQuizResult(articleId)
-        : null;
-    const activeQuizResult = locationState?.quizResult ?? persistedQuizResult;
-    const activeQuizResultId = getQuizResultIdentity(articleId, activeQuizResult);
-    const backendFailedCompletion = quizStatus?.lastCompletion?.passed === false
-        ? quizStatus.lastCompletion
-        : null;
-    const isStoredFailureCurrent = (() => {
-        if (activeQuizResult?.passed !== false || !backendFailedCompletion) {
-            return true;
-        }
-
-        return (
-            ((activeQuizResult.completedAt &&
-                backendFailedCompletion.completedAt &&
-                activeQuizResult.completedAt === backendFailedCompletion.completedAt) ||
-                (activeQuizResult.completedAt === undefined &&
-                    activeQuizResult.score === backendFailedCompletion.score &&
-                    activeQuizResult.totalQuestions ===
-                        backendFailedCompletion.totalQuestions &&
-                    backendFailedCompletion.passed === false)) &&
-            Boolean(quizStatus?.nextAvailableAt)
-        );
-    })();
-    const syncedQuizResult = useMemo(
-        () =>
-            activeQuizResult?.passed === false &&
-            backendFailedCompletion &&
-            isStoredFailureCurrent
-                ? {
-                      ...activeQuizResult,
-                      xpGained: backendFailedCompletion.xpGained,
-                      score: backendFailedCompletion.score,
-                      totalQuestions: backendFailedCompletion.totalQuestions,
-                      passed: backendFailedCompletion.passed,
-                      completedAt: backendFailedCompletion.completedAt,
-                      nextAvailableAt: quizStatus?.nextAvailableAt,
-                  }
-                : activeQuizResult,
-        [
-            activeQuizResult,
-            backendFailedCompletion,
-            isStoredFailureCurrent,
-            quizStatus?.nextAvailableAt,
-        ],
-    );
-    const quizResult =
-        syncedQuizResult &&
-        activeQuizResultId !== dismissedQuizResultId &&
-        isStoredFailureCurrent
-            ? syncedQuizResult
-            : null;
-
-    useEffect(() => {
-        if (!articleId || !locationState?.quizResult) {
-            return;
-        }
-
-        persistArticleQuizResult(articleId, locationState.quizResult);
-        navigate(location.pathname, { replace: true, state: null });
-    }, [articleId, location.pathname, locationState?.quizResult, navigate]);
-
-    useEffect(() => {
-        if (
-            !articleId ||
-            !syncedQuizResult ||
-            syncedQuizResult.passed !== false ||
-            !activeQuizResult
-        ) {
-            return;
-        }
-
-        if (
-            activeQuizResult.xpGained === syncedQuizResult.xpGained &&
-            activeQuizResult.score === syncedQuizResult.score &&
-            activeQuizResult.totalQuestions === syncedQuizResult.totalQuestions &&
-            activeQuizResult.passed === syncedQuizResult.passed &&
-            activeQuizResult.completedAt === syncedQuizResult.completedAt &&
-            activeQuizResult.nextAvailableAt === syncedQuizResult.nextAvailableAt
-        ) {
-            return;
-        }
-
-        persistArticleQuizResult(articleId, syncedQuizResult);
-    }, [activeQuizResult, articleId, syncedQuizResult]);
-
-    useEffect(() => {
-        if (!articleId || activeQuizResult?.passed !== false || isStoredFailureCurrent) {
-            return;
-        }
-
-        clearPersistedArticleQuizResult(articleId);
-    }, [activeQuizResult?.passed, articleId, isStoredFailureCurrent]);
+    const { quizResult, handleCloseQuizResult } = useArticleDetailQuizResultState({
+        articleId,
+        locationPathname: location.pathname,
+        locationState,
+        navigate,
+        quizStatus,
+    });
 
     useEffect(() => {
         if (!article || hasTrackedOpenRef.current) {
@@ -170,11 +55,6 @@ export const useArticleDetailFlow = ({
 
     const handleBack = () => {
         navigate("/edukacija");
-    };
-
-    const handleCloseQuizResult = () => {
-        setDismissedQuizResultId(activeQuizResultId);
-        clearPersistedArticleQuizResult(articleId);
     };
 
     const handleToggleBookmark = () => {

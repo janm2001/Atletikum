@@ -1,0 +1,163 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useWatch,
+  type Control,
+  type UseFormReset,
+} from "react-hook-form";
+import type {
+  TrackWorkoutFormValues,
+  TrackWorkoutMetric,
+} from "@/types/Workout/trackWorkout";
+import {
+  getExerciseId,
+  type Workout,
+} from "@/types/Workout/workout";
+import type { CompletedExercisePayload } from "@/types/WorkoutLog/workoutLog";
+
+type UseExerciseProgressionParams = {
+  control: Control<TrackWorkoutFormValues>;
+  reset: UseFormReset<TrackWorkoutFormValues>;
+  workout: Workout;
+};
+
+const getCurrentPrescribedLoadKg = (
+  exercise: Workout["exercises"][number] | undefined,
+) =>
+  exercise?.progression?.prescribedLoadKg ??
+  exercise?.progression?.initialWeightKg ??
+  null;
+
+export const createDefaultSets = (
+  setCount: number,
+  prescribedLoadKg: number | null | undefined,
+): TrackWorkoutFormValues["sets"] =>
+  Array.from({ length: Math.max(1, setCount) }, () => ({
+    loadKg: prescribedLoadKg ?? null,
+    resultValue: 0,
+    rpe: 6,
+  }));
+
+export const getMetricFromPrescription = (
+  prescription: string,
+): TrackWorkoutMetric => {
+  const normalized = prescription.trim().toLowerCase();
+
+  if (/^(?:\d+(?:[.,]\d+)?)\s*(m|meter|metara|metar)$/.test(normalized)) {
+    return {
+      metricType: "distance",
+      unitLabel: "m",
+      label: "Udaljenost (m)",
+    };
+  }
+
+  if (
+    /^(?:\d+(?:[.,]\d+)?)\s*(s|sec|sek|sekundi|min|minute)$/.test(normalized)
+  ) {
+    return {
+      metricType: "time",
+      unitLabel: normalized.includes("min") ? "min" : "s",
+      label: normalized.includes("min") ? "Trajanje (min)" : "Trajanje (s)",
+    };
+  }
+
+  return {
+    metricType: "reps",
+    unitLabel: "reps",
+    label: "Ponavljanja",
+  };
+};
+
+type BuildCompletedExerciseSetsParams = {
+  currentExercise: Workout["exercises"][number];
+  currentMetric: TrackWorkoutMetric;
+  values: TrackWorkoutFormValues;
+};
+
+export const buildCompletedExerciseSets = ({
+  currentExercise,
+  currentMetric,
+  values,
+}: BuildCompletedExerciseSetsParams): CompletedExercisePayload[] =>
+  values.sets.map((setItem) => ({
+    exerciseId: getExerciseId(currentExercise.exerciseId),
+    metricType: currentMetric.metricType,
+    unitLabel: currentMetric.unitLabel,
+    resultValue: Number(setItem.resultValue ?? 0),
+    loadKg:
+      setItem.loadKg === null || setItem.loadKg === undefined
+        ? null
+        : Number(setItem.loadKg),
+    rpe: Number(setItem.rpe ?? 0),
+  }));
+
+export const useExerciseProgression = ({
+  control,
+  reset,
+  workout,
+}: UseExerciseProgressionParams) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [completedExercises, setCompletedExercises] = useState<
+    CompletedExercisePayload[]
+  >([]);
+
+  const currentExercise = workout.exercises[currentIndex];
+  const currentMetric = useMemo(
+    () => getMetricFromPrescription(currentExercise?.reps ?? ""),
+    [currentExercise?.reps],
+  );
+  const plannedSetCount = Math.max(1, Number(currentExercise?.sets ?? 1));
+  const currentPrescribedLoadKg = getCurrentPrescribedLoadKg(currentExercise);
+  const watchedSets = useWatch({ control, name: "sets" });
+
+  const totalExercises = workout.exercises.length;
+  const completedExerciseCount = currentIndex;
+  const progressValue =
+    totalExercises > 0 ? (completedExerciseCount / totalExercises) * 100 : 0;
+  const isLastExercise = currentIndex >= workout.exercises.length - 1;
+
+  useEffect(() => {
+    reset({
+      sets: createDefaultSets(plannedSetCount, currentPrescribedLoadKg),
+    });
+  }, [currentExercise?.exerciseId, currentPrescribedLoadKg, plannedSetCount, reset]);
+
+  const getUpdatedCompletedExercises = useCallback(
+    (values: TrackWorkoutFormValues) => {
+      if (!currentExercise) {
+        return completedExercises;
+      }
+
+      return [
+        ...completedExercises,
+        ...buildCompletedExerciseSets({
+          currentExercise,
+          currentMetric,
+          values,
+        }),
+      ];
+    },
+    [completedExercises, currentExercise, currentMetric],
+  );
+
+  const advanceToNextExercise = useCallback(
+    (updatedCompletedExercises: CompletedExercisePayload[]) => {
+      setCompletedExercises(updatedCompletedExercises);
+      setCurrentIndex((previous) => previous + 1);
+    },
+    [],
+  );
+
+  return {
+    advanceToNextExercise,
+    completedExerciseCount,
+    currentExercise,
+    currentIndex,
+    currentMetric,
+    getUpdatedCompletedExercises,
+    isLastExercise,
+    plannedSetCount,
+    progressValue,
+    totalExercises,
+    watchedSets,
+  };
+};

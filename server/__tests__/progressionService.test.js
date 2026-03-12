@@ -4,7 +4,6 @@ jest.mock("../models/ExerciseProgression", () => {
   });
 
   ExerciseProgression.find = jest.fn();
-  ExerciseProgression.bulkSave = jest.fn();
 
   return { ExerciseProgression };
 });
@@ -17,10 +16,11 @@ jest.mock("../utils/mongoTransaction", () => ({
 
     return operation.session(session);
   }),
+  saveWithSession: jest.fn().mockResolvedValue(undefined),
 }));
 
 const { ExerciseProgression } = require("../models/ExerciseProgression");
-const { attachSession } = require("../utils/mongoTransaction");
+const { attachSession, saveWithSession } = require("../utils/mongoTransaction");
 const { syncWorkoutProgressions } = require("../services/progressionService");
 
 const createFindQuery = (value) => ({
@@ -32,7 +32,7 @@ describe("progressionService", () => {
     jest.clearAllMocks();
   });
 
-  it("bulk saves updated and newly created progression records in one batch", async () => {
+  it("persists updated and newly created progression records with the workout session", async () => {
     const existingRecord = {
       _id: "progression-1",
       workoutId: "workout-1",
@@ -45,10 +45,6 @@ describe("progressionService", () => {
     const findQuery = createFindQuery([existingRecord]);
 
     ExerciseProgression.find.mockReturnValue(findQuery);
-    ExerciseProgression.bulkSave.mockResolvedValue({
-      matchedCount: 1,
-      insertedCount: 1,
-    });
 
     const session = { id: "session-1" };
 
@@ -97,13 +93,6 @@ describe("progressionService", () => {
     expect(attachSession).toHaveBeenCalledWith(findQuery, session);
     expect(findQuery.session).toHaveBeenCalledWith(session);
 
-    expect(ExerciseProgression.bulkSave).toHaveBeenCalledTimes(1);
-
-    const [documents, options] = ExerciseProgression.bulkSave.mock.calls[0];
-
-    expect(options).toEqual({ session });
-    expect(documents).toHaveLength(2);
-    expect(documents[0]).toBe(existingRecord);
     expect(existingRecord).toEqual(
       expect.objectContaining({
         currentTargetKg: 102.5,
@@ -112,6 +101,8 @@ describe("progressionService", () => {
         lastCompletedAt: expect.any(Date),
       }),
     );
+    expect(saveWithSession).toHaveBeenCalledTimes(2);
+    expect(saveWithSession).toHaveBeenNthCalledWith(1, existingRecord, session);
     expect(ExerciseProgression).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
@@ -123,7 +114,8 @@ describe("progressionService", () => {
         lastCompletedAt: expect.any(Date),
       }),
     );
-    expect(documents[1]).toEqual(
+    expect(saveWithSession).toHaveBeenNthCalledWith(
+      2,
       expect.objectContaining({
         userId: "user-1",
         workoutId: "workout-1",
@@ -133,6 +125,7 @@ describe("progressionService", () => {
         lastSuccessfulLoadKg: 60,
         lastCompletedAt: expect.any(Date),
       }),
+      session,
     );
   });
 
@@ -164,6 +157,6 @@ describe("progressionService", () => {
       session: { id: "session-1" },
     });
 
-    expect(ExerciseProgression.bulkSave).not.toHaveBeenCalled();
+    expect(saveWithSession).not.toHaveBeenCalled();
   });
 });

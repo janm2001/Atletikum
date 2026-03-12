@@ -108,7 +108,7 @@ const Workouts = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm(t('training.workouts.confirmDelete'))) {
+    if (!window.confirm(t("training.workouts.confirmDelete"))) {
       return;
     }
 
@@ -139,9 +139,7 @@ const Workouts = () => {
       setFormValues(getDefaultFormValues());
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      setActionError(
-        err.response?.data?.message || t('common.saveError'),
-      );
+      setActionError(err.response?.data?.message || t("common.saveError"));
     }
   };
 
@@ -160,13 +158,7 @@ const Workouts = () => {
           gap="sm"
         >
           <Group>
-            <Title order={1}>{t('training.workouts.title')}</Title>
-            <Button
-              leftSection={<IconPlus size={16} />}
-              onClick={handleOpenCreate}
-            >
-              {t('training.workouts.customWorkout')}
-            </Button>
+            <Title order={1}>{t("training.workouts.title")}</Title>
           </Group>
           <ScrollArea type="never">
             <Chip.Group
@@ -188,14 +180,20 @@ const Workouts = () => {
               </Group>
             </Chip.Group>
           </ScrollArea>
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={handleOpenCreate}
+          >
+            {t("training.workouts.customWorkout")}
+          </Button>
         </Flex>
 
         {customWorkouts.length > 0 && (
           <Stack gap="sm" my="lg">
             <Stack gap="sm">
-              <Title order={3}>{t('training.workouts.myWorkouts')}</Title>
+              <Title order={3}>{t("training.workouts.myWorkouts")}</Title>
               <Text size="sm" c="dimmed">
-                {t('training.workouts.privateDescription')}
+                {t("training.workouts.privateDescription")}
               </Text>
             </Stack>
             <Grid my={0}>
@@ -221,7 +219,7 @@ const Workouts = () => {
         )}
 
         <Stack gap="sm" my="lg">
-          <Title order={3}>{t('training.workouts.readyWorkouts')}</Title>
+          <Title order={3}>{t("training.workouts.readyWorkouts")}</Title>
           <Grid my={0}>
             {globalWorkouts.map((workout) => (
               <Grid.Col key={workout._id} span={{ base: 12, sm: 6, md: 4 }}>
@@ -234,14 +232,18 @@ const Workouts = () => {
         {!error && workouts.length === 0 && (
           <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
             <IconBook size={48} color="gray" />
-            <Text c="dimmed">{t('training.workouts.noWorkoutsForFilter')}</Text>
+            <Text c="dimmed">{t("training.workouts.noWorkoutsForFilter")}</Text>
           </Center>
         )}
 
         <WorkoutFormModal
           opened={opened}
           onClose={() => setOpened(false)}
-          title={editingWorkoutId ? t('training.form.editTitle') : t('training.form.createTitle')}
+          title={
+            editingWorkoutId
+              ? t("training.form.editTitle")
+              : t("training.form.createTitle")
+          }
           actionError={actionError}
           initialValues={formValues}
           loading={createMutation.isPending || updateMutation.isPending}

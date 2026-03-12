@@ -1,5 +1,5 @@
 const { ExerciseProgression } = require("../models/ExerciseProgression");
-const { attachSession } = require("../utils/mongoTransaction");
+const { attachSession, saveWithSession } = require("../utils/mongoTransaction");
 
 const DEFAULT_INCREMENT_KG = 2.5;
 
@@ -230,10 +230,9 @@ const syncWorkoutProgressions = async ({
     return;
   }
 
-  await ExerciseProgression.bulkSave(
-    progressionWrites,
-    session ? { session } : undefined,
-  );
+  for (const progressionWrite of progressionWrites) {
+    await saveWithSession(progressionWrite, session);
+  }
 };
 
 module.exports = {

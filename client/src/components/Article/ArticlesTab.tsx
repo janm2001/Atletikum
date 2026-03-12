@@ -19,6 +19,8 @@ import { IconPhoto, IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ActionFeedback from "@/components/Common/ActionFeedback";
+import useActionFeedback from "@/hooks/useActionFeedback";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
 import {
@@ -60,7 +62,8 @@ const ArticlesTab = () => {
   const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState("");
+  const { actionError, clearActionError, handleActionError } =
+    useActionFeedback();
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
@@ -111,7 +114,7 @@ const ArticlesTab = () => {
     reset(getDefaultFormValues());
     setThumbnailFile(null);
     setThumbnailPreview(null);
-    setActionError("");
+    clearActionError();
     setOpened(true);
   };
 
@@ -133,7 +136,7 @@ const ArticlesTab = () => {
       author: article.author || "Atletikum Tim",
       quiz: [],
     });
-    setActionError("");
+    clearActionError();
     setOpened(true);
   };
 
@@ -149,7 +152,7 @@ const ArticlesTab = () => {
 
   const onSubmit = async (data: ArticleFormValues) => {
     try {
-      setActionError("");
+      clearActionError();
 
       if (thumbnailFile) {
         const formData = new FormData();
@@ -208,8 +211,7 @@ const ArticlesTab = () => {
       }
       setOpened(false);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      setActionError(err.response?.data?.message || t("common.saveError"));
+      handleActionError(error, t("common.saveError"));
     }
   };
 
@@ -250,11 +252,7 @@ const ArticlesTab = () => {
         ) : (
           <FormProvider {...form}>
             <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap="md">
-              {actionError && (
-                <Text c="red" size="sm">
-                  {actionError}
-                </Text>
-              )}
+              <ActionFeedback message={actionError} size="sm" />
 
               <TextInput
                 label={t("admin.articles.titleLabel")}

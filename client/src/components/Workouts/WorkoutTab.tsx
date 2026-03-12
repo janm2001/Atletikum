@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Group, Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import useActionFeedback from "@/hooks/useActionFeedback";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useWorkouts,
@@ -27,7 +28,8 @@ const WorkoutTab = () => {
   const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState("");
+  const { actionError, clearActionError, handleActionError } =
+    useActionFeedback();
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
     getDefaultFormValues(),
   );
@@ -40,7 +42,7 @@ const WorkoutTab = () => {
   const handleOpenCreate = () => {
     setEditingWorkoutId(null);
     setFormValues(getDefaultFormValues());
-    setActionError("");
+    clearActionError();
     setOpened(true);
   };
 
@@ -64,7 +66,7 @@ const WorkoutTab = () => {
         },
       })),
     });
-    setActionError("");
+    clearActionError();
     setOpened(true);
   };
 
@@ -80,7 +82,7 @@ const WorkoutTab = () => {
 
   const onSubmit = async (data: WorkoutFormValues) => {
     try {
-      setActionError("");
+      clearActionError();
       if (editingWorkoutId) {
         await updateMutation.mutateAsync({
           id: editingWorkoutId,
@@ -92,10 +94,7 @@ const WorkoutTab = () => {
       setOpened(false);
       setFormValues(getDefaultFormValues());
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      setActionError(
-        err.response?.data?.message || t('admin.workouts.saveError'),
-      );
+      handleActionError(error, t('admin.workouts.saveError'));
     }
   };
 
