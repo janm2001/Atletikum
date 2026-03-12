@@ -38,6 +38,14 @@ describe("env config helpers", () => {
     );
   });
 
+  it("throws when MONGO_URI is missing", () => {
+    process.env.JWT_SECRET = "test-secret";
+
+    expect(() => validateServerEnvironment()).toThrow(
+      "Missing required environment variable: MONGO_URI",
+    );
+  });
+
   it("normalizes CLIENT_URL and PORT values", () => {
     process.env.CLIENT_URL = "http://localhost:5173/";
     process.env.PORT = "6000";

@@ -88,6 +88,51 @@ describe("authMiddleware", () => {
       );
     });
 
+    it("returns a specific error for invalid tokens", async () => {
+      const request = {
+        headers: {
+          authorization: "Bearer invalid-token",
+        },
+      };
+      const response = {};
+      const next = jest.fn();
+
+      jwt.verify.mockImplementation(() => {
+        throw new jwt.JsonWebTokenError("invalid");
+      });
+
+      await protect(request, response, next);
+
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: 401,
+          message: "Nevažeći token ili neautoriziran pristup.",
+        }),
+      );
+    });
+
+    it("returns a specific error when the token user no longer exists", async () => {
+      const request = {
+        headers: {
+          authorization: "Bearer valid-token",
+        },
+      };
+      const response = {};
+      const next = jest.fn();
+
+      jwt.verify.mockReturnValue({ id: "user-1" });
+      User.findById.mockResolvedValue(null);
+
+      await protect(request, response, next);
+
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: 401,
+          message: "Korisnik više ne postoji.",
+        }),
+      );
+    });
+
     it("passes database lookup failures to the error handler", async () => {
       const request = {
         headers: {

@@ -10,8 +10,10 @@ const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { syncWorkoutProgressions } = require("./progressionService");
 
-const getMyWorkoutLogs = async ({ userId }) => {
-  return WorkoutLog.find({ user: userId }).sort({ date: -1 });
+const getMyWorkoutLogs = async ({ userId, user }) => {
+  const normalizedUserId = requireUserId({ userId, user });
+
+  return WorkoutLog.find({ user: normalizedUserId }).sort({ date: -1 });
 };
 
 const createWorkoutLog = async ({ user, userId, payload }) => {
