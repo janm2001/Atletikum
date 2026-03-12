@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  addArticleToQuizCompletions,
   prependCachedEntity,
   removeArticleFromDetailCache,
   removeCachedEntity,
   replaceCachedEntity,
+  syncQuizStatusAfterSubmission,
   toArticleSummary,
   updateArticleBookmarkInDetail,
   updateArticleBookmarkInList,
@@ -33,6 +35,19 @@ const article = {
     progressPercent: 10,
     isCompleted: false,
   },
+};
+
+const quizSubmission = {
+  completion: {
+    score: 4,
+    totalQuestions: 5,
+    xpGained: 100,
+    completedAt: "2024-01-03T00:00:00.000Z",
+    passed: true,
+  },
+  user: null,
+  newAchievements: [],
+  nextAvailableAt: "2024-01-10T00:00:00.000Z",
 };
 
 describe("query cache helpers", () => {
@@ -149,6 +164,31 @@ describe("query cache helpers", () => {
       expect(removeArticleFromDetailCache(detail, "article-2")).toEqual({
         ...detail,
         relatedArticles: [toArticleSummary(article)],
+      });
+    });
+  });
+
+  describe("quiz helpers", () => {
+    it("adds completed article ids without duplicating existing completions", () => {
+      expect(addArticleToQuizCompletions(undefined, article._id)).toEqual([
+        article._id,
+      ]);
+
+      const completedArticleIds = [article._id];
+      expect(
+        addArticleToQuizCompletions(completedArticleIds, article._id),
+      ).toBe(completedArticleIds);
+
+      expect(
+        addArticleToQuizCompletions(["article-2"], article._id),
+      ).toEqual(["article-2", article._id]);
+    });
+
+    it("syncs quiz status from a successful submission response", () => {
+      expect(syncQuizStatusAfterSubmission(quizSubmission)).toEqual({
+        canTakeQuiz: false,
+        lastCompletion: quizSubmission.completion,
+        nextAvailableAt: quizSubmission.nextAvailableAt,
       });
     });
   });

@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { UserContext } from "@/context/UserContextCreate";
+import useActionFeedback from "@/hooks/useActionFeedback";
 import { useSubmitQuiz } from "@/hooks/useQuiz";
 import type { QuizQuestion } from "@/types/Article/article";
 import type { ArticleQuizResult } from "@/types/Article/quiz";
@@ -23,8 +25,11 @@ export const useQuizFlow = ({
   questions,
 }: UseQuizFlowParams) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const userCtx = useContext(UserContext);
   const submitQuizMutation = useSubmitQuiz();
+  const { actionError, clearActionError, handleActionError } =
+    useActionFeedback();
 
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -58,9 +63,7 @@ export const useQuizFlow = ({
   };
 
   const handleQuizComplete = async (answers: number[]) => {
-    const localScore = questions.reduce((sum, question, index) => {
-      return sum + (answers[index] === question.correctIndex ? 1 : 0);
-    }, 0);
+    clearActionError();
 
     try {
       const result = await submitQuizMutation.mutateAsync({
@@ -110,22 +113,8 @@ export const useQuizFlow = ({
         replace: true,
         state: celebrationState,
       });
-    } catch {
-      clearPersistedArticleQuizResult(articleId);
-      const celebrationState: CelebrationState = {
-        type: "quiz",
-        xpGained: 0,
-        score: localScore,
-        totalQuestions: questions.length,
-        title: articleTitle,
-        newAchievements: [],
-      };
-      persistCelebrationState(celebrationState);
-
-      navigate("/slavlje", {
-        replace: true,
-        state: celebrationState,
-      });
+    } catch (error) {
+      handleActionError(error, t("articles.quiz.submitError"));
     }
   };
 
@@ -144,6 +133,8 @@ export const useQuizFlow = ({
     currentQuestion,
     currentQuestionIdx,
     correctOption,
+    actionError,
+    clearActionError,
     isAnswered,
     isSubmitting: submitQuizMutation.isPending,
     selectedOption,

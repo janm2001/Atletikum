@@ -1,4 +1,5 @@
 import { Container } from "@mantine/core";
+import ActionToast from "@/components/Common/ActionToast";
 import type { QuizQuestion } from "@/types/Article/article";
 import { useQuizFlow } from "@/hooks/useQuizFlow";
 import QuizQuestionCard from "./QuizQuestionCard";
@@ -20,6 +21,8 @@ const QuizPageContent = ({
     currentQuestion,
     currentQuestionIdx,
     correctOption,
+    actionError,
+    clearActionError,
     isAnswered,
     isSubmitting,
     selectedOption,
@@ -35,6 +38,8 @@ const QuizPageContent = ({
 
   return (
     <Container size="sm" py="xl">
+      <ActionToast message={actionError} onClose={clearActionError} />
+
       <QuizQuestionCard
         articleTitle={articleTitle}
         question={currentQuestion}

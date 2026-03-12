@@ -123,4 +123,41 @@ describe("userProgressService", () => {
       newAchievements: [],
     });
   });
+
+  it("falls back to the loaded user when streak update returns null", async () => {
+    const user = createUser();
+    User.findById.mockReturnValue(user);
+    getLevelFromTotalXp.mockReturnValue(2);
+    updateDailyStreak.mockResolvedValue(null);
+    sanitizeUser.mockImplementation((currentUser) => ({
+      _id: currentUser._id,
+      totalXp: currentUser.totalXp,
+      level: currentUser.level,
+      dailyStreak: currentUser.dailyStreak,
+    }));
+
+    const result = await applyUserProgress({
+      userId: "user-1",
+      brainXp: 5,
+      shouldUpdateStreak: true,
+      session: { id: "session-1" },
+    });
+
+    expect(saveWithSession).toHaveBeenCalledWith(user, {
+      id: "session-1",
+    });
+    expect(updateDailyStreak).toHaveBeenCalledWith("user-1", {
+      session: { id: "session-1" },
+    });
+    expect(sanitizeUser).toHaveBeenCalledWith(user);
+    expect(result).toEqual({
+      user: {
+        _id: "user-1",
+        totalXp: 30,
+        level: 2,
+        dailyStreak: 2,
+      },
+      newAchievements: [],
+    });
+  });
 });

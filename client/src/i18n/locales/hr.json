@@ -321,7 +321,8 @@
       "finishQuiz": "Završi Kviz",
       "nextQuestion": "Sljedeće pitanje",
       "failedTitle": "Kviz nije položen",
-      "failedMessage": "Rezultat: {{score}}/{{total}} ({{percent}}%). Potrebno je minimalno 50% za prolaz. Pokušajte ponovo nakon isteka vremena!"
+      "failedMessage": "Rezultat: {{score}}/{{total}} ({{percent}}%). Potrebno je minimalno 50% za prolaz. Pokušajte ponovo nakon isteka vremena!",
+      "submitError": "Predaja kviza nije uspjela. Pokušajte ponovno."
     }
   },
 

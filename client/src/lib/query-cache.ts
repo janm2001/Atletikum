@@ -3,6 +3,7 @@ import type {
     ArticleBookmarkState,
     ArticleSummary,
 } from '@/types/Article/article';
+import type { QuizStatus, QuizSubmitResult } from '@/types/Article/quiz';
 
 type EntityWithId = {
     _id: string;
@@ -123,6 +124,29 @@ export const updateArticleBookmarkInDetail = (
         ...(nextRelatedArticles ? { relatedArticles: nextRelatedArticles } : {}),
     };
 };
+
+export const addArticleToQuizCompletions = (
+    completedArticleIds: string[] | undefined,
+    articleId: string,
+): string[] => {
+    if (!completedArticleIds) {
+        return [articleId];
+    }
+
+    if (completedArticleIds.includes(articleId)) {
+        return completedArticleIds;
+    }
+
+    return [...completedArticleIds, articleId];
+};
+
+export const syncQuizStatusAfterSubmission = (
+    submission: QuizSubmitResult['data'],
+): QuizStatus => ({
+    canTakeQuiz: false,
+    lastCompletion: submission.completion,
+    nextAvailableAt: submission.nextAvailableAt,
+});
 
 export const removeArticleFromDetailCache = (
     article: Article | undefined,

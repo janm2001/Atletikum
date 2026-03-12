@@ -131,6 +131,86 @@ describe("quizService", () => {
     );
   });
 
+  it("persists failed quiz completions without awarding xp, streak, or achievements", async () => {
+    QuizCompletion.findOne.mockReturnValue(createSortedQuery(null));
+    QuizCooldown.findOneAndUpdate.mockResolvedValue({
+      nextAvailableAt: new Date("2026-03-14T10:00:00.000Z"),
+    });
+    Article.findById.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        quiz: [
+          { options: ["A", "B"], correctIndex: 0 },
+          { options: ["A", "B"], correctIndex: 1 },
+        ],
+      }),
+    });
+    QuizCompletion.create.mockResolvedValue({
+      score: 0,
+      totalQuestions: 2,
+      xpGained: 0,
+      completedAt: new Date("2026-03-11T10:00:00.000Z"),
+      passed: false,
+    });
+    applyUserProgress.mockResolvedValue({
+      user: {
+        _id: "user-1",
+        totalXp: 125,
+        brainXp: 75,
+        bodyXp: 50,
+        dailyStreak: 4,
+        achievements: [{ key: "existing-achievement" }],
+      },
+      newAchievements: [],
+    });
+
+    const result = await quizService.submitQuiz({
+      userId: "user-1",
+      articleId: "507f191e810c19729de860ea",
+      submittedAnswers: [1, 0],
+    });
+
+    expect(createWithSession).toHaveBeenCalledWith(
+      QuizCompletion,
+      expect.objectContaining({
+        user: "user-1",
+        article: "507f191e810c19729de860ea",
+        score: 0,
+        xpGained: 0,
+        passed: false,
+        submittedAnswers: [1, 0],
+      }),
+      expect.objectContaining({ id: "session-1" }),
+    );
+    expect(applyUserProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-1",
+        brainXp: 0,
+        shouldUpdateStreak: false,
+        shouldUnlockAchievements: false,
+        session: expect.objectContaining({ id: "session-1" }),
+      }),
+    );
+    expect(result).toEqual(
+      expect.objectContaining({
+        completion: expect.objectContaining({
+          score: 0,
+          totalQuestions: 2,
+          xpGained: 0,
+          passed: false,
+        }),
+        user: {
+          _id: "user-1",
+          totalXp: 125,
+          brainXp: 75,
+          bodyXp: 50,
+          dailyStreak: 4,
+          achievements: [{ key: "existing-achievement" }],
+        },
+        newAchievements: [],
+      }),
+    );
+  });
+
   it("returns status with cooldown when a recent completion exists", async () => {
     const completedAt = new Date();
     QuizCompletion.findOne.mockReturnValue(

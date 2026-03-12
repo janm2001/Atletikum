@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  addArticleToQuizCompletions,
+  syncQuizStatusAfterSubmission,
+} from "@/lib/query-cache";
+import {
   getMyQuizCompletions,
   getQuizStatus,
   getRevisionQuiz,
@@ -29,10 +33,25 @@ export const useSubmitQuiz = () => {
     { articleId: string; submittedAnswers: number[] }
   >({
     mutationFn: submitQuiz,
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
+      queryClient.setQueryData<QuizStatus | undefined>(
+        keys.quiz.status(variables.articleId),
+        () => syncQuizStatusAfterSubmission(result.data),
+      );
+
+      queryClient.setQueryData<string[] | undefined>(
+        keys.quiz.completions(),
+        (completedArticleIds) =>
+          addArticleToQuizCompletions(
+            completedArticleIds,
+            variables.articleId,
+          ),
+      );
+
       queryClient.invalidateQueries({
         queryKey: keys.quiz.status(variables.articleId),
       });
+
       queryClient.invalidateQueries({
         queryKey: keys.quiz.completions(),
       });
