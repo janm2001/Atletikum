@@ -1,11 +1,5 @@
-const mongoose = require("mongoose");
 const AppError = require("../utils/AppError");
-
-const validateObjectId = (value, fieldName) => {
-  if (!mongoose.Types.ObjectId.isValid(value)) {
-    throw new AppError(`${fieldName} nije valjan.`, 400);
-  }
-};
+const { validateObjectId } = require("../utils/validationHelpers");
 
 const validateQuizStatusRequest = (request) => {
   validateObjectId(request.params.articleId, "ID članka");

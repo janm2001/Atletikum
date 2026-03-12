@@ -21,9 +21,18 @@ jest.mock("../models/Exercise", () => ({
   },
 }));
 
+jest.mock("../utils/uploadCleanup", () => ({
+  deleteUploadedRequestFile: jest.fn(),
+  deleteUploadByPublicPath: jest.fn(),
+}));
+
 const { Article } = require("../models/Article");
 const { ArticleBookmark } = require("../models/ArticleBookmark");
 const { Exercise } = require("../models/Exercise");
+const {
+  deleteUploadedRequestFile,
+  deleteUploadByPublicPath,
+} = require("../utils/uploadCleanup");
 const articleService = require("../services/articleService");
 
 const createLeanQuery = (value) => ({
@@ -116,5 +125,71 @@ describe("articleService", () => {
       { _id: "exercise-2", title: "Sprint B" },
       { _id: "exercise-1", title: "Sprint A" },
     ]);
+  });
+
+  it("cleans up a newly uploaded file when article creation fails", async () => {
+    const uploadError = new Error("create failed");
+    const file = {
+      filename: "new-cover.png",
+      path: "C:\\uploads\\articles\\new-cover.png",
+    };
+
+    Article.create.mockRejectedValue(uploadError);
+
+    await expect(
+      articleService.createArticle({
+        payload: {
+          title: "Article",
+          summary: "Summary",
+          content: "Content",
+          tag: "TRAINING",
+        },
+        file,
+      }),
+    ).rejects.toThrow(uploadError);
+
+    expect(deleteUploadedRequestFile).toHaveBeenCalledWith(file);
+  });
+
+  it("removes the previous uploaded cover when article cover changes", async () => {
+    Article.findById.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/old-cover.png",
+    });
+    Article.findByIdAndUpdate.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/new-cover.png",
+    });
+
+    const result = await articleService.updateArticle({
+      articleId: "article-1",
+      payload: { title: "Updated title" },
+      file: {
+        filename: "new-cover.png",
+        path: "C:\\uploads\\articles\\new-cover.png",
+      },
+    });
+
+    expect(result).toEqual({
+      _id: "article-1",
+      coverImage: "/uploads/articles/new-cover.png",
+    });
+    expect(deleteUploadByPublicPath).toHaveBeenCalledWith(
+      "/uploads/articles/old-cover.png",
+    );
+    expect(deleteUploadedRequestFile).not.toHaveBeenCalled();
+  });
+
+  it("deletes a managed uploaded cover when deleting an article", async () => {
+    Article.findByIdAndDelete.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/old-cover.png",
+    });
+
+    await articleService.deleteArticle({ articleId: "article-1" });
+
+    expect(deleteUploadByPublicPath).toHaveBeenCalledWith(
+      "/uploads/articles/old-cover.png",
+    );
   });
 });

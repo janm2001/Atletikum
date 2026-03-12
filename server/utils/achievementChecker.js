@@ -3,9 +3,82 @@ const { User } = require("../models/User");
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");
 const { addUtcDays, startOfUtcDay } = require("./dateUtils");
-const { getLevelFromTotalXp } = require("./leveling");
 const { attachSession, saveWithSession } = require("./mongoTransaction");
 const { requireUserId } = require("./userIdentity");
+const {
+  applyAchievementReward,
+  buildUnlockedAchievement,
+  didEarnAchievement,
+  filterPendingAchievements,
+  getAchievementRequirements,
+  getUnlockedAchievementIds,
+  hasPerfectQuizCompletion,
+} = require("./achievementEvaluation");
+
+const getTodayRange = (now = new Date()) => {
+  const today = startOfUtcDay(now);
+
+  return {
+    today,
+    tomorrow: addUtcDays(today, 1),
+  };
+};
+
+const checkSameDayActivity = async (userId, session) => {
+  const { today, tomorrow } = getTodayRange();
+
+  const [todayWorkout, todayQuiz] = await Promise.all([
+    attachSession(
+      WorkoutLog.exists({
+        user: userId,
+        date: { $gte: today, $lt: tomorrow },
+      }),
+      session,
+    ),
+    attachSession(
+      QuizCompletion.exists({
+        user: userId,
+        completedAt: { $gte: today, $lt: tomorrow },
+      }),
+      session,
+    ),
+  ]);
+
+  return !!(todayWorkout && todayQuiz);
+};
+
+const getAchievementContext = async ({ userId, pendingAchievements, session }) => {
+  const requirements = getAchievementRequirements(pendingAchievements);
+
+  const [workoutCount, quizCount, quizCompletions, sameDayBoth] =
+    await Promise.all([
+      requirements.needsWorkoutCount
+        ? attachSession(WorkoutLog.countDocuments({ user: userId }), session)
+        : 0,
+      requirements.needsQuizCount
+        ? attachSession(QuizCompletion.countDocuments({ user: userId }), session)
+        : 0,
+      requirements.needsPerfectQuiz
+        ? attachSession(
+            QuizCompletion.find({ user: userId })
+              .sort({ completedAt: -1 })
+              .limit(50)
+              .lean(),
+            session,
+          )
+        : [],
+      requirements.needsSameDayBoth
+        ? checkSameDayActivity(userId, session)
+        : false,
+    ]);
+
+  return {
+    workoutCount,
+    quizCount,
+    hasPerfectQuiz: hasPerfectQuizCompletion(quizCompletions),
+    sameDayBoth,
+  };
+};
 
 const checkAndUnlockAchievements = async (
   userId,
@@ -17,114 +90,34 @@ const checkAndUnlockAchievements = async (
     (await attachSession(User.findById(normalizedUserId), session));
   if (!user) return [];
 
-  const allAchievements = await attachSession(Achievement.find(), session);
-  const unlockedIds = new Set(
-    user.achievements.map((a) => a.achievement.toString()),
-  );
+  const allAchievements = await attachSession(Achievement.find().lean(), session);
+  const unlockedIds = getUnlockedAchievementIds(user.achievements);
+  const pendingAchievements = filterPendingAchievements(allAchievements, unlockedIds);
 
-  const [workoutCount, quizCount, quizCompletions] = await Promise.all([
-    attachSession(
-      WorkoutLog.countDocuments({ user: normalizedUserId }),
-      session,
-    ),
-    attachSession(
-      QuizCompletion.countDocuments({ user: normalizedUserId }),
-      session,
-    ),
-    attachSession(
-      QuizCompletion.find({ user: normalizedUserId })
-        .sort({ completedAt: -1 })
-        .limit(50)
-        .lean(),
-      session,
-    ),
-  ]);
+  if (pendingAchievements.length === 0) {
+    return [];
+  }
 
-  const hasPerfectQuiz = quizCompletions.some(
-    (qc) => qc.score === qc.totalQuestions && qc.totalQuestions > 0,
-  );
-
-  const today = startOfUtcDay(new Date());
-  const tomorrow = addUtcDays(today, 1);
-
-  const [todayWorkout, todayQuiz] = await Promise.all([
-    attachSession(
-      WorkoutLog.exists({
-        user: normalizedUserId,
-        date: { $gte: today, $lt: tomorrow },
-      }),
-      session,
-    ),
-    attachSession(
-      QuizCompletion.exists({
-        user: normalizedUserId,
-        completedAt: { $gte: today, $lt: tomorrow },
-      }),
-      session,
-    ),
-  ]);
-  const sameDayBoth = !!(todayWorkout && todayQuiz);
+  const achievementContext = await getAchievementContext({
+    userId: normalizedUserId,
+    pendingAchievements,
+    session,
+  });
 
   const newlyUnlocked = [];
 
-  for (const achievement of allAchievements) {
-    if (unlockedIds.has(achievement._id.toString())) continue;
-
-    let earned = false;
-
-    switch (achievement.trigger) {
-      case "workout_count":
-        earned = workoutCount >= achievement.threshold;
-        break;
-      case "quiz_count":
-        earned = quizCount >= achievement.threshold;
-        break;
-      case "xp_threshold":
-        earned = user.totalXp >= achievement.threshold;
-        break;
-      case "streak":
-        earned = user.dailyStreak >= achievement.threshold;
-        break;
-      case "level":
-        earned = user.level >= achievement.threshold;
-        break;
-      case "perfect_quiz":
-        earned = hasPerfectQuiz && achievement.threshold <= 1;
-        break;
-      case "same_day_both":
-        earned = sameDayBoth;
-        break;
+  for (const achievement of pendingAchievements) {
+    if (
+      !didEarnAchievement(achievement, {
+        user,
+        ...achievementContext,
+      })
+    ) {
+      continue;
     }
 
-    if (earned) {
-      const xp = achievement.xpReward;
-      if (achievement.xpCategory === "brain") {
-        user.brainXp += xp;
-      } else if (achievement.xpCategory === "body") {
-        user.bodyXp += xp;
-      } else {
-        const half = Math.floor(xp / 2);
-        user.brainXp += half;
-        user.bodyXp += xp - half;
-      }
-      user.totalXp = user.brainXp + user.bodyXp;
-      user.level = getLevelFromTotalXp(user.totalXp);
-
-      user.achievements.push({
-        achievement: achievement._id,
-        unlockedAt: new Date(),
-      });
-
-      newlyUnlocked.push({
-        _id: achievement._id,
-        key: achievement.key,
-        title: achievement.title,
-        description: achievement.description,
-        xpReward: achievement.xpReward,
-        category: achievement.category,
-        badgeIcon: achievement.badgeIcon,
-      });
-    }
+    applyAchievementReward(user, achievement);
+    newlyUnlocked.push(buildUnlockedAchievement(achievement));
   }
 
   if (newlyUnlocked.length > 0) {

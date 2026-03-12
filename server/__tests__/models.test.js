@@ -138,6 +138,15 @@ describe("Article schema", () => {
     }
   });
 
+  it("defines indexes for hot article feeds and tag-based lookups", () => {
+    expect(articleSchema.indexes()).toEqual(
+      expect.arrayContaining([
+        [{ createdAt: -1 }, {}],
+        [{ tag: 1, createdAt: -1 }, {}],
+      ]),
+    );
+  });
+
   describe("quiz sub-document", () => {
     it("accepts valid quiz questions", () => {
       const article = {
@@ -394,6 +403,16 @@ describe("QuizCompletion schema", () => {
   it("article is a proper ObjectId ref", () => {
     const path = quizCompletionSchema.path("article");
     expect(path.instance).toBe("ObjectId");
+  });
+
+  it("defines indexes for recent completion history and latest attempt lookups", () => {
+    expect(quizCompletionSchema.indexes()).toEqual(
+      expect.arrayContaining([
+        [{ user: 1, article: 1 }, {}],
+        [{ user: 1, completedAt: -1 }, {}],
+        [{ user: 1, article: 1, completedAt: -1 }, {}],
+      ]),
+    );
   });
 });
 

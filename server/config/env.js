@@ -1,4 +1,5 @@
 const DEFAULT_CLIENT_URL = "http://localhost:5173";
+const DEFAULT_NODE_ENV = "development";
 const DEFAULT_PORT = 5001;
 
 const getTrimmedEnvValue = (name) => {
@@ -23,6 +24,9 @@ const getMongoUri = () => getRequiredEnv("MONGO_URI");
 
 const getClientUrl = () =>
   (getTrimmedEnvValue("CLIENT_URL") || DEFAULT_CLIENT_URL).replace(/\/$/, "");
+
+const getNodeEnv = () =>
+  (getTrimmedEnvValue("NODE_ENV") || DEFAULT_NODE_ENV).toLowerCase();
 
 const getPort = () => {
   const rawPort = getTrimmedEnvValue("PORT");
@@ -50,6 +54,7 @@ module.exports = {
   getClientUrl,
   getJwtSecret,
   getMongoUri,
+  getNodeEnv,
   getPort,
   validateServerEnvironment,
 };

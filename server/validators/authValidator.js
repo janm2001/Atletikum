@@ -1,26 +1,21 @@
 const AppError = require("../utils/AppError");
-
-const VALID_FOCUS_VALUES = ["mobilnost", "snaga", "prevencija_ozlijede"];
-
-const validateEmail = (email) => {
-  return /^\S+@\S+\.\S+$/.test(String(email ?? "").trim());
-};
+const {
+  VALID_FOCUS_VALUES,
+  validateEmail,
+  validatePassword,
+  validateResetToken,
+  validateUsername,
+} = require("./authValidation");
 
 const validateRegisterRequest = (request) => {
+  request.body = request.body ?? {};
+
   const { username, email, password, trainingFrequency, focus } =
     request.body ?? {};
 
-  if (!username || String(username).trim().length < 3) {
-    throw new AppError("Korisničko ime mora imati barem 3 znaka", 400);
-  }
-
-  if (!validateEmail(email)) {
-    throw new AppError("Molimo unesite valjanu email adresu", 400);
-  }
-
-  if (!password || String(password).length < 8) {
-    throw new AppError("Lozinka mora imati barem 8 znakova", 400);
-  }
+  request.body.username = validateUsername(username);
+  request.body.email = validateEmail(email);
+  request.body.password = validatePassword(password);
 
   const numericTrainingFrequency = Number(trainingFrequency);
   if (
@@ -30,6 +25,7 @@ const validateRegisterRequest = (request) => {
   ) {
     throw new AppError("Frekvencija treninga mora biti između 0 i 7", 400);
   }
+  request.body.trainingFrequency = numericTrainingFrequency;
 
   if (!VALID_FOCUS_VALUES.includes(focus)) {
     throw new AppError("Fokus treninga nije valjan", 400);
@@ -37,34 +33,32 @@ const validateRegisterRequest = (request) => {
 };
 
 const validateLoginRequest = (request) => {
+  request.body = request.body ?? {};
+
   const { username, password } = request.body ?? {};
 
-  if (!username || !password) {
+  request.body.username = validateUsername(username);
+
+  if (!password || String(password).length === 0) {
     throw new AppError("Molimo unesite username i lozinku", 400);
   }
 };
 
 const validateRequestPasswordResetRequest = (request) => {
+  request.body = request.body ?? {};
+
   const { username, email } = request.body ?? {};
 
-  if (!username || String(username).trim().length < 3) {
-    throw new AppError("Korisničko ime mora imati barem 3 znaka", 400);
-  }
-
-  if (!validateEmail(email)) {
-    throw new AppError("Molimo unesite valjanu email adresu", 400);
-  }
+  request.body.username = validateUsername(username);
+  request.body.email = validateEmail(email);
 };
 
 const validateResetPasswordRequest = (request) => {
-  if (!request.params?.token) {
-    throw new AppError("Token za reset lozinke nedostaje", 400);
-  }
+  request.body = request.body ?? {};
+  request.params = request.params ?? {};
 
-  const { password } = request.body ?? {};
-  if (!password || String(password).length < 8) {
-    throw new AppError("Lozinka mora imati barem 8 znakova", 400);
-  }
+  request.params.token = validateResetToken(request.params.token);
+  request.body.password = validatePassword(request.body.password);
 };
 
 module.exports = {

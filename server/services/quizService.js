@@ -2,7 +2,11 @@ const { QuizCompletion } = require("../models/QuizCompletion");
 const { QuizCooldown } = require("../models/QuizCooldown");
 const { Article } = require("../models/Article");
 const AppError = require("../utils/AppError");
-const { addUtcDays } = require("../utils/dateUtils");
+const {
+  buildRevisionEligibilityFilter,
+  getQuizCooldownEnd,
+  selectRandomEligibleRevisionCompletion,
+} = require("../utils/quizTiming");
 const {
   attachSession,
   createWithSession,
@@ -11,12 +15,6 @@ const {
 const { scoreQuizSubmission } = require("../utils/quizScoring");
 const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
-
-const QUIZ_COOLDOWN_DAYS = 3;
-
-const getCooldownEnd = (completedAt) => {
-  return addUtcDays(completedAt, QUIZ_COOLDOWN_DAYS);
-};
 
 const findLastCompletion = ({ userId, articleId, session = null }) =>
   attachSession(
@@ -50,10 +48,10 @@ const reserveQuizAttempt = async ({
   session,
   lastCompletion = null,
 }) => {
-  const nextAvailableAt = getCooldownEnd(now);
+  const nextAvailableAt = getQuizCooldownEnd(now);
 
   if (lastCompletion) {
-    const legacyCooldownEnd = getCooldownEnd(lastCompletion.completedAt);
+    const legacyCooldownEnd = getQuizCooldownEnd(lastCompletion.completedAt);
 
     if (now < legacyCooldownEnd) {
       try {
@@ -135,7 +133,7 @@ const buildQuizStatus = (lastCompletion) => {
     };
   }
 
-  const cooldownEnd = getCooldownEnd(lastCompletion.completedAt);
+  const cooldownEnd = getQuizCooldownEnd(lastCompletion.completedAt);
   const canTakeQuiz = new Date() >= cooldownEnd;
 
   return {
@@ -243,20 +241,15 @@ const getMyCompletions = async ({ userId }) => {
 
 const getRevisionQuiz = async ({ userId }) => {
   const normalizedUserId = requireUserId({ userId });
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  const oldCompletions = await QuizCompletion.find({
-    user: normalizedUserId,
-    completedAt: { $lte: sevenDaysAgo },
-  }).lean();
+  const oldCompletions = await QuizCompletion.find(
+    buildRevisionEligibilityFilter({ userId: normalizedUserId }),
+  ).lean();
 
   if (oldCompletions.length === 0) {
     return null;
   }
 
-  const random =
-    oldCompletions[Math.floor(Math.random() * oldCompletions.length)];
+  const random = selectRandomEligibleRevisionCompletion(oldCompletions);
 
   return {
     articleId: random.article,

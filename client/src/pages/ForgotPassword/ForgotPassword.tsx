@@ -8,7 +8,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -26,7 +26,6 @@ type ForgotPasswordLocationState = {
 
 const ForgotPassword = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as ForgotPasswordLocationState;
   const requestResetMutation = useRequestPasswordReset();
@@ -49,6 +48,7 @@ const ForgotPassword = () => {
 
   const handleRequestReset = async (formData: ForgotPasswordInput) => {
     setError("");
+    setResult(null);
 
     try {
       const response = await requestResetMutation.mutateAsync(formData);
@@ -113,18 +113,11 @@ const ForgotPassword = () => {
               >
                 <Text fw={600}>{t('auth.forgotPassword.successTitle')}</Text>
                 <Text size="sm" c="dimmed" mt={4}>
+                  {result.message}
+                </Text>
+                <Text size="sm" c="dimmed" mt={4}>
                   {t('auth.forgotPassword.successDescription')}
                 </Text>
-                <Anchor
-                  component="button"
-                  type="button"
-                  mt="sm"
-                  onClick={() =>
-                    navigate(`/reset-lozinka/${result.data.resetToken}`)
-                  }
-                >
-                  {t('auth.forgotPassword.openResetLink')}
-                </Anchor>
               </Paper>
             )}
 

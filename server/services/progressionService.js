@@ -1,9 +1,5 @@
 const { ExerciseProgression } = require("../models/ExerciseProgression");
-const {
-  attachSession,
-  createWithSession,
-  saveWithSession,
-} = require("../utils/mongoTransaction");
+const { attachSession } = require("../utils/mongoTransaction");
 
 const DEFAULT_INCREMENT_KG = 2.5;
 
@@ -155,6 +151,8 @@ const syncWorkoutProgressions = async ({
     },
     new Map(),
   );
+  const progressionWrites = [];
+  const queuedExistingRecordKeys = new Set();
 
   for (const workoutExercise of progressionExercises) {
     const repTarget = parseRepTarget(workoutExercise.reps);
@@ -201,30 +199,41 @@ const syncWorkoutProgressions = async ({
     const nextTargetKg = metTarget
       ? lastSuccessfulLoadKg + incrementKg
       : configuredTargetKg;
+    const lastCompletedAt = new Date();
 
     if (record) {
       record.currentTargetKg = nextTargetKg;
       record.incrementKg = incrementKg;
       record.lastSuccessfulLoadKg = lastSuccessfulLoadKg;
-      record.lastCompletedAt = new Date();
-      await saveWithSession(record, session);
+      record.lastCompletedAt = lastCompletedAt;
+      if (!queuedExistingRecordKeys.has(key)) {
+        progressionWrites.push(record);
+        queuedExistingRecordKeys.add(key);
+      }
       continue;
     }
 
-    await createWithSession(
-      ExerciseProgression,
-      {
+    progressionWrites.push(
+      new ExerciseProgression({
         userId,
         workoutId: workout._id,
         exerciseId: workoutExercise.exerciseId,
         currentTargetKg: nextTargetKg,
         incrementKg,
         lastSuccessfulLoadKg,
-        lastCompletedAt: new Date(),
-      },
-      session,
+        lastCompletedAt,
+      }),
     );
   }
+
+  if (progressionWrites.length === 0) {
+    return;
+  }
+
+  await ExerciseProgression.bulkSave(
+    progressionWrites,
+    session ? { session } : undefined,
+  );
 };
 
 module.exports = {

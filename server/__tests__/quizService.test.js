@@ -43,9 +43,17 @@ const createSortedQuery = (value) => ({
   sort: jest.fn().mockResolvedValue(value),
 });
 
+const createLeanQuery = (value) => ({
+  lean: jest.fn().mockResolvedValue(value),
+});
+
 describe("quizService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it("submits quiz, persists completion, and updates user progress when passed", async () => {
@@ -176,5 +184,48 @@ describe("quizService", () => {
       statusCode: 429,
       message: expect.stringContaining("Kviz možete ponoviti nakon"),
     });
+  });
+
+  it("returns a random eligible revision quiz from completions older than seven days", async () => {
+    jest.useFakeTimers().setSystemTime(new Date("2026-03-18T10:00:00.000Z"));
+    QuizCompletion.find.mockReturnValue(
+      createLeanQuery([
+        {
+          article: "article-1",
+          score: 3,
+          totalQuestions: 5,
+          completedAt: new Date("2026-03-01T10:00:00.000Z"),
+        },
+        {
+          article: "article-2",
+          score: 4,
+          totalQuestions: 5,
+          completedAt: new Date("2026-03-02T10:00:00.000Z"),
+        },
+      ]),
+    );
+    jest.spyOn(Math, "random").mockReturnValue(0.75);
+
+    const result = await quizService.getRevisionQuiz({ userId: "user-1" });
+
+    expect(QuizCompletion.find).toHaveBeenCalledWith({
+      user: "user-1",
+      completedAt: { $lte: new Date("2026-03-11T10:00:00.000Z") },
+    });
+    expect(result).toEqual({
+      articleId: "article-2",
+      lastScore: 4,
+      totalQuestions: 5,
+      completedAt: new Date("2026-03-02T10:00:00.000Z"),
+    });
+    Math.random.mockRestore();
+  });
+
+  it("returns null when no revision quiz completions are old enough", async () => {
+    QuizCompletion.find.mockReturnValue(createLeanQuery([]));
+
+    await expect(
+      quizService.getRevisionQuiz({ userId: "user-1" }),
+    ).resolves.toBeNull();
   });
 });

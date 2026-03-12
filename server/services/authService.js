@@ -2,9 +2,12 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models/User");
-const { getClientUrl, getJwtSecret } = require("../config/env");
+const { getClientUrl, getJwtSecret, getNodeEnv } = require("../config/env");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const AppError = require("../utils/AppError");
+
+const PASSWORD_RESET_REQUEST_MESSAGE =
+  "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.";
 
 const signToken = (id) => {
   return jwt.sign({ id }, getJwtSecret(), { expiresIn: "7d" });
@@ -19,6 +22,14 @@ const buildResetUrl = (resetToken) => {
   return `${clientUrl}/reset-lozinka/${resetToken}`;
 };
 
+const logDevelopmentResetUrl = (resetUrl) => {
+  if (getNodeEnv() !== "development") {
+    return;
+  }
+
+  console.info(`Password reset link (development only): ${resetUrl}`);
+};
+
 const register = async ({
   username,
   email,
@@ -27,8 +38,8 @@ const register = async ({
   focus,
 }) => {
   const newUser = await User.create({
-    username,
-    email: email.trim().toLowerCase(),
+    username: String(username).trim(),
+    email: String(email).trim().toLowerCase(),
     password,
     trainingFrequency,
     focus,
@@ -45,7 +56,7 @@ const login = async ({ username, password }) => {
     throw new AppError("Molimo unesite username i lozinku", 400);
   }
 
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username: String(username).trim() });
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new AppError("Pogrešni podaci", 401);
   }
@@ -61,13 +72,17 @@ const requestPasswordReset = async ({ username, email }) => {
     throw new AppError("Molimo unesite korisničko ime i email adresu", 400);
   }
 
+  const normalizedUsername = String(username).trim();
+  const normalizedEmail = String(email).trim().toLowerCase();
   const user = await User.findOne({
-    username: String(username).trim(),
-    email: String(email).trim().toLowerCase(),
+    username: normalizedUsername,
+    email: normalizedEmail,
   });
 
   if (!user) {
-    throw new AppError("Korisnik s tim podacima nije pronađen", 404);
+    return {
+      message: PASSWORD_RESET_REQUEST_MESSAGE,
+    };
   }
 
   const resetToken = crypto.randomBytes(32).toString("hex");
@@ -75,11 +90,10 @@ const requestPasswordReset = async ({ username, email }) => {
   user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000);
   await user.save({ validateBeforeSave: false });
 
+  logDevelopmentResetUrl(buildResetUrl(resetToken));
+
   return {
-    message: "Privremena poveznica za reset lozinke je kreirana.",
-    resetToken,
-    resetUrl: buildResetUrl(resetToken),
-    expiresAt: user.passwordResetExpires,
+    message: PASSWORD_RESET_REQUEST_MESSAGE,
   };
 };
 
@@ -88,8 +102,9 @@ const resetPassword = async ({ token, password }) => {
     throw new AppError("Nedostaje token ili nova lozinka", 400);
   }
 
+  const normalizedToken = String(token).trim();
   const user = await User.findOne({
-    passwordResetToken: hashResetToken(token),
+    passwordResetToken: hashResetToken(normalizedToken),
     passwordResetExpires: { $gt: new Date() },
   });
 

@@ -1,5 +1,6 @@
 const multer = require("multer");
 const path = require("path");
+const AppError = require("../utils/AppError");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -18,15 +19,12 @@ const fileFilter = (req, file, cb) => {
     "image/png",
     "image/gif",
     "image/webp",
-    "image/svg+xml",
   ];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(
-      new Error(
-        "Dozvoljeni su samo formati slika (JPEG, PNG, GIF, WebP, SVG).",
-      ),
+      new AppError("Dozvoljeni su samo JPEG, PNG, GIF i WebP formati slika.", 400),
       false,
     );
   }
@@ -35,7 +33,12 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+    fields: 20,
+    fieldSize: 200 * 1024,
+  },
 });
 
 module.exports = upload;

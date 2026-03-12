@@ -1,6 +1,10 @@
 const { Article } = require("../models/Article");
 const { ArticleBookmark } = require("../models/ArticleBookmark");
 const { Exercise } = require("../models/Exercise");
+const {
+  deleteUploadedRequestFile,
+  deleteUploadByPublicPath,
+} = require("../utils/uploadCleanup");
 const AppError = require("../utils/AppError");
 
 const normalizeBookmarkState = (bookmark) => ({
@@ -71,6 +75,9 @@ const normalizeArticlePayload = (payload) => {
 
   return normalized;
 };
+
+const buildArticleCoverImagePath = (file) =>
+  file ? `/uploads/articles/${file.filename}` : null;
 
 const getRelatedExercises = async (relatedExerciseIds) => {
   if (!Array.isArray(relatedExerciseIds) || relatedExerciseIds.length === 0) {
@@ -189,28 +196,52 @@ const getArticleById = async ({ articleId, userId }) => {
 const createArticle = async ({ payload, file }) => {
   const articleData = normalizeArticlePayload(payload);
   if (file) {
-    articleData.coverImage = `/uploads/articles/${file.filename}`;
+    articleData.coverImage = buildArticleCoverImagePath(file);
   }
 
-  return Article.create(articleData);
+  try {
+    return await Article.create(articleData);
+  } catch (error) {
+    await deleteUploadedRequestFile(file);
+    throw error;
+  }
 };
 
 const updateArticle = async ({ articleId, payload, file }) => {
-  const updateData = normalizeArticlePayload(payload);
-  if (file) {
-    updateData.coverImage = `/uploads/articles/${file.filename}`;
-  }
-
-  const article = await Article.findByIdAndUpdate(articleId, updateData, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!article) {
+  const existingArticle = await Article.findById(articleId);
+  if (!existingArticle) {
+    await deleteUploadedRequestFile(file);
     throw new AppError("Članak nije pronađen", 404);
   }
 
-  return article;
+  const updateData = normalizeArticlePayload(payload);
+  if (file) {
+    updateData.coverImage = buildArticleCoverImagePath(file);
+  }
+
+  try {
+    const article = await Article.findByIdAndUpdate(articleId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!article) {
+      await deleteUploadedRequestFile(file);
+      throw new AppError("Članak nije pronađen", 404);
+    }
+
+    if (
+      existingArticle.coverImage &&
+      existingArticle.coverImage !== article.coverImage
+    ) {
+      await deleteUploadByPublicPath(existingArticle.coverImage);
+    }
+
+    return article;
+  } catch (error) {
+    await deleteUploadedRequestFile(file);
+    throw error;
+  }
 };
 
 const deleteArticle = async ({ articleId }) => {
@@ -218,6 +249,8 @@ const deleteArticle = async ({ articleId }) => {
   if (!article) {
     throw new AppError("Članak nije pronađen", 404);
   }
+
+  await deleteUploadByPublicPath(article.coverImage);
 };
 
 const toggleBookmark = async ({ userId, articleId, shouldBookmark }) => {

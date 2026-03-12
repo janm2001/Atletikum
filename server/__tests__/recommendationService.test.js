@@ -19,6 +19,7 @@ jest.mock("../models/WorkoutLog", () => ({
 jest.mock("../models/QuizCompletion", () => ({
   QuizCompletion: {
     find: jest.fn(),
+    distinct: jest.fn(),
   },
 }));
 
@@ -63,6 +64,10 @@ describe("recommendationService", () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it("assembles weekly recommendations with bookmark-enriched articles", async () => {
     WorkoutLog.find.mockReturnValue(
       createSortLimitLeanQuery([
@@ -75,17 +80,8 @@ describe("recommendationService", () => {
         },
       ]),
     );
-    QuizCompletion.find
-      .mockReturnValueOnce({
-        sort: jest
-          .fn()
-          .mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
-      })
-      .mockReturnValueOnce({
-        sort: jest
-          .fn()
-          .mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
-      });
+    QuizCompletion.distinct.mockResolvedValue([]);
+    QuizCompletion.find.mockReturnValue(createSortLimitLeanQuery([]));
     Workout.find.mockReturnValue({
       populate: jest.fn().mockReturnValue({
         lean: jest.fn().mockResolvedValue([
@@ -99,11 +95,6 @@ describe("recommendationService", () => {
           },
         ]),
       }),
-    });
-    Exercise.find.mockReturnValue({
-      lean: jest
-        .fn()
-        .mockResolvedValue([{ _id: "exercise-1", title: "Squat" }]),
     });
     Article.find.mockReturnValue({
       select: jest.fn().mockReturnValue({
@@ -158,5 +149,74 @@ describe("recommendationService", () => {
     expect(result.nextSessionSuggestions).toEqual([
       { exerciseId: "exercise-1" },
     ]);
+    expect(QuizCompletion.distinct).toHaveBeenCalledWith("article", {
+      user: "user-1",
+    });
+    expect(Exercise.find).not.toHaveBeenCalled();
+  });
+
+  it("returns the oldest eligible revision completion in weekly recommendations", async () => {
+    jest.useFakeTimers().setSystemTime(new Date("2026-03-18T10:00:00.000Z"));
+    WorkoutLog.find.mockReturnValue(createSortLimitLeanQuery([]));
+    QuizCompletion.distinct.mockResolvedValue(["article-completed"]);
+    QuizCompletion.find.mockReturnValue(
+      createSortLimitLeanQuery([
+        {
+          article: "article-newer",
+          score: 4,
+          totalQuestions: 5,
+          completedAt: new Date("2026-03-05T10:00:00.000Z"),
+        },
+      ]),
+    );
+    Workout.find.mockReturnValue({
+      populate: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([]),
+      }),
+    });
+    Article.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue([]),
+          }),
+        }),
+      }),
+    });
+    articleService.getBookmarkMap.mockResolvedValue(new Map());
+    articleService.attachBookmarkState.mockReturnValue([]);
+    summarizePersonalBests.mockReturnValue([]);
+    buildNextSessionSuggestions.mockReturnValue([]);
+
+    const result = await recommendationService.getWeeklyRecommendations({
+      user: {
+        _id: "user-1",
+        focus: "snaga",
+        level: 3,
+        trainingFrequency: 3,
+      },
+    });
+
+    expect(QuizCompletion.distinct).toHaveBeenCalledWith("article", {
+      user: "user-1",
+    });
+    expect(QuizCompletion.find).toHaveBeenCalledWith(
+      {
+        user: "user-1",
+        completedAt: { $lte: new Date("2026-03-11T10:00:00.000Z") },
+      },
+      {
+        article: 1,
+        score: 1,
+        totalQuestions: 1,
+        completedAt: 1,
+      },
+    );
+    expect(result.revision).toEqual({
+      articleId: "article-newer",
+      lastScore: 4,
+      totalQuestions: 5,
+      completedAt: new Date("2026-03-05T10:00:00.000Z"),
+    });
   });
 });

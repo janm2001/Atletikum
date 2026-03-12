@@ -1,6 +1,7 @@
 const express = require("express");
 const quizController = require("../controllers/quizController");
 const { protect } = require("../middleware/authMiddleware");
+const { quizSubmissionLimiter } = require("../middleware/rateLimiters");
 const validate = require("../middleware/validate");
 const {
   validateQuizStatusRequest,
@@ -20,6 +21,7 @@ router.get(
 );
 router.post(
   "/:articleId/submit",
+  quizSubmissionLimiter,
   validate(validateSubmitQuizRequest),
   quizController.submitQuiz,
 );

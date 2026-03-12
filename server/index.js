@@ -2,11 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
 const sanitizeMongo = require("./middleware/sanitizeMongo");
 const errorHandler = require("./middleware/errorHandler");
 const hpp = require("hpp");
 const AppError = require("./utils/AppError");
+const { authLimiter } = require("./middleware/rateLimiters");
 const authRoutes = require("./routes/authRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
@@ -42,14 +42,6 @@ app.use(hpp());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: {
-    status: "fail",
-    message: "Previše zahtjeva s ove IP adrese. Pokušajte ponovo za 15 minuta.",
-  },
-});
 app.use("/api/v1/auth", authLimiter, authRoutes);
 
 app.use("/api/v1/exercises", exerciseRoutes);

@@ -27,11 +27,6 @@ exports.requestPasswordReset = asyncHandler(async (req, res) => {
   res.status(200).json({
     status: "success",
     message: result.message,
-    data: {
-      resetToken: result.resetToken,
-      resetUrl: result.resetUrl,
-      expiresAt: result.expiresAt,
-    },
   });
 });
 

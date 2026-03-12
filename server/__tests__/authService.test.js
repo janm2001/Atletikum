@@ -34,6 +34,7 @@ describe("authService", () => {
     jest.clearAllMocks();
     process.env.JWT_SECRET = "test-secret";
     process.env.CLIENT_URL = "http://localhost:5173";
+    process.env.NODE_ENV = "test";
 
     crypto.createHash.mockReturnValue({
       update: jest.fn().mockReturnValue({
@@ -121,12 +122,25 @@ describe("authService", () => {
       email: "jan@example.com",
     });
     expect(save).toHaveBeenCalledWith({ validateBeforeSave: false });
-    expect(result).toEqual(
-      expect.objectContaining({
-        resetToken: "raw-reset-token",
-        resetUrl: "http://localhost:5173/reset-lozinka/raw-reset-token",
-      }),
-    );
+    expect(result).toEqual({
+      message:
+        "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.",
+    });
+  });
+
+  it("returns the same generic reset response when no matching user exists", async () => {
+    User.findOne.mockResolvedValue(null);
+
+    const result = await authService.requestPasswordReset({
+      username: "jan",
+      email: "jan@example.com",
+    });
+
+    expect(result).toEqual({
+      message:
+        "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.",
+    });
+    expect(crypto.randomBytes).not.toHaveBeenCalled();
   });
 
   it("resets password for a valid non-expired reset token", async () => {

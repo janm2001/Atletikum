@@ -6,6 +6,10 @@ const { Exercise } = require("../models/Exercise");
 const articleService = require("./articleService");
 const { requireUserId } = require("../utils/userIdentity");
 const {
+  buildRevisionEligibilityFilter,
+  selectOldestEligibleRevisionCompletion,
+} = require("../utils/quizTiming");
+const {
   summarizePersonalBests,
   buildNextSessionSuggestions,
 } = require("../utils/workoutMetrics");
@@ -28,22 +32,36 @@ const FOCUS_CONFIG = {
   },
 };
 
-const getRevisionRecommendation = async (userId) => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+const WORKOUT_LOG_PROJECTION = {
+  date: 1,
+  workoutId: 1,
+  workout: 1,
+  readinessScore: 1,
+  sessionFeedbackScore: 1,
+  completedExercises: 1,
+};
 
-  const oldCompletions = await QuizCompletion.find({
-    user: userId,
-    completedAt: { $lte: sevenDaysAgo },
-  })
+const REVISION_COMPLETION_PROJECTION = {
+  article: 1,
+  score: 1,
+  totalQuestions: 1,
+  completedAt: 1,
+};
+
+const getRevisionRecommendation = async (userId) => {
+  const oldCompletions = await QuizCompletion.find(
+    buildRevisionEligibilityFilter({ userId }),
+    REVISION_COMPLETION_PROJECTION,
+  )
     .sort({ completedAt: 1 })
+    .limit(1)
     .lean();
 
-  if (oldCompletions.length === 0) {
+  const revision = selectOldestEligibleRevisionCompletion(oldCompletions);
+  if (!revision) {
     return null;
   }
 
-  const revision = oldCompletions[0];
   return {
     articleId: String(revision.article),
     lastScore: revision.score,
@@ -87,51 +105,117 @@ const getCompletedThisWeek = (recentLogs) => {
   }).length;
 };
 
+const buildExerciseNameById = async ({ availableWorkouts, recentLogs }) => {
+  const exerciseNameById = new Map();
+  const missingExerciseIds = new Set();
+
+  const registerExerciseName = (exerciseId, title) => {
+    const normalizedExerciseId = String(exerciseId ?? "");
+    if (!normalizedExerciseId) {
+      return;
+    }
+
+    if (title) {
+      exerciseNameById.set(normalizedExerciseId, title);
+      missingExerciseIds.delete(normalizedExerciseId);
+      return;
+    }
+
+    if (!exerciseNameById.has(normalizedExerciseId)) {
+      missingExerciseIds.add(normalizedExerciseId);
+    }
+  };
+
+  availableWorkouts.forEach((workout) => {
+    (workout.exercises ?? []).forEach((exercise) => {
+      const exerciseReference = exercise.exerciseId;
+      registerExerciseName(
+        exerciseReference?._id ?? exerciseReference,
+        exerciseReference?.title,
+      );
+    });
+  });
+
+  recentLogs.forEach((log) => {
+    (log.completedExercises ?? []).forEach((exercise) => {
+      registerExerciseName(exercise.exerciseId);
+    });
+  });
+
+  if (missingExerciseIds.size === 0) {
+    return exerciseNameById;
+  }
+
+  const exerciseDocs = await Exercise.find(
+    { _id: { $in: [...missingExerciseIds] } },
+    { title: 1 },
+  ).lean();
+
+  exerciseDocs.forEach((exercise) => {
+    exerciseNameById.set(String(exercise._id), exercise.title);
+  });
+
+  return exerciseNameById;
+};
+
 const getWeeklyRecommendations = async ({ user, userId }) => {
   const normalizedUserId = requireUserId({ userId, user });
   const focusConfig = FOCUS_CONFIG[user.focus] ?? FOCUS_CONFIG.snaga;
 
-  const recentLogs = await WorkoutLog.find({ user: normalizedUserId })
+  const recentLogsQuery = WorkoutLog.find(
+    { user: normalizedUserId },
+    WORKOUT_LOG_PROJECTION,
+  )
     .sort({ date: -1 })
     .limit(8)
     .lean();
-  const completedQuizzes = await QuizCompletion.find({ user: normalizedUserId })
-    .sort({ completedAt: -1 })
-    .lean();
-  const availableWorkouts = await Workout.find({
+  const completedQuizArticleIdsQuery = QuizCompletion.distinct("article", {
+    user: normalizedUserId,
+  });
+  const availableWorkoutsQuery = Workout.find({
     requiredLevel: { $lte: user.level },
   })
     .populate("exercises.exerciseId", "title imageLink")
     .lean();
 
-  const exerciseIds = new Set();
-  availableWorkouts.forEach((workout) => {
-    (workout.exercises ?? []).forEach((exercise) => {
-      exerciseIds.add(String(exercise.exerciseId?._id ?? exercise.exerciseId));
-    });
-  });
-  recentLogs.forEach((log) => {
-    (log.completedExercises ?? []).forEach((exercise) => {
-      exerciseIds.add(String(exercise.exerciseId));
-    });
-  });
-
-  const exerciseDocs = await Exercise.find(
-    { _id: { $in: [...exerciseIds] } },
-    { title: 1 },
-  ).lean();
-  const exerciseNameById = new Map(
-    exerciseDocs.map((exercise) => [String(exercise._id), exercise.title]),
-  );
+  const [recentLogs, completedQuizArticleIds, availableWorkouts] =
+    await Promise.all([
+      recentLogsQuery,
+      completedQuizArticleIdsQuery,
+      availableWorkoutsQuery,
+    ]);
 
   const completedArticleIds = new Set(
-    completedQuizzes.map((completion) => String(completion.article)),
+    completedQuizArticleIds.map((articleId) => String(articleId)),
   );
   const recentWorkoutIds = new Set(
     recentLogs
       .map((log) => (log.workoutId ? String(log.workoutId) : null))
       .filter(Boolean),
   );
+
+  const exerciseNameByIdPromise = buildExerciseNameById({
+    availableWorkouts,
+    recentLogs,
+  });
+  const revisionPromise = getRevisionRecommendation(normalizedUserId);
+  const enrichedRecommendedArticlesPromise = (async () => {
+    const recommendedArticles = await Article.find({
+      tag: { $in: focusConfig.articleTags },
+      _id: { $nin: [...completedArticleIds] },
+    })
+      .select("-quiz")
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .lean();
+
+    const bookmarkMap = await articleService.getBookmarkMap(
+      normalizedUserId,
+      recommendedArticles.map((article) => article._id),
+    );
+
+    return articleService.attachBookmarkState(recommendedArticles, bookmarkMap);
+  })();
 
   const readiness = calculateReadiness(recentLogs);
   const recommendedWorkouts = availableWorkouts
@@ -160,25 +244,12 @@ const getWeeklyRecommendations = async ({ user, userId }) => {
     )
     .slice(0, Math.max(1, Math.min(user.trainingFrequency || 3, 3)));
 
-  const recommendedArticles = await Article.find({
-    tag: { $in: focusConfig.articleTags },
-    _id: { $nin: [...completedArticleIds] },
-  })
-    .select("-quiz")
-    .sort({ createdAt: -1 })
-    .limit(3)
-    .lean();
-
-  const bookmarkMap = await articleService.getBookmarkMap(
-    normalizedUserId,
-    recommendedArticles.map((article) => article._id),
-  );
-  const enrichedRecommendedArticles = articleService.attachBookmarkState(
-    recommendedArticles,
-    bookmarkMap,
-  );
-
-  const revision = await getRevisionRecommendation(normalizedUserId);
+  const [exerciseNameById, revision, enrichedRecommendedArticles] =
+    await Promise.all([
+      exerciseNameByIdPromise,
+      revisionPromise,
+      enrichedRecommendedArticlesPromise,
+    ]);
   const personalBestSummaries = summarizePersonalBests(
     recentLogs,
     exerciseNameById,

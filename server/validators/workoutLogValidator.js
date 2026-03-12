@@ -1,12 +1,15 @@
-const mongoose = require("mongoose");
 const AppError = require("../utils/AppError");
+const {
+  validateNumberInRange,
+  validateObjectId,
+  validateOptionalNonNegativeNumber,
+  validatePositiveNumber,
+} = require("../utils/validationHelpers");
 
 const validateCreateWorkoutLogRequest = (request) => {
   const { workoutId, completedExercises } = request.body ?? {};
 
-  if (!mongoose.Types.ObjectId.isValid(workoutId)) {
-    throw new AppError("Workout nije valjan.", 400);
-  }
+  validateObjectId(workoutId, "Workout");
 
   if (!Array.isArray(completedExercises) || completedExercises.length === 0) {
     throw new AppError("Workout i odrađeni setovi su obavezni.", 400);
@@ -24,32 +27,21 @@ const validateCreateWorkoutLogRequest = (request) => {
       );
     }
 
-    const resultValue = Number(exercise.resultValue ?? exercise.reps ?? NaN);
-    if (!Number.isFinite(resultValue) || resultValue <= 0) {
-      throw new AppError(
-        `Rezultat za vježbu ${index + 1} mora biti veći od 0.`,
-        400,
-      );
-    }
+    validatePositiveNumber(
+      exercise.resultValue ?? exercise.reps ?? NaN,
+      `Rezultat za vježbu ${index + 1} mora biti veći od 0.`,
+    );
 
-    const rpe = Number(exercise.rpe ?? NaN);
-    if (!Number.isFinite(rpe) || rpe < 1 || rpe > 10) {
-      throw new AppError(
-        `RPE za vježbu ${index + 1} mora biti između 1 i 10.`,
-        400,
-      );
-    }
+    validateNumberInRange(exercise.rpe ?? NaN, {
+      min: 1,
+      max: 10,
+      message: `RPE za vježbu ${index + 1} mora biti između 1 i 10.`,
+    });
 
-    const rawLoad = exercise.loadKg ?? exercise.weight;
-    if (rawLoad !== undefined && rawLoad !== null && rawLoad !== "") {
-      const load = Number(rawLoad);
-      if (!Number.isFinite(load) || load < 0) {
-        throw new AppError(
-          `Opterećenje za vježbu ${index + 1} ne može biti negativno.`,
-          400,
-        );
-      }
-    }
+    validateOptionalNonNegativeNumber(
+      exercise.loadKg ?? exercise.weight,
+      `Opterećenje za vježbu ${index + 1} ne može biti negativno.`,
+    );
   });
 };
 

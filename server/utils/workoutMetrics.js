@@ -3,9 +3,15 @@ const METRIC_TYPE = {
   DISTANCE: "distance",
   TIME: "time",
 };
+const {
+  validateNumberInRange,
+  validateOptionalNonNegativeNumber,
+  validatePositiveNumber,
+} = require("./validationHelpers");
 
 const DISTANCE_REGEX = /(\d+(?:[.,]\d+)?)\s*(m|meter|metara|metar)$/i;
 const TIME_REGEX = /(\d+(?:[.,]\d+)?)\s*(s|sec|sek|sekundi|min|minute)$/i;
+const createMetricError = (message) => new Error(message);
 
 const parseWorkoutMetric = (prescription) => {
   const normalized = String(prescription ?? "").trim();
@@ -35,25 +41,22 @@ const parseWorkoutMetric = (prescription) => {
 
 const normalizeCompletedExercise = (exercise, workoutExercise) => {
   const { metricType, unitLabel } = parseWorkoutMetric(workoutExercise.reps);
-  const resultValue = Number(exercise.resultValue ?? exercise.reps ?? 0);
-  const loadSource = exercise.loadKg ?? exercise.weight;
-  const loadKg =
-    loadSource === null || loadSource === undefined || loadSource === ""
-      ? null
-      : Number(loadSource);
-  const rpe = Number(exercise.rpe ?? 0);
-
-  if (!Number.isFinite(resultValue) || resultValue <= 0) {
-    throw new Error("Vrijednost seta mora biti veća od 0.");
-  }
-
-  if (!Number.isFinite(rpe) || rpe < 1 || rpe > 10) {
-    throw new Error("RPE mora biti između 1 i 10.");
-  }
-
-  if (loadKg !== null && (!Number.isFinite(loadKg) || loadKg < 0)) {
-    throw new Error("Opterećenje ne može biti negativno.");
-  }
+  const resultValue = validatePositiveNumber(
+    exercise.resultValue ?? exercise.reps ?? 0,
+    "Vrijednost seta mora biti veća od 0.",
+    createMetricError,
+  );
+  const loadKg = validateOptionalNonNegativeNumber(
+    exercise.loadKg ?? exercise.weight,
+    "Opterećenje ne može biti negativno.",
+    createMetricError,
+  );
+  const rpe = validateNumberInRange(exercise.rpe ?? 0, {
+    min: 1,
+    max: 10,
+    message: "RPE mora biti između 1 i 10.",
+    createError: createMetricError,
+  });
 
   return {
     exerciseId: String(exercise.exerciseId),

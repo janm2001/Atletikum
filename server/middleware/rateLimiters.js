@@ -1,0 +1,72 @@
+const rateLimit = require("express-rate-limit");
+const { ipKeyGenerator } = require("express-rate-limit");
+
+const standardRateLimitOptions = {
+  legacyHeaders: false,
+  standardHeaders: "draft-6",
+};
+
+const createRateLimitMessage = (message) => ({
+  status: "fail",
+  message,
+});
+
+const getUserRateLimitKey = (request) =>
+  request.userId ? `user:${request.userId}` : ipKeyGenerator(request.ip);
+
+const authLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: createRateLimitMessage(
+    "Previše zahtjeva s ove IP adrese. Pokušajte ponovo za 15 minuta.",
+  ),
+});
+
+const quizSubmissionLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše predaja kviza. Pokušajte ponovo za 1 sat.",
+  ),
+});
+
+const recommendationLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše zahtjeva za preporuke. Pokušajte ponovo za 15 minuta.",
+  ),
+});
+
+const articleMutationLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše izmjena članaka. Pokušajte ponovo za 1 sat.",
+  ),
+});
+
+const workoutLogCreationLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše spremanja treninga. Pokušajte ponovo za 1 sat.",
+  ),
+});
+
+module.exports = {
+  authLimiter,
+  articleMutationLimiter,
+  quizSubmissionLimiter,
+  recommendationLimiter,
+  workoutLogCreationLimiter,
+};

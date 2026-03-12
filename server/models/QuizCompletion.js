@@ -16,6 +16,8 @@ const quizCompletionSchema = new mongoose.Schema({
 });
 
 quizCompletionSchema.index({ user: 1, article: 1 });
+quizCompletionSchema.index({ user: 1, completedAt: -1 });
+quizCompletionSchema.index({ user: 1, article: 1, completedAt: -1 });
 
 const QuizCompletion = mongoose.model("QuizCompletion", quizCompletionSchema);
 

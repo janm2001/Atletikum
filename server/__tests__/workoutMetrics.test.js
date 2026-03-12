@@ -40,6 +40,50 @@ describe("workout metrics", () => {
     expect(normalized.loadKg).toBeNull();
   });
 
+  it("rejects completed exercises with a non-positive result", () => {
+    expect(() =>
+      normalizeCompletedExercise(
+        {
+          exerciseId: "exercise-1",
+          resultValue: 0,
+          rpe: 7,
+        },
+        {
+          reps: "8",
+        },
+      ),
+    ).toThrow("Vrijednost seta mora biti veća od 0.");
+  });
+
+  it("rejects completed exercises with invalid rpe or load", () => {
+    expect(() =>
+      normalizeCompletedExercise(
+        {
+          exerciseId: "exercise-1",
+          resultValue: 8,
+          rpe: 11,
+        },
+        {
+          reps: "8",
+        },
+      ),
+    ).toThrow("RPE mora biti između 1 i 10.");
+
+    expect(() =>
+      normalizeCompletedExercise(
+        {
+          exerciseId: "exercise-1",
+          resultValue: 8,
+          rpe: 7,
+          loadKg: -5,
+        },
+        {
+          reps: "8",
+        },
+      ),
+    ).toThrow("Opterećenje ne može biti negativno.");
+  });
+
   it("calculates xp from completed coverage", () => {
     const workout = {
       exercises: [

@@ -1,6 +1,7 @@
 const express = require("express");
 const articleController = require("../controllers/articleController");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
+const { articleMutationLimiter } = require("../middleware/rateLimiters");
 const upload = require("../middleware/upload");
 
 const router = express.Router();
@@ -12,6 +13,7 @@ router
   .get(articleController.getAllArticles)
   .post(
     restrictTo("admin"),
+    articleMutationLimiter,
     upload.single("thumbnail"),
     articleController.createArticle,
   );
@@ -28,9 +30,14 @@ router
   .get(articleController.getArticleById)
   .patch(
     restrictTo("admin"),
+    articleMutationLimiter,
     upload.single("thumbnail"),
     articleController.updateArticle,
   )
-  .delete(restrictTo("admin"), articleController.deleteArticle);
+  .delete(
+    restrictTo("admin"),
+    articleMutationLimiter,
+    articleController.deleteArticle,
+  );
 
 module.exports = router;

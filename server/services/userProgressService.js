@@ -6,6 +6,24 @@ const { updateDailyStreak } = require("../utils/updateDailyStreak");
 const { attachSession, saveWithSession } = require("../utils/mongoTransaction");
 const { requireUserId } = require("../utils/userIdentity");
 
+const loadUser = (userId, session) =>
+  attachSession(User.findById(userId), session);
+
+const applyExperienceGain = async ({ user, brainXp, bodyXp, session }) => {
+  if (!user || (brainXp === 0 && bodyXp === 0)) {
+    return user;
+  }
+
+  user.brainXp += brainXp;
+  user.bodyXp += bodyXp;
+  user.totalXp = user.brainXp + user.bodyXp;
+  user.level = getLevelFromTotalXp(user.totalXp);
+
+  await saveWithSession(user, session);
+
+  return user;
+};
+
 const applyUserProgress = async ({
   userId,
   brainXp = 0,
@@ -15,15 +33,14 @@ const applyUserProgress = async ({
   session = null,
 }) => {
   const normalizedUserId = requireUserId({ userId });
-  let user = await attachSession(User.findById(normalizedUserId), session);
+  let user = await loadUser(normalizedUserId, session);
 
-  if (user && (brainXp !== 0 || bodyXp !== 0)) {
-    user.brainXp += brainXp;
-    user.bodyXp += bodyXp;
-    user.totalXp = user.brainXp + user.bodyXp;
-    user.level = getLevelFromTotalXp(user.totalXp);
-    await saveWithSession(user, session);
-  }
+  user = await applyExperienceGain({
+    user,
+    brainXp,
+    bodyXp,
+    session,
+  });
 
   if (shouldUpdateStreak) {
     user =
@@ -35,10 +52,8 @@ const applyUserProgress = async ({
     ? await checkAndUnlockAchievements(normalizedUserId, { session, user })
     : [];
 
-  const freshUser = await attachSession(User.findById(normalizedUserId), session);
-
   return {
-    user: sanitizeUser(freshUser),
+    user: sanitizeUser(user),
     newAchievements,
   };
 };

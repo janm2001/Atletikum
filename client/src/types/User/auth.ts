@@ -25,10 +25,4 @@ export type StatusResponse = {
     message: string;
 };
 
-export type PasswordResetRequestResponse = StatusResponse & {
-    data: {
-        resetToken: string;
-        resetUrl: string;
-        expiresAt: string;
-    };
-};
+export type PasswordResetRequestResponse = StatusResponse;
