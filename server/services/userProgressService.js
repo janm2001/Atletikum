@@ -3,6 +3,7 @@ const { getLevelFromTotalXp } = require("../utils/leveling");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
 const { updateDailyStreak } = require("../utils/updateDailyStreak");
+const { requireUserId } = require("../utils/userIdentity");
 
 const applyUserProgress = async ({
   userId,
@@ -11,7 +12,8 @@ const applyUserProgress = async ({
   shouldUpdateStreak = false,
   shouldUnlockAchievements = false,
 }) => {
-  const user = await User.findById(userId);
+  const normalizedUserId = requireUserId({ userId });
+  const user = await User.findById(normalizedUserId);
 
   if (user && (brainXp !== 0 || bodyXp !== 0)) {
     user.brainXp += brainXp;
@@ -22,14 +24,14 @@ const applyUserProgress = async ({
   }
 
   if (shouldUpdateStreak) {
-    await updateDailyStreak(userId);
+    await updateDailyStreak(normalizedUserId);
   }
 
   const newAchievements = shouldUnlockAchievements
-    ? await checkAndUnlockAchievements(userId.toString())
+    ? await checkAndUnlockAchievements(normalizedUserId)
     : [];
 
-  const freshUser = await User.findById(userId);
+  const freshUser = await User.findById(normalizedUserId);
 
   return {
     user: sanitizeUser(freshUser),

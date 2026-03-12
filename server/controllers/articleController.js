@@ -3,7 +3,7 @@ const articleService = require("../services/articleService");
 
 exports.getAllArticles = asyncHandler(async (req, res) => {
   const articles = await articleService.getAllArticles({
-    userId: req.user._id.toString(),
+    userId: req.userId,
     query: req.query,
   });
 
@@ -17,7 +17,7 @@ exports.getAllArticles = asyncHandler(async (req, res) => {
 exports.getArticleById = asyncHandler(async (req, res) => {
   const article = await articleService.getArticleById({
     articleId: req.params.id,
-    userId: req.user._id.toString(),
+    userId: req.userId,
   });
 
   res.status(200).json({
@@ -52,7 +52,7 @@ exports.deleteArticle = asyncHandler(async (req, res) => {
 
 exports.toggleBookmark = asyncHandler(async (req, res) => {
   const bookmark = await articleService.toggleBookmark({
-    userId: req.user._id.toString(),
+    userId: req.userId,
     articleId: req.params.id,
     shouldBookmark: true,
   });
@@ -65,7 +65,7 @@ exports.toggleBookmark = asyncHandler(async (req, res) => {
 
 exports.removeBookmark = asyncHandler(async (req, res) => {
   const bookmark = await articleService.toggleBookmark({
-    userId: req.user._id.toString(),
+    userId: req.userId,
     articleId: req.params.id,
     shouldBookmark: false,
   });
@@ -78,7 +78,7 @@ exports.removeBookmark = asyncHandler(async (req, res) => {
 
 exports.updateReadingProgress = asyncHandler(async (req, res) => {
   const bookmark = await articleService.updateReadingProgress({
-    userId: req.user._id.toString(),
+    userId: req.userId,
     articleId: req.params.id,
     payload: req.body,
   });

@@ -1,14 +1,15 @@
 const { User } = require("../models/User");
 const { sanitizeUser } = require("../utils/sanitizeUser");
+const { requireUserId } = require("../utils/userIdentity");
 
-const getLeaderboard = async (currentUser) => {
+const getLeaderboard = async ({ currentUser, currentUserId }) => {
   const topUsers = await User.find()
     .sort({ totalXp: -1 })
     .limit(50)
     .select("username level totalXp brainXp bodyXp profilePicture dailyStreak")
     .lean();
 
-  const userId = currentUser._id.toString();
+  const userId = requireUserId({ userId: currentUserId, user: currentUser });
   const myIndex = topUsers.findIndex((user) => user._id.toString() === userId);
 
   let myRank = null;

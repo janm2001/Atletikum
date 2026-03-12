@@ -4,6 +4,7 @@ const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");
 const { Exercise } = require("../models/Exercise");
 const articleService = require("./articleService");
+const { requireUserId } = require("../utils/userIdentity");
 const {
   summarizePersonalBests,
   buildNextSessionSuggestions,
@@ -86,15 +87,15 @@ const getCompletedThisWeek = (recentLogs) => {
   }).length;
 };
 
-const getWeeklyRecommendations = async ({ user }) => {
-  const userId = user._id.toString();
+const getWeeklyRecommendations = async ({ user, userId }) => {
+  const normalizedUserId = requireUserId({ userId, user });
   const focusConfig = FOCUS_CONFIG[user.focus] ?? FOCUS_CONFIG.snaga;
 
-  const recentLogs = await WorkoutLog.find({ user: userId })
+  const recentLogs = await WorkoutLog.find({ user: normalizedUserId })
     .sort({ date: -1 })
     .limit(8)
     .lean();
-  const completedQuizzes = await QuizCompletion.find({ user: userId })
+  const completedQuizzes = await QuizCompletion.find({ user: normalizedUserId })
     .sort({ completedAt: -1 })
     .lean();
   const availableWorkouts = await Workout.find({
@@ -169,7 +170,7 @@ const getWeeklyRecommendations = async ({ user }) => {
     .lean();
 
   const bookmarkMap = await articleService.getBookmarkMap(
-    userId,
+    normalizedUserId,
     recommendedArticles.map((article) => article._id),
   );
   const enrichedRecommendedArticles = articleService.attachBookmarkState(
@@ -177,7 +178,7 @@ const getWeeklyRecommendations = async ({ user }) => {
     bookmarkMap,
   );
 
-  const revision = await getRevisionRecommendation(userId);
+  const revision = await getRevisionRecommendation(normalizedUserId);
   const personalBestSummaries = summarizePersonalBests(
     recentLogs,
     exerciseNameById,

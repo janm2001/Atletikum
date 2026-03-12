@@ -3,7 +3,7 @@ const quizService = require("../services/quizService");
 
 exports.getQuizStatus = asyncHandler(async (req, res) => {
   const quizStatus = await quizService.getQuizStatus({
-    userId: req.user._id.toString(),
+    userId: req.userId,
     articleId: req.params.articleId,
   });
 
@@ -12,7 +12,7 @@ exports.getQuizStatus = asyncHandler(async (req, res) => {
 
 exports.submitQuiz = asyncHandler(async (req, res) => {
   const result = await quizService.submitQuiz({
-    userId: req.user._id.toString(),
+    userId: req.userId,
     articleId: req.params.articleId,
     submittedAnswers: req.body.submittedAnswers,
   });
@@ -25,7 +25,7 @@ exports.submitQuiz = asyncHandler(async (req, res) => {
 
 exports.getMyCompletions = asyncHandler(async (req, res) => {
   const completions = await quizService.getMyCompletions({
-    userId: req.user._id.toString(),
+    userId: req.userId,
   });
 
   res.status(200).json({
@@ -36,7 +36,7 @@ exports.getMyCompletions = asyncHandler(async (req, res) => {
 
 exports.getRevisionQuiz = asyncHandler(async (req, res) => {
   const revision = await quizService.getRevisionQuiz({
-    userId: req.user._id.toString(),
+    userId: req.userId,
   });
 
   res.status(200).json({

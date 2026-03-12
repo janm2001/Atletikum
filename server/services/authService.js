@@ -2,11 +2,12 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models/User");
+const { getClientUrl, getJwtSecret } = require("../config/env");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const AppError = require("../utils/AppError");
 
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id }, getJwtSecret(), { expiresIn: "7d" });
 };
 
 const hashResetToken = (token) => {
@@ -14,10 +15,7 @@ const hashResetToken = (token) => {
 };
 
 const buildResetUrl = (resetToken) => {
-  const clientUrl = (process.env.CLIENT_URL || "http://localhost:5173").replace(
-    /\/$/,
-    "",
-  );
+  const clientUrl = getClientUrl();
   return `${clientUrl}/reset-lozinka/${resetToken}`;
 };
 

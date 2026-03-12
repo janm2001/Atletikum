@@ -3,7 +3,7 @@ const workoutLogService = require("../services/workoutLogService");
 
 exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
   const workoutLogs = await workoutLogService.getMyWorkoutLogs({
-    userId: req.user._id.toString(),
+    userId: req.userId,
   });
 
   res.status(200).json({
@@ -16,6 +16,7 @@ exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
 exports.createWorkoutLog = asyncHandler(async (req, res) => {
   const result = await workoutLogService.createWorkoutLog({
     user: req.user,
+    userId: req.userId,
     payload: req.body,
   });
 

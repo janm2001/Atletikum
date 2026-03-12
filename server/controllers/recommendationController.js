@@ -4,6 +4,7 @@ const recommendationService = require("../services/recommendationService");
 exports.getWeeklyRecommendations = asyncHandler(async (req, res) => {
   const recommendations = await recommendationService.getWeeklyRecommendations({
     user: req.user,
+    userId: req.userId,
   });
 
   res.status(200).json({

@@ -3,9 +3,11 @@ const { User } = require("../models/User");
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");
 const { getLevelFromTotalXp } = require("./leveling");
+const { requireUserId } = require("./userIdentity");
 
 const checkAndUnlockAchievements = async (userId) => {
-  const user = await User.findById(userId);
+  const normalizedUserId = requireUserId({ userId });
+  const user = await User.findById(normalizedUserId);
   if (!user) return [];
 
   const allAchievements = await Achievement.find();
@@ -14,9 +16,9 @@ const checkAndUnlockAchievements = async (userId) => {
   );
 
   const [workoutCount, quizCount, quizCompletions] = await Promise.all([
-    WorkoutLog.countDocuments({ user: userId.toString() }),
-    QuizCompletion.countDocuments({ user: userId.toString() }),
-    QuizCompletion.find({ user: userId.toString() })
+    WorkoutLog.countDocuments({ user: normalizedUserId }),
+    QuizCompletion.countDocuments({ user: normalizedUserId }),
+    QuizCompletion.find({ user: normalizedUserId })
       .sort({ completedAt: -1 })
       .limit(50)
       .lean(),
@@ -33,11 +35,11 @@ const checkAndUnlockAchievements = async (userId) => {
 
   const [todayWorkout, todayQuiz] = await Promise.all([
     WorkoutLog.exists({
-      user: userId.toString(),
+      user: normalizedUserId,
       date: { $gte: today, $lt: tomorrow },
     }),
     QuizCompletion.exists({
-      user: userId.toString(),
+      user: normalizedUserId,
       completedAt: { $gte: today, $lt: tomorrow },
     }),
   ]);

@@ -6,6 +6,7 @@ const {
   calculateWorkoutXp,
   flagPersonalBests,
 } = require("../utils/workoutMetrics");
+const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { syncWorkoutProgressions } = require("./progressionService");
 
@@ -13,7 +14,8 @@ const getMyWorkoutLogs = async ({ userId }) => {
   return WorkoutLog.find({ user: userId }).sort({ date: -1 });
 };
 
-const createWorkoutLog = async ({ user, payload }) => {
+const createWorkoutLog = async ({ user, userId, payload }) => {
+  const normalizedUserId = requireUserId({ userId, user });
   const { workoutId, completedExercises } = payload;
 
   const workoutDoc = await Workout.findById(workoutId).lean();
@@ -23,7 +25,7 @@ const createWorkoutLog = async ({ user, payload }) => {
 
   const createdBy = workoutDoc.createdBy ? String(workoutDoc.createdBy) : null;
   const isGlobal = createdBy === null;
-  const isOwner = createdBy === String(user._id);
+  const isOwner = createdBy === normalizedUserId;
   const isAdmin = user.role === "admin";
 
   if (!isGlobal && !isOwner && !isAdmin) {
@@ -53,7 +55,7 @@ const createWorkoutLog = async ({ user, payload }) => {
   });
 
   const previousLogs = await WorkoutLog.find({
-    user: user._id.toString(),
+    user: normalizedUserId,
     "completedExercises.exerciseId": {
       $in: normalizedExercises.map((exercise) => exercise.exerciseId),
     },
@@ -72,7 +74,7 @@ const createWorkoutLog = async ({ user, payload }) => {
   const xpGain = calculateWorkoutXp(workoutDoc, completedWithPersonalBests);
 
   const workoutLog = await WorkoutLog.create({
-    user: user._id.toString(),
+    user: normalizedUserId,
     workoutId: workoutDoc._id,
     workout: workoutDoc.title,
     requiredLevel: workoutDoc.requiredLevel,
@@ -81,13 +83,13 @@ const createWorkoutLog = async ({ user, payload }) => {
   });
 
   await syncWorkoutProgressions({
-    userId: user._id,
+    userId: normalizedUserId,
     workout: workoutDoc,
     completedExercises: completedWithPersonalBests,
   });
 
   const progress = await applyUserProgress({
-    userId: user._id,
+    userId: normalizedUserId,
     bodyXp: xpGain,
     shouldUpdateStreak: true,
     shouldUnlockAchievements: true,

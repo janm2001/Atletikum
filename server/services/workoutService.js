@@ -1,4 +1,5 @@
 const AppError = require("../utils/AppError");
+const { requireUserId } = require("../utils/userIdentity");
 const { Workout } = require("../models/Workout");
 const {
   attachWorkoutProgressions,
@@ -38,31 +39,31 @@ const ensureValidWorkoutProgressionConfig = (payload = {}) => {
   }
 };
 
-const ensureCanManageWorkout = ({ workout, user }) => {
-  const isAdmin = user?.role === "admin";
+const ensureCanManageWorkout = ({ workout, userId, userRole }) => {
+  const isAdmin = userRole === "admin";
   const createdBy = workout.createdBy ? String(workout.createdBy) : null;
-  const isOwner = createdBy && createdBy === String(user?._id);
+  const isOwner = createdBy && createdBy === userId;
 
   if (!isAdmin && !isOwner) {
     throw new AppError("Nemate dozvolu za upravljanje ovim treningom.", 403);
   }
 };
 
-const buildWorkoutFilter = ({ user, scope = "available" }) => {
+const buildWorkoutFilter = ({ userId, userRole, scope = "available" }) => {
   if (scope === "global") {
     return GLOBAL_WORKOUT_FILTER;
   }
 
   if (scope === "mine") {
-    return { createdBy: user._id };
+    return { createdBy: userId };
   }
 
-  if (scope === "all" && user?.role === "admin") {
+  if (scope === "all" && userRole === "admin") {
     return {};
   }
 
   return {
-    $or: [GLOBAL_WORKOUT_FILTER, { createdBy: user._id }],
+    $or: [GLOBAL_WORKOUT_FILTER, { createdBy: userId }],
   };
 };
 
@@ -77,18 +78,26 @@ const normalizeWorkoutPayload = ({ payload = {}, createdBy }) => {
   };
 };
 
-const getAllWorkouts = async ({ user, scope }) => {
-  const workouts = await Workout.find(buildWorkoutFilter({ user, scope }))
+const getAllWorkouts = async ({ user, userId, scope }) => {
+  const normalizedUserId = requireUserId({ userId, user });
+  const workouts = await Workout.find(
+    buildWorkoutFilter({
+      userId: normalizedUserId,
+      userRole: user?.role,
+      scope,
+    }),
+  )
     .populate(...workoutListPopulate)
     .sort({ createdBy: 1, requiredLevel: 1, title: 1 });
 
   return attachWorkoutProgressions({
-    userId: user?._id,
+    userId: normalizedUserId,
     workouts,
   });
 };
 
-const getWorkoutById = async ({ workoutId, user }) => {
+const getWorkoutById = async ({ workoutId, user, userId }) => {
+  const normalizedUserId = requireUserId({ userId, user });
   const workout = await Workout.findById(workoutId).populate(
     ...workoutListPopulate,
   );
@@ -99,7 +108,7 @@ const getWorkoutById = async ({ workoutId, user }) => {
 
   const createdBy = workout.createdBy ? String(workout.createdBy) : null;
   const isGlobal = createdBy === null;
-  const isOwner = createdBy === String(user?._id);
+  const isOwner = createdBy === normalizedUserId;
   const isAdmin = user?.role === "admin";
 
   if (!isGlobal && !isOwner && !isAdmin) {
@@ -107,7 +116,7 @@ const getWorkoutById = async ({ workoutId, user }) => {
   }
 
   const [enrichedWorkout] = await attachWorkoutProgressions({
-    userId: user?._id,
+    userId: normalizedUserId,
     workouts: [workout],
   });
 
@@ -123,7 +132,8 @@ const createWorkout = async ({ payload, createdBy = null }) => {
   });
 };
 
-const updateWorkout = async ({ workoutId, payload, user }) => {
+const updateWorkout = async ({ workoutId, payload, user, userId }) => {
+  const normalizedUserId = requireUserId({ userId, user });
   ensureValidWorkoutProgressionConfig(payload);
   const existingWorkout = await Workout.findById(workoutId);
 
@@ -131,7 +141,11 @@ const updateWorkout = async ({ workoutId, payload, user }) => {
     throw new AppError("Workout not found", 404);
   }
 
-  ensureCanManageWorkout({ workout: existingWorkout, user });
+  ensureCanManageWorkout({
+    workout: existingWorkout,
+    userId: normalizedUserId,
+    userRole: user?.role,
+  });
 
   const normalizedPayload = normalizeWorkoutPayload({
     payload,
@@ -148,21 +162,26 @@ const updateWorkout = async ({ workoutId, payload, user }) => {
   ).populate(...workoutListPopulate);
 
   const [enrichedWorkout] = await attachWorkoutProgressions({
-    userId: user?._id,
+    userId: normalizedUserId,
     workouts: [workout],
   });
 
   return enrichedWorkout;
 };
 
-const deleteWorkout = async ({ workoutId, user }) => {
+const deleteWorkout = async ({ workoutId, user, userId }) => {
+  const normalizedUserId = requireUserId({ userId, user });
   const workout = await Workout.findById(workoutId);
 
   if (!workout) {
     throw new AppError("Workout not found", 404);
   }
 
-  ensureCanManageWorkout({ workout, user });
+  ensureCanManageWorkout({
+    workout,
+    userId: normalizedUserId,
+    userRole: user?.role,
+  });
 
   await workout.deleteOne();
 };

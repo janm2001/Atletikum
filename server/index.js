@@ -16,18 +16,23 @@ const quizRoutes = require("./routes/quizRoutes");
 const achievementRoutes = require("./routes/achievementRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
+const {
+  getClientUrl,
+  getMongoUri,
+  getPort,
+  validateServerEnvironment,
+} = require("./config/env");
 
 const path = require("path");
 
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
 
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: getClientUrl(),
     credentials: true,
   }),
 );
@@ -35,7 +40,6 @@ app.use(express.json({ limit: "10kb" }));
 app.use(sanitizeMongo);
 app.use(hpp());
 
-// Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const authLimiter = rateLimit({
@@ -57,11 +61,6 @@ app.use("/api/v1/achievements", achievementRoutes);
 app.use("/api/v1/leaderboard", leaderboardRoutes);
 app.use("/api/v1/recommendations", recommendationRoutes);
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB povezan!"))
-  .catch((err) => console.log("Greška pri povezivanju:", err));
-
 app.get("/", (req, res) => {
   res.send("Server radi!");
 });
@@ -72,6 +71,27 @@ app.use((req, res, next) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server pokrenut na portu: ${PORT}`);
-});
+const startServer = async () => {
+  validateServerEnvironment();
+
+  await mongoose.connect(getMongoUri());
+  console.log("MongoDB povezan!");
+
+  const port = getPort();
+
+  return app.listen(port, () => {
+    console.log(`Server pokrenut na portu: ${port}`);
+  });
+};
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("Greška pri pokretanju servera:", error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  app,
+  startServer,
+};
