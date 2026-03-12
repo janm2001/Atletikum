@@ -1,4 +1,5 @@
 import { Card, Image, Badge, Text, Tooltip, Stack, Group } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconLock, IconCheck } from "@tabler/icons-react";
 import type { Achievement } from "../../types/Achievement/achievement";
 
@@ -21,6 +22,7 @@ const badgeIconMap: Record<string, string> = {
 };
 
 export const AchievementCard = ({ achievement }: AchievementCardProps) => {
+  const { t } = useTranslation();
   const imageUrl =
     badgeIconMap[achievement.badgeIcon] ||
     `https://api.dicebear.com/7.x/icons/svg?seed=${achievement.badgeIcon}`;
@@ -38,7 +40,7 @@ export const AchievementCard = ({ achievement }: AchievementCardProps) => {
           </Text>
           {achievement.isUnlocked && achievement.unlockedAt && (
             <Text size="xs" c="dimmed">
-              Otključano:{" "}
+              {t('achievements.unlockedAt')}{" "}
               {new Date(achievement.unlockedAt).toLocaleDateString("hr-HR")}
             </Text>
           )}
@@ -81,7 +83,7 @@ export const AchievementCard = ({ achievement }: AchievementCardProps) => {
             <Group gap={4}>
               <IconLock size={14} color="var(--mantine-color-gray-5)" />
               <Badge size="xs" color="gray" variant="light">
-                Zaključano
+                {t('achievements.locked')}
               </Badge>
             </Group>
           )}

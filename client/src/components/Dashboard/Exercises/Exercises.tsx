@@ -1,14 +1,16 @@
 import { Grid, Select, Stack, Text, Title } from "@mantine/core";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ExerciseCard from "../ExerciseCard/ExerciseCard";
 import {
-  MUSCLE_GROUP_OPTIONS,
+  getMuscleGroupOptions,
   type MuscleGroupValue,
 } from "../../../enums/muscleGroup";
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
 
 const Exercises = () => {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useExercises();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("ALL");
 
@@ -33,10 +35,10 @@ const Exercises = () => {
 
   return (
     <Stack gap="md" w="100%">
-      <Title order={3}>Atletske vježbe</Title>
+      <Title order={3}>{t('dashboard.exercises.title')}</Title>
       <Select
-        label="Filtriraj po mišićnoj skupini"
-        data={MUSCLE_GROUP_OPTIONS}
+        label={t('dashboard.exercises.filterLabel')}
+        data={getMuscleGroupOptions()}
         value={selectedMuscleGroup}
         onChange={(value) => setSelectedMuscleGroup(value ?? "ALL")}
         w={{ base: "100%", sm: 320 }}
@@ -53,7 +55,7 @@ const Exercises = () => {
       </Grid>
 
       {!error && visibleExercises.length === 0 && (
-        <Text c="dimmed">Nema vježbi za odabrani filter.</Text>
+        <Text c="dimmed">{t('dashboard.exercises.empty')}</Text>
       )}
     </Stack>
   );

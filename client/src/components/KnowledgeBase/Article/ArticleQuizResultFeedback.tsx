@@ -2,6 +2,7 @@ import { Alert } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { XpNotification } from "@/components/XpNotification/XpNotification";
 import type { ArticleQuizResult } from "@/types/Article/quiz";
+import { useTranslation } from "react-i18next";
 
 interface ArticleQuizResultFeedbackProps {
   quizResult: ArticleQuizResult | null;
@@ -12,6 +13,8 @@ const ArticleQuizResultFeedback = ({
   quizResult,
   onClose,
 }: ArticleQuizResultFeedbackProps) => {
+  const { t } = useTranslation();
+
   if (!quizResult) {
     return null;
   }
@@ -23,14 +26,11 @@ const ArticleQuizResultFeedback = ({
         color="red"
         variant="light"
         icon={<IconX size={20} />}
-        title="Kviz nije položen"
+        title={t('articles.quiz.failedTitle')}
         withCloseButton
         onClose={onClose}
       >
-        Rezultat: {quizResult.score}/{quizResult.totalQuestions} (
-        {Math.round((quizResult.score / quizResult.totalQuestions) * 100)}%).
-        Potrebno je minimalno 50% za prolaz. Pokušajte ponovo nakon isteka
-        vremena!
+        {t('articles.quiz.failedMessage', { score: quizResult.score, total: quizResult.totalQuestions, percent: Math.round((quizResult.score / quizResult.totalQuestions) * 100) })}
       </Alert>
     );
   }

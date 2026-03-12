@@ -3,14 +3,16 @@ import { Avatar, Container, Flex, Title } from "@mantine/core";
 import ProfileAchievements from "@/components/Profile/ProfileAchievements/ProfileAchivements";
 import ProfileLevelXp from "@/components/Profile/ProfileLevelXp/ProfileLevelXp";
 import ProfileSecurity from "@/components/Profile/ProfileSecurity/ProfileSecurity";
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const { user } = useUser();
 
   return (
     <Container size="lg" py="md">
       <Flex direction="column" justify="center" align="center" gap="lg">
-        <Title order={1}>Profil</Title>
+        <Title order={1}>{t('profile.title')}</Title>
         <ProfileSecurity user={user} />
         <Avatar
           size={125}

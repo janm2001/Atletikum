@@ -1,4 +1,5 @@
 import { Card, Table, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconFlame } from "@tabler/icons-react";
 import type { LeaderboardUser } from "@/hooks/useLeaderboard";
 import LeaderboardUserProfile from "./LeaderboardUserProfile";
@@ -14,6 +15,8 @@ const LeaderboardTable = ({
   startRank = 1,
   currentUserId,
 }: LeaderboardTableProps) => {
+  const { t } = useTranslation();
+
   if (entries.length === 0) {
     return null;
   }
@@ -23,13 +26,13 @@ const LeaderboardTable = ({
       <Table highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th w={60}>Poredak</Table.Th>
-            <Table.Th>Korisnik</Table.Th>
-            <Table.Th ta="center">Razina</Table.Th>
+            <Table.Th w={60}>{t('leaderboard.table.rank')}</Table.Th>
+            <Table.Th>{t('leaderboard.table.user')}</Table.Th>
+            <Table.Th ta="center">{t('leaderboard.table.level')}</Table.Th>
             <Table.Th ta="center">
-              <IconFlame size={16} style={{ verticalAlign: "middle" }} /> Streak
+              <IconFlame size={16} style={{ verticalAlign: "middle" }} /> {t('leaderboard.table.streak')}
             </Table.Th>
-            <Table.Th ta="right">XP</Table.Th>
+            <Table.Th ta="right">{t('common.xp')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

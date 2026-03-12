@@ -12,9 +12,19 @@ import {
   HoverCard,
   Text,
   Progress,
+  ActionIcon,
+  useComputedColorScheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { Link, useLocation } from "react-router-dom";
-import { IconFlame, IconLogout2, IconUser } from "@tabler/icons-react";
+import {
+  IconFlame,
+  IconLogout2,
+  IconUser,
+  IconSun,
+  IconMoon,
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { useUser } from "../../hooks/useUser";
 import { colors, styles } from "../../styles/colors";
 import { useState } from "react";
@@ -27,24 +37,31 @@ const Navbar = () => {
   const [opened, setOpened] = useState(false);
   const { user } = useUser();
   const location = useLocation();
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme("dark");
+  const { t } = useTranslation();
+
+  const toggleColorScheme = () => {
+    setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
+  };
 
   const close = () => {
     setOpened(false);
   };
 
   const navItems = [
-    { to: "/pregled", label: "Pregled" },
-    { to: "/zapis-treninga", label: "Zapis treninga" },
-    { to: "/edukacija", label: "Edukacija" },
-    { to: "/ljestvica", label: "Ljestvica" },
+    { to: "/pregled", label: t('nav.overview') },
+    { to: "/zapis-treninga", label: t('nav.trainingLogs') },
+    { to: "/edukacija", label: t('nav.education') },
+    { to: "/ljestvica", label: t('nav.leaderboard') },
     ...(user?.role === "admin"
-      ? [{ to: "/upravljanje", label: "Upravljanje" }]
+      ? [{ to: "/upravljanje", label: t('nav.admin') }]
       : []),
   ];
 
   const navLinkStyles = {
     textDecoration: "none",
-    color: colors.text.primary,
+    color: "var(--mantine-color-text)",
     fontSize: "15px",
     fontWeight: 500,
     padding: "8px 16px",
@@ -65,7 +82,7 @@ const Navbar = () => {
 
   const getNavLinkStyle = (path: string) => ({
     ...navLinkStyles,
-    color: isActive(path) ? colors.primary.light : colors.text.primary,
+    color: isActive(path) ? colors.primary.light : "var(--mantine-color-text)",
     fontWeight: isActive(path) ? 700 : 500,
     borderBottom: isActive(path)
       ? `2px solid ${colors.primary.light}`
@@ -106,7 +123,7 @@ const Navbar = () => {
               e.currentTarget.style.backgroundColor = "transparent";
               e.currentTarget.style.color = isActive(item.to)
                 ? colors.primary.light
-                : colors.text.primary;
+                : "";
             }}
           >
             {item.label}
@@ -116,7 +133,7 @@ const Navbar = () => {
         <HoverCard width={240} shadow="md" position="bottom" withArrow>
           <HoverCard.Target>
             <Badge color="violet" style={{ cursor: "pointer" }}>
-              Level {user?.level}
+              {t('nav.levelBadge', { level: user?.level })}
             </Badge>
           </HoverCard.Target>
           <HoverCard.Dropdown>
@@ -134,7 +151,7 @@ const Navbar = () => {
               return (
                 <Stack gap={6}>
                   <Text size="sm" fw={600}>
-                    Level {level} → Level {level + 1}
+                    {t('nav.levelProgress', { current: level, next: level + 1 })}
                   </Text>
                   <Progress
                     value={percent}
@@ -143,10 +160,10 @@ const Navbar = () => {
                     size="md"
                   />
                   <Text size="xs" c="dimmed">
-                    {currentProgress} / {xpForNext} XP ({percent}%)
+                    {t('nav.xpProgress', { current: currentProgress, total: xpForNext, percent })}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Još {remaining} XP do sljedećeg levela
+                    {t('nav.xpRemaining', { remaining })}
                   </Text>
                 </Stack>
               );
@@ -160,6 +177,21 @@ const Navbar = () => {
         >
           {user?.dailyStreak ?? 0}
         </Badge>
+
+        <ActionIcon
+          variant="subtle"
+          color="violet"
+          onClick={toggleColorScheme}
+          radius="md"
+          size="lg"
+          aria-label="Toggle color scheme"
+        >
+          {computedColorScheme === "dark" ? (
+            <IconSun size={20} />
+          ) : (
+            <IconMoon size={20} />
+          )}
+        </ActionIcon>
 
         <Button
           component={Link}
@@ -183,7 +215,7 @@ const Navbar = () => {
       <Flex gap={16} hiddenFrom="md" align="center">
         <HoverCard width={220} shadow="md" position="bottom" withArrow>
           <HoverCard.Target>
-            <Badge style={{ cursor: "pointer" }}>Level {user?.level}</Badge>
+            <Badge style={{ cursor: "pointer" }}>{t('nav.levelBadge', { level: user?.level })}</Badge>
           </HoverCard.Target>
           <HoverCard.Dropdown>
             {(() => {
@@ -200,7 +232,7 @@ const Navbar = () => {
               return (
                 <Stack gap={6}>
                   <Text size="sm" fw={600}>
-                    Level {level} → Level {level + 1}
+                    {t('nav.levelProgress', { current: level, next: level + 1 })}
                   </Text>
                   <Progress
                     value={percent}
@@ -209,10 +241,10 @@ const Navbar = () => {
                     size="md"
                   />
                   <Text size="xs" c="dimmed">
-                    {currentProgress} / {xpForNext} XP ({percent}%)
+                    {t('nav.xpProgress', { current: currentProgress, total: xpForNext, percent })}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Još {remaining} XP do sljedećeg levela
+                    {t('nav.xpRemaining', { remaining })}
                   </Text>
                 </Stack>
               );
@@ -255,7 +287,7 @@ const Navbar = () => {
               right: 0,
               width: "min(85vw, 320px)",
               height: "100vh",
-              backgroundColor: colors.background.secondary,
+              backgroundColor: "var(--mantine-color-body)",
               borderLeft: `1px solid ${colors.interactive.hover}`,
               padding: "20px 14px",
               zIndex: 1999,
@@ -263,8 +295,8 @@ const Navbar = () => {
             }}
           >
             <Group justify="space-between" mb="md">
-              <Title order={4} c={colors.text.light}>
-                Izbornik
+              <Title order={4}>
+                {t('nav.menu')}
               </Title>
               <Burger
                 opened={opened}
@@ -291,6 +323,21 @@ const Navbar = () => {
               ))}
 
               <Button
+                variant="subtle"
+                color="violet"
+                leftSection={
+                  computedColorScheme === "dark" ? (
+                    <IconSun size={18} />
+                  ) : (
+                    <IconMoon size={18} />
+                  )
+                }
+                justify="flex-start"
+                onClick={toggleColorScheme}
+              >
+                {computedColorScheme === "dark" ? t('nav.lightTheme') : t('nav.darkTheme')}
+              </Button>
+              <Button
                 component={Link}
                 to="/profil"
                 onClick={close}
@@ -299,7 +346,7 @@ const Navbar = () => {
                 leftSection={<IconUser size={18} />}
                 justify="flex-start"
               >
-                Profil
+                {t('nav.profile')}
               </Button>
               <Button
                 onClick={() => {
@@ -311,7 +358,7 @@ const Navbar = () => {
                 leftSection={<IconLogout2 size={18} />}
                 justify="flex-start"
               >
-                Odjava
+                {t('nav.logout')}
               </Button>
             </Stack>
           </Box>

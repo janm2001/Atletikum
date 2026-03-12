@@ -1,10 +1,11 @@
 import { Chip, Group, ScrollArea, SegmentedControl } from "@mantine/core";
 import {
   ArticleTag,
-  ARTICLE_TAG_LABELS,
+  getArticleTagLabel,
   type ArticleTagType,
 } from "@/types/Article/article";
 import type { KnowledgeBaseArticleFilter } from "@/types/Article/knowledgeBase";
+import { useTranslation } from "react-i18next";
 
 interface KnowledgeBaseFiltersProps {
   articleFilter: KnowledgeBaseArticleFilter;
@@ -19,6 +20,8 @@ const KnowledgeBaseFilters = ({
   selectedTags,
   onSelectedTagsChange,
 }: KnowledgeBaseFiltersProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <SegmentedControl
@@ -27,8 +30,8 @@ const KnowledgeBaseFilters = ({
           onArticleFilterChange(value as KnowledgeBaseArticleFilter)
         }
         data={[
-          { value: "all", label: "Svi članci" },
-          { value: "saved", label: "Spremljeno" },
+          { value: "all", label: t('knowledgeBase.filters.all') },
+          { value: "saved", label: t('knowledgeBase.filters.saved') },
         ]}
       />
 
@@ -41,7 +44,7 @@ const KnowledgeBaseFilters = ({
           <Group gap="xs" wrap="nowrap">
             {Object.values(ArticleTag).map((tag) => (
               <Chip key={tag} value={tag} variant="outline" color="violet">
-                {ARTICLE_TAG_LABELS[tag as ArticleTagType]}
+                {getArticleTagLabel(tag as ArticleTagType)}
               </Chip>
             ))}
           </Group>

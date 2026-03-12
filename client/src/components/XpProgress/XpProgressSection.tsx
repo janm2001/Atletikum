@@ -1,4 +1,5 @@
 import { Badge, Card, Group, Progress, Stack, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconBrain, IconBarbell } from "@tabler/icons-react";
 import { useUser } from "../../hooks/useUser";
 import {
@@ -14,6 +15,7 @@ interface XpProgressSectionProps {
 export const XpProgressSection = ({
   variant = "full",
 }: XpProgressSectionProps) => {
+  const { t } = useTranslation();
   const { user } = useUser();
   if (!user) return null;
 
@@ -31,10 +33,10 @@ export const XpProgressSection = ({
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text size="sm" fw={600}>
-            Razina {level}
+            {t('xpProgress.level', { level })}
           </Text>
           <Badge variant="light" color="violet" size="sm">
-            {xpInLevel}/{xpForNext} XP do razine {level + 1}
+            {t('xpProgress.progress', { current: xpInLevel, total: xpForNext, level: level + 1 })}
           </Badge>
         </Group>
         <Progress value={levelPercent} color="violet" radius="xl" size="sm" />
@@ -45,7 +47,7 @@ export const XpProgressSection = ({
               <Group gap={6}>
                 <IconBrain size={16} color="var(--mantine-color-blue-5)" />
                 <Text size="xs" fw={500} c="blue">
-                  Mozak
+                  {t('xpProgress.brain')}
                 </Text>
                 <Text size="xs" c="dimmed" ml="auto">
                   {user.brainXp} XP
@@ -69,7 +71,7 @@ export const XpProgressSection = ({
               <Group gap={6}>
                 <IconBarbell size={16} color="var(--mantine-color-violet-5)" />
                 <Text size="xs" fw={500} c="violet">
-                  Tijelo
+                  {t('xpProgress.body')}
                 </Text>
                 <Text size="xs" c="dimmed" ml="auto">
                   {user.bodyXp} XP

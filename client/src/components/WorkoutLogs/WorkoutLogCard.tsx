@@ -12,6 +12,7 @@ import {
   formatCompletedExerciseResult,
   type WorkoutLog,
 } from "../../types/WorkoutLog/workoutLog";
+import { useTranslation } from "react-i18next";
 
 interface WorkoutLogExerciseGroupProps {
   exerciseName: string;
@@ -22,6 +23,7 @@ export const WorkoutLogExerciseGroup = ({
   exerciseName,
   sets,
 }: WorkoutLogExerciseGroupProps) => {
+  const { t } = useTranslation();
   return (
     <Card withBorder radius="sm" p="sm" h="100%">
       <Stack gap={4}>
@@ -31,7 +33,7 @@ export const WorkoutLogExerciseGroup = ({
         <List size="xs" spacing={2}>
           {sets.map((setItem, index) => (
             <List.Item key={index}>
-              Set {index + 1}: {formatCompletedExerciseResult(setItem)} · RPE{" "}
+              {t('training.logs.setLabel', { number: index + 1 })}: {formatCompletedExerciseResult(setItem)} · RPE{" "}
               {setItem.rpe}
               {setItem.isPersonalBest ? " · PR" : ""}
             </List.Item>
@@ -51,6 +53,7 @@ export const WorkoutLogCard = ({
   workoutLog,
   exerciseNameById,
 }: WorkoutLogCardProps) => {
+  const { t } = useTranslation();
   const groupedExercises = Array.from(
     workoutLog.completedExercises.reduce((acc, set) => {
       const existing = acc.get(set.exerciseId) ?? [];
@@ -64,7 +67,7 @@ export const WorkoutLogCard = ({
     <Card withBorder radius="md" shadow="sm" h="100%">
       <Stack gap="xs">
         <Group justify="space-between" align="center">
-          <Text fw={700}>{workoutLog.workout ?? "Trening"}</Text>
+          <Text fw={700}>{workoutLog.workout ?? t('training.logs.workout')}</Text>
           <Badge color="violet" variant="light">
             Lvl {workoutLog.requiredLevel ?? 1}
           </Badge>
@@ -76,25 +79,25 @@ export const WorkoutLogCard = ({
               new Set(workoutLog.completedExercises.map((ex) => ex.exerciseId))
                 .size
             }{" "}
-            vježbi
+            {t('training.logs.exerciseCountLabel')}
           </Badge>
           <Badge variant="dot" color="grape">
             {workoutLog.totalXpGained ?? 0} XP
           </Badge>
           <Badge variant="dot" color="blue">
-            {workoutLog.completedExercises.length} setova
+            {t('training.logs.setsCount', { count: workoutLog.completedExercises.length })}
           </Badge>
           {workoutLog.completedExercises.some(
             (exercise) => exercise.isPersonalBest,
           ) && (
             <Badge variant="light" color="orange">
-              Novi PR
+              {t('training.logs.newPR')}
             </Badge>
           )}
         </Group>
 
         <Text size="sm" c="dimmed">
-          Datum:{" "}
+          {t('training.logs.date')}:{" "}
           {workoutLog.date
             ? new Date(workoutLog.date).toLocaleString("hr-HR")
             : "N/A"}
@@ -104,7 +107,7 @@ export const WorkoutLogCard = ({
           <Accordion.Item value={`details-${workoutLog._id}`}>
             <Accordion.Control>
               <Text size="sm" fw={600}>
-                Odrađene vježbe
+                {t('training.logs.completedExercises')}
               </Text>
             </Accordion.Control>
             <Accordion.Panel>
@@ -116,7 +119,7 @@ export const WorkoutLogCard = ({
                   >
                     <WorkoutLogExerciseGroup
                       exerciseName={
-                        exerciseNameById.get(exerciseId) ?? "Nepoznata vježba"
+                        exerciseNameById.get(exerciseId) ?? t('training.logs.unknownExercise')
                       }
                       sets={sets}
                     />

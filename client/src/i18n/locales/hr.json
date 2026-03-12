@@ -1,0 +1,615 @@
+{
+  "common": {
+    "save": "Spremi",
+    "cancel": "Odustani",
+    "edit": "Uredi",
+    "delete": "Obriši",
+    "loading": "Učitavanje podataka...",
+    "serverError": "Došlo je do greške na serveru.",
+    "saveError": "Došlo je do greške prilikom spremanja.",
+    "level": "Razina",
+    "xp": "XP",
+    "back": "Povratak",
+    "actions": "Akcije",
+    "title": "Naslov",
+    "description": "Opis",
+    "clickToClose": "Klikni za zatvaranje",
+    "deleteWorkout": "Obriši trening"
+  },
+
+  "nav": {
+    "overview": "Pregled",
+    "trainingLogs": "Zapis treninga",
+    "education": "Edukacija",
+    "leaderboard": "Ljestvica",
+    "admin": "Upravljanje",
+    "profile": "Profil",
+    "logout": "Odjava",
+    "menu": "Izbornik",
+    "lightTheme": "Svijetla tema",
+    "darkTheme": "Tamna tema",
+    "levelBadge": "Level {{level}}",
+    "levelProgress": "Level {{current}} → Level {{next}}",
+    "xpProgress": "{{current}} / {{total}} XP ({{percent}}%)",
+    "xpRemaining": "Još {{remaining}} XP do sljedećeg levela"
+  },
+
+  "auth": {
+    "login": {
+      "title": "Dobrodošli natrag!",
+      "noAccount": "Nemate račun?",
+      "register": "Registrirajte se",
+      "username": "Korisničko ime",
+      "usernamePlaceholder": "Vaše korisničko ime",
+      "password": "Lozinka",
+      "passwordPlaceholder": "Vaša lozinka",
+      "forgotPassword": "Zaboravili ste lozinku?",
+      "submit": "Prijavi se",
+      "error": "Prijava nije uspjela. Provjerite podatke.",
+      "serverError": "Došlo je do greške na serveru."
+    },
+    "register": {
+      "title": "Kreirajte svoj račun",
+      "hasAccount": "Već imate račun?",
+      "login": "Prijavite se",
+      "username": "Korisničko ime",
+      "usernamePlaceholder": "Odaberite korisničko ime",
+      "email": "Email",
+      "emailPlaceholder": "ime@primjer.hr",
+      "password": "Lozinka",
+      "passwordPlaceholder": "Unesite lozinku",
+      "confirmPassword": "Potvrdi lozinku",
+      "confirmPasswordPlaceholder": "Potvrdi lozinku",
+      "trainingFocus": "Fokus treninga",
+      "trainingFocusPlaceholder": "Odaberite fokus",
+      "trainingFrequency": "Frekvencija treninga: {{count}}x tjedno",
+      "trainingFrequencyBadge": "{{count}}/7 dana",
+      "submit": "Registrirajte se",
+      "error": "Registracija nije uspjela. Pokušajte ponovno.",
+      "serverError": "Došlo je do greške na serveru."
+    },
+    "forgotPassword": {
+      "title": "Reset lozinke",
+      "devNote": "Za ovu fazu koristimo privremenu razvojnu poveznicu umjesto slanja emaila.",
+      "username": "Korisničko ime",
+      "usernamePlaceholder": "Vaše korisničko ime",
+      "email": "Email",
+      "emailPlaceholder": "ime@primjer.hr",
+      "successTitle": "Privremena poveznica je spremna",
+      "successDescription": "Otvorite poveznicu ispod i postavite novu lozinku.",
+      "openResetLink": "Otvori reset lozinke",
+      "submit": "Kreiraj poveznicu za reset",
+      "backToLogin": "Povratak na prijavu",
+      "loginLink": "Prijavite se"
+    },
+    "resetPassword": {
+      "title": "Postavite novu lozinku",
+      "description": "Unesite novu lozinku i potvrdite promjenu.",
+      "newPassword": "Nova lozinka",
+      "newPasswordPlaceholder": "Unesite novu lozinku",
+      "confirmPassword": "Potvrdite novu lozinku",
+      "confirmPasswordPlaceholder": "Ponovite novu lozinku",
+      "submit": "Spremi novu lozinku",
+      "backToLogin": "Povratak na prijavu",
+      "loginLink": "Prijavite se",
+      "invalidLink": "Poveznica za reset nije valjana.",
+      "serverError": "Došlo je do greške na serveru."
+    }
+  },
+
+  "dashboard": {
+    "welcome": "Pratite svoj napredak, učite i trenirajte - sve na jednom mjestu.",
+    "stats": {
+      "level": "Razina",
+      "totalXp": "Ukupni XP",
+      "dailyStreak": "Dnevni niz"
+    },
+    "articles": {
+      "title": "Preporučeni članci",
+      "viewAll": "Svi članci"
+    },
+    "personalBests": {
+      "title": "Najnoviji osobni rekordi"
+    },
+    "revision": {
+      "title": "Vrijeme za ponavljanje",
+      "description": "Zadnji rezultat: {{score}}/{{total}}. Ponovi gradivo i osvoji novi XP.",
+      "startQuiz": "Pokreni revision kviz"
+    },
+    "workout": {
+      "title": "Predloženi trening",
+      "viewAll": "Svi treninzi"
+    },
+    "exercises": {
+      "title": "Atletske vježbe",
+      "filterLabel": "Filtriraj po mišićnoj skupini",
+      "empty": "Nema vježbi za odabrani filter.",
+      "watchVideo": "Pogledaj video"
+    }
+  },
+
+  "profile": {
+    "title": "Profil",
+    "security": {
+      "title": "Sigurnost računa",
+      "username": "Korisničko ime: {{username}}",
+      "email": "Email: {{email}}",
+      "emailNotSet": "Email još nije postavljen",
+      "resetPassword": "Resetiraj lozinku"
+    },
+    "level": {
+      "title": "XP Napredak",
+      "progress": "{{current}}/{{total}} XP do Levela {{level}}"
+    },
+    "achievements": {
+      "milestones": "Glavne dostige",
+      "consistency": "Konzistencija",
+      "performance": "Performanse",
+      "special": "Posebne",
+      "unlocked": "Otključane dostige",
+      "xpEarned": "XP Zaradio/la"
+    }
+  },
+
+  "training": {
+    "suggestedTab": "Predloženi set vježbi",
+    "historyTab": "Povijest vježbanja",
+    "workouts": {
+      "title": "Treninzi",
+      "customWorkout": "Moj trening",
+      "myWorkouts": "Moji treninzi",
+      "privateDescription": "Privatni treninzi vidljivi samo vama.",
+      "readyWorkouts": "Gotovi treninzi",
+      "noWorkoutsForFilter": "Nema vježbi za odabrani filter.",
+      "confirmDelete": "Jeste li sigurni da želite obrisati ovaj trening?",
+      "saveError": "Došlo je do greške prilikom spremanja.",
+      "deleteError": "Greška pri brisanju treninga.",
+      "noDescription": "Workout plan bez dodatnog opisa.",
+      "customWorkoutNote": "Privatni trening bez level ograničenja.",
+      "exerciseCount": "{{count}} vježbi",
+      "setsCount": "{{count}} setova",
+      "xpAmount": "{{count}} XP",
+      "levelRequired": "Potreban Level {{level}} za pristup",
+      "keepTraining": "Nastavite vježbati i zarađivati XP za otključavanje!",
+      "locked": "Zaključano",
+      "avgIntensity": "Prosječni intenzitet (RPE)",
+      "workoutPlan": "Plan treninga",
+      "exerciseFallback": "Vježba {{index}}",
+      "moreExercises": "+{{count}} dodatnih vježbi",
+      "startWorkout": "Započni trening"
+    },
+    "form": {
+      "editTitle": "Uredi moj trening",
+      "createTitle": "Izradi svoj trening"
+    },
+    "workoutForm": {
+      "titleLabel": "Naslov treninga",
+      "descriptionLabel": "Opis treninga",
+      "categories": "Kategorije",
+      "categoriesPlaceholder": "Odaberite kategorije",
+      "requiredLevel": "Potrebna razina (Level)",
+      "exercises": "Vježbe"
+    },
+    "track": {
+      "notFound": "Workout nije pronađen.",
+      "progress": "Napredak",
+      "progressCount": "{{current}}/{{total}}",
+      "exerciseDefault": "Vježba {{index}}",
+      "exerciseFallback": "Vježba {{index}}",
+      "currentExercise": "Trenutna vježba",
+      "plan": "Plan: {{sets}} × {{reps}} · RPE {{rpe}}",
+      "targetWeight": "Ciljana težina: {{weight}} kg",
+      "enterResults": "Unesi rezultat po setovima",
+      "enterSetResults": "Unesi rezultat po setovima",
+      "setLabel": "Set {{index}}",
+      "setNumber": "Set {{number}}",
+      "weightLabel": "Težina (kg, opcionalno)",
+      "weightOptional": "Težina (kg, opcionalno)",
+      "weightNonNegative": "Težina ne može biti negativna",
+      "setMinValue": "Vrijednost mora biti najmanje 1",
+      "enterSetResult": "Unesi rezultat seta",
+      "rpeMin": "RPE mora biti najmanje 1",
+      "rpeMax": "RPE može biti najviše 10",
+      "enterRpe": "Unesi RPE",
+      "finishAndSave": "Završi trening i spremi",
+      "saveAndContinue": "Spremi i nastavi →",
+      "exerciseDetails": "Detalji vježbe",
+      "exerciseDetailsUnavailable": "Detalji vježbe nisu dostupni.",
+      "noExerciseDetails": "Detalji vježbe nisu dostupni.",
+      "watchVideo": "Pogledaj video"
+    },
+    "logs": {
+      "empty": "Još nema spremljenih treninga.",
+      "noLogs": "Još nema spremljenih treninga.",
+      "workoutDefault": "Trening",
+      "workout": "Trening",
+      "exerciseCount": " vježbi",
+      "exerciseCountLabel": "vježbi",
+      "xpAmount": " XP",
+      "setCount": " setova",
+      "setsCount": "{{count}} setova",
+      "newPr": "Novi PR",
+      "newPR": "Novi PR",
+      "dateLabel": "Datum:",
+      "date": "Datum",
+      "completedExercises": "Odrađene vježbe",
+      "unknownExercise": "Nepoznata vježba",
+      "setLabel": "Set {{number}}",
+      "volume": "Volumen",
+      "weekOf": "Tjedan od",
+      "workoutsChartLabel": "Treninzi",
+      "minWorkoutsRequired": "Potrebna su barem 2 treninga za prikaz statistike.",
+      "statistics": "Statistika treninga",
+      "weightProgression": "Progresija težine",
+      "frequency": "Učestalost",
+      "selectExercises": "Odaberi vježbe",
+      "selectExercisesPlaceholder": "Odaberi vježbe za prikaz",
+      "noDataForExercises": "Nema podataka za odabrane vježbe."
+    },
+    "charts": {
+      "insufficientData": "Potrebna su barem 2 treninga za prikaz statistike.",
+      "title": "Statistika treninga",
+      "weightProgression": "Progresija težine",
+      "volume": "Volumen",
+      "frequency": "Učestalost",
+      "selectExercises": "Odaberi vježbe",
+      "selectExercisesPlaceholder": "Odaberi vježbe za prikaz",
+      "noData": "Nema podataka za odabrane vježbe.",
+      "weekOf": "Tjedan od",
+      "workouts": "Treninzi"
+    }
+  },
+
+  "knowledgeBase": {
+    "header": {
+      "title": "Baza Znanja",
+      "subtitle": "Edukativni članci i istraživanja za poboljšanje vaših performansi"
+    },
+    "filters": {
+      "all": "Svi članci",
+      "saved": "Spremljeno"
+    },
+    "empty": "Nema pronađenih članaka za ovu kategoriju."
+  },
+
+  "articles": {
+    "notFound": "Članak nije pronađen",
+    "backToKnowledgeBase": "Povratak na bazu znanja",
+    "markAsRead": "Označi kao pročitano",
+    "lastRead": "Zadnje čitanje:",
+    "breadcrumb": "Baza Znanja",
+    "backButton": "Nazad na Bazu Znanja",
+    "authorLabel": "Autor: ",
+    "progressLabel": "Napredak: ",
+    "actionSummary": "Primijeni odmah",
+    "sourceHeader": "Izvori i znanstvena istraživanja:",
+    "readSource": "Pročitaj izvorno istraživanje",
+    "relatedArticles": "Povezani članci",
+    "relatedExercises": "Povezane vježbe",
+    "card": {
+      "quizBadge": "Kviz",
+      "readBadge": "Pročitano",
+      "bookmarkLabel": "Spremi članak",
+      "readMore": "Pročitaj više"
+    },
+    "quiz": {
+      "sectionTitle": "Provjera znanja",
+      "locked": "Kviz je zaključan",
+      "lockedMessage": "Već ste riješili ovaj kviz. Pokušajte ponovo nakon isteka vremena.",
+      "lockedDetailMessage": "Već ste riješili ovaj kviz. Pročitajte članak ponovo i pokušajte ponovno za bolji rezultat!",
+      "correctLabel": "Točnih",
+      "xpEarned": "XP zarađeno",
+      "previousResult": "Prethodni rezultat",
+      "status": "Status",
+      "passed": "Položen",
+      "failed": "Nije položen",
+      "availableDate": "Kviz će biti dostupan {{date}}",
+      "backToArticle": "Povratak na članak",
+      "unavailable": "Kviz nije dostupan",
+      "testKnowledge": "Testiraj svoje znanje",
+      "retryDescription": "Riješite kviz ponovo i poboljšajte rezultat!",
+      "firstDescription": "Riješite kviz i zaradite XP bodove!",
+      "maxXp": "Do {{xp}} XP (min. 50% za prolaz)",
+      "previousResultBadge": "Prethodni rezultat: {{score}}/{{total}}",
+      "retryButton": "Ponovi Kviz",
+      "startButton": "Započni Kviz",
+      "quizTitle": "Kviz Znanja",
+      "questionProgress": "Pitanje {{current}} / {{total}}",
+      "alertMessage": "Ovaj kviz nosi do {{xp}} XP bodova. Potrebno je minimalno 50% točnih odgovora za prolaz.",
+      "correctFeedback": "Točno! Odličan odgovor.",
+      "incorrectFeedback": "Netočno. Točan odgovor je: {{answer}}",
+      "confirmAnswer": "Potvrdi odgovor",
+      "finishQuiz": "Završi Kviz",
+      "nextQuestion": "Sljedeće pitanje",
+      "failedTitle": "Kviz nije položen",
+      "failedMessage": "Rezultat: {{score}}/{{total}} ({{percent}}%). Potrebno je minimalno 50% za prolaz. Pokušajte ponovo nakon isteka vremena!"
+    }
+  },
+
+  "celebration": {
+    "noData": "Nema podataka za prikaz.",
+    "quizCompleted": "Kviz Završen!",
+    "workoutCompleted": "Trening Završen!",
+    "correctAnswers": "Točnih odgovora",
+    "successRate": "Uspješnost",
+    "brainXp": "Mozak: {{xp}} XP",
+    "bodyXp": "Tijelo: {{xp}} XP",
+    "levelLabel": "Razina {{level}}",
+    "xpToNextLevel": "{{current}} / {{total}} XP do sljedeće razine",
+    "totalXp": "Ukupno: {{xp}} XP",
+    "newAchievements": "Nova dostignuća!",
+    "backToEducation": "Nazad na edukaciju",
+    "backToWorkouts": "Nazad na treninge",
+    "backToOverview": "Pregled"
+  },
+
+  "leaderboard": {
+    "empty": "Ljestvica je prazna. Budite prvi!",
+    "title": "Ljestvica",
+    "subtitle": "Najbolji sportaši po ukupnim XP bodovima",
+    "yourRank": "Vaš rang: #{{rank}}",
+    "you": "(vi)",
+    "table": {
+      "rank": "Poredak",
+      "user": "Korisnik",
+      "level": "Razina",
+      "streak": "Streak"
+    }
+  },
+
+  "admin": {
+    "title": "Upravljanje",
+    "tabs": {
+      "exercises": "Vježbe",
+      "education": "Edukacija",
+      "workouts": "Treninzi"
+    },
+    "exercises": {
+      "list": "Popis vježbi",
+      "add": "Dodaj vježbu",
+      "editTitle": "Uredi vježbu",
+      "addTitle": "Dodaj vježbu",
+      "name": "Naziv",
+      "description": "Opis",
+      "muscleGroup": "Mišićna skupina",
+      "level": "Razina",
+      "imageUrl": "URL slike",
+      "videoUrl": "URL videa",
+      "deleteConfirm": "Jeste li sigurni da želite obrisati ovu vježbu?",
+      "saveError": "Greška pri spremanju vježbe.",
+      "deleteError": "Greška pri brisanju vježbe.",
+      "table": {
+        "name": "Naziv",
+        "muscleGroup": "Mišićna skupina",
+        "level": "Razina",
+        "media": "Mediji",
+        "image": "Slika",
+        "video": "Video"
+      }
+    },
+    "articles": {
+      "add": "Novi članak",
+      "editTitle": "Uredi članak",
+      "addTitle": "Dodaj novi članak",
+      "loadError": "Greška pri učitavanju članaka.",
+      "deleteConfirm": "Jeste li sigurni da želite obrisati ovaj članak?",
+      "titleLabel": "Naslov",
+      "titlePlaceholder": "Unesite naslov",
+      "category": "Kategorija (Tag)",
+      "summary": "Kratki sažetak",
+      "summaryPlaceholder": "Sažetak članka",
+      "actionSummary": "Akcijski sažetak",
+      "actionSummaryDescription": "Dodajte kratke, primjenjive korake koje čitatelj može odmah primijeniti.",
+      "actionSummaryPlaceholder": "Dodaj stavku i pritisni Enter",
+      "coverImage": "Naslovna slika",
+      "uploadImage": "Učitaj naslovnu sliku",
+      "uploadPlaceholder": "Odaberite datoteku...",
+      "imageUrlLabel": "Ili unesite URL naslovne slike",
+      "sourceUrl": "URL istraživanja",
+      "sourceUrlPlaceholder": "https://pubmed...",
+      "sourceName": "Ime izvora",
+      "sourceNamePlaceholder": "Naziv studije",
+      "author": "Autor",
+      "relatedArticles": "Povezani članci",
+      "relatedExercises": "Povezane vježbe",
+      "quiz": "Kviz",
+      "coverImagePreview": "Pregled naslovne slike"
+    },
+    "workouts": {
+      "add": "Novi trening",
+      "editTitle": "Uredi trening",
+      "addTitle": "Dodaj novi trening",
+      "loadError": "Greška pri učitavanju treninga.",
+      "deleteConfirm": "Jeste li sigurni da želite obrisati ovaj trening?",
+      "saveError": "Došlo je do greške prilikom spremanja.",
+      "table": {
+        "empty": "Nema dodanih treninga.",
+        "levelBadge": "Razina {{level}}",
+        "exerciseCount": "{{count}} vježbi",
+        "title": "Naslov",
+        "level": "Razina",
+        "description": "Opis",
+        "exerciseCountHeader": "Broj vježbi"
+      },
+      "exerciseTable": {
+        "index": "#",
+        "exercise": "Vježba",
+        "sets": "Serije",
+        "reps": "Ponavljanja",
+        "rpe": "RPE",
+        "progression": "Progresija",
+        "xp": "XP"
+      }
+    },
+    "articlesTable": {
+      "empty": "Nema dodanih članaka.",
+      "title": "Naslov",
+      "tag": "Tag",
+      "summary": "Sažetak",
+      "created": "Kreirano"
+    }
+  },
+
+  "exerciseBuilder": {
+    "title": "Vježbe u treningu",
+    "add": "Dodaj vježbu",
+    "empty": "Nema dodanih vježbi. Kliknite \"Dodaj vježbu\" za početak.",
+    "moveUp": "Pomakni gore",
+    "moveDown": "Pomakni dolje",
+    "remove": "Ukloni vježbu",
+    "exerciseLabel": "Vježba",
+    "exercisePlaceholder": "Odaberite vježbu",
+    "sets": "Serije",
+    "reps": "Ponavljanja",
+    "repsPlaceholder": "npr. 8-12",
+    "rpePlaceholder": "npr. 7-8",
+    "baseXp": "Base XP",
+    "enableProgression": "Uključi progresiju težine",
+    "initialWeight": "Početna težina (kg)",
+    "progressionStep": "Korak progresije (kg)"
+  },
+
+  "quizEditor": {
+    "title": "Kviz pitanja",
+    "addQuestion": "Dodaj pitanje",
+    "empty": "Nema pitanja. Kliknite \"Dodaj pitanje\" za kreiranje kviza.",
+    "questionLabel": "Pitanje {{index}}",
+    "deleteQuestion": "Obriši pitanje",
+    "questionText": "Tekst pitanja",
+    "questionPlaceholder": "Unesite pitanje...",
+    "answerOptions": "Opcije odgovora",
+    "selectCorrect": "Odaberite točan odgovor",
+    "optionPlaceholder": "Opcija {{index}}",
+    "removeOption": "Ukloni opciju",
+    "addOption": "Dodaj opciju"
+  },
+
+  "xpProgress": {
+    "level": "Razina {{level}}",
+    "progress": "{{current}}/{{total}} XP do razine {{level}}",
+    "brain": "Mozak",
+    "body": "Tijelo"
+  },
+
+  "xpNotification": {
+    "correctAnswers": " točnih odgovora",
+    "levelInfo": "Razina {{level}} • Ukupno {{xp}} XP"
+  },
+
+  "achievements": {
+    "unlockedAt": "Otključano:",
+    "locked": "Zaključano"
+  },
+
+  "errors": {
+    "notFound": {
+      "title": "Stranica nije pronađena",
+      "description": "Na žalost, stranica koju tražite ne postoji. Provjerite URL i pokušajte ponovno.",
+      "backHome": "Vratite se na početnu stranicu"
+    },
+    "generic": {
+      "title": "Ups! Nešto je pošlo po zlu.",
+      "defaultMessage": "Dogodila se neočekivana greška.",
+      "backHome": "Vrati se na početnu",
+      "retry": "Pokušaj ponovno"
+    }
+  },
+
+  "enums": {
+    "trainingFocus": {
+      "MOBILITY": "Mobilnost",
+      "STRENGTH": "Snaga",
+      "INJURY_PREVENTION": "Prevencija ozlijede"
+    },
+    "workoutTags": {
+      "STRENGTH": "Snaga",
+      "SPEED": "Brzina",
+      "PLYOMETRICS": "Pliometrija",
+      "MOBILITY": "Mobilnost",
+      "CORE": "Trup",
+      "ENDURANCE": "Izdržljivost",
+      "RECOVERY": "Oporavak"
+    },
+    "articleTags": {
+      "TRAINING": "Trening",
+      "NUTRITION": "Prehrana",
+      "RECOVERY": "Oporavak",
+      "PHYSIOLOGY": "Fiziologija",
+      "PSYCHOLOGY": "Psihologija",
+      "BIOMECHANICS": "Biomehanika",
+      "PERIODIZATION": "Periodizacija"
+    },
+    "muscleGroups": {
+      "ALL": "Sve mišićne skupine",
+      "QUADRICEPS": "Kvadricepsi",
+      "HAMSTRINGS": "Stražnja loža",
+      "GLUTES": "Gluteusi",
+      "CALVES": "Listovi",
+      "HIP_FLEXORS": "Fleksori kuka",
+      "CORE": "Trup",
+      "LOWER_BACK": "Donji dio leđa",
+      "BACK": "Leđa",
+      "SHOULDERS": "Ramena",
+      "ANKLES": "Gležnjevi",
+      "THORACIC_SPINE": "Torakalna kralježnica"
+    }
+  },
+
+  "validation": {
+    "usernameMin": "Korisničko ime mora imati barem 3 znaka",
+    "emailInvalid": "Unesite valjanu email adresu",
+    "passwordMin": "Lozinka mora imati barem 8 znakova",
+    "passwordMismatch": "Lozinke se ne poklapaju.",
+    "article": {
+      "questionMin": "Pitanje mora imati barem 3 znaka",
+      "optionEmpty": "Opcija ne može biti prazna",
+      "optionsMin": "Potrebne su barem dvije opcije",
+      "correctRequired": "Točan odgovor mora biti odabran",
+      "correctRange": "Točan odgovor mora biti unutar raspona opcija",
+      "titleMin": "Naslov mora imati barem 3 znaka",
+      "contentMin": "Sadržaj mora imati barem 10 znakova",
+      "actionTooShort": "Akcijska stavka je prekratka",
+      "sourceUrlInvalid": "Neispravan URL izvora",
+      "coverImageInvalid": "Neispravan URL slike"
+    },
+    "exercise": {
+      "urlInvalid": "Molimo unesite ispravan URL",
+      "titleRequired": "Naziv je obavezan",
+      "descriptionRequired": "Opis je obavezan",
+      "levelMin": "Razina mora biti najmanje 1",
+      "levelMax": "Razina može biti najviše 100"
+    },
+    "workout": {
+      "initialWeightNegative": "Početna težina ne može biti negativna",
+      "progressionStepNegative": "Korak progresije ne može biti negativan",
+      "initialWeightRequired": "Početna težina je obavezna za progresivnu vježbu",
+      "exerciseRequired": "Vježba mora biti odabrana",
+      "setsMin": "Minimalno 1 serija",
+      "repsRequired": "Ponavljanja su obavezna",
+      "progressionRepsExact": "Progressivna vježba mora imati točan broj ponavljanja",
+      "titleRequired": "Naslov je obavezan",
+      "levelMin": "Minimalna razina je 1"
+    },
+    "workoutLog": {
+      "exerciseRequired": "Vježba je obavezna",
+      "unitRequired": "Jedinica je obavezna",
+      "resultNumber": "Rezultat seta mora biti broj",
+      "resultMin": "Rezultat seta mora biti najmanje 1",
+      "loadNumber": "Težina mora biti broj",
+      "loadNegative": "Težina ne može biti negativna",
+      "rpeNumber": "RPE mora biti broj",
+      "rpeMin": "RPE mora biti najmanje 1",
+      "rpeMax": "RPE može biti najviše 10",
+      "workoutRequired": "Trening je obavezan",
+      "exercisesMin": "Potrebno je unijeti barem jedan odrađeni set"
+    },
+    "track": {
+      "weightNegative": "Težina ne može biti negativna",
+      "resultMin": "Vrijednost seta mora biti najmanje 1",
+      "resultRequired": "Unesi rezultat seta",
+      "rpeRequired": "Unesi RPE",
+      "rpeMin": "RPE mora biti najmanje 1",
+      "rpeMax": "RPE može biti najviše 10"
+    }
+  }
+}

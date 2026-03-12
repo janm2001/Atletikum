@@ -1,4 +1,5 @@
 import { Avatar, Badge, Group, Stack, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import type { LeaderboardUser } from "@/hooks/useLeaderboard";
 import { getLevelFromTotalXp } from "@/utils/leveling";
 
@@ -19,6 +20,7 @@ const LeaderboardUserProfile = ({
   levelVariant = "badge",
   usernameSize = "sm",
 }: LeaderboardUserProfileProps) => {
+  const { t } = useTranslation();
   const level = getLevelFromTotalXp(entry.totalXp);
   const levelDisplay =
     levelVariant === "badge" ? (
@@ -65,7 +67,7 @@ const LeaderboardUserProfile = ({
           {entry.username}
           {isCurrentUser && (
             <Text span size="xs" c="dimmed" ml={4}>
-              (vi)
+              {t('leaderboard.you')}
             </Text>
           )}
         </Text>

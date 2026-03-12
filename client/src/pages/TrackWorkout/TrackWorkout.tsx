@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Button, Stack, Text } from "@mantine/core";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import TrackWorkoutPageContent from "@/components/TrackWorkout/TrackWorkoutPageContent";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
@@ -12,6 +13,7 @@ type TrackWorkoutLocationState = {
 };
 
 const TrackWorkout = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,9 +42,9 @@ const TrackWorkout = () => {
   if (!workout) {
     return (
       <Stack align="center" py="xl" gap="md">
-        <Text c="dimmed">Workout nije pronađen.</Text>
+        <Text c="dimmed">{t('training.track.notFound')}</Text>
         <Button variant="light" onClick={() => navigate("/zapis-treninga")}>
-          Nazad
+          {t('common.back')}
         </Button>
       </Stack>
     );

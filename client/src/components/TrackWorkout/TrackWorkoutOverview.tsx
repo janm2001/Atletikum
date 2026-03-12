@@ -1,5 +1,6 @@
 import { Badge, Box, Group, Progress, Text, Title } from "@mantine/core";
 import type { Workout } from "@/types/Workout/workout";
+import { useTranslation } from "react-i18next";
 
 type TrackWorkoutOverviewProps = {
   workout: Workout;
@@ -14,6 +15,7 @@ const TrackWorkoutOverview = ({
   progressValue,
   totalExercises,
 }: TrackWorkoutOverviewProps) => {
+  const { t } = useTranslation();
   return (
     <>
       <Group justify="space-between" align="center" wrap="nowrap">
@@ -33,7 +35,7 @@ const TrackWorkoutOverview = ({
       <Box>
         <Group justify="space-between" mb={4}>
           <Text size="xs" c="dimmed">
-            Napredak
+            {t('training.track.progress')}
           </Text>
           <Text size="xs" fw={600}>
             {Math.min(completedExerciseCount + 1, totalExercises)}/

@@ -12,6 +12,7 @@ import {
 import { IconClock, IconLock } from "@tabler/icons-react";
 import type { QuizStatus } from "@/hooks/useQuiz";
 import QuizBackButton from "./QuizBackButton";
+import { useTranslation } from "react-i18next";
 
 interface QuizLockedStateProps {
   quizStatus: QuizStatus;
@@ -19,6 +20,7 @@ interface QuizLockedStateProps {
 }
 
 const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
+  const { t } = useTranslation();
   const nextDate = quizStatus.nextAvailableAt
     ? new Date(quizStatus.nextAvailableAt)
     : null;
@@ -31,10 +33,9 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
       <Card withBorder padding="xl" radius="md">
         <Stack align="center" gap="md">
           <IconLock size={48} color="var(--mantine-color-gray-5)" />
-          <Title order={3}>Kviz je zaključan</Title>
+          <Title order={3}>{t('articles.quiz.locked')}</Title>
           <Text c="dimmed" ta="center">
-            Već ste riješili ovaj kviz. Pročitajte članak ponovo i pokušajte
-            ponovno za bolji rezultat!
+            {t('articles.quiz.lockedDetailMessage')}
           </Text>
 
           {lastScore && (
@@ -46,7 +47,7 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
               style={{ maxWidth: 300 }}
             >
               <Text fw={600} ta="center" mb="xs">
-                Prethodni rezultat
+                {t('articles.quiz.previousResult')}
               </Text>
               <Group justify="center" gap="lg">
                 <Stack gap={2} align="center">
@@ -54,7 +55,7 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
                     {lastScore.score}/{lastScore.totalQuestions}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Točnih
+                    {t('articles.quiz.correctLabel')}
                   </Text>
                 </Stack>
                 <Stack gap={2} align="center">
@@ -62,7 +63,7 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
                     +{lastScore.xpGained}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    XP zarađeno
+                    {t('articles.quiz.xpEarned')}
                   </Text>
                 </Stack>
               </Group>
@@ -77,19 +78,16 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
               w="100%"
               style={{ maxWidth: 400 }}
             >
-              Kviz će biti dostupan{" "}
-              <Text span fw={600}>
-                {nextDate.toLocaleDateString("hr-HR", {
+              {t('articles.quiz.availableDate', { date: nextDate.toLocaleDateString("hr-HR", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
-                })}
-              </Text>
+                }) })}
             </Alert>
           )}
 
           <Button variant="light" onClick={onBack} mt="md">
-            Povratak na članak
+            {t('articles.quiz.backToArticle')}
           </Button>
         </Stack>
       </Card>

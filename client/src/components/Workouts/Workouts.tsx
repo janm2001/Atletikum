@@ -21,8 +21,9 @@ import {
 import { useUser } from "@/hooks/useUser";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { useMemo, useState } from "react";
-import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
+import { getWorkoutTagOptions } from "@/enums/workoutTags";
 import { IconBook, IconPlus } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import {
   getExerciseId,
   isCustomWorkout,
@@ -41,6 +42,7 @@ const getDefaultFormValues = (): WorkoutFormValues => ({
 });
 
 const Workouts = () => {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useWorkouts("available");
   const { user } = useUser();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -106,7 +108,7 @@ const Workouts = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Jeste li sigurni da želite obrisati ovaj trening?")) {
+    if (!window.confirm(t('training.workouts.confirmDelete'))) {
       return;
     }
 
@@ -138,7 +140,7 @@ const Workouts = () => {
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       setActionError(
-        err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
+        err.response?.data?.message || t('common.saveError'),
       );
     }
   };
@@ -158,12 +160,12 @@ const Workouts = () => {
           gap="sm"
         >
           <Group>
-            <Title order={1}>Treninzi</Title>
+            <Title order={1}>{t('training.workouts.title')}</Title>
             <Button
               leftSection={<IconPlus size={16} />}
               onClick={handleOpenCreate}
             >
-              Moj trening
+              {t('training.workouts.customWorkout')}
             </Button>
           </Group>
           <ScrollArea type="never">
@@ -173,7 +175,7 @@ const Workouts = () => {
               onChange={setSelectedTags}
             >
               <Group gap="xs" wrap="nowrap">
-                {WORKOUT_TAG_OPTIONS.map((opt) => (
+                {getWorkoutTagOptions().map((opt) => (
                   <Chip
                     key={opt.value}
                     value={opt.value}
@@ -191,9 +193,9 @@ const Workouts = () => {
         {customWorkouts.length > 0 && (
           <Stack gap="sm" my="lg">
             <Stack gap="sm">
-              <Title order={3}>Moji treninzi</Title>
+              <Title order={3}>{t('training.workouts.myWorkouts')}</Title>
               <Text size="sm" c="dimmed">
-                Privatni treninzi vidljivi samo vama.
+                {t('training.workouts.privateDescription')}
               </Text>
             </Stack>
             <Grid my={0}>
@@ -219,7 +221,7 @@ const Workouts = () => {
         )}
 
         <Stack gap="sm" my="lg">
-          <Title order={3}>Gotovi treninzi</Title>
+          <Title order={3}>{t('training.workouts.readyWorkouts')}</Title>
           <Grid my={0}>
             {globalWorkouts.map((workout) => (
               <Grid.Col key={workout._id} span={{ base: 12, sm: 6, md: 4 }}>
@@ -232,14 +234,14 @@ const Workouts = () => {
         {!error && workouts.length === 0 && (
           <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
             <IconBook size={48} color="gray" />
-            <Text c="dimmed">Nema vježbi za odabrani filter.</Text>
+            <Text c="dimmed">{t('training.workouts.noWorkoutsForFilter')}</Text>
           </Center>
         )}
 
         <WorkoutFormModal
           opened={opened}
           onClose={() => setOpened(false)}
-          title={editingWorkoutId ? "Uredi moj trening" : "Izradi svoj trening"}
+          title={editingWorkoutId ? t('training.form.editTitle') : t('training.form.createTitle')}
           actionError={actionError}
           initialValues={formValues}
           loading={createMutation.isPending || updateMutation.isPending}

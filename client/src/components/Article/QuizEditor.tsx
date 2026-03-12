@@ -11,6 +11,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import {
   useFieldArray,
   useFormContext,
@@ -20,6 +21,7 @@ import {
 import type { ArticleFormValues } from "../../schema/article.schema";
 
 const QuizEditor = () => {
+  const { t } = useTranslation();
   const {
     control,
     register,
@@ -42,20 +44,20 @@ const QuizEditor = () => {
   return (
     <Stack gap="md">
       <Group justify="space-between">
-        <Title order={5}>Kviz pitanja</Title>
+        <Title order={5}>{t('quizEditor.title')}</Title>
         <Button
           size="xs"
           variant="light"
           leftSection={<IconPlus size={14} />}
           onClick={addQuestion}
         >
-          Dodaj pitanje
+          {t('quizEditor.addQuestion')}
         </Button>
       </Group>
 
       {fields.length === 0 && (
         <Text size="sm" c="dimmed" ta="center" py="sm">
-          Nema pitanja. Kliknite "Dodaj pitanje" za kreiranje kviza.
+          {t('quizEditor.empty')}
         </Text>
       )}
 
@@ -90,6 +92,7 @@ const QuestionItem = ({
   control,
   errors,
 }: QuestionItemProps) => {
+  const { t } = useTranslation();
   const { setValue } = useFormContext<ArticleFormValues>();
   const options: string[] =
     useWatch({ control, name: `quiz.${qIndex}.options` }) ?? [];
@@ -112,28 +115,28 @@ const QuestionItem = ({
       <Stack gap="sm">
         <Group justify="space-between">
           <Text fw={600} size="sm">
-            Pitanje {qIndex + 1}
+            {t('quizEditor.questionLabel', { index: qIndex + 1 })}
           </Text>
           <ActionIcon
             variant="light"
             color="red"
             size="sm"
             onClick={onRemove}
-            title="Obriši pitanje"
+            title={t('quizEditor.deleteQuestion')}
           >
             <IconTrash size={14} />
           </ActionIcon>
         </Group>
 
         <TextInput
-          label="Tekst pitanja"
-          placeholder="Unesite pitanje..."
+          label={t('quizEditor.questionText')}
+          placeholder={t('quizEditor.questionPlaceholder')}
           {...register(`quiz.${qIndex}.question`)}
           error={questionErrors?.question?.message}
           required
         />
 
-        <Divider label="Opcije odgovora" labelPosition="left" />
+        <Divider label={t('quizEditor.answerOptions')} labelPosition="left" />
 
         <Controller
           control={control}
@@ -142,7 +145,7 @@ const QuestionItem = ({
             <Radio.Group
               value={String(radioField.value)}
               onChange={(val) => radioField.onChange(Number(val))}
-              label="Odaberite točan odgovor"
+              label={t('quizEditor.selectCorrect')}
               error={questionErrors?.correctIndex?.message}
             >
               <Stack gap="xs" mt="xs">
@@ -151,7 +154,7 @@ const QuestionItem = ({
                     <Radio value={String(oIndex)} />
                     <TextInput
                       style={{ flex: 1 }}
-                      placeholder={`Opcija ${oIndex + 1}`}
+                      placeholder={t('quizEditor.optionPlaceholder', { index: oIndex + 1 })}
                       {...register(`quiz.${qIndex}.options.${oIndex}`)}
                       error={
                         (
@@ -167,7 +170,7 @@ const QuestionItem = ({
                         color="red"
                         size="sm"
                         onClick={() => removeOption(oIndex)}
-                        title="Ukloni opciju"
+                        title={t('quizEditor.removeOption')}
                       >
                         <IconTrash size={14} />
                       </ActionIcon>
@@ -186,7 +189,7 @@ const QuestionItem = ({
           onClick={addOption}
           w="fit-content"
         >
-          Dodaj opciju
+          {t('quizEditor.addOption')}
         </Button>
       </Stack>
     </Paper>

@@ -1,13 +1,16 @@
 import { Text, Title } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 const KnowledgeBaseHeader = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
       <Title order={1} mb="xs">
-        Baza Znanja
+        {t('knowledgeBase.header.title')}
       </Title>
       <Text c="dimmed">
-        Edukativni članci i istraživanja za poboljšanje vaših performansi
+        {t('knowledgeBase.header.subtitle')}
       </Text>
     </div>
   );

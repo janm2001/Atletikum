@@ -4,8 +4,10 @@ import {
   useNavigate,
   useRouteError,
 } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function ErrorPage() {
+  const { t } = useTranslation();
   const error = useRouteError();
   const navigate = useNavigate();
 
@@ -14,29 +16,29 @@ export function ErrorPage() {
     errorMessage =
       error.statusText ||
       error.data?.message ||
-      "Dogodila se neočekivana greška.";
+      t('errors.generic.defaultMessage');
   } else if (error instanceof Error) {
     errorMessage = error.message;
   } else if (typeof error === "string") {
     errorMessage = error;
   } else {
-    errorMessage = "Dogodila se neočekivana greška.";
+    errorMessage = t('errors.generic.defaultMessage');
   }
 
   return (
     <Container style={{ textAlign: "center", paddingTop: "80px" }}>
       <Title order={1} c="red">
-        Ups! Nešto je pošlo po zlu.
+        {t('errors.generic.title')}
       </Title>
       <Text size="lg" mt="md">
         {errorMessage}
       </Text>
       <Group justify="center" mt="xl">
         <Button variant="outline" color="teal" onClick={() => navigate("/")}>
-          Vrati se na početnu
+          {t('errors.generic.backHome')}
         </Button>
         <Button color="teal" onClick={() => window.location.reload()}>
-          Pokušaj ponovno
+          {t('errors.generic.retry')}
         </Button>
       </Group>
     </Container>

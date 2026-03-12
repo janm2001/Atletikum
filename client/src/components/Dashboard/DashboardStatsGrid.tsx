@@ -1,5 +1,6 @@
 import { Card, Group, SimpleGrid, Text, ThemeIcon } from "@mantine/core";
 import { IconFlame, IconStars, IconTrophy } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 interface DashboardStatsGridProps {
   level: number;
@@ -12,6 +13,7 @@ const DashboardStatsGrid = ({
   totalXp,
   dailyStreak,
 }: DashboardStatsGridProps) => {
+  const { t } = useTranslation();
   return (
     <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="md">
       <Card withBorder radius="md" shadow="sm" p="md">
@@ -21,7 +23,7 @@ const DashboardStatsGrid = ({
           </ThemeIcon>
           <div>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              Razina
+              {t('dashboard.stats.level')}
             </Text>
             <Text size="xl" fw={700}>
               {level}
@@ -37,7 +39,7 @@ const DashboardStatsGrid = ({
           </ThemeIcon>
           <div>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              Ukupni XP
+              {t('dashboard.stats.totalXp')}
             </Text>
             <Text size="xl" fw={700}>
               {totalXp}
@@ -53,7 +55,7 @@ const DashboardStatsGrid = ({
           </ThemeIcon>
           <div>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              Dnevni niz
+              {t('dashboard.stats.dailyStreak')}
             </Text>
             <Text size="xl" fw={700}>
               {dailyStreak}

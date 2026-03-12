@@ -1,4 +1,5 @@
 import { Card, SimpleGrid, Text, Title } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import type { PersonalBestSummary } from "@/hooks/useRecommendations";
 
 interface DashboardPersonalBestsProps {
@@ -6,6 +7,7 @@ interface DashboardPersonalBestsProps {
 }
 
 const DashboardPersonalBests = ({ summaries }: DashboardPersonalBestsProps) => {
+  const { t } = useTranslation();
   if (!summaries?.length) {
     return null;
   }
@@ -13,7 +15,7 @@ const DashboardPersonalBests = ({ summaries }: DashboardPersonalBestsProps) => {
   return (
     <Card withBorder radius="md" shadow="sm" p="md">
       <Title order={4} mb="sm">
-        Najnoviji osobni rekordi
+        {t('dashboard.personalBests.title')}
       </Title>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
         {summaries.map((summary) => (

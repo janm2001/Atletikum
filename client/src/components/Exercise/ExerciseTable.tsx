@@ -8,6 +8,7 @@ import {
   Collapse,
   Stack,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import {
   IconEdit,
   IconTrash,
@@ -24,6 +25,7 @@ interface WorkoutsTableProps {
 }
 
 const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
+  const { t } = useTranslation();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleExpand = (id: string) => {
@@ -41,7 +43,7 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
   if (!workouts || workouts.length === 0) {
     return (
       <Text c="dimmed" ta="center" py="xl">
-        Nema dodanih treninga.
+        {t('admin.workouts.table.empty')}
       </Text>
     );
   }
@@ -71,7 +73,7 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
         </Table.Td>
         <Table.Td>
           <Badge color="blue" variant="light">
-            Razina {workout.requiredLevel}
+            {t('admin.workouts.table.levelBadge', { level: workout.requiredLevel })}
           </Badge>
         </Table.Td>
         <Table.Td>
@@ -79,7 +81,7 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
             {workout.description}
           </Text>
         </Table.Td>
-        <Table.Td>{workout.exercises.length} vježbi</Table.Td>
+        <Table.Td>{t('admin.workouts.table.exerciseCount', { count: workout.exercises.length })}</Table.Td>
         <Table.Td>
           <Group gap="xs" justify="flex-end" wrap="nowrap">
             <ActionIcon
@@ -89,7 +91,7 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
                 e.stopPropagation();
                 onEdit(workout);
               }}
-              title="Uredi"
+              title={t('common.edit')}
             >
               <IconEdit size={16} />
             </ActionIcon>
@@ -100,7 +102,7 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
                 e.stopPropagation();
                 onDelete(workout._id);
               }}
-              title="Obriši"
+              title={t('common.delete')}
             >
               <IconTrash size={16} />
             </ActionIcon>
@@ -119,13 +121,13 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
                 <Table>
                   <Table.Thead>
                     <Table.Tr>
-                      <Table.Th>#</Table.Th>
-                      <Table.Th>Vježba</Table.Th>
-                      <Table.Th>Serije</Table.Th>
-                      <Table.Th>Ponavljanja</Table.Th>
-                      <Table.Th>RPE</Table.Th>
-                      <Table.Th>Progresija</Table.Th>
-                      <Table.Th>XP</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.index')}</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.exercise')}</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.sets')}</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.reps')}</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.rpe')}</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.progression')}</Table.Th>
+                      <Table.Th>{t('admin.workouts.exerciseTable.xp')}</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
@@ -180,11 +182,11 @@ const ExerciseTable = ({ workouts, onEdit, onDelete }: WorkoutsTableProps) => {
       <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Naslov</Table.Th>
-            <Table.Th>Razina</Table.Th>
-            <Table.Th>Opis</Table.Th>
-            <Table.Th>Broj vježbi</Table.Th>
-            <Table.Th style={{ textAlign: "right" }}>Akcije</Table.Th>
+            <Table.Th>{t('admin.workouts.table.title')}</Table.Th>
+            <Table.Th>{t('admin.workouts.table.level')}</Table.Th>
+            <Table.Th>{t('admin.workouts.table.description')}</Table.Th>
+            <Table.Th>{t('admin.workouts.table.exerciseCountHeader')}</Table.Th>
+            <Table.Th style={{ textAlign: "right" }}>{t('common.actions')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>

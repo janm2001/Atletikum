@@ -13,7 +13,8 @@ import {
   IconBookmarkFilled,
 } from "@tabler/icons-react";
 import type { ArticleSummary, ArticleTagType } from "@/types/Article/article";
-import { ARTICLE_TAG_LABELS } from "@/types/Article/article";
+import { getArticleTagLabel } from "@/types/Article/article";
+import { useTranslation } from "react-i18next";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=2970&ixlib=rb-4.0.3";
@@ -41,6 +42,8 @@ export const ArticleCard = ({
   onNavigate,
   onToggleBookmark,
 }: ArticleCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <Card
       shadow="sm"
@@ -62,7 +65,7 @@ export const ArticleCard = ({
       <Group justify="space-between" mt="md" mb="xs">
         <Group gap="xs">
           <Badge color={tagColors[article.tag] || "blue"} variant="light">
-            {ARTICLE_TAG_LABELS[article.tag]}
+            {getArticleTagLabel(article.tag)}
           </Badge>
           {isQuizCompleted && (
             <Badge
@@ -70,12 +73,12 @@ export const ArticleCard = ({
               variant="light"
               leftSection={<IconCheck size={12} />}
             >
-              Kviz
+              {t('articles.card.quizBadge')}
             </Badge>
           )}
           {article.bookmark?.isCompleted && (
             <Badge color="grape" variant="light">
-              Pročitano
+              {t('articles.card.readBadge')}
             </Badge>
           )}
           {article.bookmark &&
@@ -92,7 +95,7 @@ export const ArticleCard = ({
               variant="subtle"
               color={article.bookmark?.isBookmarked ? "grape" : "gray"}
               onClick={() => onToggleBookmark(article)}
-              aria-label="Spremi članak"
+              aria-label={t('articles.card.bookmarkLabel')}
             >
               {article.bookmark?.isBookmarked ? (
                 <IconBookmarkFilled size={16} />
@@ -123,7 +126,7 @@ export const ArticleCard = ({
         radius="md"
         onClick={() => onNavigate(article._id)}
       >
-        Pročitaj više
+        {t('articles.card.readMore')}
       </Button>
     </Card>
   );

@@ -2,17 +2,20 @@ import { Stack, Tabs, Title } from "@mantine/core";
 import ArticlesTab from "../../components/Article/ArticlesTab";
 import WorkoutTab from "../../components/Workouts/WorkoutTab";
 import ExerciseTab from "@/components/Exercise/ExerciseTab";
+import { useTranslation } from "react-i18next";
 
 const AdminPanel = () => {
+  const { t } = useTranslation();
+
   return (
     <Stack gap="md">
-      <Title order={2}>Upravljanje</Title>
+      <Title order={2}>{t('admin.title')}</Title>
 
       <Tabs defaultValue="vjezbe">
         <Tabs.List>
-          <Tabs.Tab value="vjezbe">Vježbe</Tabs.Tab>
-          <Tabs.Tab value="edukacija">Edukacija</Tabs.Tab>
-          <Tabs.Tab value="treninzi">Treninzi</Tabs.Tab>
+          <Tabs.Tab value="vjezbe">{t('admin.tabs.exercises')}</Tabs.Tab>
+          <Tabs.Tab value="edukacija">{t('admin.tabs.education')}</Tabs.Tab>
+          <Tabs.Tab value="treninzi">{t('admin.tabs.workouts')}</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="vjezbe" pt="md">

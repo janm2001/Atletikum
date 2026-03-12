@@ -13,6 +13,7 @@ import { IconCheck, IconTrophy, IconX } from "@tabler/icons-react";
 import type { QuizQuestion } from "@/types/Article/article";
 import { QuizOptionCard } from "./QuizOptionCard";
 import QuizBackButton from "./QuizBackButton";
+import { useTranslation } from "react-i18next";
 
 interface QuizQuestionCardProps {
   articleTitle: string;
@@ -45,6 +46,8 @@ const QuizQuestionCard = ({
   onSubmitAnswer,
   onNextQuestion,
 }: QuizQuestionCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <QuizBackButton onClick={onBack} />
@@ -53,7 +56,7 @@ const QuizQuestionCard = ({
         {articleTitle}
       </Title>
       <Text c="dimmed" mb="sm">
-        Provjera znanja
+        {t('articles.quiz.sectionTitle')}
       </Text>
 
       <Alert
@@ -62,23 +65,15 @@ const QuizQuestionCard = ({
         variant="light"
         mb="xl"
       >
-        Ovaj kviz nosi do{" "}
-        <Text span fw={700}>
-          {totalQuestions * 25} XP
-        </Text>{" "}
-        bodova. Potrebno je minimalno{" "}
-        <Text span fw={700}>
-          50%
-        </Text>{" "}
-        točnih odgovora za prolaz.
+        {t('articles.quiz.alertMessage', { xp: totalQuestions * 25 })}
       </Alert>
 
       <Card withBorder padding="xl" radius="md">
         <Group justify="space-between" mb="md">
           <Badge variant="outline">
-            Pitanje {questionIndex + 1} / {totalQuestions}
+            {t('articles.quiz.questionProgress', { current: questionIndex + 1, total: totalQuestions })}
           </Badge>
-          <Badge color="blue">Kviz Znanja</Badge>
+          <Badge color="blue">{t('articles.quiz.quizTitle')}</Badge>
         </Group>
 
         <Title order={4} mb="xl">
@@ -113,13 +108,10 @@ const QuizQuestionCard = ({
             icon={wasCorrect ? <IconCheck size={18} /> : <IconX size={18} />}
           >
             {wasCorrect ? (
-              <Text fw={500}>Točno! Odličan odgovor.</Text>
+              <Text fw={500}>{t('articles.quiz.correctFeedback')}</Text>
             ) : (
               <Text fw={500}>
-                Netočno. Točan odgovor je:{" "}
-                <Text span fw={700} c="green">
-                  {correctOption}
-                </Text>
+                {t('articles.quiz.incorrectFeedback', { answer: correctOption })}
               </Text>
             )}
           </Alert>
@@ -128,13 +120,13 @@ const QuizQuestionCard = ({
         <Group justify="flex-end" mt="xl">
           {!isAnswered ? (
             <Button onClick={onSubmitAnswer} disabled={selectedOption === null}>
-              Potvrdi odgovor
+              {t('articles.quiz.confirmAnswer')}
             </Button>
           ) : (
             <Button onClick={onNextQuestion} loading={isSubmitting}>
               {questionIndex === totalQuestions - 1
-                ? "Završi Kviz"
-                : "Sljedeće pitanje"}
+                ? t('articles.quiz.finishQuiz')
+                : t('articles.quiz.nextQuestion')}
             </Button>
           )}
         </Group>

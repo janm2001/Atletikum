@@ -1,5 +1,6 @@
 import { Button, Paper, Text } from "@mantine/core";
 import { IconExternalLink } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 interface ArticleSourceCardProps {
   sourceUrl?: string;
@@ -10,6 +11,8 @@ const ArticleSourceCard = ({
   sourceUrl,
   sourceTitle,
 }: ArticleSourceCardProps) => {
+  const { t } = useTranslation();
+
   if (!sourceUrl) {
     return null;
   }
@@ -17,7 +20,7 @@ const ArticleSourceCard = ({
   return (
     <Paper my="xl" p="md" withBorder radius="md" bg="dark.7">
       <Text fw={600} mb="xs">
-        Izvori i znanstvena istraživanja:
+        {t('articles.sourceHeader')}
       </Text>
       <Button
         component="a"
@@ -27,7 +30,7 @@ const ArticleSourceCard = ({
         variant="default"
         rightSection={<IconExternalLink size={16} />}
       >
-        {sourceTitle || "Pročitaj izvorno istraživanje"}
+        {sourceTitle || t('articles.readSource')}
       </Button>
     </Paper>
   );

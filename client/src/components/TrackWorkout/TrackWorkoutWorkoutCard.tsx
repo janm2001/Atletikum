@@ -20,6 +20,7 @@ import type {
   TrackWorkoutFormValues,
   TrackWorkoutMetric,
 } from "@/types/Workout/trackWorkout";
+import { useTranslation } from "react-i18next";
 
 type TrackWorkoutWorkoutCardProps = {
   currentExercise: Workout["exercises"][number];
@@ -49,15 +50,16 @@ const TrackWorkoutWorkoutCard = ({
   control,
   totalExercises,
 }: TrackWorkoutWorkoutCardProps) => {
+  const { t } = useTranslation();
   const currentExerciseName =
     exerciseById.get(getExerciseId(currentExercise.exerciseId))?.title ??
-    `Vježba ${currentIndex + 1}`;
+    t('training.track.exerciseFallback', { index: currentIndex + 1 });
 
   return (
     <Card withBorder radius="md" shadow="sm" p="sm">
       <Stack gap="sm">
         <Text fw={600} size="sm">
-          Trenutna vježba
+          {t('training.track.currentExercise')}
         </Text>
         <Flex align="center" justify="center" direction="column" gap={12}>
           <Text size="lg" fw={700} ta="center">
@@ -71,12 +73,12 @@ const TrackWorkoutWorkoutCard = ({
           />
         </Flex>
         <Text size="sm" c="dimmed" ta="center">
-          Plan: {currentExercise.sets} × {currentExercise.reps} · RPE{" "}
+          {t('training.track.plan')}: {currentExercise.sets} × {currentExercise.reps} · RPE{" "}
           {currentExercise.rpe}
         </Text>
         {currentExercise.progression?.enabled && (
           <Text size="sm" c="teal" ta="center" fw={600}>
-            Ciljana težina:{" "}
+            {t('training.track.targetWeight')}:{" "}
             {currentExercise.progression.prescribedLoadKg ??
               currentExercise.progression.initialWeightKg ??
               0}{" "}
@@ -87,7 +89,7 @@ const TrackWorkoutWorkoutCard = ({
         <form onSubmit={onSubmit}>
           <Stack gap="xs">
             <Text size="sm" fw={600}>
-              Unesi rezultat po setovima
+              {t('training.track.enterSetResults')}
             </Text>
 
             {setFields.map((field, setIndex) => {
@@ -95,7 +97,7 @@ const TrackWorkoutWorkoutCard = ({
                 <Card key={field.id} withBorder radius="md" p="xs">
                   <Group justify="space-between" align="center" mb={8}>
                     <Text size="sm" fw={600}>
-                      Set {setIndex + 1}
+                      {t('training.track.setNumber', { number: setIndex + 1 })}
                     </Text>
                     <Text size="xs" c="dimmed">
                       {watchedSets?.[setIndex]?.loadKg ?? "BW"} kg ·{" "}
@@ -115,12 +117,12 @@ const TrackWorkoutWorkoutCard = ({
                             return true;
                           }
 
-                          return value >= 0 || "Težina ne može biti negativna";
+                          return value >= 0 || t('training.track.weightNonNegative');
                         },
                       }}
                       render={({ field: setField }) => (
                         <NumberInput
-                          label="Težina (kg, opcionalno)"
+                          label={t('training.track.weightOptional')}
                           min={0}
                           size="sm"
                           value={setField.value ?? undefined}
@@ -140,9 +142,9 @@ const TrackWorkoutWorkoutCard = ({
                       rules={{
                         min: {
                           value: 1,
-                          message: "Vrijednost seta mora biti najmanje 1",
+                          message: t('training.track.setMinValue'),
                         },
-                        required: "Unesi rezultat seta",
+                        required: t('training.track.enterSetResult'),
                       }}
                       render={({ field: setField }) => (
                         <NumberInput
@@ -165,13 +167,13 @@ const TrackWorkoutWorkoutCard = ({
                       rules={{
                         min: {
                           value: 1,
-                          message: "RPE mora biti najmanje 1",
+                          message: t('training.track.rpeMin'),
                         },
                         max: {
                           value: 10,
-                          message: "RPE može biti najviše 10",
+                          message: t('training.track.rpeMax'),
                         },
-                        required: "Unesi RPE",
+                        required: t('training.track.enterRpe'),
                       }}
                       render={({ field: setField }) => (
                         <NumberInput
@@ -200,8 +202,8 @@ const TrackWorkoutWorkoutCard = ({
               my={16}
             >
               {currentIndex >= totalExercises - 1
-                ? "Završi trening i spremi"
-                : "Spremi i nastavi →"}
+                ? t('training.track.finishAndSave')
+                : t('training.track.saveAndContinue')}
             </Button>
           </Stack>
         </form>

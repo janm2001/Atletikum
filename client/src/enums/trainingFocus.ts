@@ -1,14 +1,16 @@
+import i18next from "i18next";
+
 export const TrainingFocus = {
     MOBILITY: "mobilnost",
     STRENGTH: "snaga",
     INJURY_PREVENTION: "prevencija_ozlijede",
 } as const;
 
-export const TRAINING_FOCUS_OPTIONS = [
-    { value: TrainingFocus.MOBILITY, label: "Mobilnost" },
-    { value: TrainingFocus.STRENGTH, label: "Snaga" },
+export const getTrainingFocusOptions = () => [
+    { value: TrainingFocus.MOBILITY, label: i18next.t('enums.trainingFocus.MOBILITY') },
+    { value: TrainingFocus.STRENGTH, label: i18next.t('enums.trainingFocus.STRENGTH') },
     {
         value: TrainingFocus.INJURY_PREVENTION,
-        label: "Prevencija ozlijede",
+        label: i18next.t('enums.trainingFocus.INJURY_PREVENTION'),
     },
 ];

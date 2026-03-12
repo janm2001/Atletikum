@@ -16,6 +16,7 @@ import {
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import {
   useFieldArray,
   useFormContext,
@@ -26,6 +27,7 @@ import { useExercises } from "../../hooks/useExercise";
 import type { WorkoutFormValues } from "../../schema/workout.schema";
 
 const ExerciseBuilder = () => {
+  const { t } = useTranslation();
   const { data: availableExercises } = useExercises();
   const {
     control,
@@ -64,7 +66,7 @@ const ExerciseBuilder = () => {
     <Stack gap="md">
       <Group justify="space-between">
         <Text fw={600} size="sm">
-          Vježbe u treningu
+          {t('exerciseBuilder.title')}
         </Text>
         <Button
           size="xs"
@@ -72,13 +74,13 @@ const ExerciseBuilder = () => {
           leftSection={<IconPlus size={14} />}
           onClick={addExercise}
         >
-          Dodaj vježbu
+          {t('exerciseBuilder.add')}
         </Button>
       </Group>
 
       {fields.length === 0 && (
         <Text size="sm" c="dimmed" ta="center" py="sm">
-          Nema dodanih vježbi. Kliknite "Dodaj vježbu" za početak.
+          {t('exerciseBuilder.empty')}
         </Text>
       )}
 
@@ -101,7 +103,7 @@ const ExerciseBuilder = () => {
                     size="sm"
                     disabled={index === 0}
                     onClick={() => swap(index, index - 1)}
-                    title="Pomakni gore"
+                    title={t('exerciseBuilder.moveUp')}
                   >
                     <IconArrowUp size={14} />
                   </ActionIcon>
@@ -110,7 +112,7 @@ const ExerciseBuilder = () => {
                     size="sm"
                     disabled={index === fields.length - 1}
                     onClick={() => swap(index, index + 1)}
-                    title="Pomakni dolje"
+                    title={t('exerciseBuilder.moveDown')}
                   >
                     <IconArrowDown size={14} />
                   </ActionIcon>
@@ -119,7 +121,7 @@ const ExerciseBuilder = () => {
                     color="red"
                     size="sm"
                     onClick={() => remove(index)}
-                    title="Ukloni vježbu"
+                    title={t('exerciseBuilder.remove')}
                   >
                     <IconTrash size={14} />
                   </ActionIcon>
@@ -131,8 +133,8 @@ const ExerciseBuilder = () => {
                 name={`exercises.${index}.exerciseId`}
                 render={({ field: selectField }) => (
                   <Select
-                    label="Vježba"
-                    placeholder="Odaberite vježbu"
+                    label={t('exerciseBuilder.exerciseLabel')}
+                    placeholder={t('exerciseBuilder.exercisePlaceholder')}
                     data={exerciseOptions}
                     searchable
                     value={selectField.value}
@@ -149,7 +151,7 @@ const ExerciseBuilder = () => {
                   name={`exercises.${index}.sets`}
                   render={({ field: numField }) => (
                     <NumberInput
-                      label="Serije"
+                      label={t('exerciseBuilder.sets')}
                       min={1}
                       value={numField.value}
                       onChange={(val) =>
@@ -164,8 +166,8 @@ const ExerciseBuilder = () => {
                 />
 
                 <TextInput
-                  label="Ponavljanja"
-                  placeholder="npr. 8-12"
+                  label={t('exerciseBuilder.reps')}
+                  placeholder={t('exerciseBuilder.repsPlaceholder')}
                   {...register(`exercises.${index}.reps`)}
                   error={exerciseErrors?.reps?.message}
                   required
@@ -173,7 +175,7 @@ const ExerciseBuilder = () => {
 
                 <TextInput
                   label="RPE"
-                  placeholder="npr. 7-8"
+                  placeholder={t('exerciseBuilder.rpePlaceholder')}
                   {...register(`exercises.${index}.rpe`)}
                   error={exerciseErrors?.rpe?.message}
                 />
@@ -183,7 +185,7 @@ const ExerciseBuilder = () => {
                   name={`exercises.${index}.baseXp`}
                   render={({ field: numField }) => (
                     <NumberInput
-                      label="Base XP"
+                      label={t('exerciseBuilder.baseXp')}
                       min={0}
                       value={numField.value}
                       onChange={(val) =>
@@ -203,7 +205,7 @@ const ExerciseBuilder = () => {
                 name={`exercises.${index}.progression.enabled`}
                 render={({ field: switchField }) => (
                   <Switch
-                    label="Uključi progresiju težine"
+                    label={t('exerciseBuilder.enableProgression')}
                     checked={Boolean(switchField.value)}
                     onChange={(event) =>
                       switchField.onChange(event.currentTarget.checked)
@@ -219,7 +221,7 @@ const ExerciseBuilder = () => {
                     name={`exercises.${index}.progression.initialWeightKg`}
                     render={({ field: progressionField }) => (
                       <NumberInput
-                        label="Početna težina (kg)"
+                        label={t('exerciseBuilder.initialWeight')}
                         min={0}
                         value={progressionField.value ?? undefined}
                         onChange={(value) =>
@@ -240,7 +242,7 @@ const ExerciseBuilder = () => {
                     name={`exercises.${index}.progression.incrementKg`}
                     render={({ field: progressionField }) => (
                       <NumberInput
-                        label="Korak progresije (kg)"
+                        label={t('exerciseBuilder.progressionStep')}
                         min={0}
                         step={0.5}
                         value={progressionField.value}

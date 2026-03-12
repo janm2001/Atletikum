@@ -1,4 +1,5 @@
 import { ActionIcon, Badge, Button, Group, Table, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import type { Exercise } from "../../types/Exercise/exercise";
 
@@ -13,16 +14,18 @@ const ExercisesTable = ({
   onEdit,
   onDelete,
 }: ExercisesTableProps) => {
+  const { t } = useTranslation();
+
   return (
     <Table.ScrollContainer minWidth={600}>
       <Table striped highlightOnHover withTableBorder>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Naziv</Table.Th>
-            <Table.Th>Mišićna skupina</Table.Th>
-            <Table.Th>Razina</Table.Th>
-            <Table.Th>Mediji</Table.Th>
-            <Table.Th>Akcije</Table.Th>
+            <Table.Th>{t('admin.exercises.table.name')}</Table.Th>
+            <Table.Th>{t('admin.exercises.table.muscleGroup')}</Table.Th>
+            <Table.Th>{t('admin.exercises.table.level')}</Table.Th>
+            <Table.Th>{t('admin.exercises.table.media')}</Table.Th>
+            <Table.Th>{t('common.actions')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -51,7 +54,7 @@ const ExercisesTable = ({
                       size="xs"
                       variant="light"
                     >
-                      Slika
+                      {t('admin.exercises.table.image')}
                     </Button>
                   )}
                   {exercise.videoLink && (
@@ -63,7 +66,7 @@ const ExercisesTable = ({
                       size="xs"
                       variant="light"
                     >
-                      Video
+                      {t('admin.exercises.table.video')}
                     </Button>
                   )}
                 </Group>
@@ -74,7 +77,7 @@ const ExercisesTable = ({
                     variant="subtle"
                     color="blue"
                     onClick={() => onEdit(exercise)}
-                    aria-label="Uredi"
+                    aria-label={t('common.edit')}
                   >
                     <IconEdit size={16} />
                   </ActionIcon>
@@ -82,7 +85,7 @@ const ExercisesTable = ({
                     variant="subtle"
                     color="red"
                     onClick={() => onDelete(exercise._id)}
-                    aria-label="Obriši"
+                    aria-label={t('common.delete')}
                   >
                     <IconTrash size={16} />
                   </ActionIcon>

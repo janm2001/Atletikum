@@ -5,13 +5,6 @@ export const colors = {
         light: "#8b9cff",
     },
 
-    text: {
-        primary: "#e0e0e0",
-        secondary: "#a0a0a0",
-        light: "#ffffff",
-        dark: "#1a1a1a",
-    },
-
     interactive: {
         hover: "rgba(102, 126, 234, 0.15)",
         active: "rgba(102, 126, 234, 0.25)",
@@ -23,12 +16,6 @@ export const colors = {
         warning: "#ffd43b",
         error: "#ff6b6b",
         info: "#4dabf7",
-    },
-
-    background: {
-        primary: "#1a1a1a",
-        secondary: "#2d2d2d",
-        elevated: "#3d3d3d",
     },
 };
 

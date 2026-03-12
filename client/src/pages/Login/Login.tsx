@@ -16,8 +16,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../../schema/login.schema";
 import { useLogin } from "../../hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [error, setError] = useState("");
   const { login } = useUser();
   const navigate = useNavigate();
@@ -44,13 +46,13 @@ const Login = () => {
         login(response.data.user, response.token);
         navigate("/");
       } else {
-        setError("Prijava nije uspjela. Provjerite podatke.");
+        setError(t('auth.login.error'));
       }
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : "Došlo je do greške na serveru.",
+          : t('auth.login.serverError'),
       );
     }
   };
@@ -65,27 +67,27 @@ const Login = () => {
     >
       <div style={{ width: "100%", maxWidth: 500 }}>
         <Title ta="center" order={2}>
-          Dobrodošli natrag!
+          {t('auth.login.title')}
         </Title>
         <Text c="dimmed" size="sm" ta="center" mt={5}>
-          Nemate račun?{" "}
+          {t('auth.login.noAccount')}{" "}
           <Anchor component={Link} to="/register" size="sm">
-            Registrirajte se
+            {t('auth.login.register')}
           </Anchor>
         </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleSubmit(handleLogin)}>
             <TextInput
-              label="Korisničko ime"
-              placeholder="Vaše korisničko ime"
+              label={t('auth.login.username')}
+              placeholder={t('auth.login.usernamePlaceholder')}
               required
               error={errors.username?.message}
               {...register("username")}
             />
             <PasswordInput
-              label="Lozinka"
-              placeholder="Vaša lozinka"
+              label={t('auth.login.password')}
+              placeholder={t('auth.login.passwordPlaceholder')}
               required
               mt="md"
               error={errors.password?.message}
@@ -94,7 +96,7 @@ const Login = () => {
 
             <Group justify="flex-end" mt="xs">
               <Anchor component={Link} to="/zaboravljena-lozinka" size="sm">
-                Zaboravili ste lozinku?
+                {t('auth.login.forgotPassword')}
               </Anchor>
             </Group>
 
@@ -110,7 +112,7 @@ const Login = () => {
               type="submit"
               loading={isSubmitting || loginMutation.isPending}
             >
-              Prijavi se
+              {t('auth.login.submit')}
             </Button>
           </form>
         </Paper>

@@ -16,6 +16,7 @@ import {
   Text,
 } from "@mantine/core";
 import { IconPhoto, IconPlus } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
@@ -31,7 +32,7 @@ import {
   articleSchema,
   type ArticleFormValues,
 } from "../../schema/article.schema";
-import { ArticleTag, ARTICLE_TAG_LABELS } from "../../types/Article/article";
+import { ArticleTag, getArticleTagLabel } from "../../types/Article/article";
 import type {
   ArticleSummary,
   ArticleTagType,
@@ -56,6 +57,7 @@ const getDefaultFormValues = (): ArticleFormValues => ({
 });
 
 const ArticlesTab = () => {
+  const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
@@ -81,12 +83,10 @@ const ArticlesTab = () => {
     formState: { errors, isSubmitting },
   } = form;
 
-  // Fetch full article (with quiz) when editing
   const { data: fullArticle, isLoading: isLoadingDetail } = useArticleDetail(
     editingArticleId ?? "",
   );
 
-  // Populate form with full article data (including quiz) when loaded
   useEffect(() => {
     if (fullArticle && editingArticleId) {
       reset({
@@ -138,7 +138,7 @@ const ArticlesTab = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Jeste li sigurni da želite obrisati ovaj članak?")) {
+    if (window.confirm(t("admin.articles.deleteConfirm"))) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (err) {
@@ -209,20 +209,18 @@ const ArticlesTab = () => {
       setOpened(false);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
-      setActionError(
-        err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
-      );
+      setActionError(err.response?.data?.message || t("common.saveError"));
     }
   };
 
   if (isLoading) return <SpinnerComponent />;
-  if (error) return <Text c="red">Greška pri učitavanju članaka.</Text>;
+  if (error) return <Text c="red">{t("admin.articles.loadError")}</Text>;
 
   return (
     <>
       <Group justify="flex-end" mb="md">
         <Button leftSection={<IconPlus size={16} />} onClick={handleOpenCreate}>
-          Novi članak
+          {t("admin.articles.add")}
         </Button>
       </Group>
 
@@ -235,14 +233,18 @@ const ArticlesTab = () => {
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={editingArticleId ? "Uredi članak" : "Dodaj novi članak"}
+        title={
+          editingArticleId
+            ? t("admin.articles.editTitle")
+            : t("admin.articles.addTitle")
+        }
         size="xl"
       >
         {editingArticleId && isLoadingDetail ? (
           <Group justify="center" py="xl">
             <Loader size="md" />
             <Text size="sm" c="dimmed">
-              Učitavanje podataka...
+              {t("common.loading")}
             </Text>
           </Group>
         ) : (
@@ -255,8 +257,8 @@ const ArticlesTab = () => {
               )}
 
               <TextInput
-                label="Naslov"
-                placeholder="Unesite naslov"
+                label={t("admin.articles.titleLabel")}
+                placeholder={t("admin.articles.titlePlaceholder")}
                 {...register("title")}
                 error={errors.title?.message}
                 required
@@ -267,10 +269,10 @@ const ArticlesTab = () => {
                 control={control}
                 render={({ field }) => (
                   <Select
-                    label="Kategorija (Tag)"
+                    label={t("admin.articles.category")}
                     data={Object.values(ArticleTag).map((tag) => ({
                       value: tag,
-                      label: ARTICLE_TAG_LABELS[tag as ArticleTagType],
+                      label: getArticleTagLabel(tag as ArticleTagType),
                     }))}
                     {...field}
                     error={errors.tag?.message}
@@ -280,8 +282,8 @@ const ArticlesTab = () => {
               />
 
               <Textarea
-                label="Kratki sažetak"
-                placeholder="Sažetak članka"
+                label={t("admin.articles.summary")}
+                placeholder={t("admin.articles.summaryPlaceholder")}
                 {...register("summary")}
                 error={errors.summary?.message}
                 rows={2}
@@ -292,9 +294,9 @@ const ArticlesTab = () => {
                 control={control}
                 render={({ field }) => (
                   <TagsInput
-                    label="Akcijski sažetak"
-                    description="Dodajte kratke, primjenjive korake koje čitatelj može odmah primijeniti."
-                    placeholder="Dodaj stavku i pritisni Enter"
+                    label={t("admin.articles.actionSummary")}
+                    description={t("admin.articles.actionSummaryDescription")}
+                    placeholder={t("admin.articles.actionSummaryPlaceholder")}
                     value={field.value ?? []}
                     onChange={field.onChange}
                     error={errors.actionSummary?.message}
@@ -314,11 +316,15 @@ const ArticlesTab = () => {
                 )}
               />
 
-              <Divider my="xs" label="Naslovna slika" labelPosition="center" />
+              <Divider
+                my="xs"
+                label={t("admin.articles.coverImage")}
+                labelPosition="center"
+              />
 
               <FileInput
-                label="Učitaj naslovnu sliku"
-                placeholder="Odaberite datoteku..."
+                label={t("admin.articles.uploadImage")}
+                placeholder={t("admin.articles.uploadPlaceholder")}
                 accept="image/*"
                 leftSection={<IconPhoto size={16} />}
                 value={thumbnailFile}
@@ -334,7 +340,7 @@ const ArticlesTab = () => {
               />
 
               <TextInput
-                label="Ili unesite URL naslovne slike"
+                label={t("admin.articles.imageUrlLabel")}
                 placeholder="https://..."
                 {...register("coverImage")}
                 error={errors.coverImage?.message}
@@ -346,26 +352,26 @@ const ArticlesTab = () => {
                   height={120}
                   radius="md"
                   fit="contain"
-                  alt="Pregled naslovne slike"
+                  alt={t("admin.articles.coverImagePreview")}
                 />
               )}
 
               <TextInput
-                label="URL istraživanja"
-                placeholder="https://pubmed..."
+                label={t("admin.articles.sourceUrl")}
+                placeholder={t("admin.articles.sourceUrlPlaceholder")}
                 {...register("sourceUrl")}
                 error={errors.sourceUrl?.message}
               />
 
               <TextInput
-                label="Ime izvora"
-                placeholder="Naziv studije"
+                label={t("admin.articles.sourceName")}
+                placeholder={t("admin.articles.sourceNamePlaceholder")}
                 {...register("sourceTitle")}
                 error={errors.sourceTitle?.message}
               />
 
               <TextInput
-                label="Autor"
+                label={t("admin.articles.author")}
                 {...register("author")}
                 error={errors.author?.message}
               />
@@ -375,7 +381,7 @@ const ArticlesTab = () => {
                 control={control}
                 render={({ field }) => (
                   <MultiSelect
-                    label="Povezani članci"
+                    label={t("admin.articles.relatedArticles")}
                     data={(articles ?? [])
                       .filter((article) => article._id !== editingArticleId)
                       .map((article) => ({
@@ -395,7 +401,7 @@ const ArticlesTab = () => {
                 control={control}
                 render={({ field }) => (
                   <MultiSelect
-                    label="Povezane vježbe"
+                    label={t("admin.articles.relatedExercises")}
                     data={(exercises ?? []).map((exercise) => ({
                       value: exercise._id,
                       label: exercise.title,
@@ -408,13 +414,17 @@ const ArticlesTab = () => {
                 )}
               />
 
-              <Divider my="sm" label="Kviz" labelPosition="center" />
+              <Divider
+                my="sm"
+                label={t("admin.articles.quiz")}
+                labelPosition="center"
+              />
 
               <QuizEditor />
 
               <Group justify="flex-end" mt="md">
                 <Button variant="default" onClick={() => setOpened(false)}>
-                  Odustani
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -424,7 +434,7 @@ const ArticlesTab = () => {
                     updateMutation.isPending
                   }
                 >
-                  Spremi
+                  {t("common.save")}
                 </Button>
               </Group>
             </Stack>

@@ -1,5 +1,6 @@
 import { Badge, Button, Group, Modal, Stack, Text } from "@mantine/core";
 import type { Exercise } from "@/types/Exercise/exercise";
+import { useTranslation } from "react-i18next";
 
 type TrackWorkoutExerciseDetailsModalProps = {
   exercise?: Exercise;
@@ -12,11 +13,12 @@ const TrackWorkoutExerciseDetailsModal = ({
   opened,
   onClose,
 }: TrackWorkoutExerciseDetailsModalProps) => {
+  const { t } = useTranslation();
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title={exercise?.title ?? "Detalji vježbe"}
+      title={exercise?.title ?? t('training.track.exerciseDetails')}
       centered
     >
       {exercise ? (
@@ -40,12 +42,12 @@ const TrackWorkoutExerciseDetailsModal = ({
               rel="noopener noreferrer"
               variant="light"
             >
-              Pogledaj video
+              {t('training.track.watchVideo')}
             </Button>
           )}
         </Stack>
       ) : (
-        <Text c="dimmed">Detalji vježbe nisu dostupni.</Text>
+        <Text c="dimmed">{t('training.track.noExerciseDetails')}</Text>
       )}
     </Modal>
   );

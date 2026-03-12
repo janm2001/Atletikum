@@ -1,4 +1,5 @@
 import { Grid } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import WorkoutCard from "@/components/Workouts/WorkoutCard";
 import type { Workout } from "@/types/Workout/workout";
 import DashboardSectionHeader from "./DashboardSectionHeader";
@@ -12,6 +13,7 @@ const DashboardWorkoutSection = ({
   workout,
   onOpenWorkouts,
 }: DashboardWorkoutSectionProps) => {
+  const { t } = useTranslation();
   if (!workout) {
     return null;
   }
@@ -19,8 +21,8 @@ const DashboardWorkoutSection = ({
   return (
     <div>
       <DashboardSectionHeader
-        title="Predloženi trening"
-        actionLabel="Svi treninzi"
+        title={t('dashboard.workout.title')}
+        actionLabel={t('dashboard.workout.viewAll')}
         onAction={onOpenWorkouts}
       />
       <Grid>

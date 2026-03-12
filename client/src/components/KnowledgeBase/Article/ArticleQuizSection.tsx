@@ -17,6 +17,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import type { QuizStatus } from "@/hooks/useQuiz";
+import { useTranslation } from "react-i18next";
 
 interface ArticleQuizSectionProps {
   articleId: string;
@@ -31,20 +32,22 @@ const ArticleQuizSection = ({
   quizStatus,
   onStartQuiz,
 }: ArticleQuizSectionProps) => {
+  const { t } = useTranslation();
+
   if (quizQuestionCount === 0) {
     return null;
   }
 
   return (
     <>
-      <Divider my="xl" label="Provjera znanja" labelPosition="center" />
+      <Divider my="xl" label={t('articles.quiz.sectionTitle')} labelPosition="center" />
       <Paper p="xl" withBorder radius="md" ta="center">
         {quizStatus && !quizStatus.canTakeQuiz && quizStatus.lastCompletion ? (
           <Stack align="center" gap="md">
             <IconLock size={48} color="var(--mantine-color-gray-5)" />
-            <Title order={3}>Kviz je zaključan</Title>
+            <Title order={3}>{t('articles.quiz.locked')}</Title>
             <Text c="dimmed">
-              Već ste riješili ovaj kviz. Pokušajte ponovo nakon isteka vremena.
+              {t('articles.quiz.lockedMessage')}
             </Text>
 
             <Group justify="center" gap="lg" mt="xs">
@@ -54,7 +57,7 @@ const ArticleQuizSection = ({
                   {quizStatus.lastCompletion.totalQuestions}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Točnih
+                  {t('articles.quiz.correctLabel')}
                 </Text>
               </Stack>
               <Stack gap={2} align="center">
@@ -62,7 +65,7 @@ const ArticleQuizSection = ({
                   +{quizStatus.lastCompletion.xpGained}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  XP zarađeno
+                  {t('articles.quiz.xpEarned')}
                 </Text>
               </Stack>
               <Stack gap={2} align="center">
@@ -79,11 +82,11 @@ const ArticleQuizSection = ({
                   }
                 >
                   {quizStatus.lastCompletion.passed
-                    ? "Položen"
-                    : "Nije položen"}
+                    ? t('articles.quiz.passed')
+                    : t('articles.quiz.failed')}
                 </Badge>
                 <Text size="xs" c="dimmed">
-                  Status
+                  {t('articles.quiz.status')}
                 </Text>
               </Stack>
             </Group>
@@ -97,24 +100,21 @@ const ArticleQuizSection = ({
                 maw={400}
                 mx="auto"
               >
-                Kviz će biti dostupan{" "}
-                <Text span fw={600}>
-                  {new Date(quizStatus.nextAvailableAt).toLocaleDateString(
+                {t('articles.quiz.availableDate', { date: new Date(quizStatus.nextAvailableAt).toLocaleDateString(
                     "hr-HR",
                     {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
                     },
-                  )}
-                </Text>
+                  ) })}
               </Alert>
             )}
           </Stack>
         ) : quizStatus?.lastCompletion ? (
           <Stack align="center" gap="md">
             <IconBrain size={48} color="var(--mantine-color-blue-5)" />
-            <Title order={3}>Testiraj svoje znanje</Title>
+            <Title order={3}>{t('articles.quiz.testKnowledge')}</Title>
 
             <Group justify="center" gap="md">
               <Badge
@@ -129,34 +129,33 @@ const ArticleQuizSection = ({
                   )
                 }
               >
-                Prethodni rezultat: {quizStatus.lastCompletion.score}/
-                {quizStatus.lastCompletion.totalQuestions} -{" "}
-                {quizStatus.lastCompletion.passed ? "Položen" : "Nije položen"}
+                {t('articles.quiz.previousResultBadge', { score: quizStatus.lastCompletion.score, total: quizStatus.lastCompletion.totalQuestions })} -{" "}
+                {quizStatus.lastCompletion.passed ? t('articles.quiz.passed') : t('articles.quiz.failed')}
               </Badge>
             </Group>
 
             <Text c="dimmed" size="sm">
-              Riješite kviz ponovo i poboljšajte rezultat!
+              {t('articles.quiz.retryDescription')}
             </Text>
 
             <Badge size="lg" variant="light" color="grape">
-              Do {quizQuestionCount * 25} XP (min. 50% za prolaz)
+              {t('articles.quiz.maxXp', { xp: quizQuestionCount * 25 })}
             </Badge>
 
             <Button size="lg" onClick={() => onStartQuiz(articleId)}>
-              Ponovi Kviz
+              {t('articles.quiz.retryButton')}
             </Button>
           </Stack>
         ) : (
           <Stack align="center" gap="md">
             <IconBrain size={48} color="var(--mantine-color-blue-5)" />
-            <Title order={3}>Testiraj svoje znanje</Title>
-            <Text c="dimmed">Riješite kviz i zaradite XP bodove!</Text>
+            <Title order={3}>{t('articles.quiz.testKnowledge')}</Title>
+            <Text c="dimmed">{t('articles.quiz.firstDescription')}</Text>
             <Badge size="lg" variant="light" color="grape">
-              Do {quizQuestionCount * 25} XP (min. 50% za prolaz)
+              {t('articles.quiz.maxXp', { xp: quizQuestionCount * 25 })}
             </Badge>
             <Button size="lg" onClick={() => onStartQuiz(articleId)}>
-              Započni Kviz
+              {t('articles.quiz.startButton')}
             </Button>
           </Stack>
         )}

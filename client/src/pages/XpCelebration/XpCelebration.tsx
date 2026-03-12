@@ -27,6 +27,7 @@ import {
   getTotalXpForLevelStart,
 } from "../../utils/leveling";
 import type { NewAchievement } from "../../types/Achievement/achievement";
+import { useTranslation } from "react-i18next";
 
 type CelebrationState = {
   type: "quiz" | "workout";
@@ -42,6 +43,7 @@ type CelebrationState = {
 };
 
 const XpCelebration = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as CelebrationState | null;
@@ -68,8 +70,8 @@ const XpCelebration = () => {
     return (
       <Center style={{ height: "calc(100vh - 100px)" }}>
         <Stack align="center" gap="md">
-          <Text c="dimmed">Nema podataka za prikaz.</Text>
-          <Button onClick={() => navigate("/pregled")}>Povratak</Button>
+          <Text c="dimmed">{t('celebration.noData')}</Text>
+          <Button onClick={() => navigate("/pregled")}>{t('common.back')}</Button>
         </Stack>
       </Center>
     );
@@ -98,7 +100,7 @@ const XpCelebration = () => {
             <Stack align="center" gap="xs" style={styles}>
               <IconConfetti size={56} color="var(--mantine-color-yellow-5)" />
               <Title order={1} ta="center">
-                {isQuiz ? "Kviz Završen!" : "Trening Završen!"}
+                {isQuiz ? t('celebration.quizCompleted') : t('celebration.workoutCompleted')}
               </Title>
               {state.title && (
                 <Text c="dimmed" size="lg" ta="center">
@@ -144,7 +146,7 @@ const XpCelebration = () => {
                           {state.score}/{state.totalQuestions}
                         </Text>
                         <Text size="xs" c="dimmed">
-                          Točnih odgovora
+                          {t('celebration.correctAnswers')}
                         </Text>
                       </Stack>
                       <Stack gap={2} align="center">
@@ -155,7 +157,7 @@ const XpCelebration = () => {
                           %
                         </Text>
                         <Text size="xs" c="dimmed">
-                          Uspješnost
+                          {t('celebration.successRate')}
                         </Text>
                       </Stack>
                     </Group>
@@ -169,7 +171,7 @@ const XpCelebration = () => {
                       color="blue"
                       leftSection={<IconBrain size={14} />}
                     >
-                      Mozak: {state.brainXp} XP
+                      {t('celebration.brainXp', { xp: state.brainXp })}
                     </Badge>
                     <Badge
                       size="lg"
@@ -177,7 +179,7 @@ const XpCelebration = () => {
                       color="violet"
                       leftSection={<IconBarbell size={14} />}
                     >
-                      Tijelo: {state.bodyXp} XP
+                      {t('celebration.bodyXp', { xp: state.bodyXp })}
                     </Badge>
                   </Group>
                 )}
@@ -218,13 +220,13 @@ const XpCelebration = () => {
                   }
                 />
                 <Text size="sm" c="dimmed">
-                  Razina {level}
+                  {t('celebration.levelLabel', { level })}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  {xpInCurrentLevel} / {xpForNextLevel} XP do sljedeće razine
+                  {t('celebration.xpToNextLevel', { current: xpInCurrentLevel, total: xpForNextLevel })}
                 </Text>
                 <Text size="lg" fw={700}>
-                  Ukupno: {totalXp} XP
+                  {t('celebration.totalXp', { xp: totalXp })}
                 </Text>
               </Stack>
             </Card>
@@ -253,7 +255,7 @@ const XpCelebration = () => {
                       size={24}
                       color="var(--mantine-color-yellow-5)"
                     />
-                    <Title order={3}>Nova dostignuća!</Title>
+                    <Title order={3}>{t('celebration.newAchievements')}</Title>
                   </Group>
 
                   {achievements.map((ach) => (
@@ -292,13 +294,13 @@ const XpCelebration = () => {
           {(styles) => (
             <Group gap="md" style={styles}>
               <Button variant="light" onClick={() => navigate(backPath)}>
-                {isQuiz ? "Nazad na edukaciju" : "Nazad na treninge"}
+                {isQuiz ? t('celebration.backToEducation') : t('celebration.backToWorkouts')}
               </Button>
               <Button
                 rightSection={<IconArrowRight size={16} />}
                 onClick={() => navigate("/pregled")}
               >
-                Pregled
+                {t('celebration.backToOverview')}
               </Button>
             </Group>
           )}

@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import type { Exercise } from "@/types/Exercise/exercise";
 
 export const ArticleTag = {
@@ -12,15 +13,8 @@ export const ArticleTag = {
 
 export type ArticleTagType = (typeof ArticleTag)[keyof typeof ArticleTag];
 
-export const ARTICLE_TAG_LABELS: Record<ArticleTagType, string> = {
-  [ArticleTag.TRAINING]: "Trening",
-  [ArticleTag.NUTRITION]: "Prehrana",
-  [ArticleTag.RECOVERY]: "Oporavak",
-  [ArticleTag.PHYSIOLOGY]: "Fiziologija",
-  [ArticleTag.PSYCHOLOGY]: "Psihologija",
-  [ArticleTag.BIOMECHANICS]: "Biomehanika",
-  [ArticleTag.PERIODIZATION]: "Periodizacija",
-};
+export const getArticleTagLabel = (tag: ArticleTagType): string =>
+  i18next.t(`enums.articleTags.${tag}`);
 
 export interface QuizQuestion {
   _id?: string;

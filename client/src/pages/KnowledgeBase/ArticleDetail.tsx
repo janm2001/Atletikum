@@ -11,8 +11,10 @@ import ArticleRelatedArticlesSection from "@/components/KnowledgeBase/Article/Ar
 import ArticleRelatedExercisesSection from "@/components/KnowledgeBase/Article/ArticleRelatedExercisesSection";
 import ArticleSourceCard from "@/components/KnowledgeBase/Article/ArticleSourceCard";
 import { useArticleDetailFlow } from "@/hooks/useArticleDetailFlow";
+import { useTranslation } from "react-i18next";
 
 const ArticleDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { data: article, isLoading, error } = useArticleDetail(id!);
   const {
@@ -36,9 +38,9 @@ const ArticleDetail = () => {
       <Center
         style={{ height: "calc(100vh - 100px)", flexDirection: "column" }}
       >
-        <Title order={2}>Članak nije pronađen</Title>
+        <Title order={2}>{t('articles.notFound')}</Title>
         <Button mt="md" onClick={handleBack}>
-          Povratak na bazu znanja
+          {t('articles.backToKnowledgeBase')}
         </Button>
       </Center>
     );
@@ -76,11 +78,11 @@ const ArticleDetail = () => {
 
       <Group my="lg" justify="space-between" align="center">
         <Button variant="light" onClick={handleMarkAsRead}>
-          Označi kao pročitano
+          {t('articles.markAsRead')}
         </Button>
         {article.bookmark?.lastViewedAt && (
           <Text size="sm" c="dimmed">
-            Zadnje čitanje:{" "}
+            {t('articles.lastRead')}{" "}
             {new Date(article.bookmark.lastViewedAt).toLocaleDateString(
               "hr-HR",
             )}

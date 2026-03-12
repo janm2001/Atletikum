@@ -2,7 +2,7 @@ import "./App.css";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/tiptap/styles.css";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, createTheme } from "@mantine/core";
 import { RouterProvider } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,9 +18,13 @@ const queryClient = new QueryClient({
   },
 });
 
+const theme = createTheme({
+  primaryColor: "violet",
+});
+
 function App() {
   return (
-    <MantineProvider defaultColorScheme="dark">
+    <MantineProvider theme={theme} defaultColorScheme="dark">
       <UserProvider>
         <QueryClientProvider client={queryClient}>
           <Suspense fallback={<SpinnerComponent />}>

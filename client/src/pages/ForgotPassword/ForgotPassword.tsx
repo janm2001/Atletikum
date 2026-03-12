@@ -17,6 +17,7 @@ import {
 } from "@/schema/forgotPassword.schema";
 import { useRequestPasswordReset } from "@/hooks/useAuth";
 import type { PasswordResetRequestResponse } from "@/types/User/auth";
+import { useTranslation } from "react-i18next";
 
 type ForgotPasswordLocationState = {
   username?: string;
@@ -24,6 +25,7 @@ type ForgotPasswordLocationState = {
 } | null;
 
 const ForgotPassword = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as ForgotPasswordLocationState;
@@ -55,7 +57,7 @@ const ForgotPassword = () => {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "Došlo je do greške na serveru.",
+          : t('common.serverError'),
       );
     }
   };
@@ -70,18 +72,17 @@ const ForgotPassword = () => {
     >
       <div style={{ width: "100%", maxWidth: 520 }}>
         <Title ta="center" order={2}>
-          Reset lozinke
+          {t('auth.forgotPassword.title')}
         </Title>
         <Text c="dimmed" size="sm" ta="center" mt={5}>
-          Za ovu fazu koristimo privremenu razvojnu poveznicu umjesto slanja
-          emaila.
+          {t('auth.forgotPassword.devNote')}
         </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleSubmit(handleRequestReset)}>
             <TextInput
-              label="Korisničko ime"
-              placeholder="Vaše korisničko ime"
+              label={t('auth.forgotPassword.username')}
+              placeholder={t('auth.forgotPassword.usernamePlaceholder')}
               required
               error={errors.username?.message}
               {...register("username")}
@@ -89,8 +90,8 @@ const ForgotPassword = () => {
             />
 
             <TextInput
-              label="Email"
-              placeholder="ime@primjer.hr"
+              label={t('auth.forgotPassword.email')}
+              placeholder={t('auth.forgotPassword.emailPlaceholder')}
               required
               error={errors.email?.message}
               {...register("email")}
@@ -110,9 +111,9 @@ const ForgotPassword = () => {
                 mt="md"
                 bg="var(--mantine-color-gray-0)"
               >
-                <Text fw={600}>Privremena poveznica je spremna</Text>
+                <Text fw={600}>{t('auth.forgotPassword.successTitle')}</Text>
                 <Text size="sm" c="dimmed" mt={4}>
-                  Otvorite poveznicu ispod i postavite novu lozinku.
+                  {t('auth.forgotPassword.successDescription')}
                 </Text>
                 <Anchor
                   component="button"
@@ -122,7 +123,7 @@ const ForgotPassword = () => {
                     navigate(`/reset-lozinka/${result.data.resetToken}`)
                   }
                 >
-                  Otvori reset lozinke
+                  {t('auth.forgotPassword.openResetLink')}
                 </Anchor>
               </Paper>
             )}
@@ -133,14 +134,14 @@ const ForgotPassword = () => {
               type="submit"
               loading={isSubmitting || requestResetMutation.isPending}
             >
-              Kreiraj poveznicu za reset
+              {t('auth.forgotPassword.submit')}
             </Button>
           </form>
 
           <Text c="dimmed" size="sm" ta="center" mt="md">
-            Povratak na prijavu{" "}
+            {t('auth.forgotPassword.backToLogin')}{" "}
             <Anchor component={Link} to="/login" size="sm">
-              Prijavite se
+              {t('auth.forgotPassword.loginLink')}
             </Anchor>
           </Text>
         </Paper>

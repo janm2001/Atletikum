@@ -13,6 +13,7 @@ import {
   IconBookmark,
   IconBookmarkFilled,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 interface ArticleDetailHeaderProps {
   title: string;
@@ -35,9 +36,11 @@ const ArticleDetailHeader = ({
   onBack,
   onToggleBookmark,
 }: ArticleDetailHeaderProps) => {
+  const { t } = useTranslation();
+
   const breadcrumbs = [
     <Anchor key="knowledge-base" onClick={onBack} c="dimmed">
-      Baza Znanja
+      {t('articles.breadcrumb')}
     </Anchor>,
     <Text key="title" truncate w={200}>
       {title}
@@ -52,7 +55,7 @@ const ArticleDetailHeader = ({
         onClick={onBack}
         mb="md"
       >
-        Nazad na Bazu Znanja
+        {t('articles.backButton')}
       </Button>
 
       <Breadcrumbs mb="xl">{breadcrumbs}</Breadcrumbs>
@@ -80,11 +83,11 @@ const ArticleDetailHeader = ({
       </Group>
 
       <Group mb="xl" c="dimmed">
-        <Text size="sm">Autor: {author}</Text>
+        <Text size="sm">{t('articles.authorLabel')}{author}</Text>
         <Text size="sm">•</Text>
         <Text size="sm">{new Date(createdAt).toLocaleDateString("hr-HR")}</Text>
         <Text size="sm">•</Text>
-        <Text size="sm">Napredak: {progressPercent}%</Text>
+        <Text size="sm">{t('articles.progressLabel')}{progressPercent}%</Text>
       </Group>
     </>
   );

@@ -1,4 +1,5 @@
 import { Badge, Button, Card, Group, Image, Stack, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import type { Exercise } from "../../../types/Exercise/exercise";
 
 interface ExerciseCardProps {
@@ -6,6 +7,7 @@ interface ExerciseCardProps {
 }
 
 const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
+  const { t } = useTranslation();
   return (
     <Card withBorder radius="md" shadow="sm" h="100%">
       <Card.Section>
@@ -44,7 +46,7 @@ const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
             variant="light"
             mt="xs"
           >
-            Pogledaj video
+            {t('dashboard.exercises.watchVideo')}
           </Button>
         )}
       </Stack>

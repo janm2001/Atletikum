@@ -1,4 +1,5 @@
 import { Box, Flex, Progress, Title, Typography, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import type { User } from "../../../types/User/user";
 import {
   getTotalXpForLevelStart,
@@ -10,6 +11,7 @@ interface ProfileLevelXpProps {
 }
 
 const ProfileLevelXp = ({ user }: ProfileLevelXpProps) => {
+  const { t } = useTranslation();
   const currentLevelStartXp = getTotalXpForLevelStart(user.level);
   const nextLevelRequiredXp = getXpRequiredForLevelUp(user.level);
   const xpInCurrentLevel = Math.max(0, user.totalXp - currentLevelStartXp);
@@ -21,11 +23,11 @@ const ProfileLevelXp = ({ user }: ProfileLevelXpProps) => {
   return (
     <Box w="100%">
       <Title order={3} ta="center">
-        Level {user?.level}
+        {t('nav.levelBadge', { level: user?.level })}
       </Title>
 
       <Flex direction="column" align="center" gap="xs" w="100%">
-        <Typography>XP Napredak</Typography>
+        <Typography>{t('profile.level.title')}</Typography>
         <Progress
           radius="xl"
           size="lg"
@@ -34,7 +36,7 @@ const ProfileLevelXp = ({ user }: ProfileLevelXpProps) => {
           w="40%"
         />
         <Text size="sm" c="dimmed">
-          {xpInCurrentLevel}/{nextLevelRequiredXp} XP do Levela {user.level + 1}
+          {t('profile.level.progress', { current: xpInCurrentLevel, total: nextLevelRequiredXp, level: user.level + 1 })}
         </Text>
       </Flex>
     </Box>

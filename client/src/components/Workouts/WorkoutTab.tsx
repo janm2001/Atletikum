@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Group, Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
   useWorkouts,
@@ -23,6 +24,7 @@ const getDefaultFormValues = (): WorkoutFormValues => ({
 });
 
 const WorkoutTab = () => {
+  const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
@@ -67,7 +69,7 @@ const WorkoutTab = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Jeste li sigurni da želite obrisati ovaj trening?")) {
+    if (window.confirm(t('admin.workouts.deleteConfirm'))) {
       try {
         await deleteMutation.mutateAsync(id);
       } catch (err) {
@@ -92,19 +94,19 @@ const WorkoutTab = () => {
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       setActionError(
-        err.response?.data?.message || "Došlo je do greške prilikom spremanja.",
+        err.response?.data?.message || t('admin.workouts.saveError'),
       );
     }
   };
 
   if (isLoading) return <SpinnerComponent />;
-  if (error) return <Text c="red">Greška pri učitavanju treninga.</Text>;
+  if (error) return <Text c="red">{t('admin.workouts.loadError')}</Text>;
 
   return (
     <>
       <Group justify="flex-end" mb="md">
         <Button leftSection={<IconPlus size={16} />} onClick={handleOpenCreate}>
-          Novi trening
+          {t('admin.workouts.add')}
         </Button>
       </Group>
 
@@ -117,7 +119,7 @@ const WorkoutTab = () => {
       <WorkoutFormModal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={editingWorkoutId ? "Uredi trening" : "Dodaj novi trening"}
+        title={editingWorkoutId ? t('admin.workouts.editTitle') : t('admin.workouts.addTitle')}
         actionError={actionError}
         initialValues={formValues}
         loading={createMutation.isPending || updateMutation.isPending}

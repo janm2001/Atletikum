@@ -1,5 +1,8 @@
 import { z } from "zod";
+import i18next from "i18next";
 import { passwordSchema } from "./password.schema";
+
+const t = (key: string) => i18next.t(key);
 
 export const resetPasswordSchema = z
     .object({
@@ -8,7 +11,7 @@ export const resetPasswordSchema = z
     })
     .refine((data) => data.password === data.passwordConfirm, {
         path: ["passwordConfirm"],
-        message: "Lozinke se ne poklapaju.",
+        message: t("validation.passwordMismatch"),
     });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

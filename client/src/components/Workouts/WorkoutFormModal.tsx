@@ -10,10 +10,11 @@ import {
   TextInput,
   Textarea,
 } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import ExerciseBuilder from "@/components/Exercise/ExerciseBuilder";
-import { WORKOUT_TAG_OPTIONS } from "@/enums/workoutTags";
+import { getWorkoutTagOptions } from "@/enums/workoutTags";
 import { workoutSchema, type WorkoutFormValues } from "@/schema/workout.schema";
 
 type WorkoutFormModalProps = {
@@ -37,6 +38,7 @@ const WorkoutFormModal = ({
   showRequiredLevel = true,
   title,
 }: WorkoutFormModalProps) => {
+  const { t } = useTranslation();
   const form = useForm<WorkoutFormValues>({
     resolver: zodResolver(workoutSchema),
     defaultValues: initialValues,
@@ -61,14 +63,14 @@ const WorkoutFormModal = ({
           )}
 
           <TextInput
-            label="Naslov treninga"
+            label={t('training.workoutForm.titleLabel')}
             {...register("title")}
             error={errors.title?.message}
             required
           />
 
           <Textarea
-            label="Opis treninga"
+            label={t('training.workoutForm.descriptionLabel')}
             {...register("description")}
             error={errors.description?.message}
             rows={3}
@@ -79,9 +81,9 @@ const WorkoutFormModal = ({
             control={control}
             render={({ field }) => (
               <MultiSelect
-                label="Kategorije"
-                placeholder="Odaberite kategorije"
-                data={WORKOUT_TAG_OPTIONS}
+                label={t('training.workoutForm.categories')}
+                placeholder={t('training.workoutForm.categoriesPlaceholder')}
+                data={getWorkoutTagOptions()}
                 value={field.value ?? []}
                 onChange={field.onChange}
                 clearable
@@ -96,7 +98,7 @@ const WorkoutFormModal = ({
               control={control}
               render={({ field }) => (
                 <NumberInput
-                  label="Potrebna razina (Level)"
+                  label={t('training.workoutForm.requiredLevel')}
                   min={1}
                   value={field.value}
                   onChange={(value) =>
@@ -111,16 +113,16 @@ const WorkoutFormModal = ({
             />
           )}
 
-          <Divider my="sm" label="Vježbe" labelPosition="center" />
+          <Divider my="sm" label={t('training.workoutForm.exercises')} labelPosition="center" />
 
           <ExerciseBuilder />
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose}>
-              Odustani
+              {t('common.cancel')}
             </Button>
             <Button type="submit" loading={loading || isSubmitting}>
-              Spremi
+              {t('common.save')}
             </Button>
           </Group>
         </Stack>

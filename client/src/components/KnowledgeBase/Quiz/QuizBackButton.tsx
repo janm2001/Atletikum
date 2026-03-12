@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 interface QuizBackButtonProps {
   onClick: () => void;
@@ -7,6 +8,7 @@ interface QuizBackButtonProps {
 }
 
 const QuizBackButton = ({ onClick, mb = "md" }: QuizBackButtonProps) => {
+  const { t } = useTranslation();
   return (
     <Button
       variant="subtle"
@@ -14,7 +16,7 @@ const QuizBackButton = ({ onClick, mb = "md" }: QuizBackButtonProps) => {
       onClick={onClick}
       mb={mb}
     >
-      Nazad na članak
+      {t('articles.quiz.backToArticle')}
     </Button>
   );
 };

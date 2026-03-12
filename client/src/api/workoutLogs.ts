@@ -22,7 +22,7 @@ export async function createWorkoutLog(
 
     if (!parsedPayload.success) {
         throw new Error(
-            parsedPayload.error.issues[0]?.message || "Workout log nije valjan.",
+            parsedPayload.error.issues[0]?.message || "Workout log is invalid.",
         );
     }
 

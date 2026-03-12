@@ -1,3 +1,5 @@
+import i18next from "i18next";
+
 export const MuscleGroup = {
     QUADRICEPS: "QUADRICEPS",
     HAMSTRINGS: "HAMSTRINGS",
@@ -15,10 +17,10 @@ export const MuscleGroup = {
 export type MuscleGroupValue =
     (typeof MuscleGroup)[keyof typeof MuscleGroup];
 
-export const MUSCLE_GROUP_OPTIONS = [
-    { value: "ALL", label: "Sve mišićne skupine" },
+export const getMuscleGroupOptions = () => [
+    { value: "ALL", label: i18next.t('enums.muscleGroups.ALL') },
     ...Object.values(MuscleGroup).map((value) => ({
         value,
-        label: value.replaceAll("_", " "),
+        label: i18next.t(`enums.muscleGroups.${value}`),
     })),
 ];

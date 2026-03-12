@@ -1,5 +1,6 @@
 import { Button, Paper, Stack, Text, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { User } from "@/types/User/user";
 
 interface ProfileSecurityProps {
@@ -7,15 +8,16 @@ interface ProfileSecurityProps {
 }
 
 const ProfileSecurity = ({ user }: ProfileSecurityProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <Paper withBorder radius="md" p="lg" w="100%" maw={520}>
       <Stack gap="xs">
-        <Title order={3}>Sigurnost računa</Title>
-        <Text fw={600}>Korisničko ime: {user?.username}</Text>
+        <Title order={3}>{t('profile.security.title')}</Title>
+        <Text fw={600}>{t('profile.security.username', { username: user?.username })}</Text>
         <Text fw={600}>
-          Email: {user?.email || "Email još nije postavljen"}
+          {user?.email ? `Email: ${user.email}` : t('profile.security.emailNotSet')}
         </Text>
         <Button
           mt="sm"
@@ -29,7 +31,7 @@ const ProfileSecurity = ({ user }: ProfileSecurityProps) => {
             })
           }
         >
-          Resetiraj lozinku
+          {t('profile.security.resetPassword')}
         </Button>
       </Stack>
     </Paper>

@@ -16,8 +16,10 @@ import {
   type ResetPasswordInput,
 } from "@/schema/resetPassword.schema";
 import { useResetPassword } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const resetPasswordMutation = useResetPassword();
   const [error, setError] = useState("");
@@ -37,7 +39,7 @@ const ResetPassword = () => {
 
   const handleResetPassword = async (formData: ResetPasswordInput) => {
     if (!token) {
-      setError("Poveznica za reset nije valjana.");
+      setError(t('auth.resetPassword.invalidLink'));
       return;
     }
 
@@ -56,7 +58,7 @@ const ResetPassword = () => {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "Došlo je do greške na serveru.",
+          : t('auth.resetPassword.serverError'),
       );
     }
   };
@@ -71,17 +73,17 @@ const ResetPassword = () => {
     >
       <div style={{ width: "100%", maxWidth: 520 }}>
         <Title ta="center" order={2}>
-          Postavite novu lozinku
+          {t('auth.resetPassword.title')}
         </Title>
         <Text c="dimmed" size="sm" ta="center" mt={5}>
-          Unesite novu lozinku i potvrdite promjenu.
+          {t('auth.resetPassword.description')}
         </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleSubmit(handleResetPassword)}>
             <PasswordInput
-              label="Nova lozinka"
-              placeholder="Unesite novu lozinku"
+              label={t('auth.resetPassword.newPassword')}
+              placeholder={t('auth.resetPassword.newPasswordPlaceholder')}
               required
               error={errors.password?.message}
               {...register("password")}
@@ -89,8 +91,8 @@ const ResetPassword = () => {
             />
 
             <PasswordInput
-              label="Potvrdite novu lozinku"
-              placeholder="Ponovite novu lozinku"
+              label={t('auth.resetPassword.confirmPassword')}
+              placeholder={t('auth.resetPassword.confirmPasswordPlaceholder')}
               required
               error={errors.passwordConfirm?.message}
               {...register("passwordConfirm")}
@@ -114,14 +116,14 @@ const ResetPassword = () => {
               type="submit"
               loading={isSubmitting || resetPasswordMutation.isPending}
             >
-              Spremi novu lozinku
+              {t('auth.resetPassword.submit')}
             </Button>
           </form>
 
           <Text c="dimmed" size="sm" ta="center" mt="md">
-            Povratak na prijavu{" "}
+            {t('auth.resetPassword.backToLogin')}{" "}
             <Anchor component={Link} to="/login" size="sm">
-              Prijavite se
+              {t('auth.resetPassword.loginLink')}
             </Anchor>
           </Text>
         </Paper>

@@ -1,4 +1,5 @@
 import { Badge, Group, Text, Title } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconTrophy } from "@tabler/icons-react";
 
 type LeaderboardHeaderProps = {
@@ -6,6 +7,8 @@ type LeaderboardHeaderProps = {
 };
 
 const LeaderboardHeader = ({ myRank }: LeaderboardHeaderProps) => {
+  const { t } = useTranslation();
+
   return (
     <Group justify="space-between" align="flex-end" mb="xl">
       <div>
@@ -15,13 +18,13 @@ const LeaderboardHeader = ({ myRank }: LeaderboardHeaderProps) => {
             style={{ verticalAlign: "middle", marginRight: 8 }}
             color="var(--mantine-color-yellow-5)"
           />
-          Ljestvica
+          {t('leaderboard.title')}
         </Title>
-        <Text c="dimmed">Najbolji sportaši po ukupnim XP bodovima</Text>
+        <Text c="dimmed">{t('leaderboard.subtitle')}</Text>
       </div>
       {myRank && (
         <Badge size="lg" variant="light" color="violet">
-          Vaš rang: #{myRank}
+          {t('leaderboard.yourRank', { rank: myRank })}
         </Badge>
       )}
     </Group>

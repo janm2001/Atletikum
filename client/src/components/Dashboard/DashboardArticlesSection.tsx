@@ -1,4 +1,5 @@
 import { SimpleGrid } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import type { ArticleSummary } from "@/types/Article/article";
 import DashboardSectionHeader from "./DashboardSectionHeader";
@@ -21,11 +22,12 @@ const DashboardArticlesSection = ({
   onOpenArticles,
   onToggleBookmark,
 }: DashboardArticlesSectionProps) => {
+  const { t } = useTranslation();
   return (
     <div>
       <DashboardSectionHeader
-        title="Preporučeni članci"
-        actionLabel="Svi članci"
+        title={t('dashboard.articles.title')}
+        actionLabel={t('dashboard.articles.viewAll')}
         onAction={onOpenArticles}
       />
 

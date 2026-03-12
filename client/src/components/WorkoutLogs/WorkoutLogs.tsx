@@ -4,8 +4,10 @@ import { useExercises } from "@/hooks/useExercise";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { WorkoutLogCard } from "./WorkoutLogCard";
 import WorkoutLogCharts from "./WorkoutLogCharts";
+import { useTranslation } from "react-i18next";
 
 const WorkoutLogs = () => {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useWorkoutLogs();
   const { data: exercises } = useExercises();
   const workoutLogs = data ?? [];
@@ -22,7 +24,7 @@ const WorkoutLogs = () => {
   }
 
   if (workoutLogs.length === 0) {
-    return <Text c="dimmed">Još nema spremljenih treninga.</Text>;
+    return <Text c="dimmed">{t('training.logs.noLogs')}</Text>;
   }
 
   return (

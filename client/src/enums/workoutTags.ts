@@ -1,3 +1,5 @@
+import i18next from "i18next";
+
 export const WorkoutTag = {
     STRENGTH: "STRENGTH",
     SPEED: "SPEED",
@@ -10,17 +12,11 @@ export const WorkoutTag = {
 
 export type WorkoutTagValue = (typeof WorkoutTag)[keyof typeof WorkoutTag];
 
-export const WORKOUT_TAG_LABELS: Record<WorkoutTagValue, string> = {
-    [WorkoutTag.STRENGTH]: "Snaga",
-    [WorkoutTag.SPEED]: "Brzina",
-    [WorkoutTag.PLYOMETRICS]: "Pliometrija",
-    [WorkoutTag.MOBILITY]: "Mobilnost",
-    [WorkoutTag.CORE]: "Trup",
-    [WorkoutTag.ENDURANCE]: "Izdržljivost",
-    [WorkoutTag.RECOVERY]: "Oporavak",
-};
+export const getWorkoutTagLabel = (tag: WorkoutTagValue): string =>
+    i18next.t(`enums.workoutTags.${tag}`);
 
-export const WORKOUT_TAG_OPTIONS = Object.values(WorkoutTag).map((tag) => ({
-    value: tag,
-    label: WORKOUT_TAG_LABELS[tag],
-}));
+export const getWorkoutTagOptions = () =>
+    Object.values(WorkoutTag).map((tag) => ({
+        value: tag,
+        label: i18next.t(`enums.workoutTags.${tag}`),
+    }));

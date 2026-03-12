@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
-import { TRAINING_FOCUS_OPTIONS } from "../../enums/trainingFocus";
+import { getTrainingFocusOptions } from "../../enums/trainingFocus";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,8 +24,10 @@ import {
 } from "../../schema/register.schema";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useRegister } from "../../hooks/useAuth";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
+  const { t } = useTranslation();
   const [error, setError] = useState("");
   const { login } = useUser();
   const navigate = useNavigate();
@@ -68,13 +70,13 @@ const Register = () => {
         login(response.data.user, response.token);
         navigate("/");
       } else {
-        setError("Registracija nije uspjela. Pokušajte ponovno.");
+        setError(t('auth.register.error'));
       }
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : "Došlo je do greške na serveru.",
+          : t('auth.register.serverError'),
       );
     }
   };
@@ -93,20 +95,20 @@ const Register = () => {
     >
       <div style={{ width: "100%", maxWidth: 500 }}>
         <Title ta="center" order={2}>
-          Kreirajte svoj račun
+          {t('auth.register.title')}
         </Title>
         <Text c="dimmed" size="sm" ta="center" mt={5}>
-          Već imate račun?{" "}
+          {t('auth.register.hasAccount')}{" "}
           <Anchor component={Link} to="/login" size="sm">
-            Prijavite se
+            {t('auth.register.login')}
           </Anchor>
         </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleSubmit(handleRegister)}>
             <TextInput
-              label="Korisničko ime"
-              placeholder="Odaberite korisničko ime"
+              label={t('auth.register.username')}
+              placeholder={t('auth.register.usernamePlaceholder')}
               required
               error={errors.username?.message}
               {...register("username")}
@@ -114,8 +116,8 @@ const Register = () => {
             />
 
             <TextInput
-              label="Email"
-              placeholder="ime@primjer.hr"
+              label={t('auth.register.email')}
+              placeholder={t('auth.register.emailPlaceholder')}
               required
               error={errors.email?.message}
               {...register("email")}
@@ -123,8 +125,8 @@ const Register = () => {
             />
 
             <PasswordInput
-              label="Lozinka"
-              placeholder="Unesite lozinku"
+              label={t('auth.register.password')}
+              placeholder={t('auth.register.passwordPlaceholder')}
               required
               error={errors.password?.message}
               {...register("password")}
@@ -132,8 +134,8 @@ const Register = () => {
             />
 
             <PasswordInput
-              label="Potvrdi lozinku"
-              placeholder="Potvrdi lozinku"
+              label={t('auth.register.confirmPassword')}
+              placeholder={t('auth.register.confirmPasswordPlaceholder')}
               required
               error={errors.passwordConfirm?.message}
               {...register("passwordConfirm")}
@@ -145,9 +147,9 @@ const Register = () => {
               name="focus"
               render={({ field }) => (
                 <Select
-                  label="Fokus treninga"
-                  placeholder="Odaberite fokus"
-                  data={TRAINING_FOCUS_OPTIONS}
+                  label={t('auth.register.trainingFocus')}
+                  placeholder={t('auth.register.trainingFocusPlaceholder')}
+                  data={getTrainingFocusOptions()}
                   value={field.value}
                   onChange={(value) => field.onChange(value)}
                   error={errors.focus?.message}
@@ -160,10 +162,10 @@ const Register = () => {
             <div>
               <Group justify="space-between" mb="xs">
                 <Text size="sm" fw={500}>
-                  Frekvencija treninga: {trainingFrequency}x tjedno
+                  {t('auth.register.trainingFrequency', { count: trainingFrequency })}
                 </Text>
                 <Badge color="violet" variant="dot">
-                  {trainingFrequency}/7 dana
+                  {t('auth.register.trainingFrequencyBadge', { count: trainingFrequency })}
                 </Badge>
               </Group>
               <Controller
@@ -198,7 +200,7 @@ const Register = () => {
             )}
 
             <Button fullWidth mt="xl" type="submit">
-              Registrirajte se
+              {t('auth.register.submit')}
             </Button>
           </form>
         </Paper>

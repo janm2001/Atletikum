@@ -2,8 +2,10 @@ import { Container, Title, Text, Button, Group, Center } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { IconHome } from "@tabler/icons-react";
 import { styles } from "../../styles/colors";
+import { useTranslation } from "react-i18next";
 
 const NotFoundPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -24,11 +26,10 @@ const NotFoundPage = () => {
               404
             </Title>
             <Title order={2} mt="md" mb="sm">
-              Stranica nije pronađena
+              {t('errors.notFound.title')}
             </Title>
             <Text c="dimmed" size="lg">
-              Na žalost, stranica koju tražite ne postoji. Provjerite URL i
-              pokušajte ponovno.
+              {t('errors.notFound.description')}
             </Text>
           </div>
         </Group>
@@ -41,7 +42,7 @@ const NotFoundPage = () => {
             onClick={() => navigate("/")}
             leftSection={<IconHome size={18} />}
           >
-            Vratite se na početnu stranicu
+            {t('errors.notFound.backHome')}
           </Button>
         </Group>
       </Container>

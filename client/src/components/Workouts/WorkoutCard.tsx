@@ -27,6 +27,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useUser } from "@/hooks/useUser";
+import { useTranslation } from "react-i18next";
 
 interface WorkoutCardProps {
   workout: Workout;
@@ -35,6 +36,7 @@ interface WorkoutCardProps {
 }
 
 const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
+  const { t } = useTranslation();
   const exerciseCount = workout.exercises.length;
   const totalSets = workout.exercises.reduce(
     (sum, exercise) => sum + (exercise.sets ?? 0),
@@ -102,13 +104,13 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
           <Box style={{ flex: 1, minWidth: 0 }}>
             <Title order={4}>{workout.title}</Title>
             <Text size="sm" c="dimmed" lineClamp={2} mt={2}>
-              {workout.description || "Workout plan bez dodatnog opisa."}
+              {workout.description || t('training.workouts.noDescription')}
             </Text>
           </Box>
 
           {customWorkout ? (
             <Badge variant="light" color="teal" style={{ flexShrink: 0 }}>
-              Moj trening
+              {t('training.workouts.customWorkout')}
             </Badge>
           ) : (
             <Badge
@@ -124,7 +126,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
         {customWorkout && (
           <Group justify="space-between" align="center">
             <Text size="sm" c="dimmed">
-              Privatni trening bez level ograničenja.
+              {t('training.workouts.customWorkoutNote')}
             </Text>
             {(onEdit || onDelete) && (
               <Group gap={6}>
@@ -133,7 +135,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                     variant="light"
                     color="blue"
                     onClick={() => onEdit(workout)}
-                    aria-label="Uredi trening"
+                    aria-label={t('training.form.editTitle')}
                   >
                     <IconEdit size={16} />
                   </ActionIcon>
@@ -143,7 +145,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                     variant="light"
                     color="red"
                     onClick={() => onDelete(workout._id)}
-                    aria-label="Obriši trening"
+                    aria-label={t('common.deleteWorkout')}
                   >
                     <IconTrash size={16} />
                   </ActionIcon>
@@ -157,10 +159,10 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
           <Stack gap="sm" style={{ flex: 1 }} justify="space-between">
             <Group gap="xs">
               <Badge variant="dot" color="blue">
-                {exerciseCount} vježbi
+                {t('training.workouts.exerciseCount', { count: exerciseCount })}
               </Badge>
               <Badge variant="dot" color="teal">
-                {totalSets} setova
+                {t('training.workouts.setsCount', { count: totalSets })}
               </Badge>
               <Badge variant="dot" color="grape">
                 {totalBaseXp} XP
@@ -170,25 +172,25 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
             <Stack align="center" gap={4} py="sm">
               <IconLock size={36} color="var(--mantine-color-gray-5)" />
               <Text size="sm" fw={600} c="dimmed" ta="center">
-                Potreban Level {workout.requiredLevel} za pristup
+                {t('training.workouts.levelRequired', { level: workout.requiredLevel })}
               </Text>
               <Text size="xs" c="dimmed" ta="center">
-                Nastavite vježbati i zarađivati XP za otključavanje!
+                {t('training.workouts.keepTraining')}
               </Text>
             </Stack>
 
             <Button color="gray" disabled leftSection={<IconLock size={16} />}>
-              Zaključano
+              {t('training.workouts.locked')}
             </Button>
           </Stack>
         ) : (
           <>
             <Group gap="xs">
               <Badge variant="dot" color="blue">
-                {exerciseCount} vježbi
+                {t('training.workouts.exerciseCount', { count: exerciseCount })}
               </Badge>
               <Badge variant="dot" color="teal">
-                {totalSets} setova
+                {t('training.workouts.setsCount', { count: totalSets })}
               </Badge>
               <Badge variant="dot" color="grape">
                 {totalBaseXp} XP
@@ -198,7 +200,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
             <Box>
               <Group justify="space-between" mb={6}>
                 <Text size="xs" c="dimmed">
-                  Prosječni intenzitet (RPE)
+                  {t('training.workouts.avgIntensity')}
                 </Text>
                 <Text size="xs" fw={600}>
                   {avgRpe}/10
@@ -211,12 +213,12 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
 
             <Stack gap={8}>
               <Text size="sm" fw={600}>
-                Plan treninga
+                {t('training.workouts.workoutPlan')}
               </Text>
 
               {workout.exercises.slice(0, 5).map((exercise, index) => {
                 const name =
-                  getExerciseName(exercise.exerciseId) ?? `Vježba ${index + 1}`;
+                  getExerciseName(exercise.exerciseId) ?? t('training.workouts.exerciseFallback', { index: index + 1 });
                 const image = getExerciseImage(exercise.exerciseId);
                 return (
                   <Group
@@ -258,11 +260,11 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
 
               {exerciseCount > 5 && (
                 <Text size="xs" c="dimmed">
-                  +{exerciseCount - 5} dodatnih vježbi
+                  {t('training.workouts.moreExercises', { count: exerciseCount - 5 })}
                 </Text>
               )}
               <Button onClick={handleStartTraining} color="violet">
-                Započni trening
+                {t('training.workouts.startWorkout')}
               </Button>
             </Stack>
           </>

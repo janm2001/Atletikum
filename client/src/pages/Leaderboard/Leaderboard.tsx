@@ -5,8 +5,10 @@ import LeaderboardTable from "@/components/Leaderboard/LeaderboardTable";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useUser } from "@/hooks/useUser";
+import { useTranslation } from "react-i18next";
 
 const Leaderboard = () => {
+  const { t } = useTranslation();
   const { data, isLoading } = useLeaderboard();
   const { user } = useUser();
 
@@ -33,7 +35,7 @@ const Leaderboard = () => {
 
       {leaderboard.length === 0 && (
         <Center py="xl">
-          <Text c="dimmed">Ljestvica je prazna. Budite prvi!</Text>
+          <Text c="dimmed">{t('leaderboard.empty')}</Text>
         </Center>
       )}
     </Container>

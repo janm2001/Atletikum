@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Affix,
   Badge,
@@ -27,6 +28,7 @@ export const XpNotification = ({
   totalXp,
   onClose,
 }: XpNotificationProps) => {
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -77,19 +79,19 @@ export const XpNotification = ({
                 <Group gap="xs">
                   <IconTrophy size={18} color="var(--mantine-color-yellow-5)" />
                   <Text size="sm" c="dimmed">
-                    {score}/{totalQuestions} točnih odgovora
+                    {score}/{totalQuestions} {t('xpNotification.correctAnswers')}
                   </Text>
                 </Group>
               )}
 
               {level !== undefined && totalXp !== undefined && (
                 <Badge size="lg" variant="light" color="blue">
-                  Razina {level} • Ukupno {totalXp} XP
+                  {t('xpNotification.levelInfo', { level, xp: totalXp })}
                 </Badge>
               )}
 
               <Text size="xs" c="dimmed">
-                Klikni za zatvaranje
+                {t('common.clickToClose')}
               </Text>
             </Stack>
           </Paper>

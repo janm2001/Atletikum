@@ -14,6 +14,7 @@ import {
   getCompletedExerciseValue,
   type WorkoutLog,
 } from "../../types/WorkoutLog/workoutLog";
+import { useTranslation } from "react-i18next";
 
 interface WorkoutLogChartsProps {
   workoutLogs: WorkoutLog[];
@@ -37,6 +38,7 @@ const WorkoutLogCharts = ({
   workoutLogs,
   exerciseNameById,
 }: WorkoutLogChartsProps) => {
+  const { t } = useTranslation();
   const [chartView, setChartView] = useState<ChartView>("weight");
 
   const exerciseFrequency = useMemo(() => {
@@ -57,7 +59,7 @@ const WorkoutLogCharts = ({
     () =>
       exerciseFrequency.map((id) => ({
         value: id,
-        label: exerciseNameById.get(id) ?? "Nepoznata vježba",
+        label: exerciseNameById.get(id) ?? t('training.logs.unknownExercise'),
       })),
     [exerciseFrequency, exerciseNameById],
   );
@@ -71,6 +73,10 @@ const WorkoutLogCharts = ({
         : exerciseFrequency.slice(0, 3),
     [selectedExercises, exerciseFrequency],
   );
+
+  const volumeLabel = t('training.logs.volume');
+  const weekOfLabel = t('training.logs.weekOf');
+  const workoutsLabel = t('training.logs.workoutsChartLabel');
 
   const weightData = useMemo(() => {
     if (effectiveExercises.length === 0) return [];
@@ -146,10 +152,10 @@ const WorkoutLogCharts = ({
               month: "2-digit",
             })
           : "N/A",
-        Volumen: totalVolume,
+        [volumeLabel]: totalVolume,
       };
     });
-  }, [workoutLogs]);
+  }, [workoutLogs, volumeLabel]);
 
   // --- Frequency Data ---
   const frequencyData = useMemo(() => {
@@ -172,16 +178,16 @@ const WorkoutLogCharts = ({
         (a, b) => parseWeekDate(a[0]).getTime() - parseWeekDate(b[0]).getTime(),
       )
       .map(([week, count]) => ({
-        "Tjedan od": week,
-        Treninzi: count,
+        [weekOfLabel]: week,
+        [workoutsLabel]: count,
       }));
-  }, [workoutLogs]);
+  }, [workoutLogs, weekOfLabel, workoutsLabel]);
 
   if (workoutLogs.length < 2) {
     return (
       <Paper withBorder p="md" radius="md" mb="md">
         <Text c="dimmed" ta="center" size="sm">
-          Potrebna su barem 2 treninga za prikaz statistike.
+          {t('training.logs.minWorkoutsRequired')}
         </Text>
       </Paper>
     );
@@ -190,15 +196,15 @@ const WorkoutLogCharts = ({
   return (
     <Paper withBorder p="md" radius="md" mb="md">
       <Stack gap="md">
-        <Title order={3}>Statistika treninga</Title>
+        <Title order={3}>{t('training.logs.statistics')}</Title>
 
         <SegmentedControl
           value={chartView}
           onChange={(v) => setChartView(v as ChartView)}
           data={[
-            { value: "weight", label: "Progresija težine" },
-            { value: "volume", label: "Volumen" },
-            { value: "frequency", label: "Učestalost" },
+            { value: "weight", label: t('training.logs.weightProgression') },
+            { value: "volume", label: t('training.logs.volume') },
+            { value: "frequency", label: t('training.logs.frequency') },
           ]}
           fullWidth
         />
@@ -206,8 +212,8 @@ const WorkoutLogCharts = ({
         {chartView === "weight" && (
           <Stack gap="sm">
             <MultiSelect
-              label="Odaberi vježbe"
-              placeholder="Odaberi vježbe za prikaz"
+              label={t('training.logs.selectExercises')}
+              placeholder={t('training.logs.selectExercisesPlaceholder')}
               data={exerciseOptions}
               value={selectedExercises}
               onChange={setSelectedExercises}
@@ -243,7 +249,7 @@ const WorkoutLogCharts = ({
               </Box>
             ) : (
               <Text c="dimmed" ta="center" size="sm">
-                Nema podataka za odabrane vježbe.
+                {t('training.logs.noDataForExercises')}
               </Text>
             )}
           </Stack>
@@ -255,7 +261,7 @@ const WorkoutLogCharts = ({
               h={300}
               data={volumeData}
               dataKey="date"
-              series={[{ name: "Volumen", color: "violet.6" }]}
+              series={[{ name: volumeLabel, color: "violet.6" }]}
               withLegend
               legendProps={{
                 verticalAlign: "bottom",
@@ -282,8 +288,8 @@ const WorkoutLogCharts = ({
             <BarChart
               h={300}
               data={frequencyData}
-              dataKey="Tjedan od"
-              series={[{ name: "Treninzi", color: "grape.6" }]}
+              dataKey={weekOfLabel}
+              series={[{ name: workoutsLabel, color: "grape.6" }]}
               withLegend
               legendProps={{
                 verticalAlign: "bottom",

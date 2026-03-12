@@ -10,6 +10,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 import ExercisesTable from "./ExercisesTable";
 import { useMemo, useState } from "react";
@@ -36,6 +37,7 @@ const getDefaultFormValues = (): ExerciseInput => ({
 });
 
 const ExerciseTab = () => {
+  const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
     null,
@@ -114,14 +116,14 @@ const ExerciseTab = () => {
       setActionError(
         saveError instanceof Error
           ? saveError.message
-          : "Greška pri spremanju vježbe.",
+          : t('admin.exercises.saveError'),
       );
     }
   };
 
   const handleDelete = async (exerciseId: string) => {
     const confirmed = window.confirm(
-      "Jeste li sigurni da želite obrisati ovu vježbu?",
+      t('admin.exercises.deleteConfirm'),
     );
     if (!confirmed) {
       return;
@@ -134,7 +136,7 @@ const ExerciseTab = () => {
       setActionError(
         deleteError instanceof Error
           ? deleteError.message
-          : "Greška pri brisanju vježbe.",
+          : t('admin.exercises.deleteError'),
       );
     }
   };
@@ -148,12 +150,12 @@ const ExerciseTab = () => {
       {actionError && <Text c="red">{actionError}</Text>}
       <Stack gap="md">
         <Group justify="space-between">
-          <Text fw={600}>Popis vježbi</Text>
+          <Text fw={600}>{t('admin.exercises.list')}</Text>
           <Button
             leftSection={<IconPlus size={16} />}
             onClick={openCreateModal}
           >
-            Dodaj vježbu
+            {t('admin.exercises.add')}
           </Button>
         </Group>
 
@@ -166,18 +168,18 @@ const ExerciseTab = () => {
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={editingExerciseId ? "Uredi vježbu" : "Dodaj vježbu"}
+        title={editingExerciseId ? t('admin.exercises.editTitle') : t('admin.exercises.addTitle')}
         centered
       >
         <Stack component="form" onSubmit={handleSubmit(handleSave)}>
           <TextInput
-            label="Naziv"
+            label={t('admin.exercises.name')}
             error={errors.title?.message}
             {...register("title")}
             required
           />
           <Textarea
-            label="Opis"
+            label={t('admin.exercises.description')}
             error={errors.description?.message}
             {...register("description")}
             minRows={3}
@@ -188,7 +190,7 @@ const ExerciseTab = () => {
             name="muscleGroup"
             render={({ field }) => (
               <Select
-                label="Mišićna skupina"
+                label={t('admin.exercises.muscleGroup')}
                 data={muscleGroupOptions}
                 value={field.value}
                 onChange={(value) => {
@@ -206,7 +208,7 @@ const ExerciseTab = () => {
             name="level"
             render={({ field }) => (
               <NumberInput
-                label="Razina"
+                label={t('admin.exercises.level')}
                 min={1}
                 max={100}
                 value={field.value}
@@ -221,19 +223,19 @@ const ExerciseTab = () => {
             )}
           />
           <TextInput
-            label="URL slike"
+            label={t('admin.exercises.imageUrl')}
             error={errors.imageLink?.message}
             {...register("imageLink")}
           />
           <TextInput
-            label="URL videa"
+            label={t('admin.exercises.videoUrl')}
             error={errors.videoLink?.message}
             {...register("videoLink")}
           />
 
           <Group justify="flex-end" mt="sm">
             <Button variant="default" onClick={() => setOpened(false)}>
-              Odustani
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -243,7 +245,7 @@ const ExerciseTab = () => {
                 updateExerciseMutation.isPending
               }
             >
-              Spremi
+              {t('common.save')}
             </Button>
           </Group>
         </Stack>

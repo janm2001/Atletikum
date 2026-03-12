@@ -1,4 +1,5 @@
 import { Table, ActionIcon, Group, Badge, Text } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import type { ArticleSummary } from "../../types/Article/article";
 
@@ -19,10 +20,12 @@ const tagColors: Record<string, string> = {
 };
 
 const ArticlesTable = ({ articles, onEdit, onDelete }: ArticlesTableProps) => {
+  const { t } = useTranslation();
+
   if (!articles || articles.length === 0) {
     return (
       <Text c="dimmed" ta="center" py="xl">
-        Nema dodanih članaka.
+        {t('admin.articlesTable.empty')}
       </Text>
     );
   }
@@ -53,7 +56,7 @@ const ArticlesTable = ({ articles, onEdit, onDelete }: ArticlesTableProps) => {
             variant="light"
             color="blue"
             onClick={() => onEdit(article)}
-            title="Uredi"
+            title={t('common.edit')}
           >
             <IconEdit size={16} />
           </ActionIcon>
@@ -61,7 +64,7 @@ const ArticlesTable = ({ articles, onEdit, onDelete }: ArticlesTableProps) => {
             variant="light"
             color="red"
             onClick={() => onDelete(article._id)}
-            title="Obriši"
+            title={t('common.delete')}
           >
             <IconTrash size={16} />
           </ActionIcon>
@@ -75,11 +78,11 @@ const ArticlesTable = ({ articles, onEdit, onDelete }: ArticlesTableProps) => {
       <Table striped highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Naslov</Table.Th>
-            <Table.Th>Tag</Table.Th>
-            <Table.Th>Sažetak</Table.Th>
-            <Table.Th>Kreirano</Table.Th>
-            <Table.Th style={{ textAlign: "right" }}>Akcije</Table.Th>
+            <Table.Th>{t('admin.articlesTable.title')}</Table.Th>
+            <Table.Th>{t('admin.articlesTable.tag')}</Table.Th>
+            <Table.Th>{t('admin.articlesTable.summary')}</Table.Th>
+            <Table.Th>{t('admin.articlesTable.created')}</Table.Th>
+            <Table.Th style={{ textAlign: "right" }}>{t('common.actions')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
