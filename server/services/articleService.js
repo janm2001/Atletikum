@@ -221,7 +221,7 @@ const updateArticle = async ({ articleId, payload, file }) => {
 
   try {
     const article = await Article.findByIdAndUpdate(articleId, updateData, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
@@ -276,7 +276,7 @@ const toggleBookmark = async ({ userId, articleId, shouldBookmark }) => {
             savedAt: null,
           },
         },
-    { new: true, upsert: true, runValidators: true },
+    { returnDocument: "after", upsert: true, runValidators: true },
   ).lean();
 
   return normalizeBookmarkState(bookmark);
@@ -305,7 +305,7 @@ const updateReadingProgress = async ({ userId, articleId, payload }) => {
         savedAt: null,
       },
     },
-    { new: true, upsert: true, runValidators: true },
+    { returnDocument: "after", upsert: true, runValidators: true },
   ).lean();
 
   return normalizeBookmarkState(bookmark);

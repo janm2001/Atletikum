@@ -21,7 +21,7 @@ const createExercise = async (payload) => {
 
 const updateExercise = async (exerciseId, payload) => {
   const exercise = await Exercise.findByIdAndUpdate(exerciseId, payload, {
-    new: true,
+    returnDocument: "after",
     runValidators: true,
   });
 

@@ -28,7 +28,7 @@ describe("updateDailyStreak", () => {
     expect(User.findOneAndUpdate).toHaveBeenCalledWith(
       { _id: "user-1" },
       expect.any(Array),
-      { new: true, updatePipeline: true },
+      { returnDocument: "after", updatePipeline: true },
     );
     expect(result).toBe(updatedUser);
   });
@@ -51,7 +51,7 @@ describe("updateDailyStreak", () => {
     expect(User.findOneAndUpdate).toHaveBeenCalledWith(
       { _id: "user-1" },
       expect.any(Array),
-      { new: true, updatePipeline: true },
+      { returnDocument: "after", updatePipeline: true },
     );
     expect(updateQuery.session).toHaveBeenCalledWith({ id: "session-1" });
     expect(result).toBe(updatedUser);

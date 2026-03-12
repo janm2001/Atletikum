@@ -65,7 +65,7 @@ const reserveQuizAttempt = async ({
                 article: articleId,
               },
             },
-            { new: true, upsert: true, runValidators: true },
+            { returnDocument: "after", upsert: true, runValidators: true },
           ),
           session,
         );
@@ -100,7 +100,7 @@ const reserveQuizAttempt = async ({
             article: articleId,
           },
         },
-        { new: true, upsert: true, runValidators: true },
+        { returnDocument: "after", upsert: true, runValidators: true },
       ),
       session,
     );

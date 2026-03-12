@@ -156,7 +156,7 @@ const updateWorkout = async ({ workoutId, payload, user, userId }) => {
     workoutId,
     normalizedPayload,
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     },
   ).populate(...workoutListPopulate);
