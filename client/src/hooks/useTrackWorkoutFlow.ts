@@ -8,15 +8,21 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useCreateWorkoutLog } from "@/hooks/useWorkoutLogs";
 import { useUser } from "@/hooks/useUser";
+import type { CelebrationState } from "@/types/Celebration/celebration";
 import type {
     TrackWorkoutFormValues,
     TrackWorkoutMetric,
 } from "@/types/Workout/trackWorkout";
-import { getExerciseId, type Workout } from "@/types/Workout/workout";
+import {
+    getExerciseId,
+    getExerciseName,
+    type Workout,
+} from "@/types/Workout/workout";
 import type {
     CompletedExercisePayload,
     WorkoutMetricType,
 } from "@/types/WorkoutLog/workoutLog";
+import { persistCelebrationState } from "@/utils/flowSessionStorage";
 
 type UseTrackWorkoutFlowParams = {
     workout: Workout;
@@ -172,18 +178,36 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
                 updateUser(result.user);
             }
 
+            const celebrationState: CelebrationState = {
+                type: "workout",
+                xpGained: result.totalXpGained,
+                title: workout.title,
+                newAchievements: result.newAchievements,
+                level: result.user?.level,
+                totalXp: result.user?.totalXp,
+                brainXp: result.user?.brainXp,
+                bodyXp: result.user?.bodyXp,
+                personalBests:
+                    result.personalBests?.map((exercise) => {
+                        const workoutExercise = workout.exercises.find(
+                            (candidate) =>
+                                getExerciseId(candidate.exerciseId) ===
+                                exercise.exerciseId,
+                        );
+
+                        return {
+                            ...exercise,
+                            exerciseName: getExerciseName(
+                                workoutExercise?.exerciseId ?? null,
+                            ),
+                        };
+                    }) ?? [],
+            };
+            persistCelebrationState(celebrationState);
+
             navigate("/slavlje", {
                 replace: true,
-                state: {
-                    type: "workout",
-                    xpGained: result.totalXpGained,
-                    title: workout.title,
-                    newAchievements: result.newAchievements,
-                    level: result.user?.level,
-                    totalXp: result.user?.totalXp,
-                    brainXp: result.user?.brainXp,
-                    bodyXp: result.user?.bodyXp,
-                },
+                state: celebrationState,
             });
             return;
         }

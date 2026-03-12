@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "@/context/UserContextCreate";
 import { useSubmitQuiz } from "@/hooks/useQuiz";
 import type { QuizQuestion } from "@/types/Article/article";
+import type { ArticleQuizResult } from "@/types/Article/quiz";
+import type { CelebrationState } from "@/types/Celebration/celebration";
+import {
+  clearPersistedArticleQuizResult,
+  persistArticleQuizResult,
+  persistCelebrationState,
+} from "@/utils/flowSessionStorage";
 
 interface UseQuizFlowParams {
   articleId: string;
@@ -61,54 +68,63 @@ export const useQuizFlow = ({
         submittedAnswers: answers,
       });
 
-      const xp = result.data.completion.xpGained;
-      const passed = result.data.completion.passed;
+      const { completion, nextAvailableAt, user } = result.data;
+      const passed = completion.passed;
+      const totalQuestions = completion.totalQuestions;
 
-      if (result.data.user && userCtx) {
-        userCtx.updateUser(result.data.user);
+      if (user && userCtx) {
+        userCtx.updateUser(user);
       }
 
       if (!passed) {
-        navigate(`/edukacija/${articleId}`, {
-          replace: true,
-          state: {
-            quizResult: {
-              xpGained: 0,
-              score: result.data.completion.score,
-              totalQuestions: questions.length,
-              passed: false,
-            },
-          },
-        });
+        const failedQuizResult: ArticleQuizResult = {
+          xpGained: completion.xpGained,
+          score: completion.score,
+          totalQuestions,
+          passed,
+          completedAt: completion.completedAt,
+          nextAvailableAt,
+        };
+
+        persistArticleQuizResult(articleId, failedQuizResult);
+        navigate(`/edukacija/${articleId}`, { replace: true });
         return;
       }
 
+      clearPersistedArticleQuizResult(articleId);
+      const celebrationState: CelebrationState = {
+        type: "quiz",
+        xpGained: completion.xpGained,
+        score: completion.score,
+        totalQuestions,
+        title: articleTitle,
+        newAchievements: result.data.newAchievements ?? [],
+        level: user?.level,
+        totalXp: user?.totalXp,
+        brainXp: user?.brainXp,
+        bodyXp: user?.bodyXp,
+      };
+      persistCelebrationState(celebrationState);
+
       navigate("/slavlje", {
         replace: true,
-        state: {
-          type: "quiz",
-          xpGained: xp,
-          score: result.data.completion.score,
-          totalQuestions: questions.length,
-          title: articleTitle,
-          newAchievements: result.data.newAchievements ?? [],
-          level: result.data.user?.level,
-          totalXp: result.data.user?.totalXp,
-          brainXp: result.data.user?.brainXp,
-          bodyXp: result.data.user?.bodyXp,
-        },
+        state: celebrationState,
       });
     } catch {
+      clearPersistedArticleQuizResult(articleId);
+      const celebrationState: CelebrationState = {
+        type: "quiz",
+        xpGained: 0,
+        score: localScore,
+        totalQuestions: questions.length,
+        title: articleTitle,
+        newAchievements: [],
+      };
+      persistCelebrationState(celebrationState);
+
       navigate("/slavlje", {
         replace: true,
-        state: {
-          type: "quiz",
-          xpGained: 0,
-          score: localScore,
-          totalQuestions: questions.length,
-          title: articleTitle,
-          newAchievements: [],
-        },
+        state: celebrationState,
       });
     }
   };

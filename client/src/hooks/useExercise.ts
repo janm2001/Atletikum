@@ -6,6 +6,10 @@ import {
     getExercises,
     updateExercise,
 } from '@/api/exercises';
+import {
+    removeCachedEntity,
+    replaceCachedEntity,
+} from '@/lib/query-cache';
 import { keys } from '../lib/query-keys';
 import { type Exercise } from '../types/Exercise/exercise';
 import type { ExercisePayload } from '@/types/Exercise/exerciseApi';
@@ -31,7 +35,10 @@ export function useCreateExercise() {
     return useMutation<Exercise, Error, ExercisePayload>({
         mutationFn: createExercise,
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: keys.exercises.all });
+            await queryClient.invalidateQueries({
+                queryKey: keys.exercises.list(),
+                exact: true,
+            });
         },
     });
 }
@@ -41,8 +48,12 @@ export function useUpdateExercise() {
 
     return useMutation<Exercise, Error, { id: string; payload: ExercisePayload }>({
         mutationFn: updateExercise,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: keys.exercises.all });
+        onSuccess: (exercise, variables) => {
+            queryClient.setQueryData(keys.exercises.detail(variables.id), exercise);
+            queryClient.setQueryData<Exercise[] | undefined>(
+                keys.exercises.list(),
+                (exercises) => replaceCachedEntity(exercises, exercise),
+            );
         },
     });
 }
@@ -52,8 +63,15 @@ export function useDeleteExercise() {
 
     return useMutation<void, Error, string>({
         mutationFn: deleteExercise,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: keys.exercises.all });
+        onSuccess: async (_, exerciseId) => {
+            queryClient.setQueryData<Exercise[] | undefined>(
+                keys.exercises.list(),
+                (exercises) => removeCachedEntity(exercises, exerciseId),
+            );
+            await queryClient.invalidateQueries({
+                queryKey: keys.exercises.detail(exerciseId),
+                exact: true,
+            });
         },
     });
 }

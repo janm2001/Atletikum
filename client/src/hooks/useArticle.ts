@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import {
   createArticle,
   deleteArticle,
@@ -8,8 +13,70 @@ import {
   updateArticle,
   updateArticleProgress,
 } from "@/api/articles";
+import {
+  removeArticleFromDetailCache,
+  removeCachedEntity,
+  updateArticleBookmarkInDetail,
+  updateArticleBookmarkInList,
+} from "@/lib/query-cache";
 import { keys } from "../lib/query-keys";
-import type { ArticleBookmarkState } from "../types/Article/article";
+import type {
+  Article,
+  ArticleBookmarkState,
+  ArticleSummary,
+} from "../types/Article/article";
+import type { WeeklyRecommendations } from "@/types/Recommendation/recommendation";
+
+const isSavedArticleListKey = (queryKey: readonly unknown[]) =>
+  queryKey[0] === keys.knowledgeBase.all[0] &&
+  queryKey[1] === "list" &&
+  queryKey[2] === "saved";
+
+const syncArticleBookmarkState = (
+  queryClient: QueryClient,
+  articleId: string,
+  bookmark: ArticleBookmarkState,
+  options?: { removeFromSavedLists?: boolean },
+) => {
+  for (const [queryKey] of queryClient.getQueriesData<ArticleSummary[]>({
+    queryKey: keys.knowledgeBase.lists(),
+  })) {
+    queryClient.setQueryData<ArticleSummary[] | undefined>(queryKey, (articles) =>
+      updateArticleBookmarkInList(
+        articles,
+        articleId,
+        bookmark,
+        options?.removeFromSavedLists && isSavedArticleListKey(queryKey)
+          ? { remove: true }
+          : undefined,
+      ),
+    );
+  }
+
+  queryClient.setQueriesData<Article | undefined>(
+    { queryKey: keys.knowledgeBase.details() },
+    (article) => updateArticleBookmarkInDetail(article, articleId, bookmark),
+  );
+
+  queryClient.setQueryData<WeeklyRecommendations | undefined>(
+    keys.recommendations.weekly(),
+    (recommendations) => {
+      if (!recommendations) {
+        return recommendations;
+      }
+
+      return {
+        ...recommendations,
+        articles:
+          updateArticleBookmarkInList(
+            recommendations.articles,
+            articleId,
+            bookmark,
+          ) ?? recommendations.articles,
+      };
+    },
+  );
+};
 
 export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean }) => {
   const tags = options?.tags;
@@ -18,10 +85,10 @@ export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean }) 
   return useQuery({
     queryKey:
       savedOnly
-        ? [...keys.knowledgeBase.saved(), ...(tags ?? [])]
+        ? keys.knowledgeBase.saved(tags)
         : tags && tags.length > 0
           ? keys.knowledgeBase.categories(tags)
-          : keys.knowledgeBase.all,
+          : keys.knowledgeBase.list(),
     queryFn: () => getArticles({ tags, savedOnly }),
   });
 };
@@ -39,8 +106,11 @@ export const useCreateArticle = () => {
 
   return useMutation({
     mutationFn: createArticle,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.lists() }),
+        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.details() }),
+      ]);
     },
   });
 };
@@ -50,11 +120,11 @@ export const useUpdateArticle = () => {
 
   return useMutation({
     mutationFn: updateArticle,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
-      queryClient.invalidateQueries({
-        queryKey: keys.knowledgeBase.detail(variables.id),
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.lists() }),
+        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.details() }),
+      ]);
     },
   });
 };
@@ -64,8 +134,18 @@ export const useDeleteArticle = () => {
 
   return useMutation({
     mutationFn: deleteArticle,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
+    onSuccess: async (_, articleId) => {
+      queryClient.setQueriesData<ArticleSummary[] | undefined>(
+        { queryKey: keys.knowledgeBase.lists() },
+        (articles) => removeCachedEntity(articles, articleId),
+      );
+      queryClient.setQueriesData<Article | undefined>(
+        { queryKey: keys.knowledgeBase.details() },
+        (article) => removeArticleFromDetailCache(article, articleId),
+      );
+      await queryClient.invalidateQueries({
+        queryKey: keys.knowledgeBase.details(),
+      });
     },
   });
 };
@@ -79,13 +159,13 @@ export const useToggleArticleBookmark = () => {
     { articleId: string; shouldBookmark: boolean }
   >({
     mutationFn: toggleArticleBookmark,
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
-      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.saved() });
-      await queryClient.invalidateQueries({
-        queryKey: keys.knowledgeBase.detail(variables.articleId),
+    onSuccess: async (bookmark, variables) => {
+      syncArticleBookmarkState(queryClient, variables.articleId, bookmark, {
+        removeFromSavedLists: !bookmark.isBookmarked,
       });
-      await queryClient.invalidateQueries({ queryKey: keys.recommendations.all });
+      await queryClient.invalidateQueries({
+        queryKey: keys.knowledgeBase.saved(),
+      });
     },
   });
 };
@@ -99,12 +179,8 @@ export const useUpdateArticleProgress = () => {
     { articleId: string; progressPercent: number; isCompleted?: boolean }
   >({
     mutationFn: updateArticleProgress,
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.all });
-      await queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.saved() });
-      await queryClient.invalidateQueries({
-        queryKey: keys.knowledgeBase.detail(variables.articleId),
-      });
+    onSuccess: (bookmark, variables) => {
+      syncArticleBookmarkState(queryClient, variables.articleId, bookmark);
     },
   });
 };

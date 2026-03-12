@@ -6,10 +6,12 @@ export const keys = {
     },
     knowledgeBase: {
         all: ['articles'] as const,
-        categories: (cats: string[]) => [...keys.knowledgeBase.all, 'categories', ...cats] as const,
-        list: () => [...keys.knowledgeBase.all, 'list'] as const,
-        detail: (id: string) => [...keys.knowledgeBase.all, 'detail', id] as const,
-        saved: () => [...keys.knowledgeBase.all, 'saved'] as const,
+        lists: () => [...keys.knowledgeBase.all, 'list'] as const,
+        categories: (cats: string[]) => [...keys.knowledgeBase.lists(), 'categories', ...cats] as const,
+        list: () => [...keys.knowledgeBase.lists(), 'all'] as const,
+        saved: (cats: string[] = []) => [...keys.knowledgeBase.lists(), 'saved', ...cats] as const,
+        details: () => [...keys.knowledgeBase.all, 'detail'] as const,
+        detail: (id: string) => [...keys.knowledgeBase.details(), id] as const,
         bookmark: (id: string) => [...keys.knowledgeBase.all, 'bookmark', id] as const,
     },
     achievements: {
@@ -26,10 +28,12 @@ export const keys = {
     },
     workouts: {
         all: ['workouts'] as const,
-        list: (scope: string) => [...keys.workouts.all, 'list', scope] as const,
+        lists: () => [...keys.workouts.all, 'list'] as const,
+        list: (scope: string) => [...keys.workouts.lists(), scope] as const,
     },
     workoutLogs: {
         all: ['workout-logs'] as const,
+        list: () => [...keys.workoutLogs.all, 'list'] as const,
     },
     recommendations: {
         all: ['recommendations'] as const,

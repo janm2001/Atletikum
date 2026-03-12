@@ -337,6 +337,7 @@
     "xpToNextLevel": "{{current}} / {{total}} XP do sljedeće razine",
     "totalXp": "Ukupno: {{xp}} XP",
     "newAchievements": "Nova dostignuća!",
+    "personalBests": "Novi osobni rekordi!",
     "backToEducation": "Nazad na edukaciju",
     "backToWorkouts": "Nazad na treninge",
     "backToOverview": "Pregled"

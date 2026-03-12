@@ -26,32 +26,34 @@ import {
   getXpRequiredForLevelUp,
   getTotalXpForLevelStart,
 } from "../../utils/leveling";
-import type { NewAchievement } from "../../types/Achievement/achievement";
 import { useTranslation } from "react-i18next";
-
-type CelebrationState = {
-  type: "quiz" | "workout";
-  xpGained: number;
-  title?: string;
-  score?: number;
-  totalQuestions?: number;
-  newAchievements?: NewAchievement[];
-  level?: number;
-  totalXp?: number;
-  brainXp?: number;
-  bodyXp?: number;
-};
+import type { CelebrationState } from "@/types/Celebration/celebration";
+import { formatCompletedExerciseResult } from "@/types/WorkoutLog/workoutLog";
+import {
+  clearPersistedCelebrationState,
+  getPersistedCelebrationState,
+  persistCelebrationState,
+} from "@/utils/flowSessionStorage";
 
 const XpCelebration = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state as CelebrationState | null;
+  const routeState = location.state as CelebrationState | null;
+  const state = routeState ?? getPersistedCelebrationState();
 
   const [showXp, setShowXp] = useState(false);
   const [showLevel, setShowLevel] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showActions, setShowActions] = useState(false);
+
+  useEffect(() => {
+    if (!routeState) {
+      return;
+    }
+
+    persistCelebrationState(routeState);
+  }, [routeState]);
 
   useEffect(() => {
     if (!state) return;
@@ -89,7 +91,12 @@ const XpCelebration = () => {
   );
 
   const achievements = state.newAchievements ?? [];
+  const personalBests = state.personalBests ?? [];
   const backPath = isQuiz ? "/edukacija" : "/zapis-treninga";
+  const handleNavigateAway = (path: string) => {
+    clearPersistedCelebrationState();
+    navigate(path);
+  };
 
   return (
     <Container size="sm" py="xl">
@@ -289,16 +296,78 @@ const XpCelebration = () => {
           </Transition>
         )}
 
+        {!isQuiz && personalBests.length > 0 && (
+          <Transition
+            mounted={showAchievements}
+            transition="slide-up"
+            duration={500}
+          >
+            {(styles) => (
+              <Card
+                withBorder
+                radius="lg"
+                shadow="sm"
+                p="xl"
+                w="100%"
+                style={styles}
+              >
+                <Stack align="center" gap="md">
+                  <Group gap="xs">
+                    <IconTrophy
+                      size={24}
+                      color="var(--mantine-color-orange-5)"
+                    />
+                    <Title order={3}>{t('celebration.personalBests')}</Title>
+                  </Group>
+
+                  {personalBests.map((personalBest, index) => (
+                    <Card
+                      key={`${personalBest.exerciseId}-${index}`}
+                      withBorder
+                      radius="md"
+                      p="md"
+                      w="100%"
+                      style={{
+                        borderColor: "var(--mantine-color-orange-5)",
+                        backgroundColor: "var(--mantine-color-orange-light)",
+                      }}
+                    >
+                      <Group justify="space-between" align="center">
+                        <div>
+                          <Text fw={700}>
+                            {personalBest.exerciseName ??
+                              t('training.logs.unknownExercise')}
+                          </Text>
+                          <Text size="sm" c="dimmed">
+                            {formatCompletedExerciseResult(personalBest)} · RPE{" "}
+                            {personalBest.rpe}
+                          </Text>
+                        </div>
+                        <Badge color="orange" variant="light">
+                          {t('training.logs.newPR')}
+                        </Badge>
+                      </Group>
+                    </Card>
+                  ))}
+                </Stack>
+              </Card>
+            )}
+          </Transition>
+        )}
+
         {/* Actions */}
         <Transition mounted={showActions} transition="fade" duration={400}>
           {(styles) => (
             <Group gap="md" style={styles}>
-              <Button variant="light" onClick={() => navigate(backPath)}>
+              <Button
+                variant="light"
+                onClick={() => handleNavigateAway(backPath)}
+              >
                 {isQuiz ? t('celebration.backToEducation') : t('celebration.backToWorkouts')}
               </Button>
               <Button
                 rightSection={<IconArrowRight size={16} />}
-                onClick={() => navigate("/pregled")}
+                onClick={() => handleNavigateAway("/pregled")}
               >
                 {t('celebration.backToOverview')}
               </Button>

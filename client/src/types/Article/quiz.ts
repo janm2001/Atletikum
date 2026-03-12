@@ -63,4 +63,6 @@ export interface ArticleQuizResult {
     level?: number;
     totalXp?: number;
     passed?: boolean;
+    completedAt?: string;
+    nextAvailableAt?: string | null;
 }

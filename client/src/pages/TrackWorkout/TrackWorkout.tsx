@@ -1,33 +1,23 @@
 import { useMemo } from "react";
 import { Button, Stack, Text } from "@mantine/core";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import TrackWorkoutPageContent from "@/components/TrackWorkout/TrackWorkoutPageContent";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
 import { useWorkouts } from "@/hooks/useWorkout";
-import type { Workout } from "@/types/Workout/workout";
-
-type TrackWorkoutLocationState = {
-  workout?: Workout;
-};
 
 const TrackWorkout = () => {
   const { t } = useTranslation();
   const { id } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
   const { data: workouts, isLoading: workoutsLoading } = useWorkouts();
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
-
-  const locationState = location.state as TrackWorkoutLocationState | null;
 
   const workoutFromList = useMemo(
     () => (workouts ?? []).find((item) => item._id === id),
     [workouts, id],
   );
-
-  const workout = locationState?.workout ?? workoutFromList;
 
   const exerciseById = useMemo(
     () =>
@@ -39,7 +29,7 @@ const TrackWorkout = () => {
     return <SpinnerComponent size="md" fullHeight={false} />;
   }
 
-  if (!workout) {
+  if (!workoutFromList) {
     return (
       <Stack align="center" py="xl" gap="md">
         <Text c="dimmed">{t('training.track.notFound')}</Text>
@@ -51,7 +41,10 @@ const TrackWorkout = () => {
   }
 
   return (
-    <TrackWorkoutPageContent workout={workout} exerciseById={exerciseById} />
+    <TrackWorkoutPageContent
+      workout={workoutFromList}
+      exerciseById={exerciseById}
+    />
   );
 };
 

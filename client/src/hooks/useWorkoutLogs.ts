@@ -3,6 +3,7 @@ import {
     createWorkoutLog,
     getWorkoutLogs,
 } from "@/api/workoutLogs";
+import { prependCachedEntity } from "@/lib/query-cache";
 import { keys } from "@/lib/query-keys";
 import type {
     WorkoutLog,
@@ -14,7 +15,7 @@ export type { WorkoutLog, WorkoutLogPayload, CreateWorkoutLogResult };
 
 export function useWorkoutLogs() {
     return useQuery<WorkoutLog[], Error>({
-        queryKey: keys.workoutLogs.all,
+        queryKey: keys.workoutLogs.list(),
         queryFn: getWorkoutLogs,
     });
 }
@@ -24,8 +25,11 @@ export function useCreateWorkoutLog() {
 
     return useMutation<CreateWorkoutLogResult, Error, WorkoutLogPayload>({
         mutationFn: createWorkoutLog,
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: keys.workoutLogs.all });
+        onSuccess: ({ workoutLog }) => {
+            queryClient.setQueryData<WorkoutLog[] | undefined>(
+                keys.workoutLogs.list(),
+                (workoutLogs) => prependCachedEntity(workoutLogs, workoutLog),
+            );
         },
     });
 }

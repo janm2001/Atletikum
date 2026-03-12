@@ -68,9 +68,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
 
   const handleStartTraining = () => {
     if (isLocked) return;
-    navigate(`/zapis-treninga/${workout._id}`, {
-      state: { workout },
-    });
+    navigate(`/zapis-treninga/${workout._id}`);
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Alert } from "@mantine/core";
+import { Alert, Stack, Text } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { XpNotification } from "@/components/XpNotification/XpNotification";
 import type { ArticleQuizResult } from "@/types/Article/quiz";
@@ -14,6 +14,9 @@ const ArticleQuizResultFeedback = ({
   onClose,
 }: ArticleQuizResultFeedbackProps) => {
   const { t } = useTranslation();
+  const nextAvailableDate = quizResult?.nextAvailableAt
+    ? new Date(quizResult.nextAvailableAt)
+    : null;
 
   if (!quizResult) {
     return null;
@@ -30,7 +33,20 @@ const ArticleQuizResultFeedback = ({
         withCloseButton
         onClose={onClose}
       >
-        {t('articles.quiz.failedMessage', { score: quizResult.score, total: quizResult.totalQuestions, percent: Math.round((quizResult.score / quizResult.totalQuestions) * 100) })}
+        <Stack gap="xs">
+          <Text>
+            {t('articles.quiz.failedMessage', { score: quizResult.score, total: quizResult.totalQuestions, percent: Math.round((quizResult.score / quizResult.totalQuestions) * 100) })}
+          </Text>
+          {nextAvailableDate && (
+            <Text size="sm" c="dimmed">
+              {t('articles.quiz.availableDate', { date: nextAvailableDate.toLocaleDateString("hr-HR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                }) })}
+            </Text>
+          )}
+        </Stack>
       </Alert>
     );
   }
