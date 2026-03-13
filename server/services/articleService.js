@@ -55,6 +55,88 @@ const parseJsonArrayField = (value) => {
   }
 };
 
+const ARTICLE_UPLOADS_PREFIX = "/uploads/articles/";
+const ARTICLE_UPLOADS_MARKER = "uploads/articles/";
+const ARTICLE_IMAGE_FILENAME_PATTERN =
+  /^[^/\\]+\.(png|jpe?g|gif|webp|svg|avif)$/i;
+const LOCAL_UPLOAD_HOSTS = new Set(["localhost", "127.0.0.1"]);
+
+const isAbsoluteCoverImageUrl = (value) =>
+  value.startsWith("http://") ||
+  value.startsWith("https://") ||
+  value.startsWith("data:") ||
+  value.startsWith("blob:") ||
+  value.startsWith("//");
+
+const parseAbsoluteCoverImageUrl = (value) => {
+  try {
+    return value.startsWith("//") ? new URL(`http:${value}`) : new URL(value);
+  } catch {
+    return null;
+  }
+};
+
+const extractUploadsPublicPath = (value) => {
+  const basePath = String(value).split(/[?#]/, 1)[0];
+  const normalizedPath = basePath.replace(/\\/g, "/");
+  const lowerNormalizedPath = normalizedPath.toLowerCase();
+  const uploadsMarkerIndex = lowerNormalizedPath.indexOf(ARTICLE_UPLOADS_MARKER);
+
+  if (uploadsMarkerIndex < 0) {
+    return null;
+  }
+
+  const uploadsRelativePath = normalizedPath
+    .slice(uploadsMarkerIndex)
+    .replace(/^\/+/, "");
+
+  return `/${uploadsRelativePath}`;
+};
+
+const normalizeManualCoverImagePath = (coverImage) => {
+  if (typeof coverImage !== "string") {
+    return coverImage;
+  }
+
+  const trimmedCoverImage = coverImage.trim();
+  if (!trimmedCoverImage) {
+    return "";
+  }
+
+  const lowerTrimmedCoverImage = trimmedCoverImage.toLowerCase();
+  if (isAbsoluteCoverImageUrl(lowerTrimmedCoverImage)) {
+    if (
+      lowerTrimmedCoverImage.startsWith("data:") ||
+      lowerTrimmedCoverImage.startsWith("blob:")
+    ) {
+      return trimmedCoverImage;
+    }
+
+    const parsedAbsoluteUrl = parseAbsoluteCoverImageUrl(trimmedCoverImage);
+    if (!parsedAbsoluteUrl) {
+      return trimmedCoverImage;
+    }
+
+    if (!LOCAL_UPLOAD_HOSTS.has(parsedAbsoluteUrl.hostname.toLowerCase())) {
+      return trimmedCoverImage;
+    }
+
+    const uploadsPublicPath = extractUploadsPublicPath(parsedAbsoluteUrl.pathname);
+    return uploadsPublicPath ?? trimmedCoverImage;
+  }
+
+  const uploadsPublicPath = extractUploadsPublicPath(trimmedCoverImage);
+  if (uploadsPublicPath) {
+    return uploadsPublicPath;
+  }
+
+  if (ARTICLE_IMAGE_FILENAME_PATTERN.test(trimmedCoverImage)) {
+    return `${ARTICLE_UPLOADS_PREFIX}${trimmedCoverImage}`;
+  }
+
+  return trimmedCoverImage;
+};
+
 const normalizeArticlePayload = (payload) => {
   const normalized = { ...payload };
   normalized.quiz = parseJsonArrayField(payload.quiz) ?? [];
@@ -72,6 +154,9 @@ const normalizeArticlePayload = (payload) => {
   )
     .filter(Boolean)
     .map((item) => String(item));
+  if (Object.prototype.hasOwnProperty.call(payload, "coverImage")) {
+    normalized.coverImage = normalizeManualCoverImagePath(payload.coverImage);
+  }
 
   return normalized;
 };
@@ -315,6 +400,7 @@ module.exports = {
   normalizeBookmarkState,
   getBookmarkMap,
   attachBookmarkState,
+  normalizeManualCoverImagePath,
   normalizeArticlePayload,
   getRelatedExercises,
   getAllArticles,

@@ -42,6 +42,7 @@ import type {
 import ArticlesTable from "./ArticlesTable";
 import ArticleRichEditor from "./ArticleRichEditor";
 import QuizEditor from "./QuizEditor";
+import { resolveArticleCoverImageUrl } from "@/utils/articleCoverImage";
 
 const getDefaultFormValues = (): ArticleFormValues => ({
   title: "",
@@ -153,34 +154,39 @@ const ArticlesTab = () => {
   const onSubmit = async (data: ArticleFormValues) => {
     try {
       clearActionError();
+      const normalizedCoverImage = resolveArticleCoverImageUrl(data.coverImage);
+      const normalizedData: ArticleFormValues = {
+        ...data,
+        coverImage: normalizedCoverImage ?? data.coverImage,
+      };
 
       if (thumbnailFile) {
         const formData = new FormData();
         formData.append("thumbnail", thumbnailFile);
-        formData.append("title", data.title);
-        formData.append("tag", data.tag);
-        if (data.summary) formData.append("summary", data.summary);
-        formData.append("content", data.content);
-        if (data.actionSummary && data.actionSummary.length > 0) {
-          formData.append("actionSummary", JSON.stringify(data.actionSummary));
+        formData.append("title", normalizedData.title);
+        formData.append("tag", normalizedData.tag);
+        if (normalizedData.summary) formData.append("summary", normalizedData.summary);
+        formData.append("content", normalizedData.content);
+        if (normalizedData.actionSummary && normalizedData.actionSummary.length > 0) {
+          formData.append("actionSummary", JSON.stringify(normalizedData.actionSummary));
         }
-        if (data.sourceUrl) formData.append("sourceUrl", data.sourceUrl);
-        if (data.sourceTitle) formData.append("sourceTitle", data.sourceTitle);
-        if (data.author) formData.append("author", data.author);
-        if (data.relatedArticleIds && data.relatedArticleIds.length > 0) {
+        if (normalizedData.sourceUrl) formData.append("sourceUrl", normalizedData.sourceUrl);
+        if (normalizedData.sourceTitle) formData.append("sourceTitle", normalizedData.sourceTitle);
+        if (normalizedData.author) formData.append("author", normalizedData.author);
+        if (normalizedData.relatedArticleIds && normalizedData.relatedArticleIds.length > 0) {
           formData.append(
             "relatedArticleIds",
-            JSON.stringify(data.relatedArticleIds),
+            JSON.stringify(normalizedData.relatedArticleIds),
           );
         }
-        if (data.relatedExerciseIds && data.relatedExerciseIds.length > 0) {
+        if (normalizedData.relatedExerciseIds && normalizedData.relatedExerciseIds.length > 0) {
           formData.append(
             "relatedExerciseIds",
-            JSON.stringify(data.relatedExerciseIds),
+            JSON.stringify(normalizedData.relatedExerciseIds),
           );
         }
-        if (data.quiz && data.quiz.length > 0) {
-          formData.append("quiz", JSON.stringify(data.quiz));
+        if (normalizedData.quiz && normalizedData.quiz.length > 0) {
+          formData.append("quiz", JSON.stringify(normalizedData.quiz));
         }
 
         if (editingArticleId) {
@@ -203,10 +209,10 @@ const ArticlesTab = () => {
         if (editingArticleId) {
           await updateMutation.mutateAsync({
             id: editingArticleId,
-            updatedData: data,
+            updatedData: normalizedData,
           });
         } else {
-          await createMutation.mutateAsync({ articleData: data });
+          await createMutation.mutateAsync({ articleData: normalizedData });
         }
       }
       setOpened(false);
@@ -346,7 +352,9 @@ const ArticlesTab = () => {
 
               {(thumbnailPreview || form.getValues("coverImage")) && (
                 <Image
-                  src={thumbnailPreview || form.getValues("coverImage")}
+                  src={resolveArticleCoverImageUrl(
+                    thumbnailPreview || form.getValues("coverImage"),
+                  )}
                   height={120}
                   radius="md"
                   fit="contain"

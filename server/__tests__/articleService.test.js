@@ -151,6 +151,81 @@ describe("articleService", () => {
     expect(deleteUploadedRequestFile).toHaveBeenCalledWith(file);
   });
 
+  it("normalizes filename-only coverImage on create", async () => {
+    Article.create.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/manual-cover.png",
+    });
+
+    await articleService.createArticle({
+      payload: {
+        title: "Article",
+        summary: "Summary",
+        content: "Content",
+        tag: "TRAINING",
+        coverImage: "manual-cover.png",
+      },
+    });
+
+    expect(Article.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        coverImage: "/uploads/articles/manual-cover.png",
+      }),
+    );
+  });
+
+  it("normalizes filesystem-like coverImage on update", async () => {
+    Article.findById.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/old-cover.png",
+    });
+    Article.findByIdAndUpdate.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/manual-cover.png",
+    });
+
+    await articleService.updateArticle({
+      articleId: "article-1",
+      payload: {
+        coverImage: "C:\\app\\server\\uploads\\articles\\manual-cover.png",
+      },
+    });
+
+    expect(Article.findByIdAndUpdate).toHaveBeenCalledWith(
+      "article-1",
+      expect.objectContaining({
+        coverImage: "/uploads/articles/manual-cover.png",
+      }),
+      expect.objectContaining({
+        returnDocument: "after",
+        runValidators: true,
+      }),
+    );
+  });
+
+  it("normalizes localhost absolute coverImage URL on create", async () => {
+    Article.create.mockResolvedValue({
+      _id: "article-1",
+      coverImage: "/uploads/articles/manual-cover.png",
+    });
+
+    await articleService.createArticle({
+      payload: {
+        title: "Article",
+        summary: "Summary",
+        content: "Content",
+        tag: "TRAINING",
+        coverImage: "http://localhost:5001/uploads/articles/manual-cover.png",
+      },
+    });
+
+    expect(Article.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        coverImage: "/uploads/articles/manual-cover.png",
+      }),
+    );
+  });
+
   it("removes the previous uploaded cover when article cover changes", async () => {
     Article.findById.mockResolvedValue({
       _id: "article-1",

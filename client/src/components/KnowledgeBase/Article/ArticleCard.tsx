@@ -15,6 +15,7 @@ import {
 import type { ArticleSummary, ArticleTagType } from "@/types/Article/article";
 import { getArticleTagLabel } from "@/types/Article/article";
 import { useTranslation } from "react-i18next";
+import { resolveArticleCoverImageUrl } from "@/utils/articleCoverImage";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=2970&ixlib=rb-4.0.3";
@@ -55,7 +56,7 @@ export const ArticleCard = ({
     >
       <Card.Section>
         <Image
-          src={article.coverImage || FALLBACK_IMAGE}
+          src={resolveArticleCoverImageUrl(article.coverImage) || FALLBACK_IMAGE}
           height={160}
           alt={article.title}
           fit="cover"

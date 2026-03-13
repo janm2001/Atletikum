@@ -3,6 +3,18 @@ import i18next from "i18next";
 import { ArticleTag } from "../types/Article/article";
 
 const t = (key: string) => i18next.t(key);
+const articleLocalUploadPathPattern = /(?:^|\/)uploads\/articles\/[^?\s]+$/i;
+const articleImageFilenamePattern = /^[^/\\]+\.(png|jpe?g|gif|webp|svg|avif)$/i;
+
+const isValidCoverImageValue = (value: string) => {
+  const trimmedValue = value.trim();
+  const normalizedValue = value.replace(/\\/g, "/");
+  return (
+    z.string().url().safeParse(trimmedValue).success ||
+    articleLocalUploadPathPattern.test(normalizedValue) ||
+    articleImageFilenamePattern.test(trimmedValue)
+  );
+};
 
 const quizQuestionSchema = z
   .object({
@@ -32,10 +44,16 @@ export const articleSchema = z.object({
   sourceTitle: z.string().optional(),
   coverImage: z
     .string()
-    .url(t("validation.article.coverImageInvalid"))
     .optional()
     .or(z.literal(""))
-    .or(z.undefined()),
+    .or(z.undefined())
+    .refine(
+      (value) =>
+        value === undefined || value === "" || isValidCoverImageValue(value),
+      {
+        message: t("validation.article.coverImageInvalid"),
+      },
+    ),
   author: z.string().optional(),
   relatedArticleIds: z.array(z.string()).optional(),
   relatedExerciseIds: z.array(z.string()).optional(),

@@ -1,4 +1,5 @@
 import { Image, Text, TypographyStylesProvider } from "@mantine/core";
+import { resolveArticleCoverImageUrl } from "@/utils/articleCoverImage";
 
 interface ArticleContentSectionProps {
   title: string;
@@ -16,7 +17,13 @@ const ArticleContentSection = ({
   return (
     <>
       {coverImage && (
-        <Image src={coverImage} height={400} radius="md" mb="xl" alt={title} />
+        <Image
+          src={resolveArticleCoverImageUrl(coverImage)}
+          height={400}
+          radius="md"
+          mb="xl"
+          alt={title}
+        />
       )}
 
       <Text

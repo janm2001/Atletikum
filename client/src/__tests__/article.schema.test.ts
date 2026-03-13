@@ -61,6 +61,46 @@ describe("articleSchema", () => {
         expect(result.success).toBe(false);
     });
 
+    it("accepts coverImage as /uploads/articles path", () => {
+        const result = articleSchema.safeParse({
+            ...validArticle,
+            coverImage: "/uploads/articles/example.png",
+        });
+        expect(result.success).toBe(true);
+    });
+
+    it("accepts coverImage as uploads/articles path without leading slash", () => {
+        const result = articleSchema.safeParse({
+            ...validArticle,
+            coverImage: "uploads/articles/example.png",
+        });
+        expect(result.success).toBe(true);
+    });
+
+    it("accepts filesystem-like path containing uploads/articles", () => {
+        const result = articleSchema.safeParse({
+            ...validArticle,
+            coverImage: "C:\\app\\server\\uploads\\articles\\example.png",
+        });
+        expect(result.success).toBe(true);
+    });
+
+    it("accepts coverImage as file-name only", () => {
+        const result = articleSchema.safeParse({
+            ...validArticle,
+            coverImage: "example.png",
+        });
+        expect(result.success).toBe(true);
+    });
+
+    it("rejects non-uploads relative coverImage path", () => {
+        const result = articleSchema.safeParse({
+            ...validArticle,
+            coverImage: "images/example.png",
+        });
+        expect(result.success).toBe(false);
+    });
+
     describe("quiz validation", () => {
         it("accepts article with valid quiz", () => {
             const result = articleSchema.safeParse({
