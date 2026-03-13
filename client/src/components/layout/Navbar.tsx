@@ -84,6 +84,7 @@ const Navbar = () => {
     ...navLinkStyles,
     color: isActive(path) ? colors.primary.light : "var(--mantine-color-text)",
     fontWeight: isActive(path) ? 700 : 500,
+    backgroundColor: isActive(path) ? colors.interactive.hover : "transparent",
     borderBottom: isActive(path)
       ? `2px solid ${colors.primary.light}`
       : "2px solid transparent",
@@ -112,19 +113,6 @@ const Navbar = () => {
             component={Link}
             to={item.to}
             style={getNavLinkStyle(item.to)}
-            onMouseEnter={(e) => {
-              if (!isActive(item.to)) {
-                e.currentTarget.style.backgroundColor =
-                  colors.interactive.hover;
-                e.currentTarget.style.color = colors.primary.light;
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = isActive(item.to)
-                ? colors.primary.light
-                : "";
-            }}
           >
             {item.label}
           </Anchor>

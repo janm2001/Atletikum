@@ -16,6 +16,7 @@ import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard"
 import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
 import DashboardWelcomeText from "@/components/Dashboard/DashboardWelcomeText";
 import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSection";
+import DashboardWeeklyGoalCard from "@/components/Dashboard/DashboardWeeklyGoalCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -71,6 +72,8 @@ const Dashboard = () => {
           totalXp={user?.totalXp ?? 0}
           dailyStreak={user?.dailyStreak ?? 0}
         />
+
+        <DashboardWeeklyGoalCard insight={recommendations?.insight} />
 
         <XpProgressSection variant="full" />
 

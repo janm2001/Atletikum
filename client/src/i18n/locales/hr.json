@@ -115,6 +115,14 @@
       "description": "Zadnji rezultat: {{score}}/{{total}}. Ponovi gradivo i osvoji novi XP.",
       "startQuiz": "Pokreni revision kviz"
     },
+    "weeklyGoal": {
+      "title": "Tjedni cilj",
+      "description": "Završeno {{completed}} od {{target}} planiranih treninga.",
+      "remaining": "Preostalo: {{count}} treninga",
+      "goalReached": "Tjedni cilj je ostvaren!",
+      "focusReason": "Fokus tjedna",
+      "lowReadiness": "Niska spremnost"
+    },
     "workout": {
       "title": "Predloženi trening",
       "viewAll": "Svi treninzi"
