@@ -123,6 +123,13 @@
       "focusReason": "Fokus tjedna",
       "lowReadiness": "Niska spremnost"
     },
+    "continueLearning": {
+      "title": "Nastavi učiti",
+      "description": "Nastavi tamo gdje si zadnji put stao/stala.",
+      "action": "Nastavi čitati",
+      "progress": "Napredak: {{progress}}%",
+      "lastRead": "Zadnje čitano: {{date}}"
+    },
     "workout": {
       "title": "Predloženi trening",
       "viewAll": "Svi treninzi"

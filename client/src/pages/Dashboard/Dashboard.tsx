@@ -17,6 +17,7 @@ import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
 import DashboardWelcomeText from "@/components/Dashboard/DashboardWelcomeText";
 import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSection";
 import DashboardWeeklyGoalCard from "@/components/Dashboard/DashboardWeeklyGoalCard";
+import DashboardContinueLearningCard from "@/components/Dashboard/DashboardContinueLearningCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,6 +56,40 @@ const Dashboard = () => {
     return (articles ?? []).slice(0, 3);
   }, [articles, recommendations]);
 
+  const resumeArticle = useMemo(() => {
+    if (!articles?.length) {
+      return null;
+    }
+
+    const inProgress = articles.filter((article) => {
+      const progress = Number(article.bookmark?.progressPercent ?? 0);
+      return progress > 0 && progress < 100;
+    });
+
+    if (inProgress.length === 0) {
+      return null;
+    }
+
+    const sortedCandidates = [...inProgress].sort((left, right) => {
+      const leftLastViewed = left.bookmark?.lastViewedAt
+        ? new Date(left.bookmark.lastViewedAt).getTime()
+        : 0;
+      const rightLastViewed = right.bookmark?.lastViewedAt
+        ? new Date(right.bookmark.lastViewedAt).getTime()
+        : 0;
+
+      if (rightLastViewed !== leftLastViewed) {
+        return rightLastViewed - leftLastViewed;
+      }
+
+      const leftProgress = Number(left.bookmark?.progressPercent ?? 0);
+      const rightProgress = Number(right.bookmark?.progressPercent ?? 0);
+      return rightProgress - leftProgress;
+    });
+
+    return sortedCandidates[0] ?? null;
+  }, [articles]);
+
   const handleToggleBookmark = (article: ArticleSummary) => {
     toggleBookmarkMutation.mutate({
       articleId: article._id,
@@ -73,9 +108,14 @@ const Dashboard = () => {
           dailyStreak={user?.dailyStreak ?? 0}
         />
 
+        <XpProgressSection variant="full" />
+
         <DashboardWeeklyGoalCard insight={recommendations?.insight} />
 
-        <XpProgressSection variant="full" />
+        <DashboardContinueLearningCard
+          article={resumeArticle}
+          onContinue={(articleId) => navigate(`/edukacija/${articleId}`)}
+        />
 
         <DashboardRevisionCard
           revision={recommendations?.revision}
