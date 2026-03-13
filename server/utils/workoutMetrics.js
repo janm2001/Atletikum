@@ -114,7 +114,7 @@ const getBestLoadValue = (entries) => {
 };
 
 const flagPersonalBests = (completedExercises, previousExercises) => {
-  return completedExercises.map((exercise) => {
+  const evaluated = completedExercises.map((exercise) => {
     const comparable = previousExercises.filter(
       (previous) =>
         String(previous.exerciseId) === exercise.exerciseId &&
@@ -134,7 +134,38 @@ const flagPersonalBests = (completedExercises, previousExercises) => {
     return {
       ...exercise,
       isPersonalBest: isWeightBest || isMetricBest,
+      _personalBestScore: Number(
+        exercise.loadKg ??
+          exercise.weight ??
+          exercise.resultValue ??
+          exercise.reps ??
+          0,
+      ),
     };
+  });
+
+  const bestPbIndexByExercise = new Map();
+  evaluated.forEach((exercise, index) => {
+    if (!exercise.isPersonalBest) {
+      return;
+    }
+
+    const exerciseId = String(exercise.exerciseId);
+    const existing = bestPbIndexByExercise.get(exerciseId);
+    if (!existing || exercise._personalBestScore > existing.score) {
+      bestPbIndexByExercise.set(exerciseId, {
+        index,
+        score: exercise._personalBestScore,
+      });
+    }
+  });
+
+  return evaluated.map((exercise, index) => {
+    const exerciseId = String(exercise.exerciseId);
+    const best = bestPbIndexByExercise.get(exerciseId);
+    const { _personalBestScore, ...rest } = exercise;
+
+    return { ...rest, isPersonalBest: best ? best.index === index : false };
   });
 };
 

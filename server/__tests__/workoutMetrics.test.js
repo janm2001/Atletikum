@@ -2,6 +2,7 @@ const {
   parseWorkoutMetric,
   normalizeCompletedExercise,
   calculateWorkoutXp,
+  flagPersonalBests,
   summarizePersonalBests,
   buildNextSessionSuggestions,
 } = require("../utils/workoutMetrics");
@@ -99,6 +100,63 @@ describe("workout metrics", () => {
     ];
 
     expect(calculateWorkoutXp(workout, completedExercises)).toBe(40);
+  });
+
+  it("flags only strict improvements as personal bests", () => {
+    const result = flagPersonalBests(
+      [
+        {
+          exerciseId: "exercise-1",
+          metricType: "reps",
+          unitLabel: "reps",
+          resultValue: 10,
+          loadKg: 30,
+        },
+      ],
+      [
+        {
+          exerciseId: "exercise-1",
+          metricType: "reps",
+          unitLabel: "reps",
+          resultValue: 10,
+          loadKg: 30,
+        },
+      ],
+    );
+
+    expect(result[0].isPersonalBest).toBe(false);
+  });
+
+  it("flags one personal best per exercise within a session", () => {
+    const result = flagPersonalBests(
+      [
+        {
+          exerciseId: "exercise-1",
+          metricType: "reps",
+          unitLabel: "reps",
+          resultValue: 10,
+          loadKg: 30,
+        },
+        {
+          exerciseId: "exercise-1",
+          metricType: "reps",
+          unitLabel: "reps",
+          resultValue: 10,
+          loadKg: 30,
+        },
+      ],
+      [
+        {
+          exerciseId: "exercise-1",
+          metricType: "reps",
+          unitLabel: "reps",
+          resultValue: 8,
+          loadKg: 25,
+        },
+      ],
+    );
+
+    expect(result.filter((entry) => entry.isPersonalBest)).toHaveLength(1);
   });
 
   it("summarizes personal bests by exercise and metric", () => {
