@@ -53,11 +53,15 @@ const ForgotPassword = () => {
     try {
       const response = await requestResetMutation.mutateAsync(formData);
       setResult(response);
+
+      if (response.resetUrl) {
+        window.location.assign(response.resetUrl);
+      }
     } catch (requestError) {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : t('common.serverError'),
+          : t("common.serverError"),
       );
     }
   };
@@ -72,17 +76,14 @@ const ForgotPassword = () => {
     >
       <div style={{ width: "100%", maxWidth: 520 }}>
         <Title ta="center" order={2}>
-          {t('auth.forgotPassword.title')}
+          {t("auth.forgotPassword.title")}
         </Title>
-        <Text c="dimmed" size="sm" ta="center" mt={5}>
-          {t('auth.forgotPassword.devNote')}
-        </Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleSubmit(handleRequestReset)}>
             <TextInput
-              label={t('auth.forgotPassword.username')}
-              placeholder={t('auth.forgotPassword.usernamePlaceholder')}
+              label={t("auth.forgotPassword.username")}
+              placeholder={t("auth.forgotPassword.usernamePlaceholder")}
               required
               error={errors.username?.message}
               {...register("username")}
@@ -90,8 +91,8 @@ const ForgotPassword = () => {
             />
 
             <TextInput
-              label={t('auth.forgotPassword.email')}
-              placeholder={t('auth.forgotPassword.emailPlaceholder')}
+              label={t("auth.forgotPassword.email")}
+              placeholder={t("auth.forgotPassword.emailPlaceholder")}
               required
               error={errors.email?.message}
               {...register("email")}
@@ -111,12 +112,12 @@ const ForgotPassword = () => {
                 mt="md"
                 bg="var(--mantine-color-gray-0)"
               >
-                <Text fw={600}>{t('auth.forgotPassword.successTitle')}</Text>
+                <Text fw={600}>{t("auth.forgotPassword.successTitle")}</Text>
                 <Text size="sm" c="dimmed" mt={4}>
                   {result.message}
                 </Text>
                 <Text size="sm" c="dimmed" mt={4}>
-                  {t('auth.forgotPassword.successDescription')}
+                  {t("auth.forgotPassword.successDescription")}
                 </Text>
               </Paper>
             )}
@@ -127,14 +128,14 @@ const ForgotPassword = () => {
               type="submit"
               loading={isSubmitting || requestResetMutation.isPending}
             >
-              {t('auth.forgotPassword.submit')}
+              {t("auth.forgotPassword.submit")}
             </Button>
           </form>
 
           <Text c="dimmed" size="sm" ta="center" mt="md">
-            {t('auth.forgotPassword.backToLogin')}{" "}
+            {t("auth.forgotPassword.backToLogin")}{" "}
             <Anchor component={Link} to="/login" size="sm">
-              {t('auth.forgotPassword.loginLink')}
+              {t("auth.forgotPassword.loginLink")}
             </Anchor>
           </Text>
         </Paper>

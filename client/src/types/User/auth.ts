@@ -4,14 +4,14 @@ import type { ResetPasswordInput } from "@/schema/resetPassword.schema";
 import type { User } from "@/types/User/user";
 
 export type AuthPayload = {
-    user: User;
+  user: User;
 };
 
 export type AuthResponse = {
-    status: string;
-    token: string;
-    data: AuthPayload;
-    message?: string;
+  status: string;
+  token: string;
+  data: AuthPayload;
+  message?: string;
 };
 
 export type RegisterPayload = Omit<RegisterInput, "passwordConfirm">;
@@ -21,8 +21,10 @@ export type PasswordResetRequestPayload = ForgotPasswordInput;
 export type ResetPasswordPayload = Omit<ResetPasswordInput, "passwordConfirm">;
 
 export type StatusResponse = {
-    status: string;
-    message: string;
+  status: string;
+  message: string;
 };
 
-export type PasswordResetRequestResponse = StatusResponse;
+export type PasswordResetRequestResponse = StatusResponse & {
+  resetUrl?: string;
+};

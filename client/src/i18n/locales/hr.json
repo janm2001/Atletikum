@@ -76,7 +76,7 @@
       "email": "Email",
       "emailPlaceholder": "ime@primjer.hr",
       "successTitle": "Zahtjev je zaprimljen",
-      "successDescription": "Ako radite lokalno, poveznicu za reset potražite u logu backend servera.",
+      "successDescription": "Ako je poveznica dostupna, bit ćete automatski preusmjereni na stranicu za reset lozinke.",
       "submit": "Pošalji zahtjev za promjenu lozinke",
       "backToLogin": "Povratak na prijavu",
       "loginLink": "Prijavite se"

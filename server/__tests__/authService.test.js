@@ -101,6 +101,8 @@ describe("authService", () => {
   });
 
   it("creates a password reset token for a matching username and email", async () => {
+    process.env.NODE_ENV = "development";
+
     const save = jest.fn().mockResolvedValue(undefined);
     User.findOne.mockResolvedValue({
       _id: "user-1",
@@ -125,6 +127,7 @@ describe("authService", () => {
     expect(result).toEqual({
       message:
         "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.",
+      resetUrl: "http://localhost:5173/reset-lozinka/raw-reset-token",
     });
   });
 

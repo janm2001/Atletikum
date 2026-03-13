@@ -90,10 +90,12 @@ const requestPasswordReset = async ({ username, email }) => {
   user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000);
   await user.save({ validateBeforeSave: false });
 
-  logDevelopmentResetUrl(buildResetUrl(resetToken));
+  const resetUrl = buildResetUrl(resetToken);
+  logDevelopmentResetUrl(resetUrl);
 
   return {
     message: PASSWORD_RESET_REQUEST_MESSAGE,
+    ...(getNodeEnv() === "development" ? { resetUrl } : {}),
   };
 };
 
