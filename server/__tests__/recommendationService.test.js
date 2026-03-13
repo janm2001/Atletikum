@@ -59,6 +59,20 @@ const createSortLimitLeanQuery = (value) => ({
   }),
 });
 
+const createLeanQuery = (value) => ({
+  lean: jest.fn().mockResolvedValue(value),
+});
+
+const createRecommendedArticlesQuery = (value) => ({
+  select: jest.fn().mockReturnValue({
+    sort: jest.fn().mockReturnValue({
+      limit: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue(value),
+      }),
+    }),
+  }),
+});
+
 describe("recommendationService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -96,16 +110,14 @@ describe("recommendationService", () => {
         ]),
       }),
     });
-    Article.find.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          limit: jest.fn().mockReturnValue({
-            lean: jest
-              .fn()
-              .mockResolvedValue([{ _id: "article-1", tag: "TRAINING" }]),
-          }),
-        }),
-      }),
+    Article.find.mockImplementation((filter, projection) => {
+      if (filter?.["quiz.0"]?.$exists === true) {
+        return createLeanQuery([]);
+      }
+
+      return createRecommendedArticlesQuery([
+        { _id: "article-1", tag: "TRAINING" },
+      ]);
     });
     articleService.getBookmarkMap.mockResolvedValue(new Map());
     articleService.attachBookmarkState.mockReturnValue([
@@ -174,14 +186,12 @@ describe("recommendationService", () => {
         lean: jest.fn().mockResolvedValue([]),
       }),
     });
-    Article.find.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          limit: jest.fn().mockReturnValue({
-            lean: jest.fn().mockResolvedValue([]),
-          }),
-        }),
-      }),
+    Article.find.mockImplementation((filter, projection) => {
+      if (filter?.["quiz.0"]?.$exists === true) {
+        return createLeanQuery([{ _id: "article-newer" }]);
+      }
+
+      return createRecommendedArticlesQuery([]);
     });
     articleService.getBookmarkMap.mockResolvedValue(new Map());
     articleService.attachBookmarkState.mockReturnValue([]);
@@ -212,11 +222,72 @@ describe("recommendationService", () => {
         completedAt: 1,
       },
     );
+    expect(Article.find).toHaveBeenCalledWith(
+      {
+        _id: { $in: ["article-newer"] },
+        "quiz.0": { $exists: true },
+      },
+      { _id: 1 },
+    );
     expect(result.revision).toEqual({
       articleId: "article-newer",
       lastScore: 4,
       totalQuestions: 5,
       completedAt: new Date("2026-03-05T10:00:00.000Z"),
+    });
+  });
+
+  it("skips stale revision article ids that no longer exist", async () => {
+    jest.useFakeTimers().setSystemTime(new Date("2026-03-18T10:00:00.000Z"));
+    WorkoutLog.find.mockReturnValue(createSortLimitLeanQuery([]));
+    QuizCompletion.distinct.mockResolvedValue([]);
+    QuizCompletion.find.mockReturnValue(
+      createSortLimitLeanQuery([
+        {
+          article: "article-deleted",
+          score: 2,
+          totalQuestions: 5,
+          completedAt: new Date("2026-03-01T10:00:00.000Z"),
+        },
+        {
+          article: "article-still-valid",
+          score: 4,
+          totalQuestions: 5,
+          completedAt: new Date("2026-03-02T10:00:00.000Z"),
+        },
+      ]),
+    );
+    Workout.find.mockReturnValue({
+      populate: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([]),
+      }),
+    });
+    Article.find.mockImplementation((filter, projection) => {
+      if (filter?.["quiz.0"]?.$exists === true) {
+        return createLeanQuery([{ _id: "article-still-valid" }]);
+      }
+
+      return createRecommendedArticlesQuery([]);
+    });
+    articleService.getBookmarkMap.mockResolvedValue(new Map());
+    articleService.attachBookmarkState.mockReturnValue([]);
+    summarizePersonalBests.mockReturnValue([]);
+    buildNextSessionSuggestions.mockReturnValue([]);
+
+    const result = await recommendationService.getWeeklyRecommendations({
+      user: {
+        _id: "user-1",
+        focus: "snaga",
+        level: 3,
+        trainingFrequency: 3,
+      },
+    });
+
+    expect(result.revision).toEqual({
+      articleId: "article-still-valid",
+      lastScore: 4,
+      totalQuestions: 5,
+      completedAt: new Date("2026-03-02T10:00:00.000Z"),
     });
   });
 });

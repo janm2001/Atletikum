@@ -48,16 +48,52 @@ const REVISION_COMPLETION_PROJECTION = {
   completedAt: 1,
 };
 
+const REVISION_LOOKUP_LIMIT = 12;
+
 const getRevisionRecommendation = async (userId) => {
   const oldCompletions = await QuizCompletion.find(
     buildRevisionEligibilityFilter({ userId }),
     REVISION_COMPLETION_PROJECTION,
   )
     .sort({ completedAt: 1 })
-    .limit(1)
+    .limit(REVISION_LOOKUP_LIMIT)
     .lean();
 
-  const revision = selectOldestEligibleRevisionCompletion(oldCompletions);
+  if (oldCompletions.length === 0) {
+    return null;
+  }
+
+  const candidateArticleIds = [
+    ...new Set(
+      oldCompletions
+        .map((completion) => completion?.article)
+        .filter(Boolean)
+        .map((articleId) => String(articleId)),
+    ),
+  ];
+
+  if (candidateArticleIds.length === 0) {
+    return null;
+  }
+
+  const availableRevisionArticles = await Article.find(
+    {
+      _id: { $in: candidateArticleIds },
+      "quiz.0": { $exists: true },
+    },
+    { _id: 1 },
+  ).lean();
+
+  const availableArticleIds = new Set(
+    availableRevisionArticles.map((article) => String(article._id)),
+  );
+
+  const revision = selectOldestEligibleRevisionCompletion(
+    oldCompletions.filter((completion) =>
+      availableArticleIds.has(String(completion.article)),
+    ),
+  );
+
   if (!revision) {
     return null;
   }
