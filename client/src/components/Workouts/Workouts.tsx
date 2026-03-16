@@ -95,7 +95,7 @@ const Workouts = () => {
         sets: exercise.sets,
         reps: exercise.reps,
         rpe: exercise.rpe ?? "",
-        baseXp: exercise.baseXp,
+        baseXp: 20,
         progression: {
           enabled: Boolean(exercise.progression?.enabled),
           initialWeightKg: exercise.progression?.initialWeightKg ?? null,

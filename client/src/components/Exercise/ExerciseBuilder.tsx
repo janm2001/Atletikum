@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Badge,
   Button,
   Group,
   NumberInput,
@@ -24,11 +25,13 @@ import {
   useWatch,
 } from "react-hook-form";
 import { useExercises } from "../../hooks/useExercise";
+import { useUser } from "../../hooks/useUser";
 import type { WorkoutFormValues } from "../../schema/workout.schema";
 
 const ExerciseBuilder = () => {
   const { t } = useTranslation();
   const { data: availableExercises } = useExercises();
+  const { user } = useUser();
   const {
     control,
     register,
@@ -41,11 +44,16 @@ const ExerciseBuilder = () => {
     name: "exercises",
   });
 
+  const userLevel = user?.level ?? 1;
   const exerciseOptions =
-    availableExercises?.map((ex) => ({
-      value: ex._id,
-      label: `${ex.title} (${ex.muscleGroup.replaceAll("_", " ")})`,
-    })) ?? [];
+    availableExercises
+      ?.slice()
+      .sort((a, b) => a.level - b.level)
+      .map((ex) => ({
+        value: ex._id,
+        label: `${ex.title} (${ex.muscleGroup.replaceAll("_", " ")})`,
+        disabled: ex.level > userLevel,
+      })) ?? [];
 
   const addExercise = () => {
     append({
@@ -53,7 +61,7 @@ const ExerciseBuilder = () => {
       sets: 3,
       reps: "10",
       rpe: "",
-      baseXp: 50,
+      baseXp: 20,
       progression: {
         enabled: false,
         initialWeightKg: null,
@@ -141,6 +149,22 @@ const ExerciseBuilder = () => {
                     onChange={(val) => selectField.onChange(val ?? "")}
                     error={exerciseErrors?.exerciseId?.message}
                     required
+                    renderOption={({ option }) => {
+                      const exercise = availableExercises?.find((e) => e._id === option.value);
+                      const isAboveLevel = exercise ? exercise.level > userLevel : false;
+                      return (
+                        <Group gap="xs" wrap="nowrap">
+                          <Text size="sm" c={isAboveLevel ? "dimmed" : undefined} style={{ flex: 1 }}>
+                            {option.label}
+                          </Text>
+                          {exercise && (
+                            <Badge size="xs" color={isAboveLevel ? "orange" : "teal"} variant="light">
+                              Lv. {exercise.level}
+                            </Badge>
+                          )}
+                        </Group>
+                      );
+                    }}
                   />
                 )}
               />
@@ -180,24 +204,6 @@ const ExerciseBuilder = () => {
                   error={exerciseErrors?.rpe?.message}
                 />
 
-                <Controller
-                  control={control}
-                  name={`exercises.${index}.baseXp`}
-                  render={({ field: numField }) => (
-                    <NumberInput
-                      label={t('exerciseBuilder.baseXp')}
-                      min={0}
-                      value={numField.value}
-                      onChange={(val) =>
-                        numField.onChange(
-                          typeof val === "number" ? val : numField.value,
-                        )
-                      }
-                      error={exerciseErrors?.baseXp?.message}
-                      required
-                    />
-                  )}
-                />
               </Group>
 
               <Controller
