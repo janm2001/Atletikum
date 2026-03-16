@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types/User/user";
 import { UserContext } from "./UserContextCreate";
+import { queryClient } from "../lib/queryClient";
 
 interface UserProviderProps {
   children: ReactNode;
@@ -55,6 +56,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     setAuthState({ user: null, token: null });
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    queryClient.clear();
   };
 
   return (
