@@ -6,6 +6,7 @@ const {
   validateCreateWorkoutRequest,
   validateUpdateWorkoutRequest,
 } = require("../validators/workoutValidator");
+const validate = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router
   .post(
     restrictTo("admin"),
     workoutMutationLimiter,
-    validateCreateWorkoutRequest,
+    validate(validateCreateWorkoutRequest),
     workoutController.createWorkout,
   );
 
@@ -33,7 +34,7 @@ router
   .get(workoutController.getWorkoutById)
   .patch(
     workoutMutationLimiter,
-    validateUpdateWorkoutRequest,
+    validate(validateUpdateWorkoutRequest),
     workoutController.updateWorkout,
   )
   .delete(workoutController.deleteWorkout);

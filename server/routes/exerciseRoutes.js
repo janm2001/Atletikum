@@ -6,6 +6,7 @@ const {
   validateCreateExerciseRequest,
   validateUpdateExerciseRequest,
 } = require("../validators/exerciseValidator");
+const validate = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router
   .post(
     restrictTo("admin"),
     exerciseMutationLimiter,
-    validateCreateExerciseRequest,
+    validate(validateCreateExerciseRequest),
     exerciseController.createExercise,
   );
 
@@ -27,7 +28,7 @@ router
   .patch(
     restrictTo("admin"),
     exerciseMutationLimiter,
-    validateUpdateExerciseRequest,
+    validate(validateUpdateExerciseRequest),
     exerciseController.updateExercise,
   )
   .delete(restrictTo("admin"), exerciseController.deleteExercise);
