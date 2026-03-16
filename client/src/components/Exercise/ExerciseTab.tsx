@@ -11,10 +11,12 @@ import {
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { notifications } from "@mantine/notifications";
 import ActionFeedback from "@/components/Common/ActionFeedback";
 import useActionFeedback from "@/hooks/useActionFeedback";
 
 import ExercisesTable from "./ExercisesTable";
+import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 import { useMemo, useState } from "react";
 import {
   useCreateExercise,
@@ -44,6 +46,7 @@ const ExerciseTab = () => {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
     null,
   );
+  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(null);
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const { data, isLoading, error } = useExercises();
@@ -116,24 +119,32 @@ const ExerciseTab = () => {
       }
 
       setOpened(false);
+      notifications.show({
+        color: "green",
+        message: t("admin.exercises.saveSuccess"),
+      });
     } catch (saveError) {
       handleActionError(saveError, t('admin.exercises.saveError'));
     }
   };
 
-  const handleDelete = async (exerciseId: string) => {
-    const confirmed = window.confirm(
-      t('admin.exercises.deleteConfirm'),
-    );
-    if (!confirmed) {
-      return;
-    }
+  const handleDeleteClick = (exerciseId: string) => {
+    setDeletingExerciseId(exerciseId);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!deletingExerciseId) return;
     try {
       clearActionError();
-      await deleteExerciseMutation.mutateAsync(exerciseId);
+      await deleteExerciseMutation.mutateAsync(deletingExerciseId);
+      notifications.show({
+        color: "green",
+        message: t("admin.exercises.deleteSuccess"),
+      });
     } catch (deleteError) {
       handleActionError(deleteError, t('admin.exercises.deleteError'));
+    } finally {
+      setDeletingExerciseId(null);
     }
   };
 
@@ -158,9 +169,17 @@ const ExerciseTab = () => {
         <ExercisesTable
           exercises={exercises}
           onEdit={openEditModal}
-          onDelete={handleDelete}
+          onDelete={handleDeleteClick}
         />
       </Stack>
+      <ConfirmDeleteModal
+        opened={!!deletingExerciseId}
+        onClose={() => setDeletingExerciseId(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t("admin.exercises.deleteConfirmTitle")}
+        message={t("admin.exercises.deleteConfirm")}
+        loading={deleteExerciseMutation.isPending}
+      />
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Group, Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { notifications } from "@mantine/notifications";
 import useActionFeedback from "@/hooks/useActionFeedback";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import {
@@ -15,6 +16,7 @@ import type { Workout } from "@/types/Workout/workout";
 import { type WorkoutFormValues } from "../../schema/workout.schema";
 import ExerciseTable from "../Exercise/ExerciseTable";
 import WorkoutFormModal from "./WorkoutFormModal";
+import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
   title: "",
@@ -28,6 +30,7 @@ const WorkoutTab = () => {
   const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(null);
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
@@ -70,13 +73,26 @@ const WorkoutTab = () => {
     setOpened(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm(t('admin.workouts.deleteConfirm'))) {
-      try {
-        await deleteMutation.mutateAsync(id);
-      } catch (err) {
-        console.error(err);
-      }
+  const handleDeleteClick = (id: string) => {
+    setDeletingWorkoutId(id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingWorkoutId) return;
+    try {
+      await deleteMutation.mutateAsync(deletingWorkoutId);
+      notifications.show({
+        color: "green",
+        message: t("admin.workouts.deleteSuccess"),
+      });
+    } catch (err) {
+      notifications.show({
+        color: "red",
+        message: t("admin.workouts.deleteError"),
+      });
+      console.error(err);
+    } finally {
+      setDeletingWorkoutId(null);
     }
   };
 
@@ -93,6 +109,10 @@ const WorkoutTab = () => {
       }
       setOpened(false);
       setFormValues(getDefaultFormValues());
+      notifications.show({
+        color: "green",
+        message: t("admin.workouts.saveSuccess"),
+      });
     } catch (error: unknown) {
       handleActionError(error, t('admin.workouts.saveError'));
     }
@@ -112,9 +132,17 @@ const WorkoutTab = () => {
       <ExerciseTable
         workouts={workouts || []}
         onEdit={handleOpenEdit}
-        onDelete={handleDelete}
+        onDelete={handleDeleteClick}
       />
 
+      <ConfirmDeleteModal
+        opened={!!deletingWorkoutId}
+        onClose={() => setDeletingWorkoutId(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t("admin.workouts.deleteConfirmTitle")}
+        message={t("admin.workouts.deleteConfirm")}
+        loading={deleteMutation.isPending}
+      />
       <WorkoutFormModal
         opened={opened}
         onClose={() => setOpened(false)}

@@ -17,6 +17,7 @@ import {
 } from "@mantine/core";
 import { IconPhoto, IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { notifications } from "@mantine/notifications";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ActionFeedback from "@/components/Common/ActionFeedback";
@@ -40,6 +41,7 @@ import type {
   ArticleTagType,
 } from "../../types/Article/article";
 import ArticlesTable from "./ArticlesTable";
+import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 import ArticleRichEditor from "./ArticleRichEditor";
 import QuizEditor from "./QuizEditor";
 import { resolveArticleCoverImageUrl } from "@/utils/articleCoverImage";
@@ -63,6 +65,7 @@ const ArticlesTab = () => {
   const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+  const [deletingArticleId, setDeletingArticleId] = useState<string | null>(null);
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -141,13 +144,26 @@ const ArticlesTab = () => {
     setOpened(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm(t("admin.articles.deleteConfirm"))) {
-      try {
-        await deleteMutation.mutateAsync(id);
-      } catch (err) {
-        console.error(err);
-      }
+  const handleDeleteClick = (id: string) => {
+    setDeletingArticleId(id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingArticleId) return;
+    try {
+      await deleteMutation.mutateAsync(deletingArticleId);
+      notifications.show({
+        color: "green",
+        message: t("admin.articles.deleteSuccess"),
+      });
+    } catch (err) {
+      notifications.show({
+        color: "red",
+        message: t("admin.articles.deleteError"),
+      });
+      console.error(err);
+    } finally {
+      setDeletingArticleId(null);
     }
   };
 
@@ -216,8 +232,12 @@ const ArticlesTab = () => {
         }
       }
       setOpened(false);
+      notifications.show({
+        color: "green",
+        message: t("admin.articles.saveSuccess"),
+      });
     } catch (error: unknown) {
-      handleActionError(error, t("common.saveError"));
+      handleActionError(error, t("admin.articles.saveError"));
     }
   };
 
@@ -235,9 +255,17 @@ const ArticlesTab = () => {
       <ArticlesTable
         articles={articles || []}
         onEdit={handleOpenEdit}
-        onDelete={handleDelete}
+        onDelete={handleDeleteClick}
       />
 
+      <ConfirmDeleteModal
+        opened={!!deletingArticleId}
+        onClose={() => setDeletingArticleId(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t("admin.articles.deleteConfirmTitle")}
+        message={t("admin.articles.deleteConfirm")}
+        loading={deleteMutation.isPending}
+      />
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
