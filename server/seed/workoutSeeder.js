@@ -5,9 +5,9 @@ const { Exercise } = require("../models/Exercise");
 
 const workoutBlueprints = [
   {
-    title: "Level 1 - Athletic Foundations",
+    title: "Razina 1: Atletske Temelje",
     description:
-      "Basic sprint mechanics, core control, and foundational lower-body strength.",
+      "Osnovna mehanika trčanja, kontrola trupa i temeljna snaga donjih ekstremiteta.",
     requiredLevel: 1,
     tags: ["SPEED", "CORE", "STRENGTH"],
     exercises: [
@@ -16,25 +16,20 @@ const workoutBlueprints = [
       { title: "Glute Bridge", sets: 3, reps: "12", rpe: "6", baseXp: 16 },
       { title: "Plank Hold", sets: 3, reps: "30s", rpe: "6", baseXp: 16 },
       { title: "Calf Raises", sets: 3, reps: "15", rpe: "6", baseXp: 15 },
+      { title: "Bird Dog", sets: 3, reps: "10/str", rpe: "5", baseXp: 14 },
     ],
   },
   {
-    title: "Level 2 - Power & Coordination",
+    title: "Razina 3: Snaga i Koordinacija",
     description:
-      "Intermediate plyometrics and unilateral control to build athletic power output.",
-    requiredLevel: 2,
+      "Napredna pliometrija i unilateralna kontrola za izgradnju atletske eksplozivnosti.",
+    requiredLevel: 3,
     tags: ["PLYOMETRICS", "STRENGTH", "CORE"],
     exercises: [
       { title: "B-Skips", sets: 3, reps: "20m", rpe: "7", baseXp: 24 },
       { title: "Box Jumps", sets: 4, reps: "6", rpe: "7", baseXp: 26 },
-      {
-        title: "Walking Lunges",
-        sets: 3,
-        reps: "10/leg",
-        rpe: "7",
-        baseXp: 22,
-      },
-      { title: "Side Plank", sets: 3, reps: "30s/side", rpe: "7", baseXp: 20 },
+      { title: "Walking Lunges", sets: 3, reps: "10/noga", rpe: "7", baseXp: 22 },
+      { title: "Side Plank", sets: 3, reps: "30s/str", rpe: "7", baseXp: 20 },
       {
         title: "Medicine Ball Overhead Slam",
         sets: 4,
@@ -42,25 +37,27 @@ const workoutBlueprints = [
         rpe: "7",
         baseXp: 24,
       },
+      { title: "Pogo Jumps", sets: 3, reps: "15", rpe: "7", baseXp: 22 },
+      { title: "Inverted Rows", sets: 3, reps: "10", rpe: "7", baseXp: 20 },
     ],
   },
   {
-    title: "Level 3 - Speed & Explosiveness",
+    title: "Razina 5: Brzina i Eksplozivnost",
     description:
-      "Advanced reactive plyometrics and strength work for high-performance athletes.",
-    requiredLevel: 3,
-    tags: ["SPEED", "PLYOMETRICS", "STRENGTH", "ENDURANCE"],
+      "Reaktivna pliometrija i napredni rad snage za visokoučinkovite sportaše.",
+    requiredLevel: 5,
+    tags: ["SPEED", "PLYOMETRICS", "STRENGTH"],
     exercises: [
       { title: "Bounding", sets: 4, reps: "25m", rpe: "8", baseXp: 30 },
-      { title: "Depth Jumps", sets: 4, reps: "5", rpe: "8", baseXp: 32 },
+      { title: "Broad Jumps", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
+      { title: "Tuck Jumps", sets: 4, reps: "8", rpe: "8", baseXp: 30 },
       {
-        title: "Split Squat Jumps",
+        title: "Wall Drill (Switches)",
         sets: 4,
-        reps: "8/leg",
-        rpe: "8",
-        baseXp: 30,
+        reps: "15s",
+        rpe: "7",
+        baseXp: 26,
       },
-      { title: "Romanian Deadlift", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
       {
         title: "Hamstring Bridge Walkouts",
         sets: 3,
@@ -68,6 +65,62 @@ const workoutBlueprints = [
         rpe: "8",
         baseXp: 26,
       },
+      { title: "Pull-Ups", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
+    ],
+  },
+  {
+    title: "Razina 7: Napredno Opterećenje",
+    description:
+      "Visoko intenzivni trening snage i maksimalne eksplozivnosti za iskusne sportaše.",
+    requiredLevel: 7,
+    tags: ["STRENGTH", "PLYOMETRICS", "ENDURANCE"],
+    exercises: [
+      { title: "Romanian Deadlift", sets: 4, reps: "6", rpe: "8", baseXp: 40 },
+      {
+        title: "Split Squat Jumps",
+        sets: 4,
+        reps: "8/noga",
+        rpe: "8",
+        baseXp: 36,
+      },
+      { title: "Hip Thrust", sets: 4, reps: "8", rpe: "8", baseXp: 34 },
+      { title: "Push Press", sets: 4, reps: "6", rpe: "8", baseXp: 38 },
+      {
+        title: "Single-Leg Hops",
+        sets: 3,
+        reps: "6/noga",
+        rpe: "8",
+        baseXp: 36,
+      },
+      {
+        title: "Lateral Skater Jumps",
+        sets: 3,
+        reps: "10/str",
+        rpe: "8",
+        baseXp: 30,
+      },
+    ],
+  },
+  {
+    title: "Razina 10: Elitna Izvedba",
+    description:
+      "Kompletan elitni trening koji kombinira maksimalnu snagu, reaktivnost i specifičnu atletsku pripremu.",
+    requiredLevel: 10,
+    tags: ["SPEED", "STRENGTH", "PLYOMETRICS", "ENDURANCE"],
+    exercises: [
+      { title: "Depth Jumps", sets: 5, reps: "5", rpe: "9", baseXp: 50 },
+      { title: "Romanian Deadlift", sets: 5, reps: "5", rpe: "9", baseXp: 48 },
+      { title: "Bounding", sets: 5, reps: "30m", rpe: "9", baseXp: 46 },
+      {
+        title: "Single-Leg Hops",
+        sets: 4,
+        reps: "8/noga",
+        rpe: "9",
+        baseXp: 44,
+      },
+      { title: "Pull-Ups", sets: 5, reps: "8", rpe: "8", baseXp: 40 },
+      { title: "Push Press", sets: 5, reps: "5", rpe: "9", baseXp: 48 },
+      { title: "Hip Thrust", sets: 5, reps: "8", rpe: "8", baseXp: 42 },
     ],
   },
 ];
