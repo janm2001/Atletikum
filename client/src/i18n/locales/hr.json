@@ -517,6 +517,38 @@
     "locked": "Zaključano"
   },
 
+  "welcome": {
+    "title": "Dobrodošli u Atletikum!",
+    "subtitle": "Tvoja platforma za pametni atletski trening. Evo što te čeka:",
+    "cta": "Idi na pregled",
+    "features": {
+      "training": {
+        "title": "Evidencija treninga",
+        "description": "Bilježi svaki trening, setove, ponavljanja i težine. Prati progresiju vježbi i napreduj sustavno."
+      },
+      "xp": {
+        "title": "XP i razine",
+        "description": "Zarađuj XP bodove za svaki završeni trening i kviz. Napreduj kroz razine i otključavaj zahtjevnije treninge."
+      },
+      "knowledge": {
+        "title": "Baza znanja",
+        "description": "Čitaj edukativne članke o treningu, prehrani, fiziologiji i oporavku. Provjeri znanje kroz kvizove."
+      },
+      "achievements": {
+        "title": "Dostignuća",
+        "description": "Otključavaj posebne značke za konzistentnost, osobne rekorde i ostala postignuća u treningu."
+      },
+      "leaderboard": {
+        "title": "Ljestvica",
+        "description": "Usporedi se s ostalim korisnicima po ukupnim XP bodovima i pokaži tko je najdosljedniji sportaš."
+      },
+      "personalBests": {
+        "title": "Osobni rekordi",
+        "description": "Automatski bilježi osobne rekorde za svaku vježbu i prati kako rasteš kroz vrijeme."
+      }
+    }
+  },
+
   "errors": {
     "notFound": {
       "title": "Stranica nije pronađena",

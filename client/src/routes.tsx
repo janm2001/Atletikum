@@ -20,6 +20,13 @@ export const router = createBrowserRouter([
     },
   },
   {
+    path: "dobrodosli",
+    lazy: async () => {
+      const { default: Welcome } = await import("./pages/Welcome/Welcome.tsx");
+      return { Component: Welcome };
+    },
+  },
+  {
     path: "zaboravljena-lozinka",
     lazy: async () => {
       const { default: ForgotPassword } =

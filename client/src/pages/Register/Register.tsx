@@ -68,7 +68,7 @@ const Register = () => {
 
       if (response.status === "success" && response.data && response.token) {
         login(response.data.user, response.token);
-        navigate("/");
+        navigate("/dobrodosli");
       } else {
         setError(t('auth.register.error'));
       }
