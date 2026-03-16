@@ -61,6 +61,8 @@ export const XpNotification = ({
             shadow="xl"
             bg="dark.6"
             w={300}
+            role="status"
+            aria-live="polite"
             onClick={() => {
               setMounted(false);
               if (onClose) setTimeout(onClose, 400);

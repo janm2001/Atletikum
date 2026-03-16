@@ -28,6 +28,7 @@ import {
 } from "@tabler/icons-react";
 import { useUser } from "@/hooks/useUser";
 import { useTranslation } from "react-i18next";
+import { memo } from "react";
 
 interface WorkoutCardProps {
   workout: Workout;
@@ -272,4 +273,4 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
   );
 };
 
-export default WorkoutCard;
+export default memo(WorkoutCard);

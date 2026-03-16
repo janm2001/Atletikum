@@ -20,6 +20,15 @@ export const getTotalXpForLevelStart = (level: number): number => {
     );
 };
 
+export const getXpProgress = (level: number, totalXp: number) => {
+    const xpForNext = getXpRequiredForLevelUp(level);
+    const levelStart = getTotalXpForLevelStart(level);
+    const xpInLevel = totalXp - levelStart;
+    const remaining = xpForNext - xpInLevel;
+    const percent = Math.min(100, Math.round((xpInLevel / xpForNext) * 100));
+    return { xpInLevel, xpForNext, remaining, percent };
+};
+
 export const getLevelFromTotalXp = (totalXp: number): number => {
     let level = 1;
     let remainingXp = Math.max(0, Number(totalXp) || 0);

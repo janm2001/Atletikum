@@ -1,10 +1,7 @@
 import { Box, Flex, Progress, Title, Typography, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import type { User } from "../../../types/User/user";
-import {
-  getTotalXpForLevelStart,
-  getXpRequiredForLevelUp,
-} from "@/utils/leveling";
+import { getXpProgress } from "@/utils/leveling";
 
 interface ProfileLevelXpProps {
   user: User;
@@ -12,13 +9,7 @@ interface ProfileLevelXpProps {
 
 const ProfileLevelXp = ({ user }: ProfileLevelXpProps) => {
   const { t } = useTranslation();
-  const currentLevelStartXp = getTotalXpForLevelStart(user.level);
-  const nextLevelRequiredXp = getXpRequiredForLevelUp(user.level);
-  const xpInCurrentLevel = Math.max(0, user.totalXp - currentLevelStartXp);
-  const xpProgress = Math.min(
-    (xpInCurrentLevel / nextLevelRequiredXp) * 100,
-    100,
-  );
+  const { xpInLevel: xpInCurrentLevel, xpForNext: nextLevelRequiredXp, percent: xpProgress } = getXpProgress(user.level, user.totalXp);
 
   return (
     <Box w="100%">

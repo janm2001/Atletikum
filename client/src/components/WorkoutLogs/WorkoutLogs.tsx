@@ -1,4 +1,5 @@
 import { Stack, Text } from "@mantine/core";
+import QueryErrorMessage from "../Common/QueryErrorMessage";
 import { useWorkoutLogs } from "@/hooks/useWorkoutLogs";
 import { useExercises } from "@/hooks/useExercise";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
@@ -20,7 +21,7 @@ const WorkoutLogs = () => {
   }
 
   if (error) {
-    return <Text c="red">{error.message}</Text>;
+    return <QueryErrorMessage message={error.message} />;
   }
 
   if (workoutLogs.length === 0) {

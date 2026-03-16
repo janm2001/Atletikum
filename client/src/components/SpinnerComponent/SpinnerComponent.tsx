@@ -10,7 +10,7 @@ const SpinnerComponent = ({
   fullHeight = true,
 }: SpinnerComponentProps) => {
   return (
-    <Center mih={fullHeight ? "100vh" : "auto"}>
+    <Center mih={fullHeight ? "100vh" : "auto"} role="status" aria-label="Loading">
       <Loader size={size} color="violet" type="dots" />
     </Center>
   );

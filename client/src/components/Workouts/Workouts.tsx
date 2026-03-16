@@ -20,7 +20,7 @@ import {
 } from "@/hooks/useWorkout";
 import { useUser } from "@/hooks/useUser";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { getWorkoutTagOptions } from "@/enums/workoutTags";
 import { IconBook, IconPlus } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -83,7 +83,7 @@ const Workouts = () => {
     setOpened(true);
   };
 
-  const handleOpenEdit = (workout: Workout) => {
+  const handleOpenEdit = useCallback((workout: Workout) => {
     setEditingWorkoutId(workout._id);
     setFormValues({
       title: workout.title,
@@ -105,9 +105,9 @@ const Workouts = () => {
     });
     setActionError("");
     setOpened(true);
-  };
+  }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!window.confirm(t("training.workouts.confirmDelete"))) {
       return;
     }
@@ -117,7 +117,7 @@ const Workouts = () => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [deleteMutation, t]);
 
   const handleSubmit = async (values: WorkoutFormValues) => {
     const customWorkoutValues = {

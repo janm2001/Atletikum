@@ -1,4 +1,5 @@
 import { Grid, Select, Stack, Text, Title } from "@mantine/core";
+import QueryErrorMessage from "../../Common/QueryErrorMessage";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ExerciseCard from "../ExerciseCard/ExerciseCard";
@@ -44,7 +45,7 @@ const Exercises = () => {
         w={{ base: "100%", sm: 320 }}
       />
 
-      {error && <Text c="red">{error.message}</Text>}
+      {error && <QueryErrorMessage message={error.message} />}
 
       <Grid>
         {visibleExercises.map((exercise) => (

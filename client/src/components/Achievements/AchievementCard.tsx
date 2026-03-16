@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, Image, Badge, Text, Tooltip, Stack, Group } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconLock, IconCheck } from "@tabler/icons-react";
@@ -21,7 +22,7 @@ const badgeIconMap: Record<string, string> = {
   sparkles: "https://api.dicebear.com/7.x/icons/svg?seed=sparkles",
 };
 
-export const AchievementCard = ({ achievement }: AchievementCardProps) => {
+export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
   const { t } = useTranslation();
   const imageUrl =
     badgeIconMap[achievement.badgeIcon] ||
@@ -91,4 +92,4 @@ export const AchievementCard = ({ achievement }: AchievementCardProps) => {
       </Card>
     </Tooltip>
   );
-};
+});

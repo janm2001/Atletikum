@@ -4,8 +4,7 @@ import { IconBrain, IconBarbell } from "@tabler/icons-react";
 import { useUser } from "../../hooks/useUser";
 import {
   getLevelFromTotalXp,
-  getXpRequiredForLevelUp,
-  getTotalXpForLevelStart,
+  getXpProgress,
 } from "../../utils/leveling";
 
 interface XpProgressSectionProps {
@@ -20,10 +19,7 @@ export const XpProgressSection = ({
   if (!user) return null;
 
   const level = getLevelFromTotalXp(user.totalXp);
-  const levelStartXp = getTotalXpForLevelStart(level);
-  const xpForNext = getXpRequiredForLevelUp(level);
-  const xpInLevel = user.totalXp - levelStartXp;
-  const levelPercent = Math.min(100, Math.round((xpInLevel / xpForNext) * 100));
+  const { xpInLevel, xpForNext, percent: levelPercent } = getXpProgress(level, user.totalXp);
 
   const showBrain = variant === "full" || variant === "brain";
   const showBody = variant === "full" || variant === "body";
