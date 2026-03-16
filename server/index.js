@@ -20,6 +20,7 @@ const {
   getClientUrl,
   getMongoUri,
   getPort,
+  getTrustProxy,
   validateServerEnvironment,
 } = require("./config/env");
 
@@ -28,6 +29,10 @@ const path = require("path");
 require("dotenv").config();
 
 const app = express();
+const trustProxy = getTrustProxy();
+if (trustProxy !== false) {
+  app.set("trust proxy", trustProxy);
+}
 
 app.use(helmet());
 app.use(

@@ -5,6 +5,10 @@ const {
   deleteUploadedRequestFile,
   deleteUploadByPublicPath,
 } = require("../utils/uploadCleanup");
+const {
+  isCloudinaryStorageEnabled,
+  uploadArticleCoverImage,
+} = require("../utils/cloudinaryUploads");
 const AppError = require("../utils/AppError");
 
 const normalizeBookmarkState = (bookmark) => ({
@@ -280,13 +284,25 @@ const getArticleById = async ({ articleId, userId }) => {
 
 const createArticle = async ({ payload, file }) => {
   const articleData = normalizeArticlePayload(payload);
+  const useCloudinaryStorage = isCloudinaryStorageEnabled();
+  let uploadedCoverImage = null;
+
   if (file) {
-    articleData.coverImage = buildArticleCoverImagePath(file);
+    if (useCloudinaryStorage) {
+      uploadedCoverImage = await uploadArticleCoverImage({ filePath: file.path });
+      articleData.coverImage = uploadedCoverImage;
+      await deleteUploadedRequestFile(file);
+    } else {
+      articleData.coverImage = buildArticleCoverImagePath(file);
+    }
   }
 
   try {
     return await Article.create(articleData);
   } catch (error) {
+    if (uploadedCoverImage) {
+      await deleteUploadByPublicPath(uploadedCoverImage);
+    }
     await deleteUploadedRequestFile(file);
     throw error;
   }
@@ -300,8 +316,17 @@ const updateArticle = async ({ articleId, payload, file }) => {
   }
 
   const updateData = normalizeArticlePayload(payload);
+  const useCloudinaryStorage = isCloudinaryStorageEnabled();
+  let uploadedCoverImage = null;
+
   if (file) {
-    updateData.coverImage = buildArticleCoverImagePath(file);
+    if (useCloudinaryStorage) {
+      uploadedCoverImage = await uploadArticleCoverImage({ filePath: file.path });
+      updateData.coverImage = uploadedCoverImage;
+      await deleteUploadedRequestFile(file);
+    } else {
+      updateData.coverImage = buildArticleCoverImagePath(file);
+    }
   }
 
   try {
@@ -324,6 +349,9 @@ const updateArticle = async ({ articleId, payload, file }) => {
 
     return article;
   } catch (error) {
+    if (uploadedCoverImage) {
+      await deleteUploadByPublicPath(uploadedCoverImage);
+    }
     await deleteUploadedRequestFile(file);
     throw error;
   }

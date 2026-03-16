@@ -1,8 +1,15 @@
 const express = require("express");
 const articleController = require("../controllers/articleController");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
-const { articleMutationLimiter } = require("../middleware/rateLimiters");
+const {
+  articleMutationLimiter,
+  articleUserMutationLimiter,
+} = require("../middleware/rateLimiters");
 const upload = require("../middleware/upload");
+const {
+  validateArticleIdRequest,
+  validateUpdateReadingProgressRequest,
+} = require("../validators/articleValidator");
 
 const router = express.Router();
 
@@ -20,10 +27,23 @@ router
 
 router
   .route("/:id/bookmark")
-  .post(articleController.toggleBookmark)
-  .delete(articleController.removeBookmark);
+  .post(
+    articleUserMutationLimiter,
+    validateArticleIdRequest,
+    articleController.toggleBookmark,
+  )
+  .delete(
+    articleUserMutationLimiter,
+    validateArticleIdRequest,
+    articleController.removeBookmark,
+  );
 
-router.patch("/:id/progress", articleController.updateReadingProgress);
+router.patch(
+  "/:id/progress",
+  articleUserMutationLimiter,
+  validateUpdateReadingProgressRequest,
+  articleController.updateReadingProgress,
+);
 
 router
   .route("/:id")

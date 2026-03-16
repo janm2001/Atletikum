@@ -15,6 +15,12 @@ const {
 const { scoreQuizSubmission } = require("../utils/quizScoring");
 const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
+const QUIZ_SCORING_ERROR_MESSAGES = new Set([
+  "Odgovori kviza moraju biti poslani kao polje.",
+  "Broj odgovora mora odgovarati broju pitanja.",
+  "Svaki odgovor mora biti važeći indeks opcije.",
+  "Odgovor sadrži nevažeću opciju.",
+]);
 
 const findLastCompletion = ({ userId, articleId, session = null }) =>
   attachSession(
@@ -160,6 +166,21 @@ const getQuizStatus = async ({ userId, articleId }) => {
   return buildQuizStatus(lastCompletion);
 };
 
+const buildInvalidQuizSubmissionError = (message) =>
+  new AppError(message, 400);
+
+const scoreSubmission = ({ quiz, submittedAnswers }) => {
+  try {
+    return scoreQuizSubmission(quiz, submittedAnswers);
+  } catch (error) {
+    if (QUIZ_SCORING_ERROR_MESSAGES.has(error?.message)) {
+      throw buildInvalidQuizSubmissionError(error.message);
+    }
+
+    throw error;
+  }
+};
+
 const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
   const normalizedUserId = requireUserId({ userId });
 
@@ -185,7 +206,10 @@ const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
       lastCompletion,
     });
 
-    const quizResult = scoreQuizSubmission(article.quiz, submittedAnswers);
+    const quizResult = scoreSubmission({
+      quiz: article.quiz,
+      submittedAnswers,
+    });
     const completion = await createWithSession(
       QuizCompletion,
       {

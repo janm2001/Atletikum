@@ -1,5 +1,6 @@
 import { Image, Text, TypographyStylesProvider } from "@mantine/core";
 import { resolveArticleCoverImageUrl } from "@/utils/articleCoverImage";
+import { sanitizeArticleHtml } from "@/utils/sanitizeArticleHtml";
 
 interface ArticleContentSectionProps {
   title: string;
@@ -14,6 +15,8 @@ const ArticleContentSection = ({
   summary,
   renderedContent,
 }: ArticleContentSectionProps) => {
+  const sanitizedContent = sanitizeArticleHtml(renderedContent);
+
   return (
     <>
       {coverImage && (
@@ -40,7 +43,7 @@ const ArticleContentSection = ({
       </Text>
 
       <TypographyStylesProvider>
-        <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
       </TypographyStylesProvider>
     </>
   );

@@ -26,6 +26,11 @@ jest.mock("../utils/uploadCleanup", () => ({
   deleteUploadByPublicPath: jest.fn(),
 }));
 
+jest.mock("../utils/cloudinaryUploads", () => ({
+  isCloudinaryStorageEnabled: jest.fn(() => false),
+  uploadArticleCoverImage: jest.fn(),
+}));
+
 const { Article } = require("../models/Article");
 const { ArticleBookmark } = require("../models/ArticleBookmark");
 const { Exercise } = require("../models/Exercise");
@@ -33,6 +38,10 @@ const {
   deleteUploadedRequestFile,
   deleteUploadByPublicPath,
 } = require("../utils/uploadCleanup");
+const {
+  isCloudinaryStorageEnabled,
+  uploadArticleCoverImage,
+} = require("../utils/cloudinaryUploads");
 const articleService = require("../services/articleService");
 
 const createLeanQuery = (value) => ({
@@ -266,5 +275,41 @@ describe("articleService", () => {
     expect(deleteUploadByPublicPath).toHaveBeenCalledWith(
       "/uploads/articles/old-cover.png",
     );
+  });
+
+  it("uploads cover image to Cloudinary when cloud storage is enabled", async () => {
+    isCloudinaryStorageEnabled.mockReturnValue(true);
+    uploadArticleCoverImage.mockResolvedValue(
+      "https://res.cloudinary.com/demo/image/upload/v123/atletikum/articles/new-cover.png",
+    );
+    Article.create.mockResolvedValue({
+      _id: "article-1",
+      coverImage:
+        "https://res.cloudinary.com/demo/image/upload/v123/atletikum/articles/new-cover.png",
+    });
+
+    const file = {
+      filename: "new-cover.png",
+      path: "C:\\uploads\\articles\\new-cover.png",
+    };
+
+    await articleService.createArticle({
+      payload: {
+        title: "Article",
+        summary: "Summary",
+        content: "Content",
+        tag: "TRAINING",
+      },
+      file,
+    });
+
+    expect(uploadArticleCoverImage).toHaveBeenCalledWith({ filePath: file.path });
+    expect(Article.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        coverImage:
+          "https://res.cloudinary.com/demo/image/upload/v123/atletikum/articles/new-cover.png",
+      }),
+    );
+    expect(deleteUploadedRequestFile).toHaveBeenCalledWith(file);
   });
 });

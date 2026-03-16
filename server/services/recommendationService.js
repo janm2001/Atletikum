@@ -210,6 +210,7 @@ const getWeeklyRecommendations = async ({ user, userId }) => {
   });
   const availableWorkoutsQuery = Workout.find({
     requiredLevel: { $lte: user.level },
+    $or: [{ createdBy: null }, { createdBy: normalizedUserId }],
   })
     .populate("exercises.exerciseId", "title imageLink")
     .lean();

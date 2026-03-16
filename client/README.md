@@ -71,3 +71,10 @@ export default defineConfig([
   },
 ])
 ```
+
+## API configuration
+
+Frontend API calls use `VITE_API_BASE_URL`.
+
+- Local fallback (if variable is missing): `http://localhost:5001/api/v1`
+- Production example: `VITE_API_BASE_URL=https://your-backend-domain/api/v1`

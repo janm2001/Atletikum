@@ -63,10 +63,43 @@ const workoutLogCreationLimiter = rateLimit({
   ),
 });
 
+const articleUserMutationLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše izmjena oznaka i napretka članaka. Pokušajte ponovo za 15 minuta.",
+  ),
+});
+
+const workoutMutationLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 60 * 60 * 1000,
+  max: 60,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše izmjena treninga. Pokušajte ponovo za 1 sat.",
+  ),
+});
+
+const exerciseMutationLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 60 * 60 * 1000,
+  max: 60,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše izmjena vježbi. Pokušajte ponovo za 1 sat.",
+  ),
+});
+
 module.exports = {
   authLimiter,
   articleMutationLimiter,
+  articleUserMutationLimiter,
+  exerciseMutationLimiter,
   quizSubmissionLimiter,
   recommendationLimiter,
+  workoutMutationLimiter,
   workoutLogCreationLimiter,
 };

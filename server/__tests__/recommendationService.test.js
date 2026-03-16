@@ -164,6 +164,10 @@ describe("recommendationService", () => {
     expect(QuizCompletion.distinct).toHaveBeenCalledWith("article", {
       user: "user-1",
     });
+    expect(Workout.find).toHaveBeenCalledWith({
+      requiredLevel: { $lte: 3 },
+      $or: [{ createdBy: null }, { createdBy: "user-1" }],
+    });
     expect(Exercise.find).not.toHaveBeenCalled();
   });
 

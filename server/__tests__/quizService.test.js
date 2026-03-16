@@ -266,6 +266,32 @@ describe("quizService", () => {
     });
   });
 
+  it("returns 400 when submitted answers length does not match quiz questions", async () => {
+    QuizCompletion.findOne.mockReturnValue(createSortedQuery(null));
+    QuizCooldown.findOneAndUpdate.mockResolvedValue({
+      nextAvailableAt: new Date("2026-03-14T10:00:00.000Z"),
+    });
+    Article.findById.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        quiz: [
+          { options: ["A", "B"], correctIndex: 0 },
+          { options: ["A", "B"], correctIndex: 1 },
+        ],
+      }),
+    });
+
+    await expect(
+      quizService.submitQuiz({
+        userId: "user-1",
+        articleId: "507f191e810c19729de860ea",
+        submittedAnswers: [0],
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Broj odgovora mora odgovarati broju pitanja.",
+    });
+  });
+
   it("returns a random eligible revision quiz from completions older than seven days", async () => {
     jest.useFakeTimers().setSystemTime(new Date("2026-03-18T10:00:00.000Z"));
     QuizCompletion.find.mockReturnValue(

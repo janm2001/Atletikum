@@ -1,5 +1,9 @@
 const fs = require("fs/promises");
 const path = require("path");
+const {
+  deleteCloudinaryImageByUrl,
+  isCloudinaryUrl,
+} = require("./cloudinaryUploads");
 
 const ARTICLE_UPLOADS_ROOT = path.join(__dirname, "..", "uploads", "articles");
 const MANAGED_UPLOAD_PREFIX = "/uploads/articles/";
@@ -51,6 +55,11 @@ const resolveManagedUploadPath = (publicPath) => {
 };
 
 const deleteUploadByPublicPath = async (publicPath) => {
+  if (isCloudinaryUrl(publicPath)) {
+    await deleteCloudinaryImageByUrl(publicPath);
+    return;
+  }
+
   const resolvedPath = resolveManagedUploadPath(publicPath);
 
   if (!resolvedPath) {

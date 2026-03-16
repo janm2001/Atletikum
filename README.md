@@ -33,6 +33,14 @@ ATLETIKUM je moderna web aplikacija koja spaja znanost o sportu s elementima vid
 - cd ..
 - npm start
 
+## Environment napomene
+
+- Frontend koristi `VITE_API_BASE_URL` (fallback: `http://localhost:5001/api/v1`).
+- Backend može koristiti cloud spremu za slike članaka:
+  - `ARTICLE_IMAGE_STORAGE=cloudinary`
+  - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- Ako je backend iza reverse proxyja, postavi `TRUST_PROXY` (`true` ili broj hopova).
+
 ## TODO
 
 - [x] Inicijalizacija projekta
