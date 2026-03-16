@@ -7,8 +7,9 @@ import {
   Title,
   Text,
   Anchor,
-  Flex,
   Group,
+  Box,
+  Stack,
 } from "@mantine/core";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
@@ -17,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../../schema/login.schema";
 import { useLogin } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
+import { IconBarbell } from "@tabler/icons-react";
 
 const Login = () => {
   const { t } = useTranslation();
@@ -46,78 +48,113 @@ const Login = () => {
         login(response.data.user, response.token);
         navigate("/");
       } else {
-        setError(t('auth.login.error'));
+        setError(t("auth.login.error"));
       }
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : t('auth.login.serverError'),
+          : t("auth.login.serverError"),
       );
     }
   };
 
   return (
-    <Flex
-      justify="center"
-      align="center"
-      mih="100vh"
-      direction="column"
-      w="100%"
+    <Box
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+      }}
     >
-      <div style={{ width: "100%", maxWidth: 500 }}>
-        <Title ta="center" order={2}>
-          {t('auth.login.title')}
+      <Box
+        visibleFrom="md"
+        style={{
+          flex: "0 0 45%",
+          background: "linear-gradient(135deg, var(--mantine-color-violet-9) 0%, var(--mantine-color-violet-6) 100%)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "var(--mantine-spacing-xl)",
+        }}
+      >
+        <IconBarbell size={64} color="white" stroke={1.5} />
+        <Title order={1} c="white" mt="md">
+          Atletikum
         </Title>
-        <Text c="dimmed" size="sm" ta="center" mt={5}>
-          {t('auth.login.noAccount')}{" "}
-          <Anchor component={Link} to="/register" size="sm">
-            {t('auth.login.register')}
-          </Anchor>
+        <Text c="white" opacity={0.85} size="lg" ta="center" mt="sm" maw={320}>
+          {t("dashboard.welcome")}
         </Text>
+      </Box>
 
-        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <form onSubmit={handleSubmit(handleLogin)}>
-            <TextInput
-              label={t('auth.login.username')}
-              placeholder={t('auth.login.usernamePlaceholder')}
-              required
-              error={errors.username?.message}
-              {...register("username")}
-            />
-            <PasswordInput
-              label={t('auth.login.password')}
-              placeholder={t('auth.login.passwordPlaceholder')}
-              required
-              mt="md"
-              error={errors.password?.message}
-              {...register("password")}
-            />
+      <Box
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "var(--mantine-spacing-xl)",
+        }}
+      >
+        <Stack w="100%" maw={420}>
+          <Box hiddenFrom="md" ta="center" mb="md">
+            <IconBarbell size={40} color="var(--mantine-color-violet-6)" stroke={1.5} />
+            <Title order={2} mt="xs">Atletikum</Title>
+          </Box>
 
-            <Group justify="flex-end" mt="xs">
-              <Anchor component={Link} to="/zaboravljena-lozinka" size="sm">
-                {t('auth.login.forgotPassword')}
-              </Anchor>
-            </Group>
+          <Title ta="center" order={2}>
+            {t("auth.login.title")}
+          </Title>
+          <Text c="dimmed" size="sm" ta="center">
+            {t("auth.login.noAccount")}{" "}
+            <Anchor component={Link} to="/register" size="sm">
+              {t("auth.login.register")}
+            </Anchor>
+          </Text>
 
-            {error && (
-              <Text c="red" size="sm" mt="sm">
-                {error}
-              </Text>
-            )}
+          <Paper withBorder shadow="md" p={30} mt="sm" radius="md">
+            <form onSubmit={handleSubmit(handleLogin)}>
+              <TextInput
+                label={t("auth.login.username")}
+                placeholder={t("auth.login.usernamePlaceholder")}
+                required
+                error={errors.username?.message}
+                {...register("username")}
+              />
+              <PasswordInput
+                label={t("auth.login.password")}
+                placeholder={t("auth.login.passwordPlaceholder")}
+                required
+                mt="md"
+                error={errors.password?.message}
+                {...register("password")}
+              />
 
-            <Button
-              fullWidth
-              mt="xl"
-              type="submit"
-              loading={isSubmitting || loginMutation.isPending}
-            >
-              {t('auth.login.submit')}
-            </Button>
-          </form>
-        </Paper>
-      </div>
-    </Flex>
+              <Group justify="flex-end" mt="xs">
+                <Anchor component={Link} to="/zaboravljena-lozinka" size="sm">
+                  {t("auth.login.forgotPassword")}
+                </Anchor>
+              </Group>
+
+              {error && (
+                <Text c="red" size="sm" mt="sm">
+                  {error}
+                </Text>
+              )}
+
+              <Button
+                fullWidth
+                mt="xl"
+                type="submit"
+                loading={isSubmitting || loginMutation.isPending}
+              >
+                {t("auth.login.submit")}
+              </Button>
+            </form>
+          </Paper>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 
