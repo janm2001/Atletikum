@@ -1,6 +1,7 @@
 import { Badge, Button, Card, Group, Image, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import type { Exercise } from "../../../types/Exercise/exercise";
+import { getMuscleGroupLabel } from "../../../enums/muscleGroup";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -30,7 +31,7 @@ const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
         </Group>
 
         <Badge variant="dot" color="gray" w="fit-content">
-          {exercise.muscleGroup}
+          {getMuscleGroupLabel(exercise.muscleGroup)}
         </Badge>
 
         <Text size="sm" c="dimmed" lineClamp={3}>

@@ -17,6 +17,9 @@ export const MuscleGroup = {
 export type MuscleGroupValue =
     (typeof MuscleGroup)[keyof typeof MuscleGroup];
 
+export const getMuscleGroupLabel = (value: MuscleGroupValue) =>
+    i18next.t(`enums.muscleGroups.${value}`);
+
 export const getMuscleGroupOptions = () => [
     { value: "ALL", label: i18next.t('enums.muscleGroups.ALL') },
     ...Object.values(MuscleGroup).map((value) => ({
