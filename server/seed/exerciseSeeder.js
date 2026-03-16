@@ -12,42 +12,42 @@ const EXERCISE_IMG_BASE =
  * Image URL = EXERCISE_IMG_BASE + directoryName + "/0.jpg"
  */
 const exerciseImageMap = {
-  "A-Skips": "Fast_Skipping",
-  "B-Skips": "Moving_Claw_Series",
-  "High Knees": "Mountain_Climbers",
-  "Butt Kicks": "Double_Leg_Butt_Kick",
-  Bounding: "Alternate_Leg_Diagonal_Bound",
-  "Box Jumps": "Front_Box_Jump",
-  "Depth Jumps": "Depth_Jump_Leap",
-  "Tuck Jumps": "Knee_Tuck_Jump",
-  "Split Squat Jumps": "Freehand_Jump_Squat",
-  "Lateral Skater Jumps": "Lateral_Bound",
-  "Broad Jumps": "Frog_Hops",
-  "Single-Leg Hops": "Hurdle_Hops",
-  "Pogo Jumps": "Calf_Raise_On_A_Dumbbell",
-  "Wall Drill (Switches)": "Linear_Acceleration_Wall_Drill",
-  "Medicine Ball Chest Throw": "Medicine_Ball_Chest_Pass",
-  "Medicine Ball Overhead Slam": "One-Arm_Medicine_Ball_Slam",
-  "Romanian Deadlift": "Romanian_Deadlift",
-  "Walking Lunges": "Bodyweight_Walking_Lunge",
-  "Calf Raises": "Standing_Calf_Raises",
-  "Single-Leg Calf Raises": "Dumbbell_Seated_One-Leg_Calf_Raise",
-  "Glute Bridge": "Barbell_Glute_Bridge",
-  "Hip Thrust": "Barbell_Hip_Thrust",
-  "Plank Hold": "Plank",
-  "Side Plank": "Side_Bridge",
-  "Dead Bug": "Dead_Bug",
-  "Back Extensions": "Hyperextensions_Back_Extensions",
-  "Bird Dog": "Downward_Facing_Balance",
-  "Overhead Press": "Barbell_Shoulder_Press",
-  "Push Press": "Double_Kettlebell_Push_Press",
-  "Pull-Ups": "Pullups",
-  "Inverted Rows": "Inverted_Row",
-  "Ankle Dorsiflexion Rocks": "Ankle_Circles",
-  "Thoracic Rotation Mobility": "Iron_Crosses_stretch",
-  "Thoracic Extension on Foam Roller": "Lower_Back-SMR",
-  "Hip Flexor Stretch": "Kneeling_Hip_Flexor",
-  "Hamstring Bridge Walkouts": "Hamstring_Stretch",
+  "A-preskoci": "Fast_Skipping",
+  "B-preskoci": "Moving_Claw_Series",
+  "Visoka koljena": "Mountain_Climbers",
+  "Udarci petom": "Double_Leg_Butt_Kick",
+  "Bounding": "Alternate_Leg_Diagonal_Bound",
+  "Skokovi na kutiju": "Front_Box_Jump",
+  "Skokovi s visine": "Depth_Jump_Leap",
+  "Tuck skokovi": "Knee_Tuck_Jump",
+  "Raznožni skokovi": "Freehand_Jump_Squat",
+  "Bočni skokovi klizača": "Lateral_Bound",
+  "Horizontalni skokovi": "Frog_Hops",
+  "Jednonožni poskoci": "Hurdle_Hops",
+  "Pogo skokovi": "Calf_Raise_On_A_Dumbbell",
+  "Vježba uz zid – izmjena nogu": "Linear_Acceleration_Wall_Drill",
+  "Bacanje medicinke iz prsa": "Medicine_Ball_Chest_Pass",
+  "Udarac medicinkom iznad glave": "One-Arm_Medicine_Ball_Slam",
+  "Rumunjsko mrtvo dizanje": "Romanian_Deadlift",
+  "Iskoraci u hodu": "Bodyweight_Walking_Lunge",
+  "Podizanje na prste": "Standing_Calf_Raises",
+  "Jednonožno podizanje na prste": "Dumbbell_Seated_One-Leg_Calf_Raise",
+  "Most za gluteuse": "Barbell_Glute_Bridge",
+  "Potisak kuka": "Barbell_Hip_Thrust",
+  "Plank": "Plank",
+  "Bočni plank": "Side_Bridge",
+  "Mrtvi kukac": "Dead_Bug",
+  "Ekstenzije leđa": "Hyperextensions_Back_Extensions",
+  "Ptica i pas": "Downward_Facing_Balance",
+  "Potisak iznad glave": "Barbell_Shoulder_Press",
+  "Push press": "Double_Kettlebell_Push_Press",
+  "Zgibovi": "Pullups",
+  "Vodoravno veslanje": "Inverted_Row",
+  "Ljuljanje gležnja": "Ankle_Circles",
+  "Rotacijska mobilnost prsnog koša": "Iron_Crosses_stretch",
+  "Ekstenzija prsnog koša na valjku": "Lower_Back-SMR",
+  "Istezanje fleksora kuka": "Kneeling_Hip_Flexor",
+  "Most sa šetnjom za stražnju ložu": "Hamstring_Stretch",
 };
 
 const getExerciseImageUrl = (title) => {
@@ -58,8 +58,8 @@ const getExerciseImageUrl = (title) => {
 
 const exercises = [
   {
-    title: "A-Skips",
-    description: "Sprint drill for knee drive, rhythm, and upright mechanics.",
+    title: "A-preskoci",
+    description: "Trkačka vježba za podizanje koljena, ritam i uspravnu mehaniku trčanja.",
     muscleGroup: MuscleGroup.HIP_FLEXORS,
     imageLink:
       "https://images.pexels.com/photos/1552249/pexels-photo-1552249.jpeg",
@@ -67,9 +67,9 @@ const exercises = [
     level: 18,
   },
   {
-    title: "B-Skips",
+    title: "B-preskoci",
     description:
-      "Progression from A-skips emphasizing foot strike timing and extension.",
+      "Napredak od A-preskoka s naglaskom na trenutak kontakta stopala s podlogom i ekstenziju noge.",
     muscleGroup: MuscleGroup.HIP_FLEXORS,
     imageLink:
       "https://images.pexels.com/photos/1552252/pexels-photo-1552252.jpeg",
@@ -77,9 +77,9 @@ const exercises = [
     level: 22,
   },
   {
-    title: "High Knees",
+    title: "Visoka koljena",
     description:
-      "Fast cyclical drill to train cadence, posture, and front-side mechanics.",
+      "Brza ciklična vježba za treniranje kadence, držanja i frontalne mehanike trčanja.",
     muscleGroup: MuscleGroup.CORE,
     imageLink:
       "https://images.pexels.com/photos/260352/pexels-photo-260352.jpeg",
@@ -87,9 +87,9 @@ const exercises = [
     level: 12,
   },
   {
-    title: "Butt Kicks",
+    title: "Udarci petom",
     description:
-      "Warm-up drill focused on hamstring activation and leg turnover.",
+      "Zagrijavajuća vježba usmjerena na aktivaciju stražnje lože i brzu izmjenu nogu.",
     muscleGroup: MuscleGroup.HAMSTRINGS,
     imageLink:
       "https://images.pexels.com/photos/3756042/pexels-photo-3756042.jpeg",
@@ -99,7 +99,7 @@ const exercises = [
   {
     title: "Bounding",
     description:
-      "Explosive running drill for stride power and horizontal force.",
+      "Eksplozivna trkačka vježba za snagu koraka i horizontalnu silu odraza.",
     muscleGroup: MuscleGroup.GLUTES,
     imageLink:
       "https://images.pexels.com/photos/936075/pexels-photo-936075.jpeg",
@@ -107,9 +107,9 @@ const exercises = [
     level: 35,
   },
   {
-    title: "Box Jumps",
+    title: "Skokovi na kutiju",
     description:
-      "Plyometric jump to develop lower-body explosiveness and reactive power.",
+      "Pliometrijski skok na kutiju za razvoj eksplozivnosti donjih ekstremiteta i reaktivne snage.",
     muscleGroup: MuscleGroup.QUADRICEPS,
     imageLink:
       "https://images.pexels.com/photos/2261477/pexels-photo-2261477.jpeg",
@@ -117,18 +117,18 @@ const exercises = [
     level: 30,
   },
   {
-    title: "Depth Jumps",
+    title: "Skokovi s visine",
     description:
-      "Reactive plyometric to improve stiffness and rapid force production.",
+      "Reaktivni pliometrijski skok za poboljšanje krutosti tetiva i brzine produkcije sile.",
     muscleGroup: MuscleGroup.CALVES,
     imageLink: "https://images.pexels.com/photos/28080/pexels-photo.jpg",
     videoLink: "https://www.youtube.com/watch?v=hNfJ5m6X7VA",
     level: 48,
   },
   {
-    title: "Tuck Jumps",
+    title: "Tuck skokovi",
     description:
-      "Vertical plyometric emphasizing rapid knee drive and landing control.",
+      "Vertikalni pliometrijski skok s naglaskom na brzo podizanje koljena i kontrolu doskoka.",
     muscleGroup: MuscleGroup.QUADRICEPS,
     imageLink:
       "https://images.pexels.com/photos/2261485/pexels-photo-2261485.jpeg",
@@ -136,9 +136,9 @@ const exercises = [
     level: 32,
   },
   {
-    title: "Split Squat Jumps",
+    title: "Raznožni skokovi",
     description:
-      "Unilateral plyometric drill for power, balance, and hip stability.",
+      "Unilateralna pliometrijska vježba za snagu, ravnotežu i stabilnost kuka.",
     muscleGroup: MuscleGroup.QUADRICEPS,
     imageLink:
       "https://images.pexels.com/photos/1552103/pexels-photo-1552103.jpeg",
@@ -146,9 +146,9 @@ const exercises = [
     level: 34,
   },
   {
-    title: "Lateral Skater Jumps",
+    title: "Bočni skokovi klizača",
     description:
-      "Side-to-side power drill improving frontal-plane explosiveness.",
+      "Bočni skokovi za razvoj eksplozivnosti u frontalnoj ravnini kretanja.",
     muscleGroup: MuscleGroup.GLUTES,
     imageLink:
       "https://images.pexels.com/photos/703012/pexels-photo-703012.jpeg",
@@ -156,8 +156,8 @@ const exercises = [
     level: 26,
   },
   {
-    title: "Broad Jumps",
-    description: "Horizontal jump variation to improve acceleration mechanics.",
+    title: "Horizontalni skokovi",
+    description: "Horizontalni skok za poboljšanje mehanike ubrzanja i odraza.",
     muscleGroup: MuscleGroup.HAMSTRINGS,
     imageLink:
       "https://images.pexels.com/photos/685534/pexels-photo-685534.jpeg",
@@ -165,9 +165,9 @@ const exercises = [
     level: 27,
   },
   {
-    title: "Single-Leg Hops",
+    title: "Jednonožni poskoci",
     description:
-      "Unilateral reactive hopping drill for ankle-knee control and power.",
+      "Unilateralna reaktivna vježba skokanja za kontrolu gležnja i koljena te razvoj snage.",
     muscleGroup: MuscleGroup.ANKLES,
     imageLink:
       "https://images.pexels.com/photos/1465889/pexels-photo-1465889.jpeg",
@@ -175,9 +175,9 @@ const exercises = [
     level: 40,
   },
   {
-    title: "Pogo Jumps",
+    title: "Pogo skokovi",
     description:
-      "Quick low-amplitude jumps for ankle stiffness and elastic return.",
+      "Brzi skokovi male amplitude za krutost gležnja i elastični povrat energije.",
     muscleGroup: MuscleGroup.ANKLES,
     imageLink:
       "https://images.pexels.com/photos/235922/pexels-photo-235922.jpeg",
@@ -185,9 +185,9 @@ const exercises = [
     level: 19,
   },
   {
-    title: "Wall Drill (Switches)",
+    title: "Vježba uz zid – izmjena nogu",
     description:
-      "Technical drill for sprint shin angles and aggressive ground contact.",
+      "Tehnička vježba za kut potkoljenice pri sprintu i agresivan kontakt s podlogom.",
     muscleGroup: MuscleGroup.HIP_FLEXORS,
     imageLink:
       "https://images.pexels.com/photos/2294361/pexels-photo-2294361.jpeg",
@@ -195,9 +195,9 @@ const exercises = [
     level: 24,
   },
   {
-    title: "Medicine Ball Chest Throw",
+    title: "Bacanje medicinke iz prsa",
     description:
-      "Upper-body power throw improving force transfer and coordination.",
+      "Bacanje medicinke iz prsa za razvoj snage gornjeg dijela tijela i koordinacije.",
     muscleGroup: MuscleGroup.SHOULDERS,
     imageLink:
       "https://images.pexels.com/photos/949131/pexels-photo-949131.jpeg",
@@ -205,9 +205,9 @@ const exercises = [
     level: 21,
   },
   {
-    title: "Medicine Ball Overhead Slam",
+    title: "Udarac medicinkom iznad glave",
     description:
-      "Total-body ballistic movement for power and trunk engagement.",
+      "Balistički pokret cijelog tijela za snagu i aktivaciju trupa.",
     muscleGroup: MuscleGroup.CORE,
     imageLink:
       "https://images.pexels.com/photos/414029/pexels-photo-414029.jpeg",
@@ -215,8 +215,8 @@ const exercises = [
     level: 23,
   },
   {
-    title: "Romanian Deadlift",
-    description: "Posterior-chain movement targeting hamstrings and glutes.",
+    title: "Rumunjsko mrtvo dizanje",
+    description: "Vježba stražnjeg lanca usmjerena na stražnju ložu i gluteuse.",
     muscleGroup: MuscleGroup.HAMSTRINGS,
     imageLink:
       "https://images.pexels.com/photos/416717/pexels-photo-416717.jpeg",
@@ -224,9 +224,9 @@ const exercises = [
     level: 45,
   },
   {
-    title: "Walking Lunges",
+    title: "Iskoraci u hodu",
     description:
-      "Unilateral strength exercise for balance and lower-body control.",
+      "Unilateralna vježba snage za ravnotežu i kontrolu donjih ekstremiteta.",
     muscleGroup: MuscleGroup.QUADRICEPS,
     imageLink:
       "https://images.pexels.com/photos/1552106/pexels-photo-1552106.jpeg",
@@ -234,9 +234,9 @@ const exercises = [
     level: 15,
   },
   {
-    title: "Calf Raises",
+    title: "Podizanje na prste",
     description:
-      "Strengthens calves and ankle stiffness for sprinting and jumping.",
+      "Jača listove i krutost gležnja za sprint i skokove.",
     muscleGroup: MuscleGroup.CALVES,
     imageLink:
       "https://images.pexels.com/photos/4754146/pexels-photo-4754146.jpeg",
@@ -244,8 +244,8 @@ const exercises = [
     level: 10,
   },
   {
-    title: "Single-Leg Calf Raises",
-    description: "Single-leg variation for improved ankle strength symmetry.",
+    title: "Jednonožno podizanje na prste",
+    description: "Jednonožna varijacija za poboljšanje simetrije snage gležnja.",
     muscleGroup: MuscleGroup.CALVES,
     imageLink:
       "https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg",
@@ -253,9 +253,9 @@ const exercises = [
     level: 16,
   },
   {
-    title: "Glute Bridge",
+    title: "Most za gluteuse",
     description:
-      "Foundational hip-extension drill for sprint and jump transfer.",
+      "Temeljna vježba ekstenzije kuka za prijenos snage pri sprintu i skokovima.",
     muscleGroup: MuscleGroup.GLUTES,
     imageLink:
       "https://images.pexels.com/photos/3076516/pexels-photo-3076516.jpeg",
@@ -263,8 +263,8 @@ const exercises = [
     level: 8,
   },
   {
-    title: "Hip Thrust",
-    description: "High-output glute strength movement for acceleration power.",
+    title: "Potisak kuka",
+    description: "Vježba visokog intenziteta za snagu gluteusa i snagu ubrzanja.",
     muscleGroup: MuscleGroup.GLUTES,
     imageLink:
       "https://images.pexels.com/photos/669578/pexels-photo-669578.jpeg",
@@ -272,9 +272,9 @@ const exercises = [
     level: 38,
   },
   {
-    title: "Plank Hold",
+    title: "Plank",
     description:
-      "Core stability exercise that improves trunk control and force transfer.",
+      "Vježba stabilnosti trupa koja poboljšava kontrolu torza i prijenos sile.",
     muscleGroup: MuscleGroup.CORE,
     imageLink:
       "https://images.pexels.com/photos/3076509/pexels-photo-3076509.jpeg",
@@ -282,8 +282,8 @@ const exercises = [
     level: 8,
   },
   {
-    title: "Side Plank",
-    description: "Anti-lateral-flexion core drill for hip and trunk stability.",
+    title: "Bočni plank",
+    description: "Vježba trupa protiv bočne fleksije za stabilnost kuka i torza.",
     muscleGroup: MuscleGroup.CORE,
     imageLink:
       "https://images.pexels.com/photos/3757376/pexels-photo-3757376.jpeg",
@@ -291,9 +291,9 @@ const exercises = [
     level: 14,
   },
   {
-    title: "Dead Bug",
+    title: "Mrtvi kukac",
     description:
-      "Motor-control exercise reinforcing trunk stiffness with limb motion.",
+      "Vježba motoričke kontrole koja pojačava krutost trupa uz pokrete udova.",
     muscleGroup: MuscleGroup.CORE,
     imageLink:
       "https://images.pexels.com/photos/6456303/pexels-photo-6456303.jpeg",
@@ -301,9 +301,9 @@ const exercises = [
     level: 12,
   },
   {
-    title: "Back Extensions",
+    title: "Ekstenzije leđa",
     description:
-      "Builds lower-back endurance and posterior-chain support for posture.",
+      "Razvija izdržljivost donjeg dijela leđa i potporu stražnjeg lanca za pravilno držanje.",
     muscleGroup: MuscleGroup.LOWER_BACK,
     imageLink:
       "https://images.pexels.com/photos/5327463/pexels-photo-5327463.jpeg",
@@ -311,9 +311,9 @@ const exercises = [
     level: 18,
   },
   {
-    title: "Bird Dog",
+    title: "Ptica i pas",
     description:
-      "Cross-pattern trunk stability drill for posterior-chain control.",
+      "Vježba stabilnosti trupa u križnom obrascu za kontrolu stražnjeg lanca.",
     muscleGroup: MuscleGroup.LOWER_BACK,
     imageLink:
       "https://images.pexels.com/photos/6456146/pexels-photo-6456146.jpeg",
@@ -321,9 +321,9 @@ const exercises = [
     level: 9,
   },
   {
-    title: "Overhead Press",
+    title: "Potisak iznad glave",
     description:
-      "Develops shoulder strength and upper-body stability for athletic output.",
+      "Razvija snagu ramena i stabilnost gornjeg dijela tijela za atletski učinak.",
     muscleGroup: MuscleGroup.SHOULDERS,
     imageLink:
       "https://images.pexels.com/photos/949130/pexels-photo-949130.jpeg",
@@ -331,9 +331,9 @@ const exercises = [
     level: 28,
   },
   {
-    title: "Push Press",
+    title: "Push press",
     description:
-      "Explosive overhead press using leg drive for upper-body power.",
+      "Eksplozivni potisak iznad glave uz odraz nogama za snagu gornjeg dijela tijela.",
     muscleGroup: MuscleGroup.SHOULDERS,
     imageLink:
       "https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg",
@@ -341,9 +341,9 @@ const exercises = [
     level: 36,
   },
   {
-    title: "Pull-Ups",
+    title: "Zgibovi",
     description:
-      "Vertical pulling strength exercise for upper-back development.",
+      "Vježba vertikalnog povlačenja za razvoj gornjeg dijela leđa.",
     muscleGroup: MuscleGroup.BACK,
     imageLink:
       "https://images.pexels.com/photos/791763/pexels-photo-791763.jpeg",
@@ -351,9 +351,9 @@ const exercises = [
     level: 33,
   },
   {
-    title: "Inverted Rows",
+    title: "Vodoravno veslanje",
     description:
-      "Bodyweight row variation to build horizontal pulling strength.",
+      "Varijanta horizontalnog povlačenja s težinom tijela za razvoj snage leđa.",
     muscleGroup: MuscleGroup.BACK,
     imageLink:
       "https://images.pexels.com/photos/6551413/pexels-photo-6551413.jpeg",
@@ -361,8 +361,8 @@ const exercises = [
     level: 20,
   },
   {
-    title: "Ankle Dorsiflexion Rocks",
-    description: "Mobility drill for better ankle range and landing mechanics.",
+    title: "Ljuljanje gležnja",
+    description: "Mobilizacijska vježba za bolji raspon pokreta gležnja i mehaniku doskoka.",
     muscleGroup: MuscleGroup.ANKLES,
     imageLink:
       "https://images.pexels.com/photos/3757956/pexels-photo-3757956.jpeg",
@@ -370,8 +370,8 @@ const exercises = [
     level: 7,
   },
   {
-    title: "Thoracic Rotation Mobility",
-    description: "Mobility drill for thoracic spine rotation and posture.",
+    title: "Rotacijska mobilnost prsnog koša",
+    description: "Mobilizacijska vježba za rotaciju torakalne kralježnice i pravilno držanje.",
     muscleGroup: MuscleGroup.THORACIC_SPINE,
     imageLink:
       "https://images.pexels.com/photos/4056535/pexels-photo-4056535.jpeg",
@@ -379,9 +379,9 @@ const exercises = [
     level: 12,
   },
   {
-    title: "Thoracic Extension on Foam Roller",
+    title: "Ekstenzija prsnog koša na valjku",
     description:
-      "Extension-focused mobility drill for upper-back movement quality.",
+      "Mobilizacijska vježba ekstenzije za kvalitetu pokreta gornjeg dijela leđa.",
     muscleGroup: MuscleGroup.THORACIC_SPINE,
     imageLink:
       "https://images.pexels.com/photos/6455877/pexels-photo-6455877.jpeg",
@@ -389,9 +389,9 @@ const exercises = [
     level: 11,
   },
   {
-    title: "Hip Flexor Stretch",
+    title: "Istezanje fleksora kuka",
     description:
-      "Mobility drill for hip extension capacity and sprint posture.",
+      "Mobilizacijska vježba za kapacitet ekstenzije kuka i pravilno držanje pri sprintu.",
     muscleGroup: MuscleGroup.HIP_FLEXORS,
     imageLink:
       "https://images.pexels.com/photos/3757374/pexels-photo-3757374.jpeg",
@@ -399,9 +399,9 @@ const exercises = [
     level: 6,
   },
   {
-    title: "Hamstring Bridge Walkouts",
+    title: "Most sa šetnjom za stražnju ložu",
     description:
-      "Eccentric hamstring-focused drill for resilience and control.",
+      "Ekscentrična vježba usmjerena na stražnju ložu za otpornost i kontrolu.",
     muscleGroup: MuscleGroup.HAMSTRINGS,
     imageLink:
       "https://images.pexels.com/photos/6456159/pexels-photo-6456159.jpeg",

@@ -11,12 +11,12 @@ const workoutBlueprints = [
     requiredLevel: 1,
     tags: ["SPEED", "CORE", "STRENGTH"],
     exercises: [
-      { title: "A-Skips", sets: 3, reps: "20m", rpe: "6", baseXp: 20 },
-      { title: "High Knees", sets: 3, reps: "20m", rpe: "6", baseXp: 18 },
-      { title: "Glute Bridge", sets: 3, reps: "12", rpe: "6", baseXp: 16 },
-      { title: "Plank Hold", sets: 3, reps: "30s", rpe: "6", baseXp: 16 },
-      { title: "Calf Raises", sets: 3, reps: "15", rpe: "6", baseXp: 15 },
-      { title: "Bird Dog", sets: 3, reps: "10/str", rpe: "5", baseXp: 14 },
+      { title: "A-preskoci", sets: 3, reps: "20m", rpe: "6", baseXp: 20 },
+      { title: "Visoka koljena", sets: 3, reps: "20m", rpe: "6", baseXp: 18 },
+      { title: "Most za gluteuse", sets: 3, reps: "12", rpe: "6", baseXp: 16 },
+      { title: "Plank", sets: 3, reps: "30s", rpe: "6", baseXp: 16 },
+      { title: "Podizanje na prste", sets: 3, reps: "15", rpe: "6", baseXp: 15 },
+      { title: "Ptica i pas", sets: 3, reps: "10/str", rpe: "5", baseXp: 14 },
     ],
   },
   {
@@ -26,19 +26,19 @@ const workoutBlueprints = [
     requiredLevel: 3,
     tags: ["PLYOMETRICS", "STRENGTH", "CORE"],
     exercises: [
-      { title: "B-Skips", sets: 3, reps: "20m", rpe: "7", baseXp: 24 },
-      { title: "Box Jumps", sets: 4, reps: "6", rpe: "7", baseXp: 26 },
-      { title: "Walking Lunges", sets: 3, reps: "10/noga", rpe: "7", baseXp: 22 },
-      { title: "Side Plank", sets: 3, reps: "30s/str", rpe: "7", baseXp: 20 },
+      { title: "B-preskoci", sets: 3, reps: "20m", rpe: "7", baseXp: 24 },
+      { title: "Skokovi na kutiju", sets: 4, reps: "6", rpe: "7", baseXp: 26 },
+      { title: "Iskoraci u hodu", sets: 3, reps: "10/noga", rpe: "7", baseXp: 22 },
+      { title: "Bočni plank", sets: 3, reps: "30s/str", rpe: "7", baseXp: 20 },
       {
-        title: "Medicine Ball Overhead Slam",
+        title: "Udarac medicinkom iznad glave",
         sets: 4,
         reps: "8",
         rpe: "7",
         baseXp: 24,
       },
-      { title: "Pogo Jumps", sets: 3, reps: "15", rpe: "7", baseXp: 22 },
-      { title: "Inverted Rows", sets: 3, reps: "10", rpe: "7", baseXp: 20 },
+      { title: "Pogo skokovi", sets: 3, reps: "15", rpe: "7", baseXp: 22 },
+      { title: "Vodoravno veslanje", sets: 3, reps: "10", rpe: "7", baseXp: 20 },
     ],
   },
   {
@@ -49,23 +49,23 @@ const workoutBlueprints = [
     tags: ["SPEED", "PLYOMETRICS", "STRENGTH"],
     exercises: [
       { title: "Bounding", sets: 4, reps: "25m", rpe: "8", baseXp: 30 },
-      { title: "Broad Jumps", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
-      { title: "Tuck Jumps", sets: 4, reps: "8", rpe: "8", baseXp: 30 },
+      { title: "Horizontalni skokovi", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
+      { title: "Tuck skokovi", sets: 4, reps: "8", rpe: "8", baseXp: 30 },
       {
-        title: "Wall Drill (Switches)",
+        title: "Vježba uz zid – izmjena nogu",
         sets: 4,
         reps: "15s",
         rpe: "7",
         baseXp: 26,
       },
       {
-        title: "Hamstring Bridge Walkouts",
+        title: "Most sa šetnjom za stražnju ložu",
         sets: 3,
         reps: "10",
         rpe: "8",
         baseXp: 26,
       },
-      { title: "Pull-Ups", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
+      { title: "Zgibovi", sets: 4, reps: "6", rpe: "8", baseXp: 28 },
     ],
   },
   {
@@ -75,25 +75,25 @@ const workoutBlueprints = [
     requiredLevel: 7,
     tags: ["STRENGTH", "PLYOMETRICS", "ENDURANCE"],
     exercises: [
-      { title: "Romanian Deadlift", sets: 4, reps: "6", rpe: "8", baseXp: 40 },
+      { title: "Rumunjsko mrtvo dizanje", sets: 4, reps: "6", rpe: "8", baseXp: 40 },
       {
-        title: "Split Squat Jumps",
+        title: "Raznožni skokovi",
         sets: 4,
         reps: "8/noga",
         rpe: "8",
         baseXp: 36,
       },
-      { title: "Hip Thrust", sets: 4, reps: "8", rpe: "8", baseXp: 34 },
-      { title: "Push Press", sets: 4, reps: "6", rpe: "8", baseXp: 38 },
+      { title: "Potisak kuka", sets: 4, reps: "8", rpe: "8", baseXp: 34 },
+      { title: "Push press", sets: 4, reps: "6", rpe: "8", baseXp: 38 },
       {
-        title: "Single-Leg Hops",
+        title: "Jednonožni poskoci",
         sets: 3,
         reps: "6/noga",
         rpe: "8",
         baseXp: 36,
       },
       {
-        title: "Lateral Skater Jumps",
+        title: "Bočni skokovi klizača",
         sets: 3,
         reps: "10/str",
         rpe: "8",
@@ -108,19 +108,19 @@ const workoutBlueprints = [
     requiredLevel: 10,
     tags: ["SPEED", "STRENGTH", "PLYOMETRICS", "ENDURANCE"],
     exercises: [
-      { title: "Depth Jumps", sets: 5, reps: "5", rpe: "9", baseXp: 50 },
-      { title: "Romanian Deadlift", sets: 5, reps: "5", rpe: "9", baseXp: 48 },
+      { title: "Skokovi s visine", sets: 5, reps: "5", rpe: "9", baseXp: 50 },
+      { title: "Rumunjsko mrtvo dizanje", sets: 5, reps: "5", rpe: "9", baseXp: 48 },
       { title: "Bounding", sets: 5, reps: "30m", rpe: "9", baseXp: 46 },
       {
-        title: "Single-Leg Hops",
+        title: "Jednonožni poskoci",
         sets: 4,
         reps: "8/noga",
         rpe: "9",
         baseXp: 44,
       },
-      { title: "Pull-Ups", sets: 5, reps: "8", rpe: "8", baseXp: 40 },
-      { title: "Push Press", sets: 5, reps: "5", rpe: "9", baseXp: 48 },
-      { title: "Hip Thrust", sets: 5, reps: "8", rpe: "8", baseXp: 42 },
+      { title: "Zgibovi", sets: 5, reps: "8", rpe: "8", baseXp: 40 },
+      { title: "Push press", sets: 5, reps: "5", rpe: "9", baseXp: 48 },
+      { title: "Potisak kuka", sets: 5, reps: "8", rpe: "8", baseXp: 42 },
     ],
   },
 ];
@@ -171,7 +171,9 @@ const resolveWorkouts = async () => {
 const importData = async () => {
   try {
     const workouts = await resolveWorkouts();
-    await Workout.deleteMany();
+    await Workout.deleteMany({
+      $or: [{ createdBy: null }, { createdBy: { $exists: false } }],
+    });
     await Workout.insertMany(workouts);
     console.log("Workout seed imported successfully.");
     process.exit(0);
