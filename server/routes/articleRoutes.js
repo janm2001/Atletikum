@@ -10,6 +10,7 @@ const {
   validateArticleIdRequest,
   validateUpdateReadingProgressRequest,
 } = require("../validators/articleValidator");
+const validate = require("../middleware/validate");
 
 const router = express.Router();
 
@@ -29,19 +30,19 @@ router
   .route("/:id/bookmark")
   .post(
     articleUserMutationLimiter,
-    validateArticleIdRequest,
+    validate(validateArticleIdRequest),
     articleController.toggleBookmark,
   )
   .delete(
     articleUserMutationLimiter,
-    validateArticleIdRequest,
+    validate(validateArticleIdRequest),
     articleController.removeBookmark,
   );
 
 router.patch(
   "/:id/progress",
   articleUserMutationLimiter,
-  validateUpdateReadingProgressRequest,
+  validate(validateUpdateReadingProgressRequest),
   articleController.updateReadingProgress,
 );
 
