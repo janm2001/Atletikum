@@ -78,6 +78,12 @@ const Workouts = () => {
     (workout) => !isCustomWorkout(workout),
   );
 
+  const MAX_CUSTOM_WORKOUTS = 10;
+  const myCustomWorkouts = customWorkouts.filter((w) =>
+    isWorkoutOwnedByUser(w, user?._id),
+  );
+  const isAtCustomLimit = myCustomWorkouts.length >= MAX_CUSTOM_WORKOUTS;
+
   const handleOpenCreate = () => {
     setEditingWorkoutId(null);
     setFormValues(getDefaultFormValues());
@@ -186,15 +192,22 @@ const Workouts = () => {
             </Chip.Group>
           </ScrollArea>
           <Tooltip
-            label={t("training.workouts.levelRequiredTooltip")}
-            disabled={userLevel >= 6}
+            label={
+              userLevel < 6
+                ? t("training.workouts.levelRequiredTooltip")
+                : isAtCustomLimit
+                  ? t("training.workouts.limitReachedTooltip")
+                  : undefined
+            }
+            disabled={userLevel >= 6 && !isAtCustomLimit}
           >
             <Button
               leftSection={<IconPlus size={16} />}
               onClick={handleOpenCreate}
-              disabled={userLevel < 6}
+              disabled={userLevel < 6 || isAtCustomLimit}
             >
-              {t("training.workouts.customWorkout")}
+              {t("training.workouts.customWorkout")} ({myCustomWorkouts.length}/
+              {MAX_CUSTOM_WORKOUTS})
             </Button>
           </Tooltip>
         </Flex>

@@ -15,6 +15,7 @@ describe("env config helpers", () => {
     delete process.env.MONGO_URI;
     delete process.env.CLIENT_URL;
     delete process.env.PORT;
+    process.env.ARTICLE_IMAGE_STORAGE = "local";
   });
 
   afterAll(() => {

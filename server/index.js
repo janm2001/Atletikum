@@ -6,7 +6,7 @@ const sanitizeMongo = require("./middleware/sanitizeMongo");
 const errorHandler = require("./middleware/errorHandler");
 const hpp = require("hpp");
 const AppError = require("./utils/AppError");
-const { authLimiter } = require("./middleware/rateLimiters");
+const { authLimiter, globalLimiter } = require("./middleware/rateLimiters");
 const authRoutes = require("./routes/authRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
@@ -34,7 +34,18 @@ if (trustProxy !== false) {
   app.set("trust proxy", trustProxy);
 }
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        objectSrc: ["'none'"],
+        frameSrc: ["'none'"],
+      },
+    },
+  }),
+);
 app.use(
   cors({
     origin: getClientUrl(),
@@ -46,6 +57,8 @@ app.use(sanitizeMongo);
 app.use(hpp());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/api", globalLimiter);
 
 app.use("/api/v1/auth", authLimiter, authRoutes);
 

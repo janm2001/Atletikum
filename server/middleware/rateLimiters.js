@@ -93,8 +93,18 @@ const exerciseMutationLimiter = rateLimit({
   ),
 });
 
+const globalLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  message: createRateLimitMessage(
+    "Previše zahtjeva. Pokušajte ponovo za 15 minuta.",
+  ),
+});
+
 module.exports = {
   authLimiter,
+  globalLimiter,
   articleMutationLimiter,
   articleUserMutationLimiter,
   exerciseMutationLimiter,

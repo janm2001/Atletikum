@@ -177,6 +177,7 @@
       "noWorkoutsForFilter": "Nema vježbi za odabrani filter.",
       "confirmDelete": "Jeste li sigurni da želite obrisati ovaj trening?",
       "levelRequiredTooltip": "Trebate biti razina 6 kako biste otključali ovu funkcionalnost.",
+      "limitReachedTooltip": "Dosegnuli ste maksimalan broj prilagođenih treninga (10).",
       "saveError": "Došlo je do greške prilikom spremanja.",
       "deleteError": "Greška pri brisanju treninga.",
       "noDescription": "Plan treninga bez dodatnog opisa.",

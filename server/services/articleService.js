@@ -1,3 +1,4 @@
+const sanitizeHtml = require("sanitize-html");
 const { Article } = require("../models/Article");
 const { ArticleBookmark } = require("../models/ArticleBookmark");
 const { Exercise } = require("../models/Exercise");
@@ -141,6 +142,22 @@ const normalizeManualCoverImagePath = (coverImage) => {
   return trimmedCoverImage;
 };
 
+const sanitizeHtmlOptions = {
+  allowedTags: [
+    ...sanitizeHtml.defaults.allowedTags,
+    "img",
+    "figure",
+    "figcaption",
+    "iframe",
+  ],
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ["src", "alt", "title", "width", "height", "loading"],
+    iframe: ["src", "width", "height", "frameborder", "allowfullscreen"],
+  },
+  allowedIframeHostnames: ["www.youtube.com", "youtube.com", "player.vimeo.com"],
+};
+
 const normalizeArticlePayload = (payload) => {
   const normalized = { ...payload };
   normalized.quiz = parseJsonArrayField(payload.quiz) ?? [];
@@ -160,6 +177,13 @@ const normalizeArticlePayload = (payload) => {
     .map((item) => String(item));
   if (Object.prototype.hasOwnProperty.call(payload, "coverImage")) {
     normalized.coverImage = normalizeManualCoverImagePath(payload.coverImage);
+  }
+
+  if (typeof normalized.content === "string") {
+    normalized.content = sanitizeHtml(normalized.content, sanitizeHtmlOptions);
+  }
+  if (typeof normalized.summary === "string") {
+    normalized.summary = sanitizeHtml(normalized.summary, sanitizeHtmlOptions);
   }
 
   return normalized;

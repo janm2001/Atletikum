@@ -10,6 +10,7 @@ const {
 const workoutListPopulate = ["exercises.exerciseId", "title imageLink"];
 
 const DEFAULT_CUSTOM_WORKOUT_LEVEL = 1;
+const MAX_CUSTOM_WORKOUTS_PER_USER = 10;
 
 const GLOBAL_WORKOUT_FILTER = {
   $or: [{ createdBy: null }, { createdBy: { $exists: false } }],
@@ -125,6 +126,16 @@ const getWorkoutById = async ({ workoutId, user, userId }) => {
 
 const createWorkout = async ({ payload, createdBy = null }) => {
   ensureValidWorkoutProgressionConfig(payload);
+
+  if (createdBy) {
+    const count = await Workout.countDocuments({ createdBy });
+    if (count >= MAX_CUSTOM_WORKOUTS_PER_USER) {
+      throw new AppError(
+        "Dosegnuli ste maksimalan broj prilagođenih treninga (10).",
+        403,
+      );
+    }
+  }
 
   return Workout.create({
     ...normalizeWorkoutPayload({ payload, createdBy }),
