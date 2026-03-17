@@ -31,7 +31,7 @@ const workoutExerciseSchema = z.object({
   sets: z.number().min(1, t("validation.workout.setsMin")),
   reps: z.string().min(1, t("validation.workout.repsRequired")),
   rpe: z.string(),
-  baseXp: z.number().min(0, "XP ne može biti negativan"),
+  baseXp: z.number().min(0, t("validation.workout.baseXpNegative")),
   progression: progressionSchema,
 }).superRefine((value, context) => {
   if (!value.progression.enabled) {
