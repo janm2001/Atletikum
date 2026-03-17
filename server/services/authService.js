@@ -56,7 +56,7 @@ const login = async ({ username, password }) => {
     throw new AppError("Molimo unesite username i lozinku", 400);
   }
 
-  const user = await User.findOne({ username: String(username).trim() });
+  const user = await User.findOne({ username: String(username).trim() }).collation({ locale: "en", strength: 2 });
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new AppError("Pogrešni podaci", 401);
   }
@@ -77,7 +77,7 @@ const requestPasswordReset = async ({ username, email }) => {
   const user = await User.findOne({
     username: normalizedUsername,
     email: normalizedEmail,
-  });
+  }).collation({ locale: "en", strength: 2 });
 
   if (!user) {
     return {

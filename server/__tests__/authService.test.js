@@ -29,6 +29,12 @@ const bcrypt = require("bcryptjs");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const authService = require("../services/authService");
 
+const mockFindOneResult = (value) => {
+  User.findOne.mockReturnValue({
+    collation: () => Promise.resolve(value),
+  });
+};
+
 describe("authService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -89,7 +95,7 @@ describe("authService", () => {
   });
 
   it("rejects login when password does not match", async () => {
-    User.findOne.mockResolvedValue({ _id: "user-1", password: "hash" });
+    mockFindOneResult({ _id: "user-1", password: "hash" });
     bcrypt.compare.mockResolvedValue(false);
 
     await expect(
@@ -104,7 +110,7 @@ describe("authService", () => {
     process.env.NODE_ENV = "development";
 
     const save = jest.fn().mockResolvedValue(undefined);
-    User.findOne.mockResolvedValue({
+    mockFindOneResult({
       _id: "user-1",
       username: "jan",
       email: "jan@example.com",
@@ -132,7 +138,7 @@ describe("authService", () => {
   });
 
   it("returns the same generic reset response when no matching user exists", async () => {
-    User.findOne.mockResolvedValue(null);
+    mockFindOneResult(null);
 
     const result = await authService.requestPasswordReset({
       username: "jan",

@@ -14,7 +14,8 @@
     "seed:articles": "node seed/articleSeeder.js",
     "seed:articles:delete": "node seed/articleSeeder.js --delete",
     "seed:achievements": "node seed/achievementSeeder.js",
-    "seed:achievements:delete": "node seed/achievementSeeder.js --delete"
+    "seed:achievements:delete": "node seed/achievementSeeder.js --delete",
+    "migrate:username-index": "node migrations/migrateUsernameIndex.js"
   },
   "keywords": [],
   "author": "",

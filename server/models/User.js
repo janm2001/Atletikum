@@ -3,7 +3,15 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, unique: true, trim: true },
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+      set: (v) =>
+        typeof v === "string"
+          ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase()
+          : v,
+    },
     email: {
       type: String,
       required: function () {
@@ -50,6 +58,11 @@ const userSchema = new mongoose.Schema(
     passwordResetExpires: { type: Date, default: null },
   },
   { timestamps: true },
+);
+
+userSchema.index(
+  { username: 1 },
+  { unique: true, collation: { locale: "en", strength: 2 } },
 );
 
 userSchema.pre("save", async function () {
