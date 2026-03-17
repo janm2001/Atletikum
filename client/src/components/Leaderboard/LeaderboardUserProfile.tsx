@@ -1,4 +1,4 @@
-import { Avatar, Badge, Group, Stack, Text } from "@mantine/core";
+import { Avatar, Badge, Box, Group, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import type { LeaderboardUser } from "@/hooks/useLeaderboard";
 import { getLevelFromTotalXp } from "@/utils/leveling";
@@ -54,14 +54,16 @@ const LeaderboardUserProfile = ({
 
   return (
     <Group gap="sm" wrap="nowrap">
-      <Avatar
-        src={entry.profilePicture}
-        size={avatarSize}
-        radius="xl"
-        color="violet"
-      >
-        {entry.username.charAt(0).toUpperCase()}
-      </Avatar>
+      <Box visibleFrom="sm">
+        <Avatar
+          src={entry.profilePicture}
+          size={avatarSize}
+          radius="xl"
+          color="violet"
+        >
+          {entry.username.charAt(0).toUpperCase()}
+        </Avatar>
+      </Box>
       <Stack gap={2} style={{ minWidth: 0 }}>
         <Text size={usernameSize} fw={isCurrentUser ? 700 : 400} truncate>
           {entry.username}
