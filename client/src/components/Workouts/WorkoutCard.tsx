@@ -78,7 +78,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
       radius="md"
       shadow="sm"
       h="100%"
-      mih={600}
+      mih={450}
       style={{
         position: "relative",
         opacity: isLocked ? 0.55 : 1,
