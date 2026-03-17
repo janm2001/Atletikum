@@ -25,7 +25,7 @@ router
 router.post(
   "/custom",
   workoutMutationLimiter,
-  validateCreateWorkoutRequest,
+  validate(validateCreateWorkoutRequest),
   workoutController.createCustomWorkout,
 );
 

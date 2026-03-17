@@ -206,8 +206,7 @@ const Workouts = () => {
               onClick={handleOpenCreate}
               disabled={userLevel < 6 || isAtCustomLimit}
             >
-              {t("training.workouts.customWorkout")} ({myCustomWorkouts.length}/
-              {MAX_CUSTOM_WORKOUTS})
+              {t("training.workouts.customWorkout")}
             </Button>
           </Tooltip>
         </Flex>

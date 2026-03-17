@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import {
   TextInput,
   PasswordInput,
@@ -52,9 +53,11 @@ const Login = () => {
         setError(t("auth.login.error"));
       }
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : t("auth.login.serverError"),
-      );
+      if (isAxiosError(error)) {
+        setError(error.response?.data?.message || t("auth.login.serverError"));
+      } else {
+        setError(error instanceof Error ? error.message : t("auth.login.serverError"));
+      }
     }
   };
 
