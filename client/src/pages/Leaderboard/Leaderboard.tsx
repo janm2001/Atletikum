@@ -19,7 +19,6 @@ const Leaderboard = () => {
   const leaderboard = data?.leaderboard ?? [];
   const myRank = data?.myRank ?? null;
   const top3 = leaderboard.slice(0, 3);
-  const rest = leaderboard.slice(3);
 
   return (
     <Container size="md" py="xl">
@@ -28,8 +27,8 @@ const Leaderboard = () => {
       <LeaderboardPodium entries={top3} currentUserId={user?._id} />
 
       <LeaderboardTable
-        entries={rest}
-        startRank={4}
+        entries={leaderboard}
+        startRank={1}
         currentUserId={user?._id}
       />
 
