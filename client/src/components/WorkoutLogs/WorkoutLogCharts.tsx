@@ -199,6 +199,7 @@ const WorkoutLogCharts = ({
         <Title order={3}>{t("training.logs.statistics")}</Title>
 
         <SegmentedControl
+          size="xs"
           value={chartView}
           onChange={(v) => setChartView(v as ChartView)}
           data={[
@@ -224,7 +225,7 @@ const WorkoutLogCharts = ({
             {weightData.length > 0 && weightSeries.length > 0 ? (
               <Box w="100%" style={{ minWidth: 0 }}>
                 <LineChart
-                  h={300}
+                  h={{ base: 220, sm: 300 }}
                   data={weightData}
                   dataKey="date"
                   series={weightSeries}
@@ -241,7 +242,7 @@ const WorkoutLogCharts = ({
                     tickMargin: 6,
                     angle: -35,
                     textAnchor: "end",
-                    height: 50,
+                    height: 60,
                   }}
                   tooltipAnimationDuration={200}
                   withDots
@@ -258,7 +259,7 @@ const WorkoutLogCharts = ({
         {chartView === "volume" && (
           <Box w="100%" style={{ minWidth: 0 }}>
             <BarChart
-              h={300}
+              h={{ base: 220, sm: 300 }}
               data={volumeData}
               dataKey="date"
               series={[{ name: volumeLabel, color: "violet.6" }]}
@@ -274,7 +275,7 @@ const WorkoutLogCharts = ({
                 tickMargin: 6,
                 angle: -35,
                 textAnchor: "end",
-                height: 50,
+                height: 60,
               }}
               tooltipAnimationDuration={200}
               tooltipProps={{ cursor: { fill: "transparent" } }}
@@ -286,7 +287,7 @@ const WorkoutLogCharts = ({
         {chartView === "frequency" && (
           <Box w="100%" style={{ minWidth: 0 }}>
             <BarChart
-              h={300}
+              h={{ base: 220, sm: 300 }}
               data={frequencyData}
               dataKey={weekOfLabel}
               series={[{ name: workoutsLabel, color: "grape.6" }]}
@@ -302,7 +303,7 @@ const WorkoutLogCharts = ({
                 tickMargin: 6,
                 angle: -35,
                 textAnchor: "end",
-                height: 50,
+                height: 60,
               }}
               tooltipAnimationDuration={200}
               tooltipProps={{ cursor: { fill: "transparent" } }}

@@ -10,13 +10,13 @@ import { useTranslation } from "react-i18next";
 const WorkoutLogs = () => {
   const { t } = useTranslation();
   const { data, isLoading, error } = useWorkoutLogs();
-  const { data: exercises } = useExercises();
+  const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const workoutLogs = data ?? [];
   const exerciseNameById = new Map(
     (exercises ?? []).map((exercise) => [exercise._id, exercise.title]),
   );
 
-  if (isLoading) {
+  if (isLoading || exercisesLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
   }
 

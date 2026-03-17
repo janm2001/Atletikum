@@ -23,7 +23,16 @@ const TrainingLogs = () => {
       <XpProgressSection variant="body" />
 
       <Tabs value={activeTab} onChange={setActiveTab} my={8}>
-        <Tabs.List justify="center" grow>
+        <Tabs.List
+          justify="center"
+          grow
+          style={{
+            position: "sticky",
+            top: 60,
+            zIndex: 10,
+            backgroundColor: "var(--mantine-color-body)",
+          }}
+        >
           <Tabs.Tab value="workouts">{t('training.suggestedTab')}</Tabs.Tab>
           <Tabs.Tab value="workout-log">{t('training.historyTab')}</Tabs.Tab>
         </Tabs.List>

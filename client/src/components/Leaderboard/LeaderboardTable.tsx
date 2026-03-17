@@ -23,6 +23,7 @@ const LeaderboardTable = ({
 
   return (
     <Card withBorder radius="md" shadow="sm">
+      <Table.ScrollContainer minWidth={500}>
       <Table highlightOnHover>
         <Table.Thead>
           <Table.Tr>
@@ -82,6 +83,7 @@ const LeaderboardTable = ({
           })}
         </Table.Tbody>
       </Table>
+      </Table.ScrollContainer>
     </Card>
   );
 };

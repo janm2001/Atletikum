@@ -25,7 +25,7 @@ const LeaderboardPodium = ({
   }
 
   return (
-    <Group justify="center" align="flex-end" gap="lg" mb="xl">
+    <Group justify="center" align="flex-end" gap="xs" mb="xl" wrap="nowrap">
       {podiumOrder.map((position) => {
         const entry = entries[position];
 
