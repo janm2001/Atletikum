@@ -23,7 +23,6 @@ import {
   registerSchema,
   type RegisterInput,
 } from "../../schema/register.schema";
-import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useRegister } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import atletikumFullLogoWhiteText from "../../assets/atletikum_full_white_text.png";
@@ -81,10 +80,6 @@ const Register = () => {
       );
     }
   };
-
-  if (isSubmitting || registerMutation.isPending) {
-    return <SpinnerComponent />;
-  }
 
   return (
     <Box
@@ -242,7 +237,7 @@ const Register = () => {
                 </Text>
               )}
 
-              <Button fullWidth mt="xl" type="submit">
+              <Button fullWidth mt="xl" type="submit" loading={isSubmitting || registerMutation.isPending}>
                 {t("auth.register.submit")}
               </Button>
             </form>

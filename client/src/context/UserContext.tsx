@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { User } from "../types/User/user";
 import { UserContext } from "./UserContextCreate";
 import { queryClient } from "../lib/queryClient";
@@ -8,7 +8,7 @@ interface UserProviderProps {
 }
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
   const [authState, setAuthState] = useState<{
     user: User | null;
     token: string | null;
@@ -30,16 +30,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
     return { user: null, token: null };
   });
-
-  useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      setLoading(false);
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, []);
 
   const login = (userData: User, newToken: string) => {
     setAuthState({ user: userData, token: newToken });
