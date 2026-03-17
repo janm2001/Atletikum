@@ -29,6 +29,8 @@ const ArticleSourceCard = ({
         rel="noopener noreferrer"
         variant="default"
         rightSection={<IconExternalLink size={16} />}
+        style={{ maxWidth: "100%" }}
+        styles={{ label: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 } }}
       >
         {sourceTitle || t('articles.readSource')}
       </Button>

@@ -109,7 +109,7 @@ const Register = () => {
         <img
           src={atletikumFullLogoWhiteText}
           alt="Atletikum"
-          style={{ maxWidth: 550 }}
+          style={{ width: "100%", maxWidth: 550 }}
         />
         <Text c="white" opacity={0.85} size="lg" ta="center" mt="sm" maw={320}>
           {t("dashboard.welcome")}
@@ -127,7 +127,7 @@ const Register = () => {
       >
         <Stack w="100%" maw={420}>
           <Box hiddenFrom="md" ta="center" mb="md">
-            <img src={atletikumIcon} alt="Atletikum" />
+            <img src={atletikumIcon} alt="Atletikum" style={{ height: 48 }} />
             <Title order={2} mt="xs">
               Atletikum
             </Title>

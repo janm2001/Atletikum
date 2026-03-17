@@ -190,21 +190,6 @@ const Navbar = () => {
         </Button>
       </Group>
       <Flex gap={16} hiddenFrom="md" align="center">
-        <HoverCard width={220} shadow="md" position="bottom" withArrow>
-          <HoverCard.Target>
-            <Badge style={{ cursor: "pointer" }}>{t('nav.levelBadge', { level: user?.level })}</Badge>
-          </HoverCard.Target>
-          <HoverCard.Dropdown>
-            <NavbarLevelDropdown level={user?.level ?? 1} totalXp={user?.totalXp ?? 0} />
-          </HoverCard.Dropdown>
-        </HoverCard>
-        <Badge
-          color="orange"
-          variant="light"
-          leftSection={<IconFlame size={14} />}
-        >
-          {user?.dailyStreak ?? 0}
-        </Badge>
         <Burger
           opened={opened}
           onClick={() => setOpened((o) => !o)}
@@ -254,6 +239,24 @@ const Navbar = () => {
             </Group>
 
             <Stack gap="sm">
+              <Group gap="xs" mb="xs">
+                <HoverCard width={220} shadow="md" position="bottom" withArrow>
+                  <HoverCard.Target>
+                    <Badge style={{ cursor: "pointer" }}>{t('nav.levelBadge', { level: user?.level })}</Badge>
+                  </HoverCard.Target>
+                  <HoverCard.Dropdown>
+                    <NavbarLevelDropdown level={user?.level ?? 1} totalXp={user?.totalXp ?? 0} />
+                  </HoverCard.Dropdown>
+                </HoverCard>
+                <Badge
+                  color="orange"
+                  variant="light"
+                  leftSection={<IconFlame size={14} />}
+                >
+                  {user?.dailyStreak ?? 0}
+                </Badge>
+              </Group>
+
               {navItems.map((item) => (
                 <Anchor
                   key={item.to}

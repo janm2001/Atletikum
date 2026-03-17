@@ -81,7 +81,7 @@ const Login = () => {
         <img
           src={atletikumFullLogoWhiteText}
           alt="Atletikum"
-          style={{ maxWidth: 550 }}
+          style={{ width: "100%", maxWidth: 550 }}
         />
         <Text c="white" opacity={0.85} size="lg" ta="center" mt="sm" maw={320}>
           {t("dashboard.welcome")}
