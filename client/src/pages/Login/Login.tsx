@@ -18,7 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "../../schema/login.schema";
 import { useLogin } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
-import { IconBarbell } from "@tabler/icons-react";
+import atletikumFullLogoWhiteText from "../../assets/atletikum_full_white_text.png";
+import atletikumIcon from "../../assets/atletikum_icon.png";
 
 const Login = () => {
   const { t } = useTranslation();
@@ -52,9 +53,7 @@ const Login = () => {
       }
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : t("auth.login.serverError"),
+        error instanceof Error ? error.message : t("auth.login.serverError"),
       );
     }
   };
@@ -70,7 +69,8 @@ const Login = () => {
         visibleFrom="md"
         style={{
           flex: "0 0 45%",
-          background: "linear-gradient(135deg, var(--mantine-color-violet-9) 0%, var(--mantine-color-violet-6) 100%)",
+          background:
+            "linear-gradient(135deg, var(--mantine-color-violet-9) 0%, var(--mantine-color-violet-6) 100%)",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -78,10 +78,11 @@ const Login = () => {
           padding: "var(--mantine-spacing-xl)",
         }}
       >
-        <IconBarbell size={64} color="white" stroke={1.5} />
-        <Title order={1} c="white" mt="md">
-          Atletikum
-        </Title>
+        <img
+          src={atletikumFullLogoWhiteText}
+          alt="Atletikum"
+          style={{ maxWidth: 550 }}
+        />
         <Text c="white" opacity={0.85} size="lg" ta="center" mt="sm" maw={320}>
           {t("dashboard.welcome")}
         </Text>
@@ -98,8 +99,10 @@ const Login = () => {
       >
         <Stack w="100%" maw={420}>
           <Box hiddenFrom="md" ta="center" mb="md">
-            <IconBarbell size={40} color="var(--mantine-color-violet-6)" stroke={1.5} />
-            <Title order={2} mt="xs">Atletikum</Title>
+            <img src={atletikumIcon} alt="Atletikum" style={{ height: 48 }} />
+            <Title order={2} mt="xs">
+              Atletikum
+            </Title>
           </Box>
 
           <Title ta="center" order={2}>

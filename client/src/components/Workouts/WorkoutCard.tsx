@@ -78,6 +78,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
       radius="md"
       shadow="sm"
       h="100%"
+      mih={600}
       style={{
         position: "relative",
         opacity: isLocked ? 0.55 : 1,
@@ -103,13 +104,13 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
           <Box style={{ flex: 1, minWidth: 0 }}>
             <Title order={4}>{workout.title}</Title>
             <Text size="sm" c="dimmed" lineClamp={2} mt={2}>
-              {workout.description || t('training.workouts.noDescription')}
+              {workout.description || t("training.workouts.noDescription")}
             </Text>
           </Box>
 
           {customWorkout ? (
             <Badge variant="light" color="teal" style={{ flexShrink: 0 }}>
-              {t('training.workouts.customWorkout')}
+              {t("training.workouts.customWorkout")}
             </Badge>
           ) : (
             <Badge
@@ -125,7 +126,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
         {customWorkout && (
           <Group justify="space-between" align="center">
             <Text size="sm" c="dimmed">
-              {t('training.workouts.customWorkoutNote')}
+              {t("training.workouts.customWorkoutNote")}
             </Text>
             {(onEdit || onDelete) && (
               <Group gap={6}>
@@ -134,7 +135,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                     variant="light"
                     color="blue"
                     onClick={() => onEdit(workout)}
-                    aria-label={t('training.form.editTitle')}
+                    aria-label={t("training.form.editTitle")}
                   >
                     <IconEdit size={16} />
                   </ActionIcon>
@@ -144,7 +145,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                     variant="light"
                     color="red"
                     onClick={() => onDelete(workout._id)}
-                    aria-label={t('common.deleteWorkout')}
+                    aria-label={t("common.deleteWorkout")}
                   >
                     <IconTrash size={16} />
                   </ActionIcon>
@@ -158,10 +159,10 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
           <Stack gap="sm" style={{ flex: 1 }} justify="space-between">
             <Group gap="xs">
               <Badge variant="dot" color="blue">
-                {t('training.workouts.exerciseCount', { count: exerciseCount })}
+                {t("training.workouts.exerciseCount", { count: exerciseCount })}
               </Badge>
               <Badge variant="dot" color="teal">
-                {t('training.workouts.setsCount', { count: totalSets })}
+                {t("training.workouts.setsCount", { count: totalSets })}
               </Badge>
               <Badge variant="dot" color="grape">
                 {totalBaseXp} XP
@@ -171,25 +172,27 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
             <Stack align="center" gap={4} py="sm">
               <IconLock size={36} color="var(--mantine-color-gray-5)" />
               <Text size="sm" fw={600} c="dimmed" ta="center">
-                {t('training.workouts.levelRequired', { level: workout.requiredLevel })}
+                {t("training.workouts.levelRequired", {
+                  level: workout.requiredLevel,
+                })}
               </Text>
               <Text size="xs" c="dimmed" ta="center">
-                {t('training.workouts.keepTraining')}
+                {t("training.workouts.keepTraining")}
               </Text>
             </Stack>
 
             <Button color="gray" disabled leftSection={<IconLock size={16} />}>
-              {t('training.workouts.locked')}
+              {t("training.workouts.locked")}
             </Button>
           </Stack>
         ) : (
           <>
             <Group gap="xs">
               <Badge variant="dot" color="blue">
-                {t('training.workouts.exerciseCount', { count: exerciseCount })}
+                {t("training.workouts.exerciseCount", { count: exerciseCount })}
               </Badge>
               <Badge variant="dot" color="teal">
-                {t('training.workouts.setsCount', { count: totalSets })}
+                {t("training.workouts.setsCount", { count: totalSets })}
               </Badge>
               <Badge variant="dot" color="grape">
                 {totalBaseXp} XP
@@ -199,7 +202,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
             <Box>
               <Group justify="space-between" mb={6}>
                 <Text size="xs" c="dimmed">
-                  {t('training.workouts.avgIntensity')}
+                  {t("training.workouts.avgIntensity")}
                 </Text>
                 <Text size="xs" fw={600}>
                   {avgRpe}/10
@@ -212,12 +215,13 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
 
             <Stack gap={8}>
               <Text size="sm" fw={600}>
-                {t('training.workouts.workoutPlan')}
+                {t("training.workouts.workoutPlan")}
               </Text>
 
               {workout.exercises.slice(0, 5).map((exercise, index) => {
                 const name =
-                  getExerciseName(exercise.exerciseId) ?? t('training.workouts.exerciseFallback', { index: index + 1 });
+                  getExerciseName(exercise.exerciseId) ??
+                  t("training.workouts.exerciseFallback", { index: index + 1 });
                 const image = getExerciseImage(exercise.exerciseId);
                 return (
                   <Group
@@ -259,11 +263,13 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
 
               {exerciseCount > 5 && (
                 <Text size="xs" c="dimmed">
-                  {t('training.workouts.moreExercises', { count: exerciseCount - 5 })}
+                  {t("training.workouts.moreExercises", {
+                    count: exerciseCount - 5,
+                  })}
                 </Text>
               )}
               <Button onClick={handleStartTraining} color="violet">
-                {t('training.workouts.startWorkout')}
+                {t("training.workouts.startWorkout")}
               </Button>
             </Stack>
           </>

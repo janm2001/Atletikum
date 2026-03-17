@@ -20,6 +20,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import atletikumFullLogo from "../../assets/atletikum_full_logo.png";
 
 const FEATURES = [
   { key: "training", icon: IconBarbell, color: "violet" },
@@ -37,7 +38,12 @@ const Welcome = () => {
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
-        <Stack gap="xs" ta="center">
+        <Stack gap="xs" ta="center" align="center">
+          <img
+            src={atletikumFullLogo}
+            alt="Atletikum"
+            style={{ maxWidth: 300 }}
+          />
           <Title order={1}>{t("welcome.title")}</Title>
           <Text c="dimmed" size="lg">
             {t("welcome.subtitle")}

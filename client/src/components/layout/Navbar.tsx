@@ -29,6 +29,7 @@ import { useUser } from "../../hooks/useUser";
 import { colors, styles } from "../../styles/colors";
 import { useMemo, useState } from "react";
 import { getXpProgress } from "../../utils/leveling";
+import atletikumIcon from "../../assets/atletikum_icon.png";
 
 const navLinkStyles = {
   textDecoration: "none",
@@ -109,7 +110,8 @@ const Navbar = () => {
 
   return (
     <Group h="100%" px="md" justify="space-between">
-      <Link to="/" style={{ textDecoration: "none" }}>
+      <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+        <img src={atletikumIcon} alt="Atletikum" style={{ height: 36 }} />
         <Title
           order={3}
           style={{

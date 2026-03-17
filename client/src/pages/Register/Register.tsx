@@ -26,7 +26,8 @@ import {
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useRegister } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
-import { IconBarbell } from "@tabler/icons-react";
+import atletikumFullLogoWhiteText from "../../assets/atletikum_full_white_text.png";
+import atletikumIcon from "../../assets/atletikum_icon.png";
 
 const Register = () => {
   const { t } = useTranslation();
@@ -76,9 +77,7 @@ const Register = () => {
       }
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : t("auth.register.serverError"),
+        error instanceof Error ? error.message : t("auth.register.serverError"),
       );
     }
   };
@@ -98,7 +97,8 @@ const Register = () => {
         visibleFrom="md"
         style={{
           flex: "0 0 45%",
-          background: "linear-gradient(135deg, var(--mantine-color-violet-9) 0%, var(--mantine-color-violet-6) 100%)",
+          background:
+            "linear-gradient(135deg, var(--mantine-color-violet-9) 0%, var(--mantine-color-violet-6) 100%)",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -106,10 +106,11 @@ const Register = () => {
           padding: "var(--mantine-spacing-xl)",
         }}
       >
-        <IconBarbell size={64} color="white" stroke={1.5} />
-        <Title order={1} c="white" mt="md">
-          Atletikum
-        </Title>
+        <img
+          src={atletikumFullLogoWhiteText}
+          alt="Atletikum"
+          style={{ maxWidth: 550 }}
+        />
         <Text c="white" opacity={0.85} size="lg" ta="center" mt="sm" maw={320}>
           {t("dashboard.welcome")}
         </Text>
@@ -126,8 +127,10 @@ const Register = () => {
       >
         <Stack w="100%" maw={420}>
           <Box hiddenFrom="md" ta="center" mb="md">
-            <IconBarbell size={40} color="var(--mantine-color-violet-6)" stroke={1.5} />
-            <Title order={2} mt="xs">Atletikum</Title>
+            <img src={atletikumIcon} alt="Atletikum" />
+            <Title order={2} mt="xs">
+              Atletikum
+            </Title>
           </Box>
 
           <Title ta="center" order={2}>
@@ -198,10 +201,14 @@ const Register = () => {
               <div>
                 <Group justify="space-between" mb="xs">
                   <Text size="sm" fw={500}>
-                    {t("auth.register.trainingFrequency", { count: trainingFrequency })}
+                    {t("auth.register.trainingFrequency", {
+                      count: trainingFrequency,
+                    })}
                   </Text>
                   <Badge color="violet" variant="dot">
-                    {t("auth.register.trainingFrequencyBadge", { count: trainingFrequency })}
+                    {t("auth.register.trainingFrequencyBadge", {
+                      count: trainingFrequency,
+                    })}
                   </Badge>
                 </Group>
                 <Controller
