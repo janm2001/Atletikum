@@ -4,6 +4,7 @@ const { ipKeyGenerator } = require("express-rate-limit");
 const standardRateLimitOptions = {
   legacyHeaders: false,
   standardHeaders: "draft-6",
+  validate: { xForwardedForHeader: false },
 };
 
 const createRateLimitMessage = (message) => ({
