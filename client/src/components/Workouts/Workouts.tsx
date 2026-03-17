@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import WorkoutCard from "./WorkoutCard";
 import {
@@ -52,17 +53,18 @@ const Workouts = () => {
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
     getDefaultFormValues(),
   );
+  const userLevel = user?.level ?? 1;
   const createMutation = useCreateCustomWorkout();
   const updateMutation = useUpdateWorkout();
   const deleteMutation = useDeleteWorkout();
 
   const workouts = useMemo(() => {
     const all = data ?? [];
+    const userLevel = user?.level ?? 1;
     const filtered =
       selectedTags.length === 0
         ? all
         : all.filter((w) => selectedTags.some((tag) => w.tags?.includes(tag)));
-    const userLevel = user?.level ?? 1;
     return [...filtered].sort((a, b) => {
       const aLocked = a.requiredLevel > userLevel ? 1 : 0;
       const bLocked = b.requiredLevel > userLevel ? 1 : 0;
@@ -107,17 +109,20 @@ const Workouts = () => {
     setOpened(true);
   }, []);
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!window.confirm(t("training.workouts.confirmDelete"))) {
-      return;
-    }
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!window.confirm(t("training.workouts.confirmDelete"))) {
+        return;
+      }
 
-    try {
-      await deleteMutation.mutateAsync(id);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [deleteMutation, t]);
+      try {
+        await deleteMutation.mutateAsync(id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [deleteMutation, t],
+  );
 
   const handleSubmit = async (values: WorkoutFormValues) => {
     const customWorkoutValues = {
@@ -180,12 +185,18 @@ const Workouts = () => {
               </Group>
             </Chip.Group>
           </ScrollArea>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={handleOpenCreate}
+          <Tooltip
+            label={t("training.workouts.levelRequiredTooltip")}
+            disabled={userLevel >= 6}
           >
-            {t("training.workouts.customWorkout")}
-          </Button>
+            <Button
+              leftSection={<IconPlus size={16} />}
+              onClick={handleOpenCreate}
+              disabled={userLevel < 6}
+            >
+              {t("training.workouts.customWorkout")}
+            </Button>
+          </Tooltip>
         </Flex>
 
         {customWorkouts.length > 0 && (

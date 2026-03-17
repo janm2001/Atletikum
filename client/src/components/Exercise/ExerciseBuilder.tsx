@@ -27,6 +27,7 @@ import {
 import { useExercises } from "../../hooks/useExercise";
 import { useUser } from "../../hooks/useUser";
 import type { WorkoutFormValues } from "../../schema/workout.schema";
+import { getMuscleGroupLabel } from "@/enums/muscleGroup";
 
 const ExerciseBuilder = () => {
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ const ExerciseBuilder = () => {
       .sort((a, b) => a.level - b.level)
       .map((ex) => ({
         value: ex._id,
-        label: `${ex.title} (${ex.muscleGroup.replaceAll("_", " ")})`,
+        label: ex.title + " (" + getMuscleGroupLabel(ex.muscleGroup) + ")",
         disabled: ex.level > userLevel,
       })) ?? [];
 
@@ -74,7 +75,7 @@ const ExerciseBuilder = () => {
     <Stack gap="md">
       <Group justify="space-between">
         <Text fw={600} size="sm">
-          {t('exerciseBuilder.title')}
+          {t("exerciseBuilder.title")}
         </Text>
         <Button
           size="xs"
@@ -82,13 +83,13 @@ const ExerciseBuilder = () => {
           leftSection={<IconPlus size={14} />}
           onClick={addExercise}
         >
-          {t('exerciseBuilder.add')}
+          {t("exerciseBuilder.add")}
         </Button>
       </Group>
 
       {fields.length === 0 && (
         <Text size="sm" c="dimmed" ta="center" py="sm">
-          {t('exerciseBuilder.empty')}
+          {t("exerciseBuilder.empty")}
         </Text>
       )}
 
@@ -103,7 +104,7 @@ const ExerciseBuilder = () => {
             <Stack gap="xs">
               <Group justify="space-between" align="center">
                 <Text fw={500} size="sm">
-                  #{index + 1}
+                  {index + 1}.
                 </Text>
                 <Group gap={4}>
                   <ActionIcon
@@ -111,7 +112,7 @@ const ExerciseBuilder = () => {
                     size="sm"
                     disabled={index === 0}
                     onClick={() => swap(index, index - 1)}
-                    title={t('exerciseBuilder.moveUp')}
+                    title={t("exerciseBuilder.moveUp")}
                   >
                     <IconArrowUp size={14} />
                   </ActionIcon>
@@ -120,7 +121,7 @@ const ExerciseBuilder = () => {
                     size="sm"
                     disabled={index === fields.length - 1}
                     onClick={() => swap(index, index + 1)}
-                    title={t('exerciseBuilder.moveDown')}
+                    title={t("exerciseBuilder.moveDown")}
                   >
                     <IconArrowDown size={14} />
                   </ActionIcon>
@@ -129,7 +130,7 @@ const ExerciseBuilder = () => {
                     color="red"
                     size="sm"
                     onClick={() => remove(index)}
-                    title={t('exerciseBuilder.remove')}
+                    title={t("exerciseBuilder.remove")}
                   >
                     <IconTrash size={14} />
                   </ActionIcon>
@@ -141,8 +142,8 @@ const ExerciseBuilder = () => {
                 name={`exercises.${index}.exerciseId`}
                 render={({ field: selectField }) => (
                   <Select
-                    label={t('exerciseBuilder.exerciseLabel')}
-                    placeholder={t('exerciseBuilder.exercisePlaceholder')}
+                    label={t("exerciseBuilder.exerciseLabel")}
+                    placeholder={t("exerciseBuilder.exercisePlaceholder")}
                     data={exerciseOptions}
                     searchable
                     value={selectField.value}
@@ -150,15 +151,27 @@ const ExerciseBuilder = () => {
                     error={exerciseErrors?.exerciseId?.message}
                     required
                     renderOption={({ option }) => {
-                      const exercise = availableExercises?.find((e) => e._id === option.value);
-                      const isAboveLevel = exercise ? exercise.level > userLevel : false;
+                      const exercise = availableExercises?.find(
+                        (e) => e._id === option.value,
+                      );
+                      const isAboveLevel = exercise
+                        ? exercise.level > userLevel
+                        : false;
                       return (
                         <Group gap="xs" wrap="nowrap">
-                          <Text size="sm" c={isAboveLevel ? "dimmed" : undefined} style={{ flex: 1 }}>
+                          <Text
+                            size="sm"
+                            c={isAboveLevel ? "dimmed" : undefined}
+                            style={{ flex: 1 }}
+                          >
                             {option.label}
                           </Text>
                           {exercise && (
-                            <Badge size="xs" color={isAboveLevel ? "orange" : "teal"} variant="light">
+                            <Badge
+                              size="xs"
+                              color={isAboveLevel ? "orange" : "teal"}
+                              variant="light"
+                            >
                               Lv. {exercise.level}
                             </Badge>
                           )}
@@ -175,7 +188,7 @@ const ExerciseBuilder = () => {
                   name={`exercises.${index}.sets`}
                   render={({ field: numField }) => (
                     <NumberInput
-                      label={t('exerciseBuilder.sets')}
+                      label={t("exerciseBuilder.sets")}
                       min={1}
                       value={numField.value}
                       onChange={(val) =>
@@ -190,8 +203,8 @@ const ExerciseBuilder = () => {
                 />
 
                 <TextInput
-                  label={t('exerciseBuilder.reps')}
-                  placeholder={t('exerciseBuilder.repsPlaceholder')}
+                  label={t("exerciseBuilder.reps")}
+                  placeholder={t("exerciseBuilder.repsPlaceholder")}
                   {...register(`exercises.${index}.reps`)}
                   error={exerciseErrors?.reps?.message}
                   required
@@ -199,11 +212,10 @@ const ExerciseBuilder = () => {
 
                 <TextInput
                   label="RPE"
-                  placeholder={t('exerciseBuilder.rpePlaceholder')}
+                  placeholder={t("exerciseBuilder.rpePlaceholder")}
                   {...register(`exercises.${index}.rpe`)}
                   error={exerciseErrors?.rpe?.message}
                 />
-
               </Group>
 
               <Controller
@@ -211,7 +223,7 @@ const ExerciseBuilder = () => {
                 name={`exercises.${index}.progression.enabled`}
                 render={({ field: switchField }) => (
                   <Switch
-                    label={t('exerciseBuilder.enableProgression')}
+                    label={t("exerciseBuilder.enableProgression")}
                     checked={Boolean(switchField.value)}
                     onChange={(event) =>
                       switchField.onChange(event.currentTarget.checked)
@@ -227,7 +239,7 @@ const ExerciseBuilder = () => {
                     name={`exercises.${index}.progression.initialWeightKg`}
                     render={({ field: progressionField }) => (
                       <NumberInput
-                        label={t('exerciseBuilder.initialWeight')}
+                        label={t("exerciseBuilder.initialWeight")}
                         min={0}
                         value={progressionField.value ?? undefined}
                         onChange={(value) =>
@@ -248,7 +260,7 @@ const ExerciseBuilder = () => {
                     name={`exercises.${index}.progression.incrementKg`}
                     render={({ field: progressionField }) => (
                       <NumberInput
-                        label={t('exerciseBuilder.progressionStep')}
+                        label={t("exerciseBuilder.progressionStep")}
                         min={0}
                         step={0.5}
                         value={progressionField.value}
