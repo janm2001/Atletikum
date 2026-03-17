@@ -1,7 +1,7 @@
 const DEFAULT_CLIENT_URL = "http://localhost:5173";
 const DEFAULT_NODE_ENV = "development";
 const DEFAULT_PORT = 5001;
-const DEFAULT_ARTICLE_IMAGE_STORAGE = "local";
+const DEFAULT_ARTICLE_IMAGE_STORAGE = "cloudinary";
 
 const getTrimmedEnvValue = (name) => {
   const value = process.env[name];
@@ -36,14 +36,15 @@ const getArticleImageStorage = () => {
 
   if (storageMode !== "local" && storageMode !== "cloudinary") {
     throw new Error(
-      "Invalid ARTICLE_IMAGE_STORAGE value. Expected \"local\" or \"cloudinary\".",
+      'Invalid ARTICLE_IMAGE_STORAGE value. Expected "local" or "cloudinary".',
     );
   }
 
   return storageMode;
 };
 
-const isCloudinaryStorageEnabled = () => getArticleImageStorage() === "cloudinary";
+const isCloudinaryStorageEnabled = () =>
+  getArticleImageStorage() === "cloudinary";
 
 const getCloudinaryConfig = ({ required = false } = {}) => {
   const cloudName = getTrimmedEnvValue("CLOUDINARY_CLOUD_NAME");
@@ -83,7 +84,9 @@ const getPort = () => {
   const parsedPort = Number(rawPort);
 
   if (!Number.isInteger(parsedPort) || parsedPort <= 0) {
-    throw new Error("Invalid PORT environment variable. Expected a positive integer.");
+    throw new Error(
+      "Invalid PORT environment variable. Expected a positive integer.",
+    );
   }
 
   return parsedPort;

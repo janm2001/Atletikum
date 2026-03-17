@@ -59,7 +59,7 @@ app.use("/api/v1/leaderboard", leaderboardRoutes);
 app.use("/api/v1/recommendations", recommendationRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Server radi!");
+  res.json({ status: "ok" });
 });
 
 app.use((req, res, next) => {
@@ -82,10 +82,23 @@ const startServer = async () => {
 };
 
 if (require.main === module) {
-  startServer().catch((error) => {
-    console.error("Greška pri pokretanju servera:", error);
-    process.exit(1);
-  });
+  startServer()
+    .then((server) => {
+      const shutdown = async (signal) => {
+        console.log(`${signal} primljen, gašenje servera...`);
+        server.close(async () => {
+          await mongoose.connection.close();
+          console.log("Server ugašen.");
+          process.exit(0);
+        });
+      };
+      process.on("SIGTERM", () => shutdown("SIGTERM"));
+      process.on("SIGINT", () => shutdown("SIGINT"));
+    })
+    .catch((error) => {
+      console.error("Greška pri pokretanju servera:", error);
+      process.exit(1);
+    });
 }
 
 module.exports = {
