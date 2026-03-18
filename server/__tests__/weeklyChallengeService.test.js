@@ -14,6 +14,7 @@ jest.mock("../models/UserChallengeProgress", () => {
     findOne: jest.fn(),
     findOneAndUpdate: jest.fn(),
     updateOne: jest.fn(),
+    aggregate: jest.fn(),
   };
   return { UserChallengeProgress };
 });
@@ -44,6 +45,8 @@ const {
   getUserChallengeStatus,
   updateChallengeProgress,
   claimChallengeReward,
+  getChallengeHistory,
+  getWeeklyLeaderboard,
 } = require("../services/weeklyChallengeService");
 
 const MONDAY = new Date("2026-03-16T10:00:00.000Z");
@@ -475,5 +478,167 @@ describe("claimChallengeReward", () => {
       statusCode: 409,
       message: "Izazov još nije dovršen i nagradu nije moguće preuzeti.",
     });
+  });
+});
+
+describe("getChallengeHistory", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const week1Start = new Date("2026-03-16T00:00:00.000Z");
+  const week1End = new Date("2026-03-22T23:59:59.999Z");
+  const week2Start = new Date("2026-03-09T00:00:00.000Z");
+  const week2End = new Date("2026-03-15T23:59:59.999Z");
+
+  const makeHistoryChallenges = () => [
+    { _id: "w1-quiz", type: "quiz", targetCount: 3, xpReward: 100, weekStart: week1Start, weekEnd: week1End },
+    { _id: "w1-workout", type: "workout", targetCount: 2, xpReward: 150, weekStart: week1Start, weekEnd: week1End },
+    { _id: "w1-reading", type: "reading", targetCount: 5, xpReward: 75, weekStart: week1Start, weekEnd: week1End },
+    { _id: "w2-quiz", type: "quiz", targetCount: 3, xpReward: 100, weekStart: week2Start, weekEnd: week2End },
+    { _id: "w2-workout", type: "workout", targetCount: 2, xpReward: 150, weekStart: week2Start, weekEnd: week2End },
+    { _id: "w2-reading", type: "reading", targetCount: 5, xpReward: 75, weekStart: week2Start, weekEnd: week2End },
+  ];
+
+  const makeSortLimitLean = (data) => ({
+    sort: jest.fn().mockReturnValue({
+      limit: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue(data),
+      }),
+    }),
+  });
+
+  it("returns empty items when no challenges exist", async () => {
+    WeeklyChallenge.find.mockReturnValue(makeSortLimitLean([]));
+
+    const result = await getChallengeHistory({ userId: "user-1" });
+
+    expect(result.items).toHaveLength(0);
+    expect(result.pageInfo.hasNextPage).toBe(false);
+  });
+
+  it("returns weekly history grouped by week with progress", async () => {
+    WeeklyChallenge.find.mockReturnValue(makeSortLimitLean(makeHistoryChallenges()));
+    UserChallengeProgress.find.mockReturnValue(makeLean([
+      { challengeId: "w1-quiz", currentCount: 3, completed: true, claimed: true },
+      { challengeId: "w1-workout", currentCount: 1, completed: false, claimed: false },
+    ]));
+
+    const result = await getChallengeHistory({ userId: "user-1" });
+
+    expect(result.items).toHaveLength(2);
+
+    const week1 = result.items[0];
+    expect(week1.weekStart).toBe(week1Start.toISOString());
+    expect(week1.challengesCompleted).toBe(1);
+    expect(week1.totalChallenges).toBe(3);
+    expect(week1.completionRate).toBe(33);
+    expect(week1.xpFromChallenges).toBe(100);
+    expect(week1.allCompleted).toBe(false);
+    expect(week1.entries).toHaveLength(3);
+  });
+
+  it("calculates 100% completion when all challenges are completed", async () => {
+    const allCompleted = makeHistoryChallenges().slice(0, 3);
+    WeeklyChallenge.find.mockReturnValue(makeSortLimitLean(allCompleted));
+    UserChallengeProgress.find.mockReturnValue(makeLean([
+      { challengeId: "w1-quiz", currentCount: 3, completed: true, claimed: true },
+      { challengeId: "w1-workout", currentCount: 2, completed: true, claimed: true },
+      { challengeId: "w1-reading", currentCount: 5, completed: true, claimed: true },
+    ]));
+
+    const result = await getChallengeHistory({ userId: "user-1" });
+
+    expect(result.items[0].completionRate).toBe(100);
+    expect(result.items[0].allCompleted).toBe(true);
+    expect(result.items[0].xpFromChallenges).toBe(325);
+  });
+
+  it("clamps limit to max 26", async () => {
+    WeeklyChallenge.find.mockReturnValue(makeSortLimitLean([]));
+
+    await getChallengeHistory({ userId: "user-1", limit: 50 });
+
+    const limitCall = WeeklyChallenge.find.mock.results[0].value.sort.mock.results[0].value.limit;
+    expect(limitCall).toHaveBeenCalledWith(expect.any(Number));
+  });
+});
+
+describe("getWeeklyLeaderboard", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns empty ranking when no challenges exist for the week", async () => {
+    WeeklyChallenge.find.mockReturnValue(makeLean([]));
+
+    const result = await getWeeklyLeaderboard({ userId: "user-1" });
+
+    expect(result.ranking).toHaveLength(0);
+    expect(result.currentUser).toBe(null);
+    expect(result.week).toBeDefined();
+  });
+
+  it("returns ranked users from aggregation pipeline", async () => {
+    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+
+    UserChallengeProgress.aggregate.mockResolvedValue([
+      {
+        userId: "user-2",
+        username: "alice",
+        profilePicture: null,
+        completedChallenges: 3,
+        xpFromChallenges: 325,
+        totalXp: 1000,
+        dailyStreak: 5,
+      },
+      {
+        userId: "user-1",
+        username: "bob",
+        profilePicture: null,
+        completedChallenges: 2,
+        xpFromChallenges: 250,
+        totalXp: 800,
+        dailyStreak: 3,
+      },
+    ]);
+
+    UserChallengeProgress.find.mockReturnValue(makeLean([]));
+
+    const result = await getWeeklyLeaderboard({ userId: "user-1" });
+
+    expect(result.ranking).toHaveLength(2);
+    expect(result.ranking[0].rank).toBe(1);
+    expect(result.ranking[0].username).toBe("alice");
+    expect(result.ranking[1].rank).toBe(2);
+    expect(result.ranking[1].username).toBe("bob");
+    expect(result.currentUser).toBeDefined();
+    expect(result.currentUser.rank).toBe(2);
+  });
+
+  it("returns currentUser outside ranking when not in top results", async () => {
+    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+
+    UserChallengeProgress.aggregate.mockResolvedValue([
+      {
+        userId: "user-other",
+        username: "alice",
+        profilePicture: null,
+        completedChallenges: 3,
+        xpFromChallenges: 325,
+        totalXp: 1000,
+        dailyStreak: 5,
+      },
+    ]);
+
+    UserChallengeProgress.find.mockReturnValue(makeLean([
+      { challengeId: "ch-quiz", claimed: true },
+    ]));
+
+    const result = await getWeeklyLeaderboard({ userId: "user-1" });
+
+    expect(result.currentUser.rank).toBe(2);
+    expect(result.currentUser.completedChallenges).toBe(1);
+    expect(result.currentUser.xpFromChallenges).toBe(100);
   });
 });

@@ -24,3 +24,29 @@ exports.claimChallengeReward = asyncHandler(async (req, res) => {
     data: result,
   });
 });
+
+exports.getChallengeHistory = asyncHandler(async (req, res) => {
+  const result = await weeklyChallengeService.getChallengeHistory({
+    userId: req.userId,
+    limit: req.query.limit,
+    cursorWeekStart: req.query.cursorWeekStart,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: result,
+  });
+});
+
+exports.getWeeklyLeaderboard = asyncHandler(async (req, res) => {
+  const result = await weeklyChallengeService.getWeeklyLeaderboard({
+    userId: req.userId,
+    weekStart: req.query.weekStart,
+    limit: req.query.limit,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: result,
+  });
+});

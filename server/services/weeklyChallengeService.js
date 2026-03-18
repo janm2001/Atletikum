@@ -382,6 +382,253 @@ const buildClaimResponse = ({
   };
 };
 
+const HISTORY_DEFAULT_LIMIT = 8;
+const HISTORY_MAX_LIMIT = 26;
+const LEADERBOARD_DEFAULT_LIMIT = 20;
+const LEADERBOARD_MAX_LIMIT = 100;
+
+const getChallengeHistory = async ({ userId, limit, cursorWeekStart }) => {
+  const safeLimit = Math.min(
+    Math.max(1, Number(limit) || HISTORY_DEFAULT_LIMIT),
+    HISTORY_MAX_LIMIT,
+  );
+
+  const weekFilter = cursorWeekStart
+    ? { weekStart: { $lt: new Date(cursorWeekStart) } }
+    : {};
+
+  const weeks = await WeeklyChallenge.find(weekFilter)
+    .sort({ weekStart: -1 })
+    .limit(safeLimit * CHALLENGE_TEMPLATES.length + CHALLENGE_TEMPLATES.length)
+    .lean();
+
+  if (weeks.length === 0) {
+    return { items: [], pageInfo: { hasNextPage: false, nextCursorWeekStart: null } };
+  }
+
+  const weekGroups = new Map();
+  for (const ch of weeks) {
+    const key = ch.weekStart.toISOString();
+    if (!weekGroups.has(key)) {
+      weekGroups.set(key, []);
+    }
+    weekGroups.get(key).push(ch);
+  }
+
+  const sortedWeekKeys = [...weekGroups.keys()].sort((a, b) =>
+    b.localeCompare(a),
+  );
+
+  const pagedKeys = sortedWeekKeys.slice(0, safeLimit);
+  const hasNextPage = sortedWeekKeys.length > safeLimit;
+  const nextCursorWeekStart = hasNextPage ? pagedKeys[pagedKeys.length - 1] : null;
+
+  const allChallengeIds = pagedKeys.flatMap((key) =>
+    weekGroups.get(key).map((c) => c._id),
+  );
+
+  const progressDocs = await UserChallengeProgress.find({
+    userId,
+    challengeId: { $in: allChallengeIds },
+  }).lean();
+
+  const progressMap = new Map(
+    progressDocs.map((p) => [String(p.challengeId), p]),
+  );
+
+  const items = pagedKeys.map((weekKey) => {
+    const challenges = weekGroups.get(weekKey);
+    const weekStart = challenges[0].weekStart;
+    const weekEnd = challenges[0].weekEnd;
+
+    const entries = challenges.map((ch) => {
+      const prog = progressMap.get(String(ch._id));
+      return {
+        challengeId: String(ch._id),
+        type: ch.type,
+        targetCount: ch.targetCount,
+        currentCount: prog?.currentCount ?? 0,
+        completed: prog?.completed ?? false,
+        claimed: prog?.claimed ?? false,
+        xpReward: ch.xpReward,
+      };
+    });
+
+    const completedCount = entries.filter((e) => e.completed).length;
+    const totalChallenges = entries.length;
+    const completionRate =
+      totalChallenges > 0
+        ? Math.round((completedCount / totalChallenges) * 100)
+        : 0;
+    const xpFromChallenges = entries
+      .filter((e) => e.claimed)
+      .reduce((sum, e) => sum + e.xpReward, 0);
+
+    return {
+      weekStart: weekStart.toISOString(),
+      weekEnd: weekEnd.toISOString(),
+      completionRate,
+      challengesCompleted: completedCount,
+      totalChallenges,
+      xpFromChallenges,
+      allCompleted: completedCount === totalChallenges && totalChallenges > 0,
+      entries,
+    };
+  });
+
+  return {
+    items,
+    pageInfo: { hasNextPage, nextCursorWeekStart },
+  };
+};
+
+const getWeeklyLeaderboard = async ({ userId, weekStart, limit }) => {
+  const safeLimit = Math.min(
+    Math.max(1, Number(limit) || LEADERBOARD_DEFAULT_LIMIT),
+    LEADERBOARD_MAX_LIMIT,
+  );
+
+  const resolvedWeekStart = weekStart
+    ? startOfIsoWeek(new Date(weekStart))
+    : startOfIsoWeek(new Date());
+  const resolvedWeekEnd = endOfIsoWeek(resolvedWeekStart);
+
+  const challenges = await WeeklyChallenge.find({
+    weekStart: resolvedWeekStart,
+  }).lean();
+
+  if (challenges.length === 0) {
+    return {
+      week: {
+        weekStart: resolvedWeekStart.toISOString(),
+        weekEnd: resolvedWeekEnd.toISOString(),
+      },
+      ranking: [],
+      currentUser: null,
+    };
+  }
+
+  const challengeIds = challenges.map((c) => c._id);
+
+  const ranking = await UserChallengeProgress.aggregate([
+    { $match: { challengeId: { $in: challengeIds }, claimed: true } },
+    {
+      $lookup: {
+        from: "weeklychallenges",
+        localField: "challengeId",
+        foreignField: "_id",
+        as: "challenge",
+      },
+    },
+    { $unwind: "$challenge" },
+    {
+      $group: {
+        _id: "$userId",
+        completedChallenges: { $sum: 1 },
+        xpFromChallenges: { $sum: "$challenge.xpReward" },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        let: { uid: { $toObjectId: "$_id" } },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$_id", "$$uid"] } } },
+          {
+            $project: {
+              username: 1,
+              profilePicture: 1,
+              totalXp: 1,
+              dailyStreak: 1,
+            },
+          },
+        ],
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $sort: {
+        completedChallenges: -1,
+        xpFromChallenges: -1,
+        "user.totalXp": -1,
+        _id: 1,
+      },
+    },
+    { $limit: safeLimit },
+    {
+      $project: {
+        userId: "$_id",
+        username: "$user.username",
+        profilePicture: "$user.profilePicture",
+        completedChallenges: 1,
+        xpFromChallenges: 1,
+        totalXp: "$user.totalXp",
+        dailyStreak: "$user.dailyStreak",
+      },
+    },
+  ]);
+
+  const rankedList = ranking.map((entry, idx) => ({
+    rank: idx + 1,
+    userId: String(entry.userId),
+    username: entry.username,
+    profilePicture: entry.profilePicture ?? null,
+    completedChallenges: entry.completedChallenges,
+    xpFromChallenges: entry.xpFromChallenges,
+    totalXp: entry.totalXp,
+    dailyStreak: entry.dailyStreak,
+  }));
+
+  let currentUser = null;
+  const myEntry = rankedList.find((r) => r.userId === String(userId));
+
+  if (myEntry) {
+    const nextRank = rankedList.find((r) => r.rank === myEntry.rank - 1);
+    currentUser = {
+      rank: myEntry.rank,
+      completedChallenges: myEntry.completedChallenges,
+      xpFromChallenges: myEntry.xpFromChallenges,
+      gapToNextRank: nextRank
+        ? nextRank.xpFromChallenges - myEntry.xpFromChallenges
+        : 0,
+    };
+  } else {
+    const myProgress = await UserChallengeProgress.find({
+      userId: String(userId),
+      challengeId: { $in: challengeIds },
+      claimed: true,
+    }).lean();
+
+    const myCompleted = myProgress.length;
+    const myXp = myProgress.reduce((sum, p) => {
+      const ch = challenges.find(
+        (c) => String(c._id) === String(p.challengeId),
+      );
+      return sum + (ch?.xpReward ?? 0);
+    }, 0);
+
+    currentUser = {
+      rank: rankedList.length + 1,
+      completedChallenges: myCompleted,
+      xpFromChallenges: myXp,
+      gapToNextRank:
+        rankedList.length > 0
+          ? rankedList[rankedList.length - 1].xpFromChallenges - myXp
+          : 0,
+    };
+  }
+
+  return {
+    week: {
+      weekStart: resolvedWeekStart.toISOString(),
+      weekEnd: resolvedWeekEnd.toISOString(),
+    },
+    ranking: rankedList,
+    currentUser,
+  };
+};
+
 module.exports = {
   startOfIsoWeek,
   endOfIsoWeek,
@@ -389,6 +636,8 @@ module.exports = {
   getUserChallengeStatus,
   updateChallengeProgress,
   claimChallengeReward,
+  getChallengeHistory,
+  getWeeklyLeaderboard,
   CHALLENGE_TEMPLATES,
   ALL_CHALLENGES_BONUS_XP,
 };

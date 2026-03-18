@@ -46,5 +46,7 @@ export const keys = {
     challenges: {
         all: ['challenges'] as const,
         weekly: () => [...keys.challenges.all, 'weekly'] as const,
+        history: (params?: Record<string, unknown>) => [...keys.challenges.all, 'history', params] as const,
+        leaderboard: (params?: Record<string, unknown>) => [...keys.challenges.all, 'leaderboard', params] as const,
     },
 }

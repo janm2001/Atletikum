@@ -8,5 +8,7 @@ router.use(protect);
 
 router.get("/weekly", challengeController.getWeeklyChallenges);
 router.post("/weekly/:challengeId/claim", challengeController.claimChallengeReward);
+router.get("/history", challengeController.getChallengeHistory);
+router.get("/leaderboard/weekly", challengeController.getWeeklyLeaderboard);
 
 module.exports = router;
