@@ -19,6 +19,7 @@ const recommendationRoutes = require("./routes/recommendationRoutes");
 const userRoutes = require("./routes/userRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const challengeRoutes = require("./routes/challengeRoutes");
+const adminChallengeRoutes = require("./routes/adminChallengeRoutes");
 const {
   getClientUrl,
   getMongoUri,
@@ -76,6 +77,7 @@ app.use("/api/v1/recommendations", recommendationRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/challenges", challengeRoutes);
+app.use("/api/v1/admin/challenges", adminChallengeRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok" });

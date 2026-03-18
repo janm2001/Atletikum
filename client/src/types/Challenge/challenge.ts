@@ -115,3 +115,64 @@ export interface WeeklyLeaderboardResponse {
   status: string;
   data: WeeklyLeaderboardData;
 }
+
+export type ChallengeTemplateType = "quiz" | "workout" | "reading" | "custom";
+
+export interface ChallengeTemplate {
+  id: string;
+  version: number;
+  type: ChallengeTemplateType;
+  targetCount: number;
+  xpReward: number;
+  description: string;
+  enabled: boolean;
+  effectiveFromWeekStart: string | null;
+  effectiveToWeekStart: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChallengeTemplateListResponse {
+  status: string;
+  data: {
+    templates: ChallengeTemplate[];
+  };
+}
+
+export interface ChallengeTemplateResponse {
+  status: string;
+  data: {
+    template: ChallengeTemplate;
+  };
+}
+
+export interface CreateTemplatePayload {
+  type: ChallengeTemplateType;
+  targetCount: number;
+  xpReward: number;
+  description: string;
+  enabled?: boolean;
+}
+
+export interface UpdateTemplatePayload {
+  type?: ChallengeTemplateType;
+  targetCount?: number;
+  xpReward?: number;
+  description?: string;
+  enabled?: boolean;
+}
+
+export interface PublishTemplatesPayload {
+  effectiveFromWeekStart: string;
+}
+
+export interface PublishTemplatesData {
+  published: ChallengeTemplate[];
+  weekStart: string;
+  weekEnd: string;
+}
+
+export interface PublishTemplatesResponse {
+  status: string;
+  data: PublishTemplatesData;
+}

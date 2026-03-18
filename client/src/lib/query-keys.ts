@@ -49,4 +49,8 @@ export const keys = {
         history: (params?: Record<string, unknown>) => [...keys.challenges.all, 'history', params] as const,
         leaderboard: (params?: Record<string, unknown>) => [...keys.challenges.all, 'leaderboard', params] as const,
     },
+    adminChallenges: {
+        all: ['admin-challenges'] as const,
+        templates: (params?: Record<string, unknown>) => [...keys.adminChallenges.all, 'templates', params] as const,
+    },
 }
