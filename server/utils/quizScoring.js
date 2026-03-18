@@ -1,4 +1,5 @@
 const XP_PER_CORRECT_ANSWER = 25;
+const XP_PER_CORRECT_ANSWER_FAILED = 5;
 
 const assertValidAnswerArray = (quiz, submittedAnswers) => {
   if (!Array.isArray(submittedAnswers)) {
@@ -35,7 +36,10 @@ const scoreQuizSubmission = (quiz, submittedAnswers) => {
 
   const totalQuestions = quiz.length;
   const passed = totalQuestions > 0 && score / totalQuestions >= 0.5;
-  const xpGained = passed ? score * XP_PER_CORRECT_ANSWER : 0;
+  const xpPerAnswer = passed
+    ? XP_PER_CORRECT_ANSWER
+    : XP_PER_CORRECT_ANSWER_FAILED;
+  const xpGained = score * xpPerAnswer;
 
   return {
     score,
@@ -48,5 +52,6 @@ const scoreQuizSubmission = (quiz, submittedAnswers) => {
 
 module.exports = {
   XP_PER_CORRECT_ANSWER,
+  XP_PER_CORRECT_ANSWER_FAILED,
   scoreQuizSubmission,
 };

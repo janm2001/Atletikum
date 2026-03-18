@@ -6,7 +6,8 @@
       "Bash(grep:*)",
       "Bash(git checkout:*)",
       "Bash(cd:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

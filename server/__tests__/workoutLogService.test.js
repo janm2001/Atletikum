@@ -2,6 +2,7 @@ jest.mock("../models/WorkoutLog", () => ({
   WorkoutLog: {
     find: jest.fn(),
     create: jest.fn(),
+    exists: jest.fn(),
   },
 }));
 
@@ -68,6 +69,7 @@ describe("workoutLogService", () => {
         ],
       }),
     });
+    WorkoutLog.exists.mockResolvedValue(null);
     normalizeCompletedExercise.mockReturnValue({
       exerciseId: "exercise-1",
       resultValue: 6,
@@ -147,6 +149,7 @@ describe("workoutLogService", () => {
         ],
       }),
     });
+    WorkoutLog.exists.mockResolvedValue(null);
 
     await expect(
       workoutLogService.createWorkoutLog({
@@ -159,5 +162,34 @@ describe("workoutLogService", () => {
         },
       }),
     ).rejects.toThrow("Workout nije pronađen.");
+  });
+
+  it("rejects duplicate workout submissions within the deduplication window", async () => {
+    Workout.findById.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        _id: "workout-1",
+        title: "Power Session",
+        requiredLevel: 1,
+        exercises: [
+          { exerciseId: "exercise-1", reps: "6", sets: 2, baseXp: 40 },
+        ],
+      }),
+    });
+    WorkoutLog.exists.mockResolvedValue({ _id: "existing-log" });
+
+    await expect(
+      workoutLogService.createWorkoutLog({
+        user: { _id: "user-1", role: "user", level: 3 },
+        payload: {
+          workoutId: "workout-1",
+          completedExercises: [
+            { exerciseId: "exercise-1", resultValue: 6, rpe: 7 },
+          ],
+        },
+      }),
+    ).rejects.toThrow(
+      "Trening je već spremljen. Pričekajte prije ponovnog spremanja.",
+    );
+    expect(WorkoutLog.create).not.toHaveBeenCalled();
   });
 });

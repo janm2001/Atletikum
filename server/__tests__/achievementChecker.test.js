@@ -39,7 +39,10 @@ const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");
 const { getLevelFromTotalXp } = require("../utils/leveling");
 const { saveWithSession } = require("../utils/mongoTransaction");
-const { checkAndUnlockAchievements } = require("../utils/achievementChecker");
+const {
+  MAX_ACHIEVEMENT_XP_PER_BATCH,
+  checkAndUnlockAchievements,
+} = require("../utils/achievementChecker");
 
 const createAchievement = ({
   id,
@@ -229,5 +232,41 @@ describe("achievementChecker", () => {
       }),
     );
     expect(saveWithSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("caps total achievement XP per batch at MAX_ACHIEVEMENT_XP_PER_BATCH", async () => {
+    Achievement.find.mockReturnValue({
+      lean: jest.fn().mockResolvedValue([
+        createAchievement({
+          id: "big-reward-1",
+          trigger: "workout_count",
+          threshold: 1,
+          xpReward: 400,
+          xpCategory: "body",
+        }),
+        createAchievement({
+          id: "big-reward-2",
+          trigger: "quiz_count",
+          threshold: 1,
+          xpReward: 300,
+          xpCategory: "brain",
+        }),
+      ]),
+    });
+    WorkoutLog.countDocuments.mockResolvedValue(5);
+    QuizCompletion.countDocuments.mockResolvedValue(5);
+
+    const user = createUser({ brainXp: 0, bodyXp: 0, totalXp: 0 });
+
+    const result = await checkAndUnlockAchievements("user-1", { user });
+
+    expect(result).toHaveLength(2);
+    expect(result.map((a) => a.key)).toEqual(["big-reward-1", "big-reward-2"]);
+
+    const totalXpAwarded = user.brainXp + user.bodyXp;
+    expect(totalXpAwarded).toBeLessThanOrEqual(MAX_ACHIEVEMENT_XP_PER_BATCH);
+    expect(user.bodyXp).toBe(400);
+    expect(user.brainXp).toBe(100);
+    expect(user.totalXp).toBe(500);
   });
 });

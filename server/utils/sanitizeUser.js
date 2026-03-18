@@ -11,6 +11,7 @@ const sanitizeUser = (user) => {
     brainXp: user.brainXp,
     bodyXp: user.bodyXp,
     dailyStreak: user.dailyStreak,
+    longestStreak: user.longestStreak ?? 0,
     role: user.role,
     profilePicture: user.profilePicture,
     achievements: user.achievements || [],

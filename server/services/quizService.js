@@ -226,7 +226,7 @@ const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
 
     const progress = await applyUserProgress({
       userId: normalizedUserId,
-      brainXp: quizResult.passed ? quizResult.xpGained : 0,
+      brainXp: quizResult.xpGained,
       shouldUpdateStreak: quizResult.passed,
       shouldUnlockAchievements: quizResult.passed,
       session,

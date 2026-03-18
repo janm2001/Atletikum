@@ -131,7 +131,7 @@ describe("quizService", () => {
     );
   });
 
-  it("persists failed quiz completions without awarding xp, streak, or achievements", async () => {
+  it("persists failed quiz completions with partial xp but without streak or achievements", async () => {
     QuizCompletion.findOne.mockReturnValue(createSortedQuery(null));
     QuizCooldown.findOneAndUpdate.mockResolvedValue({
       nextAvailableAt: new Date("2026-03-14T10:00:00.000Z"),
@@ -139,23 +139,24 @@ describe("quizService", () => {
     Article.findById.mockReturnValue({
       lean: jest.fn().mockResolvedValue({
         quiz: [
-          { options: ["A", "B"], correctIndex: 0 },
-          { options: ["A", "B"], correctIndex: 1 },
+          { options: ["A", "B", "C"], correctIndex: 0 },
+          { options: ["A", "B", "C"], correctIndex: 1 },
+          { options: ["A", "B", "C"], correctIndex: 2 },
         ],
       }),
     });
     QuizCompletion.create.mockResolvedValue({
-      score: 0,
-      totalQuestions: 2,
-      xpGained: 0,
+      score: 1,
+      totalQuestions: 3,
+      xpGained: 5,
       completedAt: new Date("2026-03-11T10:00:00.000Z"),
       passed: false,
     });
     applyUserProgress.mockResolvedValue({
       user: {
         _id: "user-1",
-        totalXp: 125,
-        brainXp: 75,
+        totalXp: 130,
+        brainXp: 80,
         bodyXp: 50,
         dailyStreak: 4,
         achievements: [{ key: "existing-achievement" }],
@@ -166,7 +167,7 @@ describe("quizService", () => {
     const result = await quizService.submitQuiz({
       userId: "user-1",
       articleId: "507f191e810c19729de860ea",
-      submittedAnswers: [1, 0],
+      submittedAnswers: [0, 2, 0],
     });
 
     expect(createWithSession).toHaveBeenCalledWith(
@@ -174,17 +175,17 @@ describe("quizService", () => {
       expect.objectContaining({
         user: "user-1",
         article: "507f191e810c19729de860ea",
-        score: 0,
-        xpGained: 0,
+        score: 1,
+        xpGained: 5,
         passed: false,
-        submittedAnswers: [1, 0],
+        submittedAnswers: [0, 2, 0],
       }),
       expect.objectContaining({ id: "session-1" }),
     );
     expect(applyUserProgress).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: "user-1",
-        brainXp: 0,
+        brainXp: 5,
         shouldUpdateStreak: false,
         shouldUnlockAchievements: false,
         session: expect.objectContaining({ id: "session-1" }),
@@ -193,19 +194,11 @@ describe("quizService", () => {
     expect(result).toEqual(
       expect.objectContaining({
         completion: expect.objectContaining({
-          score: 0,
-          totalQuestions: 2,
-          xpGained: 0,
+          score: 1,
+          totalQuestions: 3,
+          xpGained: 5,
           passed: false,
         }),
-        user: {
-          _id: "user-1",
-          totalXp: 125,
-          brainXp: 75,
-          bodyXp: 50,
-          dailyStreak: 4,
-          achievements: [{ key: "existing-achievement" }],
-        },
         newAchievements: [],
       }),
     );

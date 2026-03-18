@@ -9,6 +9,7 @@ export type User = {
     brainXp: number;
     bodyXp: number;
     dailyStreak: number;
+    longestStreak: number;
     role: string;
     profilePicture: string;
     achievements?: Array<{

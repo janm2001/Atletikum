@@ -15,6 +15,8 @@ const {
   hasPerfectQuizCompletion,
 } = require("./achievementEvaluation");
 
+const MAX_ACHIEVEMENT_XP_PER_BATCH = 500;
+
 const getTodayRange = (now = new Date()) => {
   const today = startOfUtcDay(now);
 
@@ -105,6 +107,7 @@ const checkAndUnlockAchievements = async (
   });
 
   const newlyUnlocked = [];
+  let remainingXpBudget = MAX_ACHIEVEMENT_XP_PER_BATCH;
 
   for (const achievement of pendingAchievements) {
     if (
@@ -116,7 +119,9 @@ const checkAndUnlockAchievements = async (
       continue;
     }
 
-    applyAchievementReward(user, achievement);
+    const cappedXp = Math.min(achievement.xpReward, remainingXpBudget);
+    applyAchievementReward(user, achievement, cappedXp);
+    remainingXpBudget -= cappedXp;
     newlyUnlocked.push(buildUnlockedAchievement(achievement));
   }
 
@@ -127,4 +132,4 @@ const checkAndUnlockAchievements = async (
   return newlyUnlocked;
 };
 
-module.exports = { checkAndUnlockAchievements };
+module.exports = { MAX_ACHIEVEMENT_XP_PER_BATCH, checkAndUnlockAchievements };

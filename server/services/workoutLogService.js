@@ -15,6 +15,8 @@ const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { syncWorkoutProgressions } = require("./progressionService");
 
+const DUPLICATE_WINDOW_MS = 60 * 1000;
+
 const getMyWorkoutLogs = async ({ userId, user }) => {
   const normalizedUserId = requireUserId({ userId, user });
 
@@ -32,6 +34,21 @@ const createWorkoutLog = async ({ user, userId, payload }) => {
     );
     if (!workoutDoc) {
       throw new AppError("Workout nije pronađen.", 404);
+    }
+
+    const duplicateLog = await attachSession(
+      WorkoutLog.exists({
+        user: normalizedUserId,
+        workoutId: workoutDoc._id,
+        date: { $gte: new Date(Date.now() - DUPLICATE_WINDOW_MS) },
+      }),
+      session,
+    );
+    if (duplicateLog) {
+      throw new AppError(
+        "Trening je već spremljen. Pričekajte prije ponovnog spremanja.",
+        409,
+      );
     }
 
     const createdBy = workoutDoc.createdBy ? String(workoutDoc.createdBy) : null;

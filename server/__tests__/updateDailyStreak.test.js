@@ -71,4 +71,21 @@ describe("updateDailyStreak", () => {
     expect(JSON.stringify(firstStage)).toContain("2026-03-12T00:00:00.000Z");
     expect(JSON.stringify(firstStage)).toContain("2026-03-13T00:00:00.000Z");
   });
+
+  it("tracks longestStreak in a second pipeline stage", async () => {
+    User.findOneAndUpdate.mockResolvedValue(null);
+    const now = new Date("2026-03-12T10:00:00.000Z");
+
+    await updateDailyStreak("user-1", { now });
+
+    const [, pipeline] = User.findOneAndUpdate.mock.calls[0];
+
+    expect(pipeline).toHaveLength(2);
+    const secondStage = pipeline[1];
+    expect(secondStage.$set.longestStreak).toBeDefined();
+    expect(secondStage.$set.longestStreak.$max).toEqual([
+      { $ifNull: ["$longestStreak", 0] },
+      "$dailyStreak",
+    ]);
+  });
 });

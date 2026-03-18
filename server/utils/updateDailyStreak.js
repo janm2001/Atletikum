@@ -59,6 +59,16 @@ const updateDailyStreak = async (
           },
         },
       },
+      {
+        $set: {
+          longestStreak: {
+            $max: [
+              { $ifNull: ["$longestStreak", 0] },
+              "$dailyStreak",
+            ],
+          },
+        },
+      },
     ],
     { returnDocument: "after", updatePipeline: true },
   );

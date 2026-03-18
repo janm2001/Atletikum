@@ -55,8 +55,8 @@ const didEarnAchievement = (
   }
 };
 
-const applyAchievementReward = (user, achievement) => {
-  const xp = achievement.xpReward;
+const applyAchievementReward = (user, achievement, xpOverride) => {
+  const xp = xpOverride !== undefined ? xpOverride : achievement.xpReward;
 
   if (!Array.isArray(user.achievements)) {
     user.achievements = [];

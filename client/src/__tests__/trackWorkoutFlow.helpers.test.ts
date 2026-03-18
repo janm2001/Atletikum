@@ -135,6 +135,7 @@ describe("track workout helpers", () => {
         brainXp: 234,
         bodyXp: 1000,
         dailyStreak: 5,
+        longestStreak: 10,
         role: "user",
         profilePicture: "",
       },
