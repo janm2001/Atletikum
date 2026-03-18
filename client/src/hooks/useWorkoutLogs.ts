@@ -30,6 +30,9 @@ export function useCreateWorkoutLog() {
                 keys.workoutLogs.list(),
                 (workoutLogs) => prependCachedEntity(workoutLogs, workoutLog),
             );
+            queryClient.invalidateQueries({
+                queryKey: keys.challenges.weekly(),
+            });
         },
     });
 }

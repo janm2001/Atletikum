@@ -55,6 +55,10 @@ export const useSubmitQuiz = () => {
       queryClient.invalidateQueries({
         queryKey: keys.quiz.completions(),
       });
+
+      queryClient.invalidateQueries({
+        queryKey: keys.challenges.weekly(),
+      });
     },
   });
 };

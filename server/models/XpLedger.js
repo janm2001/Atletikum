@@ -5,7 +5,7 @@ const xpLedgerSchema = new mongoose.Schema({
   source: {
     type: String,
     required: true,
-    enum: ["quiz", "workout", "achievement"],
+    enum: ["quiz", "workout", "achievement", "weekly_challenge"],
   },
   amount: { type: Number, required: true },
   category: {

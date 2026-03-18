@@ -181,6 +181,11 @@ export const useUpdateArticleProgress = () => {
     mutationFn: updateArticleProgress,
     onSuccess: (bookmark, variables) => {
       syncArticleBookmarkState(queryClient, variables.articleId, bookmark);
+      if (variables.isCompleted) {
+        queryClient.invalidateQueries({
+          queryKey: keys.challenges.weekly(),
+        });
+      }
     },
   });
 };
