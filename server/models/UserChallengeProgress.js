@@ -27,6 +27,18 @@ const userChallengeProgressSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    claimed: {
+      type: Boolean,
+      default: false,
+    },
+    claimedAt: {
+      type: Date,
+      default: null,
+    },
+    bonusAwarded: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

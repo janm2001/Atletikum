@@ -7,5 +7,6 @@ const router = express.Router();
 router.use(protect);
 
 router.get("/weekly", challengeController.getWeeklyChallenges);
+router.post("/weekly/:challengeId/claim", challengeController.claimChallengeReward);
 
 module.exports = router;

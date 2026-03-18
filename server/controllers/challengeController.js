@@ -12,3 +12,15 @@ exports.getWeeklyChallenges = asyncHandler(async (req, res) => {
     data: { challenges },
   });
 });
+
+exports.claimChallengeReward = asyncHandler(async (req, res) => {
+  const result = await weeklyChallengeService.claimChallengeReward({
+    userId: req.userId,
+    challengeId: req.params.challengeId,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: result,
+  });
+});

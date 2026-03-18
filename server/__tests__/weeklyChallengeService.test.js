@@ -1,6 +1,7 @@
 jest.mock("../models/WeeklyChallenge", () => {
   const WeeklyChallenge = {
     find: jest.fn(),
+    findOne: jest.fn(),
     insertMany: jest.fn(),
     findOneAndUpdate: jest.fn(),
   };
@@ -10,17 +11,31 @@ jest.mock("../models/WeeklyChallenge", () => {
 jest.mock("../models/UserChallengeProgress", () => {
   const UserChallengeProgress = {
     find: jest.fn(),
+    findOne: jest.fn(),
     findOneAndUpdate: jest.fn(),
+    updateOne: jest.fn(),
   };
   return { UserChallengeProgress };
+});
+
+jest.mock("../models/User", () => {
+  const User = {
+    findById: jest.fn(),
+  };
+  return { User };
 });
 
 jest.mock("../services/userProgressService", () => ({
   applyUserProgress: jest.fn(),
 }));
 
+jest.mock("../utils/mongoTransaction", () => ({
+  runInTransaction: jest.fn((work) => work(null)),
+}));
+
 const { WeeklyChallenge } = require("../models/WeeklyChallenge");
 const { UserChallengeProgress } = require("../models/UserChallengeProgress");
+const { User } = require("../models/User");
 const { applyUserProgress } = require("../services/userProgressService");
 const {
   startOfIsoWeek,
@@ -28,6 +43,7 @@ const {
   getOrCreateWeeklyChallenges,
   getUserChallengeStatus,
   updateChallengeProgress,
+  claimChallengeReward,
 } = require("../services/weeklyChallengeService");
 
 const MONDAY = new Date("2026-03-16T10:00:00.000Z");
@@ -173,6 +189,7 @@ describe("getUserChallengeStatus", () => {
       expect(item.currentCount).toBe(0);
       expect(item.completed).toBe(false);
       expect(item.xpAwarded).toBe(false);
+      expect(item.claimed).toBe(false);
     }
   });
 
@@ -185,12 +202,14 @@ describe("getUserChallengeStatus", () => {
           currentCount: 2,
           completed: false,
           xpAwarded: false,
+          claimed: false,
         },
         {
           challengeId: "ch-workout",
           currentCount: 2,
           completed: true,
           xpAwarded: true,
+          claimed: true,
         },
       ]),
     );
@@ -206,8 +225,10 @@ describe("getUserChallengeStatus", () => {
 
     expect(quiz.currentCount).toBe(2);
     expect(quiz.completed).toBe(false);
+    expect(quiz.claimed).toBe(false);
     expect(workout.completed).toBe(true);
     expect(workout.xpAwarded).toBe(true);
+    expect(workout.claimed).toBe(true);
     expect(reading.currentCount).toBe(0);
   });
 
@@ -236,6 +257,7 @@ describe("updateChallengeProgress", () => {
     UserChallengeProgress.findOneAndUpdate.mockResolvedValue({
       _id: "progress-1",
       currentCount: 1,
+      completed: false,
       xpAwarded: false,
     });
 
@@ -249,67 +271,26 @@ describe("updateChallengeProgress", () => {
     expect(applyUserProgress).not.toHaveBeenCalled();
   });
 
-  it("awards brainXp when quiz challenge reaches targetCount", async () => {
+  it("marks challenge completed but does NOT award XP when target is reached", async () => {
     WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
     UserChallengeProgress.findOneAndUpdate
       .mockResolvedValueOnce({
         _id: "progress-1",
         currentCount: 3,
+        completed: false,
         xpAwarded: false,
       })
       .mockResolvedValueOnce({
         _id: "progress-1",
         currentCount: 3,
         completed: true,
-        xpAwarded: true,
+        xpAwarded: false,
       });
-
-    applyUserProgress.mockResolvedValue({
-      user: { _id: "user-1" },
-      newAchievements: [],
-    });
 
     await updateChallengeProgress({ userId: "user-1", type: "quiz" });
 
     expect(UserChallengeProgress.findOneAndUpdate).toHaveBeenCalledTimes(2);
-    expect(applyUserProgress).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: "user-1",
-        brainXp: 100,
-        bodyXp: 0,
-        source: "weekly_challenge",
-      }),
-    );
-  });
-
-  it("awards bodyXp when workout challenge reaches targetCount", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
-    UserChallengeProgress.findOneAndUpdate
-      .mockResolvedValueOnce({
-        _id: "progress-2",
-        currentCount: 2,
-        xpAwarded: false,
-      })
-      .mockResolvedValueOnce({
-        _id: "progress-2",
-        currentCount: 2,
-        completed: true,
-        xpAwarded: true,
-      });
-
-    applyUserProgress.mockResolvedValue({
-      user: { _id: "user-1" },
-      newAchievements: [],
-    });
-
-    await updateChallengeProgress({ userId: "user-1", type: "workout" });
-
-    expect(applyUserProgress).toHaveBeenCalledWith(
-      expect.objectContaining({
-        brainXp: 0,
-        bodyXp: 150,
-      }),
-    );
+    expect(applyUserProgress).not.toHaveBeenCalled();
   });
 
   it("does nothing when progress doc returns null (already completed)", async () => {
@@ -329,17 +310,170 @@ describe("updateChallengeProgress", () => {
     expect(UserChallengeProgress.findOneAndUpdate).not.toHaveBeenCalled();
     expect(applyUserProgress).not.toHaveBeenCalled();
   });
+});
 
-  it("does not award XP when xpAwarded is already true", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+describe("claimChallengeReward", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("throws 400 for invalid challengeId", async () => {
+    await expect(
+      claimChallengeReward({ userId: "user-1", challengeId: "not-valid" }),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Neispravan identifikator izazova.",
+    });
+  });
+
+  it("throws 404 when challenge is not found for current week", async () => {
+    const objectId = "507f1f77bcf86cd799439011";
+    WeeklyChallenge.findOne.mockReturnValue(makeLean(null));
+
+    await expect(
+      claimChallengeReward({ userId: "user-1", challengeId: objectId }),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      message: "Izazov nije pronađen za trenutni tjedan.",
+    });
+  });
+
+  it("throws 409 when challenge is not completed", async () => {
+    const objectId = "507f1f77bcf86cd799439011";
+    WeeklyChallenge.findOne.mockReturnValue(
+      makeLean({ _id: objectId, type: "quiz", xpReward: 100, weekStart: new Date() }),
+    );
+    UserChallengeProgress.findOne.mockReturnValue(
+      makeLean({ userId: "user-1", challengeId: objectId, completed: false, claimed: false }),
+    );
+
+    await expect(
+      claimChallengeReward({ userId: "user-1", challengeId: objectId }),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      message: "Izazov još nije dovršen i nagradu nije moguće preuzeti.",
+    });
+  });
+
+  it("returns idempotent response when already claimed", async () => {
+    const objectId = "507f1f77bcf86cd799439011";
+    WeeklyChallenge.findOne.mockReturnValue(
+      makeLean({ _id: objectId, type: "quiz", xpReward: 100, weekStart: new Date() }),
+    );
+    UserChallengeProgress.findOne.mockReturnValue(
+      makeLean({
+        userId: "user-1",
+        challengeId: objectId,
+        completed: true,
+        claimed: true,
+        xpAwarded: true,
+      }),
+    );
+    User.findById.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        _id: "user-1",
+        brainXp: 200,
+        bodyXp: 100,
+        totalXp: 300,
+        level: 2,
+      }),
+    });
+
+    const result = await claimChallengeReward({
+      userId: "user-1",
+      challengeId: objectId,
+    });
+
+    expect(result.claim.alreadyClaimed).toBe(true);
+    expect(applyUserProgress).not.toHaveBeenCalled();
+  });
+
+  it("awards XP and returns celebration data on first claim", async () => {
+    const objectId = "507f1f77bcf86cd799439011";
+    WeeklyChallenge.findOne.mockReturnValue(
+      makeLean({
+        _id: objectId,
+        type: "quiz",
+        xpReward: 100,
+        weekStart: startOfIsoWeek(new Date()),
+      }),
+    );
+    UserChallengeProgress.findOne.mockReturnValue(
+      makeLean({
+        _id: "prog-1",
+        userId: "user-1",
+        challengeId: objectId,
+        completed: true,
+        claimed: false,
+        xpAwarded: false,
+      }),
+    );
     UserChallengeProgress.findOneAndUpdate.mockResolvedValue({
-      _id: "progress-1",
-      currentCount: 3,
+      _id: "prog-1",
+      claimed: true,
       xpAwarded: true,
     });
 
-    await updateChallengeProgress({ userId: "user-1", type: "quiz" });
+    const userObj = {
+      _id: "user-1",
+      brainXp: 200,
+      bodyXp: 100,
+      totalXp: 300,
+      level: 2,
+    };
+    User.findById.mockReturnValue({
+      session: jest.fn().mockResolvedValue(userObj),
+    });
 
-    expect(applyUserProgress).not.toHaveBeenCalled();
+    applyUserProgress.mockResolvedValue({
+      user: { _id: "user-1" },
+      newAchievements: [],
+    });
+
+    // For the all-challenges bonus check
+    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    UserChallengeProgress.find.mockReturnValue({
+      session: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          { challengeId: "ch-quiz", claimed: true },
+          { challengeId: "ch-workout", claimed: false },
+        ]),
+      }),
+    });
+
+    const result = await claimChallengeReward({
+      userId: "user-1",
+      challengeId: objectId,
+    });
+
+    expect(result.claim.alreadyClaimed).toBe(false);
+    expect(result.claim.xpAwarded).toBe(100);
+    expect(result.claim.type).toBe("quiz");
+    expect(result.celebration.showCelebration).toBe(true);
+    expect(result.celebration.reasons).toContain("challenge_complete");
+    expect(result.allChallengesCompleted.completed).toBe(false);
+    expect(applyUserProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user-1",
+        brainXp: 100,
+        bodyXp: 0,
+        source: "weekly_challenge",
+      }),
+    );
+  });
+
+  it("throws 409 when no progress exists at all", async () => {
+    const objectId = "507f1f77bcf86cd799439011";
+    WeeklyChallenge.findOne.mockReturnValue(
+      makeLean({ _id: objectId, type: "quiz", xpReward: 100, weekStart: new Date() }),
+    );
+    UserChallengeProgress.findOne.mockReturnValue(makeLean(null));
+
+    await expect(
+      claimChallengeReward({ userId: "user-1", challengeId: objectId }),
+    ).rejects.toMatchObject({
+      statusCode: 409,
+      message: "Izazov još nije dovršen i nagradu nije moguće preuzeti.",
+    });
   });
 });
