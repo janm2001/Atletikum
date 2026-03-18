@@ -1,7 +1,7 @@
 const DEFAULT_CLIENT_URL = "http://localhost:5173";
 const DEFAULT_NODE_ENV = "development";
 const DEFAULT_PORT = 5001;
-const DEFAULT_ARTICLE_IMAGE_STORAGE = "cloudinary";
+const DEFAULT_ARTICLE_IMAGE_STORAGE = "local";
 
 const getTrimmedEnvValue = (name) => {
   const value = process.env[name];

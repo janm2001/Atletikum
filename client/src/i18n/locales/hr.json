@@ -292,6 +292,7 @@
     "notFound": "Članak nije pronađen",
     "backToKnowledgeBase": "Povratak na bazu znanja",
     "markAsRead": "Označi kao pročitano",
+    "read": "Pročitano",
     "lastRead": "Zadnje čitanje:",
     "breadcrumb": "Baza Znanja",
     "backButton": "Nazad na Bazu Znanja",
@@ -621,6 +622,11 @@
     "usernameMin": "Korisničko ime mora imati barem 3 znaka",
     "emailInvalid": "Unesite valjanu email adresu",
     "passwordMin": "Lozinka mora imati barem 8 znakova",
+    "passwordMax": "Lozinka ne smije imati više od 32 znaka",
+    "passwordLowercase": "Lozinka mora sadržavati barem jedno malo slovo",
+    "passwordUppercase": "Lozinka mora sadržavati barem jedno veliko slovo",
+    "passwordNumber": "Lozinka mora sadržavati barem jedan broj",
+    "passwordSpecial": "Lozinka mora sadržavati barem jedan poseban znak",
     "passwordMismatch": "Lozinke se ne poklapaju.",
     "article": {
       "questionMin": "Pitanje mora imati barem 3 znaka",
@@ -650,7 +656,8 @@
       "repsRequired": "Ponavljanja su obavezna",
       "progressionRepsExact": "Progressivna vježba mora imati točan broj ponavljanja",
       "titleRequired": "Naslov je obavezan",
-      "levelMin": "Minimalna razina je 1"
+      "levelMin": "Minimalna razina je 1",
+      "baseXpNegative": "XP ne može biti negativan"
     },
     "workoutLog": {
       "exerciseRequired": "Vježba je obavezna",

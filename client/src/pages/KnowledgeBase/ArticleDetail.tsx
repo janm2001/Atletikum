@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Button, Center, Container, Group, Text, Title } from "@mantine/core";
+import { IconCheck } from "@tabler/icons-react";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useArticleDetail } from "../../hooks/useArticle";
 import ArticleActionSummary from "@/components/KnowledgeBase/Article/ArticleActionSummary";
@@ -28,6 +30,12 @@ const ArticleDetail = () => {
     handleToggleBookmark,
     handleToggleRelatedBookmark,
   } = useArticleDetailFlow({ article });
+
+  const isRead = article?.bookmark?.isCompleted ?? false;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
 
   if (isLoading) {
     return <SpinnerComponent />;
@@ -77,8 +85,14 @@ const ArticleDetail = () => {
       <ArticleActionSummary items={article.actionSummary} />
 
       <Group my="lg" justify="space-between" align="center">
-        <Button variant="light" onClick={handleMarkAsRead}>
-          {t('articles.markAsRead')}
+        <Button
+          variant={isRead ? "filled" : "light"}
+          color={isRead ? "green" : undefined}
+          leftSection={isRead ? <IconCheck size={16} /> : undefined}
+          onClick={handleMarkAsRead}
+          disabled={isRead}
+        >
+          {isRead ? t('articles.read') : t('articles.markAsRead')}
         </Button>
         {article.bookmark?.lastViewedAt && (
           <Text size="sm" c="dimmed">

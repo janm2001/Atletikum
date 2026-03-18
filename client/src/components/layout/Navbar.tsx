@@ -27,7 +27,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useUser } from "../../hooks/useUser";
 import { colors, styles } from "../../styles/colors";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getXpProgress } from "../../utils/leveling";
 import atletikumIcon from "../../assets/atletikum_icon.png";
 
@@ -77,6 +77,13 @@ const Navbar = () => {
   const close = () => {
     setOpened(false);
   };
+
+  useEffect(() => {
+    document.body.style.overflow = opened ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [opened]);
 
   const navItems = useMemo(() => [
     { to: "/pregled", label: t('nav.overview') },
