@@ -61,7 +61,7 @@ const ExerciseBuilder = () => {
       exerciseId: "",
       sets: 3,
       reps: "10",
-      rpe: "",
+      rpe: "6",
       baseXp: 20,
       progression: {
         enabled: false,

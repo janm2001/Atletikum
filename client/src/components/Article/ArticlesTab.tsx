@@ -179,30 +179,15 @@ const ArticlesTab = () => {
       if (thumbnailFile) {
         const formData = new FormData();
         formData.append("thumbnail", thumbnailFile);
-        formData.append("title", normalizedData.title);
-        formData.append("tag", normalizedData.tag);
-        if (normalizedData.summary) formData.append("summary", normalizedData.summary);
-        formData.append("content", normalizedData.content);
-        if (normalizedData.actionSummary && normalizedData.actionSummary.length > 0) {
-          formData.append("actionSummary", JSON.stringify(normalizedData.actionSummary));
+
+        const stringFields = ["title", "tag", "summary", "content", "sourceUrl", "sourceTitle", "author"] as const;
+        for (const key of stringFields) {
+          if (normalizedData[key]) formData.append(key, normalizedData[key]);
         }
-        if (normalizedData.sourceUrl) formData.append("sourceUrl", normalizedData.sourceUrl);
-        if (normalizedData.sourceTitle) formData.append("sourceTitle", normalizedData.sourceTitle);
-        if (normalizedData.author) formData.append("author", normalizedData.author);
-        if (normalizedData.relatedArticleIds && normalizedData.relatedArticleIds.length > 0) {
-          formData.append(
-            "relatedArticleIds",
-            JSON.stringify(normalizedData.relatedArticleIds),
-          );
-        }
-        if (normalizedData.relatedExerciseIds && normalizedData.relatedExerciseIds.length > 0) {
-          formData.append(
-            "relatedExerciseIds",
-            JSON.stringify(normalizedData.relatedExerciseIds),
-          );
-        }
-        if (normalizedData.quiz && normalizedData.quiz.length > 0) {
-          formData.append("quiz", JSON.stringify(normalizedData.quiz));
+
+        const arrayFields = ["actionSummary", "relatedArticleIds", "relatedExerciseIds", "quiz"] as const;
+        for (const key of arrayFields) {
+          if (normalizedData[key]?.length) formData.append(key, JSON.stringify(normalizedData[key]));
         }
 
         if (editingArticleId) {
