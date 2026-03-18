@@ -93,9 +93,7 @@ const Navbar = () => {
     ...navLinkStyles,
     color: isActive(path) ? colors.primary.light : "var(--mantine-color-text)",
     fontWeight: isActive(path) ? 700 : 500,
-    backgroundColor: isActive(path)
-      ? colors.interactive.hover
-      : "transparent",
+    backgroundColor: isActive(path) ? colors.interactive.hover : "transparent",
     borderBottom: isActive(path)
       ? `2px solid ${colors.primary.light}`
       : "2px solid transparent",
@@ -262,12 +260,7 @@ const Navbar = () => {
 
             <Stack gap="sm">
               <Group gap="xs" mb="xs">
-                <HoverCard
-                  width={220}
-                  shadow="md"
-                  position="bottom"
-                  withArrow
-                >
+                <HoverCard width={220} shadow="md" position="bottom" withArrow>
                   <HoverCard.Target>
                     <Badge style={{ cursor: "pointer" }}>
                       {t("nav.levelBadge", { level: user?.level })}
@@ -280,12 +273,7 @@ const Navbar = () => {
                     />
                   </HoverCard.Dropdown>
                 </HoverCard>
-                <HoverCard
-                  width={220}
-                  shadow="md"
-                  position="bottom"
-                  withArrow
-                >
+                <HoverCard width={220} shadow="md" position="bottom" withArrow>
                   <HoverCard.Target>
                     <Badge {...streakBadgeProps}>
                       {user?.dailyStreak ?? 0}

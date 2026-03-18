@@ -1,8 +1,9 @@
-import { Center, Container, Text } from "@mantine/core";
+import { Center, Container, Tabs, Text } from "@mantine/core";
 import LeaderboardHeader from "@/components/Leaderboard/LeaderboardHeader";
 import LeaderboardPodium from "@/components/Leaderboard/LeaderboardPodium";
 import LeaderboardTable from "@/components/Leaderboard/LeaderboardTable";
 import LeaderboardChaseCard from "@/components/Leaderboard/LeaderboardChaseCard";
+import WeeklyChallengeLeaderboard from "@/components/Challenges/WeeklyChallengeLeaderboard";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useUser } from "@/hooks/useUser";
@@ -27,27 +28,40 @@ const Leaderboard = () => {
     <Container size="md" py="xl">
       <LeaderboardHeader myRank={myRank} />
 
-      {nextRankUser && xpGapToNextRank !== null && xpGapToNextRank > 0 && (
-        <LeaderboardChaseCard
-          nextRankUser={nextRankUser}
-          xpGap={xpGapToNextRank}
-        />
-      )}
+      <Tabs defaultValue="overall" mt="md">
+        <Tabs.List mb="md">
+          <Tabs.Tab value="overall">{t("leaderboard.tabs.overall")}</Tabs.Tab>
+          <Tabs.Tab value="weekly">{t("leaderboard.tabs.weekly")}</Tabs.Tab>
+        </Tabs.List>
 
-      <LeaderboardPodium entries={top3} currentUserId={user?._id} />
+        <Tabs.Panel value="overall">
+          {nextRankUser && xpGapToNextRank !== null && xpGapToNextRank > 0 && (
+            <LeaderboardChaseCard
+              nextRankUser={nextRankUser}
+              xpGap={xpGapToNextRank}
+            />
+          )}
 
-      <LeaderboardTable
-        entries={leaderboard}
-        startRank={1}
-        currentUserId={user?._id}
-        nextRankUsername={nextRankUser?.username}
-      />
+          <LeaderboardPodium entries={top3} currentUserId={user?._id} />
 
-      {leaderboard.length === 0 && (
-        <Center py="xl">
-          <Text c="dimmed">{t("leaderboard.empty")}</Text>
-        </Center>
-      )}
+          <LeaderboardTable
+            entries={leaderboard}
+            startRank={1}
+            currentUserId={user?._id}
+            nextRankUsername={nextRankUser?.username}
+          />
+
+          {leaderboard.length === 0 && (
+            <Center py="xl">
+              <Text c="dimmed">{t("leaderboard.empty")}</Text>
+            </Center>
+          )}
+        </Tabs.Panel>
+
+        <Tabs.Panel value="weekly">
+          <WeeklyChallengeLeaderboard />
+        </Tabs.Panel>
+      </Tabs>
     </Container>
   );
 };

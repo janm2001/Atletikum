@@ -162,7 +162,8 @@
       "progress": "{{current}} / {{total}} završeno",
       "completed": "Izazov završen!",
       "rewardClaimed": "Nagrada preuzeta",
-      "timeLeft": "Ostalo: {{time}}"
+      "timeLeft": "Ostalo: {{time}}",
+      "viewHistory": "Pogledaj povijest"
     }
   },
 
@@ -408,6 +409,35 @@
     "chase": {
       "behind": "{{xp}} XP iza korisnika {{username}}",
       "cta": "Odradi trening ili kviz da se popneš!"
+    },
+    "tabs": {
+      "overall": "Ukupna ljestvica",
+      "weekly": "Tjedni izazovi"
+    }
+  },
+
+  "challenges": {
+    "claim": {
+      "button": "Preuzmi nagradu",
+      "success": "Nagrada preuzeta! +{{xp}} XP",
+      "error": "Greška pri preuzimanju nagrade."
+    },
+    "history": {
+      "title": "Povijest izazova",
+      "empty": "Još nema završenih tjednih izazova.",
+      "weekRange": "{{from}} – {{to}}",
+      "xpEarned": "+{{xp}} XP",
+      "xpClaimed": "+{{xp}} XP",
+      "allCompleted": "Sve završeno!",
+      "loadMore": "Učitaj više"
+    },
+    "weeklyLeaderboard": {
+      "week": "Tjedan: {{week}}",
+      "completed": "Završeni izazovi",
+      "xp": "XP od izazova",
+      "empty": "Nema podataka za ovaj tjedan.",
+      "yourPosition": "Vaš rang: #{{rank}}",
+      "gap": "{{count}} XP do sljedećeg ranga"
     }
   },
 
@@ -416,7 +446,41 @@
     "tabs": {
       "exercises": "Vježbe",
       "education": "Edukacija",
-      "workouts": "Treninzi"
+      "workouts": "Treninzi",
+      "challenges": "Izazovi"
+    },
+    "challenges": {
+      "templatesTitle": "Predlošci izazova",
+      "add": "Novi predložak",
+      "editTitle": "Uredi predložak",
+      "addTitle": "Novi predložak",
+      "publish": "Objavi",
+      "publishTitle": "Objavi predloške za tjedan",
+      "publishNote": "Objavljeni predlošci primjenjuju se od odabranog ponedjeljka. Ova akcija kreira tjedne izazove za sve korisnike.",
+      "publishWeekLabel": "Primijeni od tjedna (ponedjeljak)",
+      "publishConfirm": "Objavi predloške",
+      "publishSuccess": "Objavljeno {{count}} predložaka za tjedan od {{week}}.",
+      "publishError": "Greška pri objavljivanju predložaka.",
+      "saveSuccess": "Predložak je uspješno spremljen.",
+      "saveError": "Greška pri spremanju predložaka.",
+      "empty": "Nema predložaka. Dodajte novi klikom na \"Novi predložak\".",
+      "enabled": "Aktivan",
+      "disabled": "Neaktivan",
+      "table": {
+        "type": "Vrsta",
+        "target": "Cilj",
+        "xp": "XP",
+        "description": "Opis",
+        "enabled": "Status",
+        "effectiveFrom": "Aktivan od"
+      },
+      "form": {
+        "type": "Vrsta izazova",
+        "targetCount": "Cilj (broj aktivnosti)",
+        "xpReward": "XP nagrada",
+        "description": "Opis",
+        "enabled": "Aktivan predložak"
+      }
     },
     "exercises": {
       "list": "Popis vježbi",

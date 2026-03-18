@@ -1,5 +1,7 @@
 import {
+  Anchor,
   Badge,
+  Button,
   Card,
   Group,
   Progress,
@@ -8,6 +10,7 @@ import {
   ThemeIcon,
   Title,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import {
   IconBrain,
   IconBarbell,
@@ -15,7 +18,9 @@ import {
   IconCheck,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import type { WeeklyChallenge } from "@/types/Challenge/challenge";
+import { useClaimChallengeReward } from "@/hooks/useChallenges";
 
 interface DashboardWeeklyChallengesCardProps {
   challenges: WeeklyChallenge[];
@@ -68,12 +73,30 @@ interface ChallengeRowProps {
 
 const ChallengeRow = ({ challenge }: ChallengeRowProps) => {
   const { t } = useTranslation();
+  const claimMutation = useClaimChallengeReward();
   const config = CHALLENGE_CONFIG[challenge.type];
   const Icon = config.icon;
   const progress = Math.min(
     100,
     Math.round((challenge.currentCount / challenge.targetCount) * 100),
   );
+
+  const handleClaim = async () => {
+    try {
+      const result = await claimMutation.mutateAsync(challenge._id);
+      notifications.show({
+        color: "green",
+        message: t("challenges.claim.success", {
+          xp: result.claim.xpAwarded,
+        }),
+      });
+    } catch {
+      notifications.show({
+        color: "red",
+        message: t("challenges.claim.error"),
+      });
+    }
+  };
 
   return (
     <Stack gap="xs">
@@ -128,6 +151,19 @@ const ChallengeRow = ({ challenge }: ChallengeRowProps) => {
           </Text>
         )}
       </Group>
+
+      {challenge.completed && !challenge.claimed && (
+        <Button
+          size="xs"
+          variant="light"
+          color="green"
+          loading={claimMutation.isPending}
+          onClick={handleClaim}
+          fullWidth
+        >
+          {t("challenges.claim.button")}
+        </Button>
+      )}
     </Stack>
   );
 };
@@ -162,6 +198,17 @@ const DashboardWeeklyChallengesCard = ({
           <ChallengeRow key={challenge._id} challenge={challenge} />
         ))}
       </Stack>
+
+      <Group justify="flex-end" mt="sm">
+        <Anchor
+          component={Link}
+          to="/izazovi/povijest"
+          size="xs"
+          c="dimmed"
+        >
+          {t("dashboard.weeklyChallenges.viewHistory")}
+        </Anchor>
+      </Group>
     </Card>
   );
 };

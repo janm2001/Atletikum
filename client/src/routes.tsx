@@ -128,6 +128,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "izazovi/povijest",
+        lazy: async () => {
+          const { default: ChallengeHistory } =
+            await import("./pages/Challenges/ChallengeHistory.tsx");
+          return { Component: ChallengeHistory };
+        },
+      },
+      {
         path: "slavlje",
         lazy: async () => {
           const { default: XpCelebration } =
