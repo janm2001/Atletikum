@@ -22,10 +22,36 @@ const getLeaderboard = async ({ currentUser, currentUserId }) => {
     myRank = count + 1;
   }
 
+  let nextRankUser = null;
+  let xpGapToNextRank = null;
+
+  if (myIndex > 0) {
+    const above = topUsers[myIndex - 1];
+    nextRankUser = { username: above.username, totalXp: above.totalXp };
+    xpGapToNextRank = above.totalXp - currentUser.totalXp;
+  } else if (myIndex === -1 && topUsers.length > 0) {
+    const aboveUser = await User.findOne({
+      totalXp: { $gt: currentUser.totalXp },
+    })
+      .sort({ totalXp: 1 })
+      .select("username totalXp")
+      .lean();
+
+    if (aboveUser) {
+      nextRankUser = {
+        username: aboveUser.username,
+        totalXp: aboveUser.totalXp,
+      };
+      xpGapToNextRank = aboveUser.totalXp - currentUser.totalXp;
+    }
+  }
+
   return {
     leaderboard: topUsers,
     myRank,
     me: sanitizeUser(currentUser),
+    nextRankUser,
+    xpGapToNextRank,
   };
 };
 

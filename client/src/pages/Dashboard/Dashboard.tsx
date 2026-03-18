@@ -18,6 +18,8 @@ import DashboardWelcomeText from "@/components/Dashboard/DashboardWelcomeText";
 import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSection";
 import DashboardWeeklyGoalCard from "@/components/Dashboard/DashboardWeeklyGoalCard";
 import DashboardContinueLearningCard from "@/components/Dashboard/DashboardContinueLearningCard";
+import DashboardAlmostLevelUpCard from "@/components/Dashboard/DashboardAlmostLevelUpCard";
+import { useGamificationStatus } from "@/hooks/useGamification";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ const Dashboard = () => {
   const toggleBookmarkMutation = useToggleArticleBookmark();
   const { data: recommendations, isLoading: recommendationsLoading } =
     useWeeklyRecommendations();
+  const { data: gamification } = useGamificationStatus();
 
   const completedSet = useMemo(
     () => new Set(completedArticleIds ?? []),
@@ -109,6 +112,14 @@ const Dashboard = () => {
         />
 
         <XpProgressSection variant="full" />
+
+        {gamification && (
+          <DashboardAlmostLevelUpCard
+            gamification={gamification}
+            onDoQuiz={() => navigate("/edukacija")}
+            onDoWorkout={() => navigate("/zapis-treninga")}
+          />
+        )}
 
         <DashboardWeeklyGoalCard insight={recommendations?.insight} />
 

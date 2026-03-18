@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import {
   Group,
   Button,
@@ -10,8 +9,6 @@ import {
   Badge,
   Flex,
   HoverCard,
-  Text,
-  Progress,
   ActionIcon,
   useComputedColorScheme,
   useMantineColorScheme,
@@ -25,11 +22,13 @@ import {
   IconMoon,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useUser } from "../../hooks/useUser";
-import { colors, styles } from "../../styles/colors";
+import { useUser } from "../../../hooks/useUser";
+import { useGamificationStatus } from "../../../hooks/useGamification";
+import { colors, styles } from "../../../styles/colors";
 import { useEffect, useMemo, useState } from "react";
-import { getXpProgress } from "../../utils/leveling";
-import atletikumIcon from "../../assets/atletikum_icon.png";
+import atletikumIcon from "../../../assets/atletikum_icon.png";
+import NavbarLevelDropdown from "./NavbarLevelDropdown";
+import NavbarStreakDropdown from "./NavbarStreakDropdown";
 
 const navLinkStyles = {
   textDecoration: "none",
@@ -42,25 +41,6 @@ const navLinkStyles = {
   transition: "all 0.2s ease",
 };
 
-const NavbarLevelDropdown = ({ level, totalXp }: { level: number; totalXp: number }) => {
-  const { t } = useTranslation();
-  const { xpInLevel, xpForNext, remaining, percent } = getXpProgress(level, totalXp);
-  return (
-    <Stack gap={6}>
-      <Text size="sm" fw={600}>
-        {t('nav.levelProgress', { current: level, next: level + 1 })}
-      </Text>
-      <Progress value={percent} color="violet" radius="xl" size="md" />
-      <Text size="xs" c="dimmed">
-        {t('nav.xpProgress', { current: xpInLevel, total: xpForNext, percent })}
-      </Text>
-      <Text size="xs" c="dimmed">
-        {t('nav.xpRemaining', { remaining })}
-      </Text>
-    </Stack>
-  );
-};
-
 const Navbar = () => {
   const { logout } = useUser();
   const [opened, setOpened] = useState(false);
@@ -69,6 +49,7 @@ const Navbar = () => {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("dark");
   const { t } = useTranslation();
+  const { data: gamification } = useGamificationStatus();
 
   const toggleColorScheme = () => {
     setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
@@ -85,15 +66,18 @@ const Navbar = () => {
     };
   }, [opened]);
 
-  const navItems = useMemo(() => [
-    { to: "/pregled", label: t('nav.overview') },
-    { to: "/zapis-treninga", label: t('nav.trainingLogs') },
-    { to: "/edukacija", label: t('nav.education') },
-    { to: "/ljestvica", label: t('nav.leaderboard') },
-    ...(user?.role === "admin"
-      ? [{ to: "/upravljanje", label: t('nav.admin') }]
-      : []),
-  ], [user?.role, t]);
+  const navItems = useMemo(
+    () => [
+      { to: "/pregled", label: t("nav.overview") },
+      { to: "/zapis-treninga", label: t("nav.trainingLogs") },
+      { to: "/edukacija", label: t("nav.education") },
+      { to: "/ljestvica", label: t("nav.leaderboard") },
+      ...(user?.role === "admin"
+        ? [{ to: "/upravljanje", label: t("nav.admin") }]
+        : []),
+    ],
+    [user?.role, t],
+  );
 
   const isActive = (path: string) => {
     const pathname = location.pathname;
@@ -109,15 +93,44 @@ const Navbar = () => {
     ...navLinkStyles,
     color: isActive(path) ? colors.primary.light : "var(--mantine-color-text)",
     fontWeight: isActive(path) ? 700 : 500,
-    backgroundColor: isActive(path) ? colors.interactive.hover : "transparent",
+    backgroundColor: isActive(path)
+      ? colors.interactive.hover
+      : "transparent",
     borderBottom: isActive(path)
       ? `2px solid ${colors.primary.light}`
       : "2px solid transparent",
   });
 
+  const streakBadgeProps = {
+    color: gamification?.streakAtRisk ? "red" : ("orange" as const),
+    variant: "light" as const,
+    leftSection: <IconFlame size={14} />,
+    style: {
+      cursor: "pointer",
+      ...(gamification?.streakAtRisk
+        ? { animation: "pulse 2s ease-in-out infinite" }
+        : {}),
+    },
+  };
+
+  const streakDropdownProps = {
+    streakAtRisk: gamification?.streakAtRisk ?? false,
+    hasActivityToday: gamification?.hasActivityToday ?? false,
+    streakExpiresAt: gamification?.streakExpiresAt ?? null,
+    dailyStreak: user?.dailyStreak ?? 0,
+  };
+
   return (
     <Group h="100%" px="md" justify="space-between">
-      <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+      <Link
+        to="/"
+        style={{
+          textDecoration: "none",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
         <img src={atletikumIcon} alt="Atletikum" style={{ height: 36 }} />
         <Title
           order={3}
@@ -147,20 +160,24 @@ const Navbar = () => {
         <HoverCard width={240} shadow="md" position="bottom" withArrow>
           <HoverCard.Target>
             <Badge color="violet" style={{ cursor: "pointer" }}>
-              {t('nav.levelBadge', { level: user?.level })}
+              {t("nav.levelBadge", { level: user?.level })}
             </Badge>
           </HoverCard.Target>
           <HoverCard.Dropdown>
-            <NavbarLevelDropdown level={user?.level ?? 1} totalXp={user?.totalXp ?? 0} />
+            <NavbarLevelDropdown
+              level={user?.level ?? 1}
+              totalXp={user?.totalXp ?? 0}
+            />
           </HoverCard.Dropdown>
         </HoverCard>
-        <Badge
-          color="orange"
-          variant="light"
-          leftSection={<IconFlame size={14} />}
-        >
-          {user?.dailyStreak ?? 0}
-        </Badge>
+        <HoverCard width={240} shadow="md" position="bottom" withArrow>
+          <HoverCard.Target>
+            <Badge {...streakBadgeProps}>{user?.dailyStreak ?? 0}</Badge>
+          </HoverCard.Target>
+          <HoverCard.Dropdown>
+            <NavbarStreakDropdown {...streakDropdownProps} />
+          </HoverCard.Dropdown>
+        </HoverCard>
 
         <ActionIcon
           variant="subtle"
@@ -234,9 +251,7 @@ const Navbar = () => {
             }}
           >
             <Group justify="space-between" mb="md">
-              <Title order={4}>
-                {t('nav.menu')}
-              </Title>
+              <Title order={4}>{t("nav.menu")}</Title>
               <Burger
                 opened={opened}
                 onClick={close}
@@ -247,21 +262,39 @@ const Navbar = () => {
 
             <Stack gap="sm">
               <Group gap="xs" mb="xs">
-                <HoverCard width={220} shadow="md" position="bottom" withArrow>
+                <HoverCard
+                  width={220}
+                  shadow="md"
+                  position="bottom"
+                  withArrow
+                >
                   <HoverCard.Target>
-                    <Badge style={{ cursor: "pointer" }}>{t('nav.levelBadge', { level: user?.level })}</Badge>
+                    <Badge style={{ cursor: "pointer" }}>
+                      {t("nav.levelBadge", { level: user?.level })}
+                    </Badge>
                   </HoverCard.Target>
                   <HoverCard.Dropdown>
-                    <NavbarLevelDropdown level={user?.level ?? 1} totalXp={user?.totalXp ?? 0} />
+                    <NavbarLevelDropdown
+                      level={user?.level ?? 1}
+                      totalXp={user?.totalXp ?? 0}
+                    />
                   </HoverCard.Dropdown>
                 </HoverCard>
-                <Badge
-                  color="orange"
-                  variant="light"
-                  leftSection={<IconFlame size={14} />}
+                <HoverCard
+                  width={220}
+                  shadow="md"
+                  position="bottom"
+                  withArrow
                 >
-                  {user?.dailyStreak ?? 0}
-                </Badge>
+                  <HoverCard.Target>
+                    <Badge {...streakBadgeProps}>
+                      {user?.dailyStreak ?? 0}
+                    </Badge>
+                  </HoverCard.Target>
+                  <HoverCard.Dropdown>
+                    <NavbarStreakDropdown {...streakDropdownProps} />
+                  </HoverCard.Dropdown>
+                </HoverCard>
               </Group>
 
               {navItems.map((item) => (
@@ -292,7 +325,9 @@ const Navbar = () => {
                 justify="flex-start"
                 onClick={toggleColorScheme}
               >
-                {computedColorScheme === "dark" ? t('nav.lightTheme') : t('nav.darkTheme')}
+                {computedColorScheme === "dark"
+                  ? t("nav.lightTheme")
+                  : t("nav.darkTheme")}
               </Button>
               <Button
                 component={Link}
@@ -303,7 +338,7 @@ const Navbar = () => {
                 leftSection={<IconUser size={18} />}
                 justify="flex-start"
               >
-                {t('nav.profile')}
+                {t("nav.profile")}
               </Button>
               <Button
                 onClick={() => {
@@ -315,7 +350,7 @@ const Navbar = () => {
                 leftSection={<IconLogout2 size={18} />}
                 justify="flex-start"
               >
-                {t('nav.logout')}
+                {t("nav.logout")}
               </Button>
             </Stack>
           </Box>

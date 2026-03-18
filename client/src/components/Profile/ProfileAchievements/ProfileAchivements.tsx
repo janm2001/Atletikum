@@ -9,19 +9,33 @@ import {
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
-import { IconTrendingUp } from "@tabler/icons-react";
+import { IconTrendingUp, IconTargetArrow } from "@tabler/icons-react";
 import { useAchievements } from "../../../hooks/useAchievements";
 import { AchievementCard } from "../../Achievements/AchievementCard";
+import type { Achievement } from "../../../types/Achievement/achievement";
+
+const sortLockedByProgress = (items: Achievement[]): Achievement[] => {
+  return [...items].sort((a, b) => {
+    if (a.isUnlocked && !b.isUnlocked) return -1;
+    if (!a.isUnlocked && b.isUnlocked) return 1;
+    if (!a.isUnlocked && !b.isUnlocked) {
+      const aProgress = a.progress?.progressPercent ?? 0;
+      const bProgress = b.progress?.progressPercent ?? 0;
+      return bProgress - aProgress;
+    }
+    return 0;
+  });
+};
 
 const ProfileAchievements = () => {
   const { t } = useTranslation();
   const { data: achievements, isLoading } = useAchievements();
 
   const categoryLabels: Record<string, string> = {
-    milestone: t('profile.achievements.milestones'),
-    consistency: t('profile.achievements.consistency'),
-    performance: t('profile.achievements.performance'),
-    special: t('profile.achievements.special'),
+    milestone: t("profile.achievements.milestones"),
+    consistency: t("profile.achievements.consistency"),
+    performance: t("profile.achievements.performance"),
+    special: t("profile.achievements.special"),
   };
 
   if (isLoading) {
@@ -34,12 +48,25 @@ const ProfileAchievements = () => {
     .filter((a) => a.isUnlocked)
     .reduce((sum, a) => sum + a.xpReward, 0);
 
+  const almostUnlocked = all
+    .filter(
+      (a) =>
+        !a.isUnlocked &&
+        a.progress &&
+        a.progress.progressPercent >= 75,
+    )
+    .sort(
+      (a, b) =>
+        (b.progress?.progressPercent ?? 0) -
+        (a.progress?.progressPercent ?? 0),
+    );
+
   const categories = ["milestone", "consistency", "performance", "special"];
   const categorized = categories
     .map((cat) => ({
       key: cat,
       label: categoryLabels[cat] ?? cat,
-      items: all.filter((a) => a.category === cat),
+      items: sortLockedByProgress(all.filter((a) => a.category === cat)),
     }))
     .filter((group) => group.items.length > 0);
 
@@ -50,7 +77,7 @@ const ProfileAchievements = () => {
           <Group justify="space-around">
             <div style={{ textAlign: "center" }}>
               <Text size="sm" c="dimmed">
-                {t('profile.achievements.unlocked')}
+                {t("profile.achievements.unlocked")}
               </Text>
               <Text size="xl" fw={700} c="violet">
                 {unlockedCount}/{all.length}
@@ -60,7 +87,7 @@ const ProfileAchievements = () => {
               <Group gap={4} justify="center">
                 <IconTrendingUp size={20} color="var(--mantine-color-blue-6)" />
                 <Text size="sm" c="dimmed">
-                  {t('profile.achievements.xpEarned')}
+                  {t("profile.achievements.xpEarned")}
                 </Text>
               </Group>
               <Text size="xl" fw={700} c="teal">
@@ -69,6 +96,30 @@ const ProfileAchievements = () => {
             </div>
           </Group>
         </Card>
+
+        {almostUnlocked.length > 0 && (
+          <Stack gap="md">
+            <Group gap="xs">
+              <IconTargetArrow
+                size={20}
+                color="var(--mantine-color-yellow-5)"
+              />
+              <Title order={4} size="h5">
+                {t("profile.achievements.almostUnlocked")}
+              </Title>
+            </Group>
+            <Grid>
+              {almostUnlocked.map((achievement) => (
+                <Grid.Col
+                  key={achievement._id}
+                  span={{ base: 6, sm: 4, md: 3 }}
+                >
+                  <AchievementCard achievement={achievement} />
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Stack>
+        )}
 
         {categorized.map((group) => (
           <Stack key={group.key} gap="md">

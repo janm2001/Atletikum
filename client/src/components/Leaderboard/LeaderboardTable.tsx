@@ -11,12 +11,14 @@ type LeaderboardTableProps = {
   entries: LeaderboardUser[];
   startRank?: number;
   currentUserId?: string;
+  nextRankUsername?: string;
 };
 
 const LeaderboardTable = ({
   entries,
   startRank = 1,
   currentUserId,
+  nextRankUsername,
 }: LeaderboardTableProps) => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
@@ -53,6 +55,8 @@ const LeaderboardTable = ({
             {paginatedEntries.map((entry, index) => {
               const rank = startRank + (page - 1) * PAGE_SIZE + index;
               const isCurrentUser = entry._id === currentUserId;
+              const isChaseTarget =
+                !isCurrentUser && entry.username === nextRankUsername;
 
               return (
                 <Table.Tr
@@ -60,7 +64,12 @@ const LeaderboardTable = ({
                   style={
                     isCurrentUser
                       ? { backgroundColor: "var(--mantine-color-violet-light)" }
-                      : undefined
+                      : isChaseTarget
+                        ? {
+                            backgroundColor:
+                              "var(--mantine-color-yellow-light)",
+                          }
+                        : undefined
                   }
                 >
                   <Table.Td>

@@ -1,3 +1,9 @@
+export interface AchievementProgress {
+    current: number;
+    required: number;
+    progressPercent: number;
+}
+
 export interface Achievement {
     _id: string;
     key: string;
@@ -11,6 +17,7 @@ export interface Achievement {
     badgeIcon: string;
     isUnlocked: boolean;
     unlockedAt: string | null;
+    progress: AchievementProgress | null;
 }
 
 export interface NewAchievement {

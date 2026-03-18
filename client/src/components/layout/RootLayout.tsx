@@ -1,5 +1,5 @@
 import { AppShell } from "@mantine/core";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar/Navbar";
 import { Outlet, useNavigation } from "react-router-dom";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 

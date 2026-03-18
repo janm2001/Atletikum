@@ -1,5 +1,14 @@
 import { memo } from "react";
-import { Card, Image, Badge, Text, Tooltip, Stack, Group } from "@mantine/core";
+import {
+  Card,
+  Image,
+  Badge,
+  Text,
+  Tooltip,
+  Stack,
+  Group,
+  Progress,
+} from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconLock, IconCheck } from "@tabler/icons-react";
 import type { Achievement } from "../../types/Achievement/achievement";
@@ -28,6 +37,10 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
     badgeIconMap[achievement.badgeIcon] ||
     `https://api.dicebear.com/7.x/icons/svg?seed=${achievement.badgeIcon}`;
 
+  const progress = achievement.progress;
+  const isAlmostUnlocked =
+    !achievement.isUnlocked && progress && progress.progressPercent >= 75;
+
   return (
     <Tooltip
       label={
@@ -41,8 +54,16 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
           </Text>
           {achievement.isUnlocked && achievement.unlockedAt && (
             <Text size="xs" c="dimmed">
-              {t('achievements.unlockedAt')}{" "}
+              {t("achievements.unlockedAt")}{" "}
               {new Date(achievement.unlockedAt).toLocaleDateString("hr-HR")}
+            </Text>
+          )}
+          {!achievement.isUnlocked && progress && (
+            <Text size="xs" c="dimmed">
+              {t("achievements.progress", {
+                current: progress.current,
+                required: progress.required,
+              })}
             </Text>
           )}
         </Stack>
@@ -56,10 +77,17 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
         radius="md"
         p="sm"
         style={{
-          opacity: achievement.isUnlocked ? 1 : 0.4,
-          filter: achievement.isUnlocked ? "none" : "grayscale(100%)",
+          opacity: achievement.isUnlocked ? 1 : isAlmostUnlocked ? 0.85 : 0.4,
+          filter: achievement.isUnlocked
+            ? "none"
+            : isAlmostUnlocked
+              ? "none"
+              : "grayscale(100%)",
           transition: "all 0.2s ease",
           cursor: "pointer",
+          border: isAlmostUnlocked
+            ? "2px solid var(--mantine-color-yellow-5)"
+            : undefined,
         }}
       >
         <Stack align="center" gap="xs">
@@ -81,12 +109,34 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
               </Badge>
             </Group>
           ) : (
-            <Group gap={4}>
-              <IconLock size={14} color="var(--mantine-color-gray-5)" />
-              <Badge size="xs" color="gray" variant="light">
-                {t('achievements.locked')}
-              </Badge>
-            </Group>
+            <Stack gap={4} w="100%">
+              {progress && (
+                <>
+                  <Progress
+                    value={progress.progressPercent}
+                    size="sm"
+                    color={isAlmostUnlocked ? "yellow" : "violet"}
+                    radius="xl"
+                  />
+                  <Text size="xs" ta="center" c="dimmed">
+                    {progress.current}/{progress.required}
+                  </Text>
+                </>
+              )}
+              {!progress && (
+                <Group gap={4} justify="center">
+                  <IconLock size={14} color="var(--mantine-color-gray-5)" />
+                  <Badge size="xs" color="gray" variant="light">
+                    {t("achievements.locked")}
+                  </Badge>
+                </Group>
+              )}
+              {isAlmostUnlocked && (
+                <Badge size="xs" color="yellow" variant="light" mx="auto">
+                  {t("achievements.almostUnlocked")}
+                </Badge>
+              )}
+            </Stack>
           )}
         </Stack>
       </Card>

@@ -31,7 +31,11 @@
     "levelBadge": "Razina {{level}}",
     "levelProgress": "Razina {{current}} → Razina {{next}}",
     "xpProgress": "{{current}} / {{total}} XP ({{percent}}%)",
-    "xpRemaining": "Još {{remaining}} XP do sljedeće razine"
+    "xpRemaining": "Još {{remaining}} XP do sljedeće razine",
+    "streakAtRisk": "Streak u opasnosti!",
+    "streakExpires": "Istječe za {{hours}}h {{minutes}}min",
+    "streakSafe": "Streak osiguran za danas",
+    "keepStreak": "Aktiviraj se da sačuvaš streak!"
   },
 
   "auth": {
@@ -134,6 +138,14 @@
       "title": "Predloženi trening",
       "viewAll": "Svi treninzi"
     },
+    "almostLevelUp": {
+      "title": "Blizu sljedeće razine!",
+      "xpRemaining": "Još {{xp}} XP do razine {{level}}",
+      "doQuiz": "Riješi kviz",
+      "doWorkout": "Odradi trening",
+      "quizHint": "Kviz donosi do 125 XP",
+      "workoutHint": "Trening donosi XP za svaku vježbu"
+    },
     "exercises": {
       "title": "Atletske vježbe",
       "filterLabel": "Filtriraj po mišićnoj skupini",
@@ -161,7 +173,8 @@
       "performance": "Performanse",
       "special": "Posebne",
       "unlocked": "Otključana dostignuća",
-      "xpEarned": "XP Zaradio/la"
+      "xpEarned": "XP Zaradio/la",
+      "almostUnlocked": "Skoro otključano"
     }
   },
 
@@ -359,7 +372,13 @@
     "personalBests": "Novi osobni rekordi!",
     "backToEducation": "Nazad na edukaciju",
     "backToWorkouts": "Nazad na treninge",
-    "backToOverview": "Pregled"
+    "backToOverview": "Pregled",
+    "whatNext": "Što dalje?",
+    "doQuiz": "Riješi kviz",
+    "doWorkout": "Odradi trening",
+    "quizSuggestion": "Riješi kviz i zaradi do 125 XP!",
+    "workoutSuggestion": "Odradi trening i nastavi napredovati!",
+    "xpToLevel": "Još {{xp}} XP do razine {{level}}!"
   },
 
   "leaderboard": {
@@ -373,6 +392,10 @@
       "user": "Korisnik",
       "level": "Razina",
       "streak": "Streak"
+    },
+    "chase": {
+      "behind": "{{xp}} XP iza korisnika {{username}}",
+      "cta": "Odradi trening ili kviz da se popneš!"
     }
   },
 
@@ -529,7 +552,9 @@
 
   "achievements": {
     "unlockedAt": "Otključano:",
-    "locked": "Zaključano"
+    "locked": "Zaključano",
+    "almostUnlocked": "Skoro otključano!",
+    "progress": "{{current}}/{{required}}"
   },
 
   "welcome": {

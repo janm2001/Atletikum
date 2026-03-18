@@ -7,3 +7,4 @@ export * from "@/api/quiz";
 export * from "@/api/recommendations";
 export * from "@/api/workoutLogs";
 export * from "@/api/workouts";
+export * from "@/api/gamification";

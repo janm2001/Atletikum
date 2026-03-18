@@ -2,6 +2,7 @@ import { Center, Container, Text } from "@mantine/core";
 import LeaderboardHeader from "@/components/Leaderboard/LeaderboardHeader";
 import LeaderboardPodium from "@/components/Leaderboard/LeaderboardPodium";
 import LeaderboardTable from "@/components/Leaderboard/LeaderboardTable";
+import LeaderboardChaseCard from "@/components/Leaderboard/LeaderboardChaseCard";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useUser } from "@/hooks/useUser";
@@ -18,11 +19,20 @@ const Leaderboard = () => {
 
   const leaderboard = data?.leaderboard ?? [];
   const myRank = data?.myRank ?? null;
+  const nextRankUser = data?.nextRankUser ?? null;
+  const xpGapToNextRank = data?.xpGapToNextRank ?? null;
   const top3 = leaderboard.slice(0, 3);
 
   return (
     <Container size="md" py="xl">
       <LeaderboardHeader myRank={myRank} />
+
+      {nextRankUser && xpGapToNextRank !== null && xpGapToNextRank > 0 && (
+        <LeaderboardChaseCard
+          nextRankUser={nextRankUser}
+          xpGap={xpGapToNextRank}
+        />
+      )}
 
       <LeaderboardPodium entries={top3} currentUserId={user?._id} />
 
@@ -30,11 +40,12 @@ const Leaderboard = () => {
         entries={leaderboard}
         startRank={1}
         currentUserId={user?._id}
+        nextRankUsername={nextRankUser?.username}
       />
 
       {leaderboard.length === 0 && (
         <Center py="xl">
-          <Text c="dimmed">{t('leaderboard.empty')}</Text>
+          <Text c="dimmed">{t("leaderboard.empty")}</Text>
         </Center>
       )}
     </Container>
