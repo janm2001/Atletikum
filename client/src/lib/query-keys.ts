@@ -43,4 +43,8 @@ export const keys = {
         all: ['gamification'] as const,
         status: () => [...keys.gamification.all, 'status'] as const,
     },
+    challenges: {
+        all: ['challenges'] as const,
+        weekly: () => [...keys.challenges.all, 'weekly'] as const,
+    },
 }

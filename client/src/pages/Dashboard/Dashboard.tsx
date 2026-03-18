@@ -19,7 +19,9 @@ import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSect
 import DashboardWeeklyGoalCard from "@/components/Dashboard/DashboardWeeklyGoalCard";
 import DashboardContinueLearningCard from "@/components/Dashboard/DashboardContinueLearningCard";
 import DashboardAlmostLevelUpCard from "@/components/Dashboard/DashboardAlmostLevelUpCard";
+import DashboardWeeklyChallengesCard from "@/components/Dashboard/DashboardWeeklyChallengesCard";
 import { useGamificationStatus } from "@/hooks/useGamification";
+import { useWeeklyChallenges } from "@/hooks/useChallenges";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const Dashboard = () => {
   const { data: recommendations, isLoading: recommendationsLoading } =
     useWeeklyRecommendations();
   const { data: gamification } = useGamificationStatus();
+  const { data: weeklyChallenges } = useWeeklyChallenges();
 
   const completedSet = useMemo(
     () => new Set(completedArticleIds ?? []),
@@ -122,6 +125,10 @@ const Dashboard = () => {
         )}
 
         <DashboardWeeklyGoalCard insight={recommendations?.insight} />
+
+        {weeklyChallenges && weeklyChallenges.length > 0 && (
+          <DashboardWeeklyChallengesCard challenges={weeklyChallenges} />
+        )}
 
         <DashboardContinueLearningCard
           article={resumeArticle}

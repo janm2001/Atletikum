@@ -20,6 +20,10 @@ jest.mock("../services/progressionService", () => ({
   syncWorkoutProgressions: jest.fn(),
 }));
 
+jest.mock("../services/weeklyChallengeService", () => ({
+  updateChallengeProgress: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock("../utils/mongoTransaction", () => ({
   attachSession: jest.fn((operation) => operation),
   createWithSession: jest.fn(async (Model, document) => Model.create(document)),

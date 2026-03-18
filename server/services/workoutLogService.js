@@ -14,6 +14,7 @@ const {
 const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { syncWorkoutProgressions } = require("./progressionService");
+const { updateChallengeProgress } = require("./weeklyChallengeService");
 
 const DUPLICATE_WINDOW_MS = 60 * 1000;
 
@@ -134,6 +135,8 @@ const createWorkoutLog = async ({ user, userId, payload }) => {
       sourceEntityId: workoutLog._id,
       description: `Workout: ${workoutDoc.title}`,
     });
+
+    await updateChallengeProgress({ userId: normalizedUserId, type: "workout", session });
 
     return {
       workoutLog,

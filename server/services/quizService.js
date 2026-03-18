@@ -15,6 +15,7 @@ const {
 const { scoreQuizSubmission } = require("../utils/quizScoring");
 const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
+const { updateChallengeProgress } = require("./weeklyChallengeService");
 const QUIZ_SCORING_ERROR_MESSAGES = new Set([
   "Odgovori kviza moraju biti poslani kao polje.",
   "Broj odgovora mora odgovarati broju pitanja.",
@@ -234,6 +235,8 @@ const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
       sourceEntityId: articleId,
       description: `Quiz ${quizResult.passed ? "passed" : "failed"}: ${quizResult.score}/${quizResult.totalQuestions}`,
     });
+
+    await updateChallengeProgress({ userId: normalizedUserId, type: "quiz", session });
 
     return {
       completion: {

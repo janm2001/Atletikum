@@ -151,6 +151,18 @@
       "filterLabel": "Filtriraj po mišićnoj skupini",
       "empty": "Nema vježbi za odabrani filter.",
       "watchVideo": "Pogledaj video"
+    },
+    "weeklyChallenges": {
+      "title": "Tjedni izazovi",
+      "subtitle": "Ostalo vremena: {{time}}",
+      "weekBadge": "Ovaj tjedan",
+      "typeQuiz": "Kvizovi",
+      "typeWorkout": "Treninzi",
+      "typeReading": "Čitanje",
+      "progress": "{{current}} / {{total}} završeno",
+      "completed": "Izazov završen!",
+      "rewardClaimed": "Nagrada preuzeta",
+      "timeLeft": "Ostalo: {{time}}"
     }
   },
 

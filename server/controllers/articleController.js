@@ -1,5 +1,6 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const articleService = require("../services/articleService");
+const { updateChallengeProgress } = require("../services/weeklyChallengeService");
 
 exports.getAllArticles = asyncHandler(async (req, res) => {
   const articles = await articleService.getAllArticles({
@@ -82,6 +83,13 @@ exports.updateReadingProgress = asyncHandler(async (req, res) => {
     articleId: req.params.id,
     payload: req.body,
   });
+
+  if (bookmark.isCompleted) {
+    // Fire-and-forget; reading progress is not transactional
+    updateChallengeProgress({ userId: req.userId, type: "reading" }).catch(
+      () => {},
+    );
+  }
 
   res.status(200).json({
     status: "success",
