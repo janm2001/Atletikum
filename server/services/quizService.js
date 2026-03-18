@@ -230,6 +230,9 @@ const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
       shouldUpdateStreak: quizResult.passed,
       shouldUnlockAchievements: quizResult.passed,
       session,
+      source: "quiz",
+      sourceEntityId: articleId,
+      description: `Quiz ${quizResult.passed ? "passed" : "failed"}: ${quizResult.score}/${quizResult.totalQuestions}`,
     });
 
     return {

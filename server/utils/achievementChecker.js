@@ -14,6 +14,7 @@ const {
   getUnlockedAchievementIds,
   hasPerfectQuizCompletion,
 } = require("./achievementEvaluation");
+const { recordXpEvent } = require("../services/xpLedgerService");
 
 const MAX_ACHIEVEMENT_XP_PER_BATCH = 500;
 
@@ -107,6 +108,7 @@ const checkAndUnlockAchievements = async (
   });
 
   const newlyUnlocked = [];
+  const ledgerPromises = [];
   let remainingXpBudget = MAX_ACHIEVEMENT_XP_PER_BATCH;
 
   for (const achievement of pendingAchievements) {
@@ -123,10 +125,60 @@ const checkAndUnlockAchievements = async (
     applyAchievementReward(user, achievement, cappedXp);
     remainingXpBudget -= cappedXp;
     newlyUnlocked.push(buildUnlockedAchievement(achievement));
+
+    if (cappedXp > 0) {
+      const category = achievement.xpCategory === "brain" ? "brain" :
+        achievement.xpCategory === "body" ? "body" : null;
+
+      if (category) {
+        ledgerPromises.push(
+          recordXpEvent({
+            userId: normalizedUserId,
+            source: "achievement",
+            amount: cappedXp,
+            category,
+            sourceEntityId: achievement._id.toString(),
+            description: `Achievement: ${achievement.title}`,
+            session,
+          }),
+        );
+      } else {
+        const half = Math.floor(cappedXp / 2);
+        const remainder = cappedXp - half;
+        ledgerPromises.push(
+          recordXpEvent({
+            userId: normalizedUserId,
+            source: "achievement",
+            amount: half,
+            category: "brain",
+            sourceEntityId: achievement._id.toString(),
+            description: `Achievement: ${achievement.title}`,
+            session,
+          }),
+        );
+        if (remainder > 0) {
+          ledgerPromises.push(
+            recordXpEvent({
+              userId: normalizedUserId,
+              source: "achievement",
+              amount: remainder,
+              category: "body",
+              sourceEntityId: achievement._id.toString(),
+              description: `Achievement: ${achievement.title}`,
+              session,
+            }),
+          );
+        }
+      }
+    }
   }
 
   if (newlyUnlocked.length > 0) {
     await saveWithSession(user, session);
+  }
+
+  if (ledgerPromises.length > 0) {
+    await Promise.all(ledgerPromises);
   }
 
   return newlyUnlocked;

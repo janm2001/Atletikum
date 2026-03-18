@@ -17,6 +17,7 @@ const achievementRoutes = require("./routes/achievementRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const userRoutes = require("./routes/userRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const {
   getClientUrl,
   getMongoUri,
@@ -72,6 +73,7 @@ app.use("/api/v1/achievements", achievementRoutes);
 app.use("/api/v1/leaderboard", leaderboardRoutes);
 app.use("/api/v1/recommendations", recommendationRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok" });

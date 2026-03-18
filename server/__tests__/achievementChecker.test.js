@@ -34,6 +34,10 @@ jest.mock("../utils/mongoTransaction", () => ({
   saveWithSession: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock("../services/xpLedgerService", () => ({
+  recordXpEvent: jest.fn().mockResolvedValue(undefined),
+}));
+
 const { Achievement } = require("../models/Achievement");
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { QuizCompletion } = require("../models/QuizCompletion");

@@ -130,6 +130,9 @@ const createWorkoutLog = async ({ user, userId, payload }) => {
       shouldUpdateStreak: true,
       shouldUnlockAchievements: true,
       session,
+      source: "workout",
+      sourceEntityId: workoutLog._id,
+      description: `Workout: ${workoutDoc.title}`,
     });
 
     return {
