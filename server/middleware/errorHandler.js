@@ -41,7 +41,7 @@ const errorHandler = (error, request, response, next) => {
   if (isCastError(error)) {
     return response.status(400).json({
       status: "fail",
-      message: `Invalid ${error.path}: ${error.value}`,
+      message: `Kriva vrijednost ${error.path}: ${error.value}`,
     });
   }
 
@@ -61,7 +61,7 @@ const errorHandler = (error, request, response, next) => {
 
     return response.status(400).json({
       status: "fail",
-      message: `${duplicateField} already exists`,
+      message: `${duplicateField} već postoji`,
     });
   }
 
