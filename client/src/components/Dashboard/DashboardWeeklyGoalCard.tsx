@@ -47,7 +47,7 @@ const DashboardWeeklyGoalCard = ({ insight }: DashboardWeeklyGoalCardProps) => {
           : t("dashboard.weeklyGoal.remaining", { count: remaining })}
       </Text>
 
-      <Text size="xs" c="dimmed" mt={6}>
+      <Text size="xs" c="dimmed" mt={6} lineClamp={2}>
         {t("dashboard.weeklyGoal.focusReason")}: {insight.focusReason}
       </Text>
     </Card>

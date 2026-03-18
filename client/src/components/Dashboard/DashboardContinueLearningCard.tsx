@@ -37,7 +37,7 @@ const DashboardContinueLearningCard = ({
         </Button>
       </Group>
 
-      <Text fw={600} mb={6}>
+      <Text fw={600} mb={6} lineClamp={2}>
         {article.title}
       </Text>
 

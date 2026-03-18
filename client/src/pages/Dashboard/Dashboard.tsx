@@ -16,10 +16,8 @@ import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard"
 import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
 import DashboardWelcomeText from "@/components/Dashboard/DashboardWelcomeText";
 import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSection";
-import DashboardWeeklyGoalCard from "@/components/Dashboard/DashboardWeeklyGoalCard";
-import DashboardContinueLearningCard from "@/components/Dashboard/DashboardContinueLearningCard";
 import DashboardAlmostLevelUpCard from "@/components/Dashboard/DashboardAlmostLevelUpCard";
-import DashboardWeeklyChallengesCard from "@/components/Dashboard/DashboardWeeklyChallengesCard";
+import DashboardEngagementGrid from "@/components/Dashboard/DashboardEngagementGrid";
 import { useGamificationStatus } from "@/hooks/useGamification";
 import { useWeeklyChallenges } from "@/hooks/useChallenges";
 
@@ -124,14 +122,10 @@ const Dashboard = () => {
           />
         )}
 
-        <DashboardWeeklyGoalCard insight={recommendations?.insight} />
-
-        {weeklyChallenges && weeklyChallenges.length > 0 && (
-          <DashboardWeeklyChallengesCard challenges={weeklyChallenges} />
-        )}
-
-        <DashboardContinueLearningCard
-          article={resumeArticle}
+        <DashboardEngagementGrid
+          insight={recommendations?.insight}
+          weeklyChallenges={weeklyChallenges}
+          resumeArticle={resumeArticle}
           onContinue={(articleId) => navigate(`/edukacija/${articleId}`)}
         />
 
