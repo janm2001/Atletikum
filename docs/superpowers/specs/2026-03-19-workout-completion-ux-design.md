@@ -25,15 +25,9 @@ Replace `useTrackWorkoutFlow` with a new hook `useWorkoutDraft` that owns the fu
 **Persisted state shape:**
 
 ```typescript
-// Matches the flat server-side CompletedExercisePayload — one entry per set, not per exercise
-interface DraftCompletedExercise {
-  exerciseId: string;
-  metricType: "reps" | "distance" | "time";
-  unitLabel: string;
-  resultValue: number;
-  loadKg: number | null;
-  rpe: number;
-}
+// Reuses the existing CompletedExercisePayload from @/types/WorkoutLog/workoutLog
+// (one entry per set, not per exercise — matches server-side WorkoutLog.completedExercises)
+import type { CompletedExercisePayload } from "@/types/WorkoutLog/workoutLog";
 
 // Form values for a single set (what React Hook Form manages)
 interface DraftSetValues {
@@ -46,8 +40,8 @@ interface WorkoutDraft {
   version: 1;
   workoutId: string;
   exerciseIndex: number;
-  completedExercises: DraftCompletedExercise[];  // flat array, one entry per set (matches server format)
-  currentSetValues: DraftSetValues[];             // form values for the active exercise's sets
+  completedExercises: CompletedExercisePayload[];  // flat array, one entry per set
+  currentSetValues: DraftSetValues[];               // form values for the active exercise's sets
   idempotencyKey: string;        // UUID, generated on draft creation
   submitting: boolean;           // true while submission in flight
   startedAt: string;             // ISO timestamp
@@ -55,7 +49,9 @@ interface WorkoutDraft {
 }
 ```
 
-The `completedExercises` array is intentionally flat (one entry per set, each carrying its own `exerciseId`) to match the server-side `WorkoutLog.completedExercises` shape and `CompletedExercisePayload` type. This avoids transformation on submission.
+The `completedExercises` array reuses the existing `CompletedExercisePayload` type directly — no transformation needed on submission. `DraftSetValues` is a new type representing the form-level values for a single set before they are transformed into `CompletedExercisePayload` entries.
+
+**Note:** `WorkoutLog.user` is `type: String` (not ObjectId) in the model. When querying by userId in the repeat-last endpoint, ensure the value is passed as a string.
 
 **Note on `readinessScore` / `sessionFeedbackScore`:** The `WorkoutLog` model has these fields (default: 3), but they are not currently collected in the UI — the client never sends them and they always fall back to defaults. They are intentionally excluded from the draft shape. If a readiness/feedback UI is added later, the draft schema can be bumped to `version: 2` to include them.
 
@@ -346,7 +342,12 @@ navigator.sendBeacon(
 );
 ```
 
-The analytics endpoint must accept `application/json` content type from `sendBeacon` (Express's `express.json()` middleware handles this natively). The `sendBeacon` call does not include the `Authorization` header, so the server must accept a fallback: either (a) include the user's token in the JSON body for this one event, or (b) accept unauthenticated abandoned events and correlate via a `draftId` field. **Recommended: option (b)** — add an optional `draftId` (the idempotency key) to the event payload. The event is low-stakes and doesn't need auth.
+The analytics endpoint must accept `application/json` content type from `sendBeacon` (Express's `express.json()` middleware handles this natively). The `sendBeacon` call does not include the `Authorization` header, so the `workout_abandoned` event needs special handling:
+
+- Add a dedicated sub-route: `POST /api/v1/analytics-events/abandoned` — **no** `protect` middleware on this single route
+- This route only accepts `{ event: "workout_abandoned", draftId: string, payload: object }` — the `draftId` (idempotency key) correlates to the user's draft; the event is low-stakes and doesn't need auth
+- The main `POST /api/v1/analytics-events` route keeps `protect` middleware for all other events
+- Rate limiting on the unauthenticated route is IP-based (same 60 req/min) since there is no userId available
 
 **Files created:**
 
