@@ -1,21 +1,17 @@
 import {
   Avatar,
-  Badge,
+  Card,
   Center,
   Group,
   Paper,
   Stack,
   Table,
   Text,
-  ThemeIcon,
 } from "@mantine/core";
-import { IconTrophy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useWeeklyLeaderboard } from "@/hooks/useChallenges";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useUser } from "@/hooks/useUser";
-
-const MEDAL_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"] as const;
 
 const WeeklyChallengeLeaderboard = () => {
   const { t } = useTranslation();
@@ -32,14 +28,12 @@ const WeeklyChallengeLeaderboard = () => {
     );
   }
 
-  const weekLabel =
-    data.week
-      ? `${new Date(data.week.weekStart).toLocaleDateString("hr-HR", { day: "2-digit", month: "2-digit" })} – ${new Date(data.week.weekEnd).toLocaleDateString("hr-HR", { day: "2-digit", month: "2-digit", year: "numeric" })}`
-      : "";
+  const weekLabel = data.week
+    ? `${new Date(data.week.weekStart).toLocaleDateString("hr-HR", { day: "2-digit", month: "2-digit" })} – ${new Date(data.week.weekEnd).toLocaleDateString("hr-HR", { day: "2-digit", month: "2-digit", year: "numeric" })}`
+    : "";
 
   const currentUserInTable =
-    data.currentUser &&
-    data.ranking.some((r) => user?._id === r.userId);
+    data.currentUser && data.ranking.some((r) => user?._id === r.userId);
 
   return (
     <Stack gap="md">
@@ -49,67 +43,62 @@ const WeeklyChallengeLeaderboard = () => {
         </Text>
       )}
 
-      <Table striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>{t("leaderboard.table.rank")}</Table.Th>
-            <Table.Th>{t("leaderboard.table.user")}</Table.Th>
-            <Table.Th>{t("challenges.weeklyLeaderboard.completed")}</Table.Th>
-            <Table.Th>{t("challenges.weeklyLeaderboard.xp")}</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {data.ranking.map((entry) => {
-            const isMe = user?._id === entry.userId;
-            return (
-              <Table.Tr
-                key={entry.userId}
-                style={isMe ? { fontWeight: 600 } : undefined}
-              >
-                <Table.Td>
-                  {entry.rank <= 3 ? (
-                    <ThemeIcon
-                      size="sm"
-                      radius="xl"
-                      style={{ background: MEDAL_COLORS[entry.rank - 1] }}
-                      variant="filled"
-                    >
-                      <IconTrophy size={12} />
-                    </ThemeIcon>
-                  ) : (
-                    <Text size="sm" c="dimmed">
-                      {entry.rank}
+      <Card withBorder radius="md" shadow="sm">
+        <Table highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th w={60}>{t("leaderboard.table.rank")}</Table.Th>
+              <Table.Th>{t("leaderboard.table.user")}</Table.Th>
+              <Table.Th ta="center">{t("challenges.weeklyLeaderboard.completed")}</Table.Th>
+              <Table.Th ta="right">{t("challenges.weeklyLeaderboard.xp")}</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {data.ranking.map((entry) => {
+              const isMe = user?._id === entry.userId;
+              return (
+                <Table.Tr
+                  key={entry.userId}
+                  style={
+                    isMe
+                      ? { backgroundColor: "var(--mantine-color-violet-light)" }
+                      : undefined
+                  }
+                >
+                  <Table.Td>
+                    <Text fw={600}>{entry.rank}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="xs">
+                      <Avatar src={entry.profilePicture} size={32} radius="xl">
+                        {entry.username.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Text size="sm">
+                        {entry.username}
+                        {isMe && (
+                          <Text span c="dimmed" size="xs" ml={4}>
+                            {t("leaderboard.you")}
+                          </Text>
+                        )}
+                      </Text>
+                    </Group>
+                  </Table.Td>
+                  <Table.Td ta="center">
+                    <Text size="sm" fw={600}>
+                      {entry.completedChallenges}
                     </Text>
-                  )}
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    <Avatar src={entry.profilePicture} size="sm" radius="xl">
-                      {entry.username.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Text size="sm">
-                      {entry.username}
-                      {isMe && (
-                        <Text span c="dimmed" size="xs" ml={4}>
-                          {t("leaderboard.you")}
-                        </Text>
-                      )}
+                  </Table.Td>
+                  <Table.Td ta="right">
+                    <Text size="sm" fw={600}>
+                      {entry.xpFromChallenges}
                     </Text>
-                  </Group>
-                </Table.Td>
-                <Table.Td>
-                  <Badge size="sm" variant="light" color="violet">
-                    {entry.completedChallenges}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{entry.xpFromChallenges} XP</Text>
-                </Table.Td>
-              </Table.Tr>
-            );
-          })}
-        </Table.Tbody>
-      </Table>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
+          </Table.Tbody>
+        </Table>
+      </Card>
 
       {data.currentUser && !currentUserInTable && (
         <Paper withBorder p="sm" radius="md">
