@@ -14,7 +14,14 @@
     "title": "Naslov",
     "description": "Opis",
     "clickToClose": "Klikni za zatvaranje",
-    "deleteWorkout": "Obriši trening"
+    "deleteWorkout": "Obriši trening",
+    "levelBadge": "Razina {{level}}",
+    "xpAmount": "{{count}} XP",
+    "xpGained": "+{{count}} XP",
+    "rpeLabel": "RPE {{value}}",
+    "rpeRatio": "{{value}}/10",
+    "exercisePlan": "{{sets}} × {{reps}}",
+    "weightKg": "{{value}} kg"
   },
 
   "nav": {

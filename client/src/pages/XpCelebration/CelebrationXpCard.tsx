@@ -31,7 +31,7 @@ const CelebrationXpCard = ({
             <IconBarbell size={32} color="var(--mantine-color-violet-5)" />
           )}
           <Title order={2} c={isQuiz ? "blue" : "violet"}>
-            +{xpGained} XP
+            {t("common.xpGained", { count: xpGained })}
           </Title>
         </Group>
 

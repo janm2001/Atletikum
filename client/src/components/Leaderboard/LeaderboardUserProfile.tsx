@@ -25,11 +25,11 @@ const LeaderboardUserProfile = ({
   const levelDisplay =
     levelVariant === "badge" ? (
       <Badge variant="light" color="violet" size="sm">
-        Lvl {level}
+        {t('common.levelBadge', { level })}
       </Badge>
     ) : levelVariant === "text" ? (
       <Text size="xs" c="dimmed">
-        Lvl {level}
+        {t('common.levelBadge', { level })}
       </Text>
     ) : null;
 

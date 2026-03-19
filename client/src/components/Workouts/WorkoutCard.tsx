@@ -118,7 +118,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
               color={isLocked ? "red" : "violet"}
               style={{ flexShrink: 0 }}
             >
-              Lvl {workout.requiredLevel}
+              {t('common.levelBadge', { level: workout.requiredLevel })}
             </Badge>
           )}
         </Group>
@@ -165,7 +165,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                 {t("training.workouts.setsCount", { count: totalSets })}
               </Badge>
               <Badge variant="dot" color="grape">
-                {totalBaseXp} XP
+                {t('common.xpAmount', { count: totalBaseXp })}
               </Badge>
             </Group>
 
@@ -195,7 +195,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                 {t("training.workouts.setsCount", { count: totalSets })}
               </Badge>
               <Badge variant="dot" color="grape">
-                {totalBaseXp} XP
+                {t('common.xpAmount', { count: totalBaseXp })}
               </Badge>
             </Group>
 
@@ -205,7 +205,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                   {t("training.workouts.avgIntensity")}
                 </Text>
                 <Text size="xs" fw={600}>
-                  {avgRpe}/10
+                  {t('common.rpeRatio', { value: avgRpe })}
                 </Text>
               </Group>
               <Progress value={intensityPercent} color="violet" radius="xl" />
@@ -252,10 +252,10 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                       fw={500}
                       style={{ whiteSpace: "nowrap", flexShrink: 0 }}
                     >
-                      {exercise.sets} × {exercise.reps}
+                      {t('common.exercisePlan', { sets: exercise.sets, reps: exercise.reps })}
                       {exercise.progression?.enabled
-                        ? ` · ${exercise.progression.prescribedLoadKg ?? exercise.progression.initialWeightKg ?? 0} kg`
-                        : ` · RPE ${exercise.rpe}`}
+                        ? ` · ${t('common.weightKg', { value: exercise.progression.prescribedLoadKg ?? exercise.progression.initialWeightKg ?? 0 })}`
+                        : ` · ${t('common.rpeLabel', { value: exercise.rpe })}`}
                     </Text>
                   </Group>
                 );

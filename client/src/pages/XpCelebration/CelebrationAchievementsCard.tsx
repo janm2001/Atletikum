@@ -42,7 +42,7 @@ const CelebrationAchievementsCard = ({
                 </Text>
               </div>
               <Badge color="yellow" variant="filled">
-                +{ach.xpReward} XP
+                {t("common.xpGained", { count: ach.xpReward })}
               </Badge>
             </Group>
           </Card>

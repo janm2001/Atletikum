@@ -95,12 +95,18 @@ describe("useSubmitQuiz", () => {
       const existingCompletions = ["article-1"];
       expect(completionsUpdater?.(existingCompletions)).toBe(existingCompletions);
 
-      expect(invalidateQueries).toHaveBeenCalledTimes(2);
+      expect(invalidateQueries).toHaveBeenCalledTimes(4);
       expect(invalidateQueries).toHaveBeenNthCalledWith(1, {
         queryKey: keys.quiz.status("article-1"),
       });
       expect(invalidateQueries).toHaveBeenNthCalledWith(2, {
         queryKey: keys.quiz.completions(),
+      });
+      expect(invalidateQueries).toHaveBeenNthCalledWith(3, {
+        queryKey: keys.challenges.weekly(),
+      });
+      expect(invalidateQueries).toHaveBeenNthCalledWith(4, {
+        queryKey: keys.gamification.status(),
       });
     },
   );

@@ -46,7 +46,7 @@ export const XpProgressSection = ({
                   {t('xpProgress.brain')}
                 </Text>
                 <Text size="xs" c="dimmed" ml="auto">
-                  {user.brainXp} XP
+                  {t('common.xpAmount', { count: user.brainXp })}
                 </Text>
               </Group>
               <Progress
@@ -70,7 +70,7 @@ export const XpProgressSection = ({
                   {t('xpProgress.body')}
                 </Text>
                 <Text size="xs" c="dimmed" ml="auto">
-                  {user.bodyXp} XP
+                  {t('common.xpAmount', { count: user.bodyXp })}
                 </Text>
               </Group>
               <Progress

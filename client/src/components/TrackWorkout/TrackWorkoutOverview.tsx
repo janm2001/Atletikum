@@ -28,7 +28,7 @@ const TrackWorkoutOverview = ({
           </Text>
         </Box>
         <Badge color="violet" variant="light" style={{ flexShrink: 0 }}>
-          Lvl {workout.requiredLevel}
+          {t('common.levelBadge', { level: workout.requiredLevel })}
         </Badge>
       </Group>
 

@@ -41,7 +41,7 @@ const ChallengeHistoryEntryRow = ({ entry }: ChallengeHistoryEntryRowProps) => {
         >
           {entry.claimed
             ? t("challenges.history.xpClaimed", { xp: entry.xpReward })
-            : `+${entry.xpReward} XP`}
+            : t("common.xpGained", { count: entry.xpReward })}
         </Badge>
       </Group>
       <Progress

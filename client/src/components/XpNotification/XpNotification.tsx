@@ -72,7 +72,7 @@ export const XpNotification = ({
               <Group gap="xs">
                 <IconFlame size={24} color="var(--mantine-color-orange-5)" />
                 <Text size="xl" fw={700} c="teal">
-                  +{xpGained} XP
+                  {t('common.xpGained', { count: xpGained })}
                 </Text>
                 <IconFlame size={24} color="var(--mantine-color-orange-5)" />
               </Group>

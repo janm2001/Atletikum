@@ -3,6 +3,7 @@ const exerciseController = require("../controllers/exerciseController");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
 const { exerciseMutationLimiter } = require("../middleware/rateLimiters");
 const {
+  validateExerciseIdRequest,
   validateCreateExerciseRequest,
   validateUpdateExerciseRequest,
 } = require("../validators/exerciseValidator");
@@ -31,6 +32,10 @@ router
     validate(validateUpdateExerciseRequest),
     exerciseController.updateExercise,
   )
-  .delete(restrictTo("admin"), exerciseController.deleteExercise);
+  .delete(
+    restrictTo("admin"),
+    validate(validateExerciseIdRequest),
+    exerciseController.deleteExercise,
+  );
 
 module.exports = router;

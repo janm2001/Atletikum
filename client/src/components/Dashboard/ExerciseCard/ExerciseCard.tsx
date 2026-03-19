@@ -26,7 +26,7 @@ const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
         <Group justify="space-between" align="flex-start">
           <Text fw={700}>{exercise.title}</Text>
           <Badge variant="light" color="violet">
-            Lvl {exercise.level}
+            {t('common.levelBadge', { level: exercise.level })}
           </Badge>
         </Group>
 

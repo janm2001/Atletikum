@@ -53,11 +53,13 @@ router
     restrictTo("admin"),
     articleMutationLimiter,
     upload.single("thumbnail"),
+    validate(validateArticleIdRequest),
     articleController.updateArticle,
   )
   .delete(
     restrictTo("admin"),
     articleMutationLimiter,
+    validate(validateArticleIdRequest),
     articleController.deleteArticle,
   );
 

@@ -3,6 +3,7 @@ const workoutController = require("../controllers/workoutController");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
 const { workoutMutationLimiter } = require("../middleware/rateLimiters");
 const {
+  validateWorkoutIdRequest,
   validateCreateWorkoutRequest,
   validateUpdateWorkoutRequest,
 } = require("../validators/workoutValidator");
@@ -37,6 +38,6 @@ router
     validate(validateUpdateWorkoutRequest),
     workoutController.updateWorkout,
   )
-  .delete(workoutController.deleteWorkout);
+  .delete(validate(validateWorkoutIdRequest), workoutController.deleteWorkout);
 
 module.exports = router;

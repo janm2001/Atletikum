@@ -25,7 +25,8 @@ export const WorkoutLogExerciseGroup = ({
           {sets.map((setItem, index) => (
             <List.Item key={index}>
               {t("training.logs.setLabel", { number: index + 1 })}:{" "}
-              {formatCompletedExerciseResult(setItem)} · RPE {setItem.rpe}
+              {formatCompletedExerciseResult(setItem)} ·{" "}
+              {t("common.rpeLabel", { value: setItem.rpe })}
               {setItem.isPersonalBest
                 ? ` · ${t("training.logs.personalBest")}`
                 : ""}

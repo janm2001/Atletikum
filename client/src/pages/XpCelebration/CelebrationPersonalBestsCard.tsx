@@ -42,8 +42,8 @@ const CelebrationPersonalBestsCard = ({
                     t("training.logs.unknownExercise")}
                 </Text>
                 <Text size="sm" c="dimmed">
-                  {formatCompletedExerciseResult(personalBest)} · RPE{" "}
-                  {personalBest.rpe}
+                  {formatCompletedExerciseResult(personalBest)} ·{" "}
+                  {t("common.rpeLabel", { value: personalBest.rpe })}
                 </Text>
               </div>
               <Badge color="orange" variant="light">
