@@ -25,18 +25,39 @@ Replace `useTrackWorkoutFlow` with a new hook `useWorkoutDraft` that owns the fu
 **Persisted state shape:**
 
 ```typescript
+// Matches the flat server-side CompletedExercisePayload — one entry per set, not per exercise
+interface DraftCompletedExercise {
+  exerciseId: string;
+  metricType: "reps" | "distance" | "time";
+  unitLabel: string;
+  resultValue: number;
+  loadKg: number | null;
+  rpe: number;
+}
+
+// Form values for a single set (what React Hook Form manages)
+interface DraftSetValues {
+  loadKg: number | null;
+  resultValue: number;
+  rpe: number;
+}
+
 interface WorkoutDraft {
   version: 1;
   workoutId: string;
   exerciseIndex: number;
-  completedExercises: CompletedExercise[];
-  currentSetValues: SetFormValues[];
+  completedExercises: DraftCompletedExercise[];  // flat array, one entry per set (matches server format)
+  currentSetValues: DraftSetValues[];             // form values for the active exercise's sets
   idempotencyKey: string;        // UUID, generated on draft creation
   submitting: boolean;           // true while submission in flight
   startedAt: string;             // ISO timestamp
   lastSavedAt: string;           // ISO timestamp
 }
 ```
+
+The `completedExercises` array is intentionally flat (one entry per set, each carrying its own `exerciseId`) to match the server-side `WorkoutLog.completedExercises` shape and `CompletedExercisePayload` type. This avoids transformation on submission.
+
+**Note on `readinessScore` / `sessionFeedbackScore`:** The `WorkoutLog` model has these fields (default: 3), but they are not currently collected in the UI — the client never sends them and they always fall back to defaults. They are intentionally excluded from the draft shape. If a readiness/feedback UI is added later, the draft schema can be bumped to `version: 2` to include them.
 
 **Storage:**
 
@@ -59,9 +80,13 @@ interface WorkoutDraft {
 
 - `useTrackWorkoutFlow`'s internal state management (exerciseIndex, completedExercises, form init)
 
+**What changes in `useExerciseProgression`:**
+
+`useExerciseProgression` currently owns `currentIndex` (via `useState`) and `completedExercises` (via `useState`). These two pieces of state move to `useWorkoutDraft` so they can be persisted. `useExerciseProgression` will receive them as parameters instead of managing them internally. Its pure utility functions (`createDefaultSets`, `getMetricFromPrescription`, `buildCompletedExerciseSets`) and derived values (`currentMetric`, `plannedSetCount`, `isLastExercise`, etc.) stay unchanged.
+
 **What stays unchanged:**
 
-- `useExerciseProgression` (set defaults, metric detection)
+- `useExerciseProgression`'s pure utility functions and metric detection
 - `useWorkoutCompletion` (final submission + celebration navigation)
 - React Hook Form as the form engine — `useWorkoutDraft` feeds it initial values and persists on change
 
@@ -141,7 +166,7 @@ When `null`, fallback to user preset or global default.
 - Auto-dismisses when countdown reaches 0
 - On completion: `navigator.vibrate(200)` if available (no-op on desktop)
 - Hidden during final submission (no rest after last set of last exercise)
-- Pauses when tab is hidden (`visibilitychange` API), resumes on return
+- Keeps running when tab is hidden (uses absolute timestamp — see hook design below)
 
 **Presets:**
 
@@ -152,7 +177,8 @@ When `null`, fallback to user preset or global default.
 **Hook: `useRestTimer`**
 
 - API: `start(seconds)`, `pause()`, `resume()`, `reset()`, `remaining` (number), `isRunning` (boolean)
-- Uses `useRef` for interval to avoid parent re-renders
+- Uses an **absolute target timestamp** approach: `endTime = Date.now() + seconds * 1000`. A `setInterval` (1s tick) recalculates `remaining = Math.max(0, endTime - Date.now())` each tick. This means the timer stays accurate even when the tab is hidden (phone locked in the gym) — on return, it shows the real remaining time or that rest has elapsed.
+- Uses `useRef` for interval and `endTime` to avoid parent re-renders
 - Only the timer pill component subscribes to tick updates
 
 **Admin/custom workout form impact:**
@@ -206,12 +232,13 @@ New hook: `useLatestWorkoutLog(workoutId: string)`
 
 **Strict match gate:**
 
-Before offering "Repeat last session", compare exercise IDs:
+Before offering "Repeat last session", compare exercise IDs using the existing `getExerciseId()` helper (handles both populated objects and raw string IDs):
 
 ```typescript
-const workoutExerciseIds = workout.exercises.map(e => e.exerciseId).sort();
+const workoutExerciseIds = workout.exercises.map(e => getExerciseId(e.exerciseId)).sort();
 const logExerciseIds = [...new Set(latestLog.completedExercises.map(e => e.exerciseId))].sort();
-const isExactMatch = JSON.stringify(workoutExerciseIds) === JSON.stringify(logExerciseIds);
+const isExactMatch = workoutExerciseIds.length === logExerciseIds.length
+  && workoutExerciseIds.every((id, i) => id === logExerciseIds[i]);
 ```
 
 If not an exact match (admin changed the workout since last completion), don't offer the option.
@@ -236,12 +263,21 @@ Map the log's `completedExercises` back to draft format:
 - New service method in `server/services/workoutLogService.js`
 - New controller method in `server/controllers/workoutLogController.js`
 
+**Query key:** Add `latest: (workoutId: string) => [...keys.workoutLogs.all, 'latest', workoutId]` to `client/src/lib/query-keys.ts`.
+
+**Cache invalidation:** The `useCreateWorkoutLog` mutation's `onSuccess` must invalidate the latest-log query for the submitted workoutId, so the next visit to the same workout shows the freshly completed log as the "Repeat last session" source:
+
+```typescript
+queryClient.invalidateQueries({ queryKey: keys.workoutLogs.latest(workoutId) });
+```
+
 **Files modified:**
 
 - `server/routes/workoutLogRoutes.js` — add GET route
 - `server/validators/workoutLogValidator.js` — validate workoutId param
 - `client/src/api/workoutLogs.ts` — new fetch function
-- `client/src/hooks/useWorkoutLogs.ts` — new `useLatestWorkoutLog` hook
+- `client/src/hooks/useWorkoutLogs.ts` — new `useLatestWorkoutLog` hook, add invalidation to `useCreateWorkoutLog`
+- `client/src/lib/query-keys.ts` — add `latest` key factory
 - `client/src/pages/TrackWorkout/TrackWorkout.tsx` — entry decision UI
 - `client/src/components/WorkoutLogs/WorkoutLogCard.tsx` — "Repeat" CTA
 
@@ -269,10 +305,12 @@ No client-side event tracking. The existing `analyticsService` is admin-focused 
 - TTL index on `createdAt`: 90 days (automatic MongoDB cleanup)
 - Compound index on `{ event, createdAt }` for querying
 
-**Endpoint: `POST /api/v1/analytics/events`**
+**Endpoint: `POST /api/v1/analytics-events`**
 
-- Auth: `protect` middleware
-- Validation: `event` is required non-empty string, `payload` is optional object
+- Mounted via a **new** route file `server/routes/analyticsEventRoutes.js` (separate from the admin-only `analyticsRoutes.js` which applies `restrictTo("admin")` globally)
+- Auth: `protect` middleware only (any authenticated user can send events)
+- Rate limiter: 60 requests per minute per user (prevents runaway client loops)
+- Validation: `event` is required non-empty string (max 100 chars), `payload` is optional object
 - Controller: extract userId from request, delegate to service
 - Service: `AnalyticsEvent.create({ userId, event, payload })`
 
@@ -285,7 +323,7 @@ No client-side event tracking. The existing `analyticsService` is admin-focused 
 | `workout_draft_discarded` | User explicitly discards draft | `{ workoutId }` |
 | `workout_set_saved` | Each set confirmed | `{ workoutId, exerciseIndex, setIndex }` |
 | `workout_completed` | Successful submission | `{ workoutId, totalSets, durationMs }` |
-| `workout_abandoned` | `beforeunload` with unsaved draft | `{ workoutId, exerciseIndex, completedSets }` |
+| `workout_abandoned` | `beforeunload` with unsaved draft | `{ workoutId, exerciseIndex }` |
 
 **Client hook: `useTrackEvent`**
 
@@ -297,16 +335,31 @@ trackEvent("workout_started", { workoutId, source: "fresh" });
 - Fire-and-forget: `apiClient.post(...)` with `.catch(() => {})` — never blocks UI
 - No retry, no queuing — if it fails, it fails silently
 
+**Special case: `workout_abandoned`**
+
+The `beforeunload` event does not reliably deliver `fetch`/`XMLHttpRequest` calls. This event uses `navigator.sendBeacon()` instead:
+
+```typescript
+navigator.sendBeacon(
+  `${API_BASE_URL}/analytics-events`,
+  new Blob([JSON.stringify({ event: "workout_abandoned", payload })], { type: "application/json" })
+);
+```
+
+The analytics endpoint must accept `application/json` content type from `sendBeacon` (Express's `express.json()` middleware handles this natively). The `sendBeacon` call does not include the `Authorization` header, so the server must accept a fallback: either (a) include the user's token in the JSON body for this one event, or (b) accept unauthenticated abandoned events and correlate via a `draftId` field. **Recommended: option (b)** — add an optional `draftId` (the idempotency key) to the event payload. The event is low-stakes and doesn't need auth.
+
 **Files created:**
 
 - `server/models/AnalyticsEvent.js`
 - `server/validators/analyticsValidator.js`
 - `server/controllers/analyticsEventController.js`
+- `server/routes/analyticsEventRoutes.js` — new file (separate from admin-only `analyticsRoutes.js`)
 - `client/src/hooks/useTrackEvent.ts`
 
 **Files modified:**
 
-- `server/routes/analyticsRoutes.js` — add POST route
+- `server/index.js` — mount new `analyticsEventRoutes` at `/api/v1/analytics-events`
+- `server/middleware/rateLimiters.js` — add `analyticsEventLimiter` (60 req/min)
 - `client/src/i18n/locales/hr.json` — no user-facing strings for analytics
 
 ---
@@ -331,8 +384,10 @@ Current duplicate protection is a 60-second time-window check on the server. No 
 **WorkoutLog model change:**
 
 ```javascript
-idempotencyKey: { type: String, sparse: true, unique: true, default: null }
+idempotencyKey: { type: String, unique: true, sparse: true }
 ```
+
+**Note:** No `default` is set — when the field is absent from a document, MongoDB's sparse index ignores it, so existing logs and logs created without a key will not conflict. If `default: null` were used, Mongoose would write `null` explicitly, and two such documents would collide on the unique index.
 
 The existing 60-second time-window dedup stays as a secondary guard for clients that don't send the header.
 
@@ -368,12 +423,12 @@ The existing 60-second time-window dedup stays as a secondary guard for clients 
 
 | Phase | Days | What ships |
 |-------|------|-----------|
-| 1 | 1-2 | `useWorkoutDraft` (shared state + persistence + draft resume UX) + analytics endpoint + event hooks |
-| 2 | 2-3 | Fast set entry (carry-over, input optimization, collapsed sets) |
-| 3 | 3-4 | Rest timer (model change + component + preset persistence) |
-| 4 | 4-5 | Draft autosave wired end-to-end (auto-save triggers, 24h TTL, discard UX) |
-| 5 | 6-7 | Repeat Last Workout (endpoint + prefill + strict match + CTA) |
-| 6 | 7-8 | Submission reliability (idempotency key + error mapping + i18n errors) |
+| 1 | 1-2 | `useWorkoutDraft` hook + storage read/write + draft resume prompt UI. Refactor `useExerciseProgression` state ownership. Analytics endpoint + model + `useTrackEvent` hook. At this point: draft is created and can be restored on reload, but auto-save on every set change is not yet wired. |
+| 2 | 2-3 | Fast set entry (carry-over defaults, input optimization, collapsed/active/upcoming set states, copy-previous action) |
+| 3 | 3-4 | Rest timer (`restSeconds` model field + `RestTimer` component + `useRestTimer` hook + preset persistence + workout form field) |
+| 4 | 4-5 | Wire auto-save triggers (debounced save on set completion + exercise advance), 24h TTL expiry cleanup, explicit "Discard draft" button + confirmation. This completes the draft lifecycle end-to-end. |
+| 5 | 6-7 | Repeat Last Workout (server endpoint + `useLatestWorkoutLog` hook + strict match + prefill mapping + CTA in TrackWorkout and WorkoutLogCard) |
+| 6 | 7-8 | Submission reliability (idempotency key on model + server check + `X-Idempotency-Key` header + error mapping + i18n Croatian error messages) |
 | 7 | 8-9 | Tests (client + server for all new behavior) |
 | 8 | 10 | QA gates, regression pass, release prep |
 
