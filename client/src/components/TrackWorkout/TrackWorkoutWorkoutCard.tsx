@@ -30,7 +30,6 @@ type TrackWorkoutWorkoutCardProps = {
   exerciseById: Map<string, Exercise>;
   isSubmitting: boolean;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
-  plannedSetCount: number;
   setFields: { id: string }[];
   control: Control<TrackWorkoutFormValues>;
   totalExercises: number;
@@ -137,10 +136,11 @@ const TrackWorkoutWorkoutCard = ({
                       {t('training.track.setNumber', { number: setIndex + 1 })}
                     </Text>
                     <Text size="xs" c="dimmed">
-                      {watchedSets?.[setIndex]?.loadKg ?? "BW"} kg ·{" "}
-                      {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
-                      {currentMetric.unitLabel} · RPE{" "}
-                      {watchedSets?.[setIndex]?.rpe ?? 0}
+                      {watchedSets?.[setIndex]?.loadKg != null
+                        ? `${watchedSets[setIndex].loadKg} kg · `
+                        : "BW · "}
+                      {watchedSets?.[setIndex]?.resultValue ?? 0} {currentMetric.unitLabel} ·{" "}
+                      RPE {watchedSets?.[setIndex]?.rpe ?? 0}
                     </Text>
                   </Group>
 

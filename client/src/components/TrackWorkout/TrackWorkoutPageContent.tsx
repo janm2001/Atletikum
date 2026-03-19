@@ -32,7 +32,6 @@ const TrackWorkoutPageContent = ({
     errors,
     isSubmitting,
     onSubmitCurrentExercise,
-    plannedSetCount,
     progressValue,
     selectedExerciseId,
     setFields,
@@ -104,7 +103,6 @@ const TrackWorkoutPageContent = ({
         isSubmitting={isSubmitting}
         onSubmit={handleSubmitCurrentExercise}
         onCopyPrevious={handleCopyPrevious}
-        plannedSetCount={plannedSetCount}
         setFields={setFields}
         totalExercises={totalExercises}
       />
