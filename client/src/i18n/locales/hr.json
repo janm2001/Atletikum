@@ -314,6 +314,15 @@
       "weekOf": "Tjedan od",
       "workouts": "Treninzi"
     },
+    "timer": {
+      "restTime": "Odmor",
+      "pause": "Pauza",
+      "resume": "Nastavi",
+      "dismiss": "Odbaci",
+      "preset60": "60s",
+      "preset90": "90s",
+      "preset120": "120s"
+    },
     "draft": {
       "resumeTitle": "Imate nespremljeni trening",
       "resumeDescription": "Pronašli smo vaš trening u tijeku. Želite li nastaviti ili započeti ispočetka?",
