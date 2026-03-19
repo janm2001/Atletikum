@@ -127,7 +127,7 @@ const RestTimerComponent = ({
           </Group>
         )}
 
-        {!exerciseRestSeconds && (
+        {!exerciseRestSeconds && remaining <= 0 && (
           <SegmentedControl
             size="xs"
             value={String(preset)}
