@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import {
   ActionIcon,
   Badge,
@@ -45,8 +46,10 @@ const getNextMondays = (count: number) => {
   return Array.from({ length: count }, (_, i) => {
     const monday = new Date(today);
     monday.setDate(today.getDate() + daysToNextMonday + i * 7);
-    monday.setHours(0, 0, 0, 0);
-    const iso = monday.toISOString().split("T")[0];
+    const year = monday.getFullYear();
+    const month = String(monday.getMonth() + 1).padStart(2, "0");
+    const day = String(monday.getDate()).padStart(2, "0");
+    const iso = `${year}-${month}-${day}`;
     return {
       value: iso,
       label: monday.toLocaleDateString("hr-HR", {
@@ -58,7 +61,7 @@ const getNextMondays = (count: number) => {
   });
 };
 
-interface TemplateFormState {
+interface TemplateFormValues {
   type: ChallengeTemplateType;
   targetCount: number;
   xpReward: number;
@@ -66,7 +69,7 @@ interface TemplateFormState {
   enabled: boolean;
 }
 
-const defaultForm = (): TemplateFormState => ({
+const defaultValues = (): TemplateFormValues => ({
   type: "quiz",
   targetCount: 3,
   xpReward: 100,
@@ -79,11 +82,13 @@ const ChallengeTemplateManager = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<TemplateFormState>(defaultForm());
   const weekOptions = getNextMondays(4);
   const [publishWeek, setPublishWeek] = useState<string | null>(
     weekOptions[0]?.value ?? null,
   );
+
+  const { control, handleSubmit, reset, formState: { isSubmitting } } =
+    useForm<TemplateFormValues>({ defaultValues: defaultValues() });
 
   const { data: templates, isLoading } = useChallengeTemplates();
   const createMutation = useCreateChallengeTemplate();
@@ -92,13 +97,13 @@ const ChallengeTemplateManager = () => {
 
   const handleOpenCreate = () => {
     setEditingId(null);
-    setForm(defaultForm());
+    reset(defaultValues());
     setModalOpen(true);
   };
 
   const handleOpenEdit = (template: ChallengeTemplate) => {
     setEditingId(template.id);
-    setForm({
+    reset({
       type: template.type,
       targetCount: template.targetCount,
       xpReward: template.xpReward,
@@ -108,12 +113,12 @@ const ChallengeTemplateManager = () => {
     setModalOpen(true);
   };
 
-  const handleSubmit = async () => {
+  const onSubmit = async (values: TemplateFormValues) => {
     try {
       if (editingId) {
-        await updateMutation.mutateAsync({ templateId: editingId, payload: form });
+        await updateMutation.mutateAsync({ templateId: editingId, payload: values });
       } else {
-        await createMutation.mutateAsync(form as CreateTemplatePayload);
+        await createMutation.mutateAsync(values as CreateTemplatePayload);
       }
       setModalOpen(false);
       notifications.show({ color: "green", message: t("admin.challenges.saveSuccess") });
@@ -236,66 +241,76 @@ const ChallengeTemplateManager = () => {
             : t("admin.challenges.addTitle")
         }
       >
-        <Stack gap="sm">
-          <Select
-            label={t("admin.challenges.form.type")}
-            data={TEMPLATE_TYPE_OPTIONS}
-            value={form.type}
-            onChange={(v) =>
-              setForm((prev) => ({
-                ...prev,
-                type: (v as ChallengeTemplateType) ?? "quiz",
-              }))
-            }
-          />
-          <NumberInput
-            label={t("admin.challenges.form.targetCount")}
-            min={1}
-            value={form.targetCount}
-            onChange={(v) =>
-              setForm((prev) => ({
-                ...prev,
-                targetCount: typeof v === "number" ? v : 1,
-              }))
-            }
-          />
-          <NumberInput
-            label={t("admin.challenges.form.xpReward")}
-            min={0}
-            value={form.xpReward}
-            onChange={(v) =>
-              setForm((prev) => ({
-                ...prev,
-                xpReward: typeof v === "number" ? v : 0,
-              }))
-            }
-          />
-          <Textarea
-            label={t("admin.challenges.form.description")}
-            value={form.description}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, description: e.target.value }))
-            }
-          />
-          <Checkbox
-            label={t("admin.challenges.form.enabled")}
-            checked={form.enabled}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, enabled: e.target.checked }))
-            }
-          />
-          <Group justify="flex-end" mt="sm">
-            <Button variant="subtle" onClick={() => setModalOpen(false)}>
-              {t("common.cancel")}
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              loading={createMutation.isPending || updateMutation.isPending}
-            >
-              {t("common.save")}
-            </Button>
-          </Group>
-        </Stack>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack gap="sm">
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label={t("admin.challenges.form.type")}
+                  data={TEMPLATE_TYPE_OPTIONS}
+                  value={field.value}
+                  onChange={(v) => field.onChange((v as ChallengeTemplateType) ?? "quiz")}
+                />
+              )}
+            />
+            <Controller
+              name="targetCount"
+              control={control}
+              render={({ field }) => (
+                <NumberInput
+                  label={t("admin.challenges.form.targetCount")}
+                  min={1}
+                  value={field.value}
+                  onChange={(v) => field.onChange(typeof v === "number" ? v : 1)}
+                />
+              )}
+            />
+            <Controller
+              name="xpReward"
+              control={control}
+              render={({ field }) => (
+                <NumberInput
+                  label={t("admin.challenges.form.xpReward")}
+                  min={0}
+                  value={field.value}
+                  onChange={(v) => field.onChange(typeof v === "number" ? v : 0)}
+                />
+              )}
+            />
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  label={t("admin.challenges.form.description")}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+            <Controller
+              name="enabled"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  label={t("admin.challenges.form.enabled")}
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              )}
+            />
+            <Group justify="flex-end" mt="sm">
+              <Button variant="subtle" type="button" onClick={() => setModalOpen(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button type="submit" loading={isSubmitting}>
+                {t("common.save")}
+              </Button>
+            </Group>
+          </Stack>
+        </form>
       </Modal>
 
       <Modal
@@ -304,7 +319,7 @@ const ChallengeTemplateManager = () => {
         title={t("admin.challenges.publishTitle")}
       >
         <Stack gap="sm">
-          <Paper withBorder p="sm" radius="md" bg="yellow.0">
+          <Paper withBorder p="sm" radius="md" bg="yellow.1" c="yellow.9">
             <Text size="sm">{t("admin.challenges.publishNote")}</Text>
           </Paper>
           <Select

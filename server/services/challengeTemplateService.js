@@ -125,6 +125,7 @@ const publishTemplates = async ({ effectiveFromWeekStart }) => {
   const toCreate = [];
 
   for (const tmpl of enabledTemplates) {
+    if (tmpl.type === "custom") continue;
     if (existingTypes.has(tmpl.type) || typesSeen.has(tmpl.type)) {
       continue;
     }
