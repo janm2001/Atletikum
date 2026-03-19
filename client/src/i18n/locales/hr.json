@@ -268,7 +268,8 @@
       "watchVideo": "Pogledaj video",
       "copyPrevious": "Kopiraj prethodni",
       "setCompleted": "Set {{number}} završen",
-      "setUpcoming": "Set {{number}}"
+      "setUpcoming": "Set {{number}}",
+      "discardDraft": "Odbaci trening"
     },
     "logs": {
       "empty": "Još nema spremljenih treninga.",
