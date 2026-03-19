@@ -5,11 +5,18 @@ const { workoutLogCreationLimiter } = require("../middleware/rateLimiters");
 const validate = require("../middleware/validate");
 const {
   validateCreateWorkoutLogRequest,
+  validateGetLatestWorkoutLogRequest,
 } = require("../validators/workoutLogValidator");
 
 const router = express.Router();
 
 router.use(protect);
+
+router.get(
+  "/latest/:workoutId",
+  validate(validateGetLatestWorkoutLogRequest),
+  workoutLogController.getLatestWorkoutLog,
+);
 
 router
   .route("/")

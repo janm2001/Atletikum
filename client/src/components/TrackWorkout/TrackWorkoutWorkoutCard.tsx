@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Avatar,
   Button,
   Card,
@@ -9,7 +10,9 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import { Controller, type Control, type FieldErrors } from "react-hook-form";
+import { IconPencil } from "@tabler/icons-react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { Controller, useWatch, type Control, type FieldErrors } from "react-hook-form";
 import {
   getExerciseId,
   getExerciseImage,
@@ -30,11 +33,14 @@ type TrackWorkoutWorkoutCardProps = {
   exerciseById: Map<string, Exercise>;
   isSubmitting: boolean;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
-  plannedSetCount: number;
   setFields: { id: string }[];
-  watchedSets: TrackWorkoutFormValues["sets"] | undefined;
   control: Control<TrackWorkoutFormValues>;
   totalExercises: number;
+  completedSetCount?: number;
+  restTimer?: ReactNode;
+  onEditSet?: (setIndex: number) => void;
+  onPreviousExercise?: () => void;
+  canGoPreviousExercise?: boolean;
 };
 
 const TrackWorkoutWorkoutCard = ({
@@ -46,21 +52,36 @@ const TrackWorkoutWorkoutCard = ({
   isSubmitting,
   onSubmit,
   setFields,
-  watchedSets,
   control,
   totalExercises,
+  completedSetCount = 0,
+  restTimer,
+  onEditSet,
+  onPreviousExercise,
+  canGoPreviousExercise = false,
 }: TrackWorkoutWorkoutCardProps) => {
   const { t } = useTranslation();
+  const watchedSets = useWatch({ control, name: "sets" });
+  const firstInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => firstInputRef.current?.focus(), 100);
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
   const currentExerciseName =
     exerciseById.get(getExerciseId(currentExercise.exerciseId))?.title ??
     t('training.track.exerciseFallback', { index: currentIndex + 1 });
+  const isLastSet = completedSetCount >= setFields.length - 1;
 
   return (
     <Card withBorder radius="md" shadow="sm" p="sm">
       <Stack gap="sm">
-        <Text fw={600} size="sm">
-          {t('training.track.currentExercise')}
-        </Text>
+        <Group justify="space-between" align="center">
+          <Text fw={600} size="sm">
+            {t('training.track.currentExercise')}
+          </Text>
+          {restTimer}
+        </Group>
         <Flex align="center" justify="center" direction="column" gap={12}>
           <Text size="lg" fw={700} ta="center">
             {currentExerciseName}
@@ -92,11 +113,62 @@ const TrackWorkoutWorkoutCard = ({
 
         <form onSubmit={onSubmit}>
           <Stack gap="xs">
+            {canGoPreviousExercise && onPreviousExercise && (
+              <Button
+                variant="subtle"
+                size="compact-sm"
+                onClick={onPreviousExercise}
+              >
+                {t("training.track.previousExercise")}
+              </Button>
+            )}
             <Text size="sm" fw={600}>
               {t('training.track.enterSetResults')}
             </Text>
 
             {setFields.map((field, setIndex) => {
+              // Completed state
+                if (setIndex < completedSetCount) {
+                  return (
+                    <Card key={field.id} withBorder radius="md" p="xs" bg="var(--mantine-color-gray-light)">
+                      <Group justify="space-between" align="flex-start" wrap="nowrap">
+                        <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                          <Text size="sm" fw={500}>
+                            {t("training.track.setCompleted", { number: setIndex + 1 })}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {watchedSets?.[setIndex]?.loadKg != null ? `${watchedSets[setIndex].loadKg} kg · ` : "BW · "}
+                            {watchedSets?.[setIndex]?.resultValue ?? 0} {currentMetric.unitLabel} ·{" "}
+                            RPE {watchedSets?.[setIndex]?.rpe ?? 0}
+                          </Text>
+                        </Stack>
+                        {onEditSet && (
+                          <ActionIcon
+                            variant="subtle"
+                            size="sm"
+                            onClick={() => onEditSet(setIndex)}
+                            aria-label={t("training.track.editSet")}
+                          >
+                            <IconPencil size={14} />
+                          </ActionIcon>
+                        )}
+                      </Group>
+                    </Card>
+                  );
+                }
+
+              // Upcoming state
+              if (setIndex > completedSetCount) {
+                return (
+                  <Card key={field.id} withBorder radius="md" p="xs" opacity={0.5}>
+                    <Text size="sm" c="dimmed">
+                      {t("training.track.setUpcoming", { number: setIndex + 1 })}
+                    </Text>
+                  </Card>
+                );
+              }
+
+              // Active set (setIndex === completedSetCount)
               return (
                 <Card key={field.id} withBorder radius="md" p="xs">
                   <Group justify="space-between" align="center" mb={8}>
@@ -104,10 +176,11 @@ const TrackWorkoutWorkoutCard = ({
                       {t('training.track.setNumber', { number: setIndex + 1 })}
                     </Text>
                     <Text size="xs" c="dimmed">
-                      {watchedSets?.[setIndex]?.loadKg ?? "BW"} kg ·{" "}
-                      {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
-                      {currentMetric.unitLabel} · RPE{" "}
-                      {watchedSets?.[setIndex]?.rpe ?? 0}
+                      {watchedSets?.[setIndex]?.loadKg != null
+                        ? `${watchedSets[setIndex].loadKg} kg · `
+                        : "BW · "}
+                      {watchedSets?.[setIndex]?.resultValue ?? 0} {currentMetric.unitLabel} ·{" "}
+                      RPE {watchedSets?.[setIndex]?.rpe ?? 0}
                     </Text>
                   </Group>
 
@@ -129,6 +202,7 @@ const TrackWorkoutWorkoutCard = ({
                           label={t('training.track.weightOptional')}
                           min={0}
                           size="sm"
+                          inputMode="decimal"
                           value={setField.value ?? undefined}
                           onChange={(value) =>
                             setField.onChange(
@@ -136,6 +210,7 @@ const TrackWorkoutWorkoutCard = ({
                             )
                           }
                           error={errors.sets?.[setIndex]?.loadKg?.message}
+                          ref={setIndex === 0 ? firstInputRef : undefined}
                         />
                       )}
                     />
@@ -155,6 +230,7 @@ const TrackWorkoutWorkoutCard = ({
                           label={currentMetric.label}
                           min={1}
                           size="sm"
+                          inputMode="numeric"
                           value={setField.value}
                           onChange={(value) =>
                             setField.onChange(Number(value) || 0)
@@ -185,6 +261,7 @@ const TrackWorkoutWorkoutCard = ({
                           min={1}
                           max={10}
                           size="sm"
+                          inputMode="numeric"
                           value={setField.value}
                           onChange={(value) =>
                             setField.onChange(Number(value) || 1)
@@ -205,9 +282,11 @@ const TrackWorkoutWorkoutCard = ({
               style={{ position: "sticky", bottom: 12, zIndex: 10 }}
               my={16}
             >
-              {currentIndex >= totalExercises - 1
-                ? t('training.track.finishAndSave')
-                : t('training.track.saveAndContinue')}
+              {!isLastSet
+                ? t("training.track.saveSetAndNext")
+                : currentIndex >= totalExercises - 1
+                  ? t('training.track.finishAndSave')
+                  : t('training.track.saveAndContinue')}
             </Button>
           </Stack>
         </form>

@@ -94,6 +94,16 @@ const exerciseMutationLimiter = rateLimit({
   ),
 });
 
+const analyticsEventLimiter = rateLimit({
+  ...standardRateLimitOptions,
+  windowMs: 60 * 1000,
+  max: 60,
+  keyGenerator: getUserRateLimitKey,
+  message: createRateLimitMessage(
+    "Previše analitičkih zahtjeva. Pokušajte ponovo za 1 minutu.",
+  ),
+});
+
 const globalLimiter = rateLimit({
   ...standardRateLimitOptions,
   windowMs: 15 * 60 * 1000,
@@ -113,4 +123,5 @@ module.exports = {
   recommendationLimiter,
   workoutMutationLimiter,
   workoutLogCreationLimiter,
+  analyticsEventLimiter,
 };

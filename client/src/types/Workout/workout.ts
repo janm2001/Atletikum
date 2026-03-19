@@ -18,6 +18,7 @@ export type WorkoutExercise = {
   rpe: string;
   baseXp: number;
   progression?: WorkoutExerciseProgression;
+  restSeconds?: number | null;
 };
 
 export type Workout = {

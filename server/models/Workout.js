@@ -24,6 +24,7 @@ const workoutExerciseSchema = new mongoose.Schema(
         incrementKg: 2.5,
       }),
     },
+    restSeconds: { type: Number, min: 0, max: 600, default: null },
   },
   { _id: false },
 );

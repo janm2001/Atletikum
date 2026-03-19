@@ -28,6 +28,7 @@ const workoutLogSchema = new mongoose.Schema({
       isPersonalBest: { type: Boolean, default: false },
     },
   ],
+  idempotencyKey: { type: String, unique: true, sparse: true },
   totalXpGained: { type: Number },
   date: { type: Date, default: Date.now },
 });

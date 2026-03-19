@@ -27,3 +27,10 @@ export type WorkoutLogResponse = {
     status: string;
     data: WorkoutLogPayloadData;
 };
+
+export type LatestWorkoutLogResponse = {
+    status: string;
+    data: {
+        workoutLog: WorkoutLog;
+    };
+};

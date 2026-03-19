@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+    type CreateWorkoutLogParams,
     createWorkoutLog,
+    getLatestWorkoutLog,
     getWorkoutLogs,
 } from "@/api/workoutLogs";
 import { prependCachedEntity } from "@/lib/query-cache";
@@ -20,10 +22,19 @@ export function useWorkoutLogs() {
     });
 }
 
+export function useLatestWorkoutLog(workoutId: string, enabled = true) {
+    return useQuery<WorkoutLog | null, Error>({
+        queryKey: keys.workoutLogs.latest(workoutId),
+        queryFn: () => getLatestWorkoutLog(workoutId),
+        enabled: Boolean(workoutId) && enabled,
+        staleTime: 5 * 60 * 1000,
+    });
+}
+
 export function useCreateWorkoutLog() {
     const queryClient = useQueryClient();
 
-    return useMutation<CreateWorkoutLogResult, Error, WorkoutLogPayload>({
+    return useMutation<CreateWorkoutLogResult, Error, CreateWorkoutLogParams>({
         mutationFn: createWorkoutLog,
         onSuccess: ({ workoutLog }) => {
             queryClient.setQueryData<WorkoutLog[] | undefined>(
@@ -32,6 +43,9 @@ export function useCreateWorkoutLog() {
             );
             queryClient.invalidateQueries({
                 queryKey: keys.challenges.weekly(),
+            });
+            queryClient.invalidateQueries({
+                queryKey: keys.workoutLogs.latest(workoutLog.workoutId),
             });
         },
     });

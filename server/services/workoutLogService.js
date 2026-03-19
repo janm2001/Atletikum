@@ -24,7 +24,18 @@ const getMyWorkoutLogs = async ({ userId, user }) => {
   return WorkoutLog.find({ user: normalizedUserId }).sort({ date: -1 });
 };
 
-const createWorkoutLog = async ({ user, userId, payload }) => {
+const getLatestWorkoutLog = async ({ userId, user, workoutId }) => {
+  const normalizedUserId = requireUserId({ userId, user });
+
+  return WorkoutLog.findOne({
+    user: normalizedUserId,
+    workoutId,
+  })
+    .sort({ date: -1 })
+    .lean();
+};
+
+const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
   const normalizedUserId = requireUserId({ userId, user });
   const { workoutId, completedExercises } = payload;
 
@@ -35,6 +46,24 @@ const createWorkoutLog = async ({ user, userId, payload }) => {
     );
     if (!workoutDoc) {
       throw new AppError("Workout nije pronađen.", 404);
+    }
+
+    if (idempotencyKey) {
+      const existingLog = await attachSession(
+        WorkoutLog.findOne({ idempotencyKey, user: normalizedUserId }).lean(),
+        session,
+      );
+      if (existingLog) {
+        return {
+          workoutLog: existingLog,
+          user: null,
+          newAchievements: [],
+          totalXpGained: existingLog.totalXpGained ?? 0,
+          personalBests: (existingLog.completedExercises ?? []).filter(
+            (exercise) => exercise.isPersonalBest,
+          ),
+        };
+      }
     }
 
     const duplicateLog = await attachSession(
@@ -114,6 +143,7 @@ const createWorkoutLog = async ({ user, userId, payload }) => {
         requiredLevel: workoutDoc.requiredLevel,
         completedExercises: completedWithPersonalBests,
         totalXpGained: xpGain,
+        ...(idempotencyKey ? { idempotencyKey } : {}),
       },
       session,
     );
@@ -152,5 +182,6 @@ const createWorkoutLog = async ({ user, userId, payload }) => {
 
 module.exports = {
   getMyWorkoutLogs,
+  getLatestWorkoutLog,
   createWorkoutLog,
 };

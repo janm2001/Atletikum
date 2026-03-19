@@ -1,6 +1,7 @@
 jest.mock("../models/WorkoutLog", () => ({
   WorkoutLog: {
     find: jest.fn(),
+    findOne: jest.fn(),
     create: jest.fn(),
     exists: jest.fn(),
   },
@@ -195,5 +196,63 @@ describe("workoutLogService", () => {
       "Trening je već spremljen. Pričekajte prije ponovnog spremanja.",
     );
     expect(WorkoutLog.create).not.toHaveBeenCalled();
+  });
+
+  it("returns latest workout log by workout id for user", async () => {
+    const latestLog = { _id: "log-2", workoutId: "workout-1" };
+    WorkoutLog.findOne.mockReturnValue({
+      sort: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue(latestLog),
+      }),
+    });
+
+    const result = await workoutLogService.getLatestWorkoutLog({
+      userId: "user-1",
+      workoutId: "workout-1",
+    });
+
+    expect(WorkoutLog.findOne).toHaveBeenCalledWith({
+      user: "user-1",
+      workoutId: "workout-1",
+    });
+    expect(result).toEqual(latestLog);
+  });
+
+  it("returns existing log for same idempotency key", async () => {
+    const existingLog = {
+      _id: "existing-log",
+      totalXpGained: 35,
+      completedExercises: [{ exerciseId: "exercise-1", isPersonalBest: true }],
+    };
+    Workout.findById.mockReturnValue({
+      lean: jest.fn().mockResolvedValue({
+        _id: "workout-1",
+        title: "Power Session",
+        requiredLevel: 2,
+        exercises: [{ exerciseId: "exercise-1", reps: "6", sets: 2, baseXp: 40 }],
+      }),
+    });
+    WorkoutLog.findOne.mockReturnValue({
+      lean: jest.fn().mockResolvedValue(existingLog),
+    });
+
+    const result = await workoutLogService.createWorkoutLog({
+      user: { _id: "user-1", level: 3, role: "user" },
+      payload: {
+        workoutId: "workout-1",
+        completedExercises: [{ exerciseId: "exercise-1", resultValue: 6, rpe: 7 }],
+      },
+      idempotencyKey: "same-key",
+    });
+
+    expect(result).toEqual({
+      workoutLog: existingLog,
+      user: null,
+      newAchievements: [],
+      totalXpGained: 35,
+      personalBests: [{ exerciseId: "exercise-1", isPersonalBest: true }],
+    });
+    expect(WorkoutLog.create).not.toHaveBeenCalled();
+    expect(WorkoutLog.exists).not.toHaveBeenCalled();
   });
 });

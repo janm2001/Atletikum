@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import {
   useWatch,
   type Control,
@@ -18,7 +19,14 @@ type UseExerciseProgressionParams = {
   control: Control<TrackWorkoutFormValues>;
   reset: UseFormReset<TrackWorkoutFormValues>;
   workout: Workout;
+  currentIndex: number;
+  setCurrentIndex: Dispatch<SetStateAction<number>>;
+  completedExercises: CompletedExercisePayload[];
+  setCompletedExercises: Dispatch<SetStateAction<CompletedExercisePayload[]>>;
 };
+
+const getExerciseSetCount = (exercise: Workout["exercises"][number] | undefined) =>
+  Math.max(1, Number(exercise?.sets ?? 1));
 
 const getCurrentPrescribedLoadKg = (
   exercise: Workout["exercises"][number] | undefined,
@@ -30,19 +38,22 @@ const getCurrentPrescribedLoadKg = (
 export const createDefaultSets = (
   setCount: number,
   prescribedLoadKg: number | null | undefined,
+  carryOver?: { loadKg: number | null; resultValue: number; rpe: number },
+  defaultResultValue?: number | null,
 ): TrackWorkoutFormValues["sets"] =>
   Array.from({ length: Math.max(1, setCount) }, () => ({
-    loadKg: prescribedLoadKg ?? null,
-    resultValue: 0,
-    rpe: 6,
+    loadKg: carryOver?.loadKg ?? prescribedLoadKg ?? null,
+    resultValue: carryOver?.resultValue ?? defaultResultValue ?? 0,
+    rpe: carryOver?.rpe ?? 6,
   }));
 
 export const getMetricFromPrescription = (
   prescription: string,
 ): TrackWorkoutMetric => {
   const normalized = prescription.trim().toLowerCase();
+  const withoutSetPrefix = normalized.replace(/^\d+\s*[x×]\s*/, "");
 
-  if (/^(?:\d+(?:[.,]\d+)?)\s*(m|meter|metara|metar)$/.test(normalized)) {
+  if (/^(?:\d+(?:[.,]\d+)?)\s*(m|meter|metara|metar)$/.test(withoutSetPrefix)) {
     return {
       metricType: "distance",
       unitLabel: "m",
@@ -51,12 +62,16 @@ export const getMetricFromPrescription = (
   }
 
   if (
-    /^(?:\d+(?:[.,]\d+)?)\s*(s|sec|sek|sekundi|min|minute)$/.test(normalized)
+    /^(?:\d+(?:[.,]\d+)?)\s*(s|sec|sek|sekundi|min|minute)$/.test(
+      withoutSetPrefix,
+    )
   ) {
     return {
       metricType: "time",
-      unitLabel: normalized.includes("min") ? "min" : "s",
-      label: normalized.includes("min") ? "Trajanje (min)" : "Trajanje (s)",
+      unitLabel: withoutSetPrefix.includes("min") ? "min" : "s",
+      label: withoutSetPrefix.includes("min")
+        ? "Trajanje (min)"
+        : "Trajanje (s)",
     };
   }
 
@@ -65,6 +80,32 @@ export const getMetricFromPrescription = (
     unitLabel: "reps",
     label: "Ponavljanja",
   };
+};
+
+export const getDefaultResultFromPrescription = (
+  prescription: string,
+  metric: TrackWorkoutMetric,
+): number | null => {
+  const normalized = prescription.trim().toLowerCase();
+  const withoutSetPrefix = normalized.replace(/^\d+\s*[x×]\s*/, "");
+  const compact = withoutSetPrefix.replace(/\s+/g, "");
+
+  if (metric.metricType === "reps") {
+    const repsMatch = compact.match(/^(\d+)$/);
+    if (repsMatch) {
+      return Number(repsMatch[1]);
+    }
+    return null;
+  }
+
+  if (metric.metricType === "distance" || metric.metricType === "time") {
+    const valueMatch = withoutSetPrefix.match(/^(\d+(?:[.,]\d+)?)/);
+    if (valueMatch) {
+      return Number(valueMatch[1].replace(",", "."));
+    }
+  }
+
+  return null;
 };
 
 type BuildCompletedExerciseSetsParams = {
@@ -94,18 +135,18 @@ export const useExerciseProgression = ({
   control,
   reset,
   workout,
+  currentIndex,
+  setCurrentIndex,
+  completedExercises,
+  setCompletedExercises,
 }: UseExerciseProgressionParams) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [completedExercises, setCompletedExercises] = useState<
-    CompletedExercisePayload[]
-  >([]);
 
   const currentExercise = workout.exercises[currentIndex];
   const currentMetric = useMemo(
     () => getMetricFromPrescription(currentExercise?.reps ?? ""),
     [currentExercise?.reps],
   );
-  const plannedSetCount = Math.max(1, Number(currentExercise?.sets ?? 1));
+  const plannedSetCount = getExerciseSetCount(currentExercise);
   const currentPrescribedLoadKg = getCurrentPrescribedLoadKg(currentExercise);
   const watchedSets = useWatch({ control, name: "sets" });
 
@@ -116,10 +157,18 @@ export const useExerciseProgression = ({
   const isLastExercise = currentIndex >= workout.exercises.length - 1;
 
   useEffect(() => {
-    reset({
-      sets: createDefaultSets(plannedSetCount, currentPrescribedLoadKg),
-    });
-  }, [currentExercise?.exerciseId, currentPrescribedLoadKg, plannedSetCount, reset]);
+    const defaultResultValue = getDefaultResultFromPrescription(
+      currentExercise?.reps ?? "",
+      currentMetric,
+    );
+    const defaultSets = createDefaultSets(
+      plannedSetCount,
+      currentPrescribedLoadKg,
+      undefined,
+      defaultResultValue,
+    );
+    reset({ sets: defaultSets });
+  }, [currentExercise?.reps, currentMetric, currentPrescribedLoadKg, plannedSetCount, reset]);
 
   const getUpdatedCompletedExercises = useCallback(
     (values: TrackWorkoutFormValues) => {
@@ -127,16 +176,23 @@ export const useExerciseProgression = ({
         return completedExercises;
       }
 
+      const currentExerciseSets = buildCompletedExerciseSets({
+        currentExercise,
+        currentMetric,
+        values,
+      });
+      const startOffset = workout.exercises
+        .slice(0, currentIndex)
+        .reduce((sum, exercise) => sum + getExerciseSetCount(exercise), 0);
+      const endOffset = startOffset + getExerciseSetCount(currentExercise);
+
       return [
-        ...completedExercises,
-        ...buildCompletedExerciseSets({
-          currentExercise,
-          currentMetric,
-          values,
-        }),
+        ...completedExercises.slice(0, startOffset),
+        ...currentExerciseSets,
+        ...completedExercises.slice(endOffset),
       ];
     },
-    [completedExercises, currentExercise, currentMetric],
+    [completedExercises, currentExercise, currentIndex, currentMetric, workout.exercises],
   );
 
   const advanceToNextExercise = useCallback(
@@ -144,7 +200,7 @@ export const useExerciseProgression = ({
       setCompletedExercises(updatedCompletedExercises);
       setCurrentIndex((previous) => previous + 1);
     },
-    [],
+    [setCompletedExercises, setCurrentIndex],
   );
 
   return {
