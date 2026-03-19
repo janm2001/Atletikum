@@ -260,6 +260,7 @@
       "rpeMin": "RPE mora biti najmanje 1",
       "rpeMax": "RPE može biti najviše 10",
       "enterRpe": "Unesi RPE",
+      "saveSetAndNext": "Spremi set i prijeđi na sljedeći",
       "finishAndSave": "Završi trening i spremi",
       "saveAndContinue": "Spremi i nastavi →",
       "exerciseDetails": "Detalji vježbe",
@@ -267,6 +268,8 @@
       "noExerciseDetails": "Detalji vježbe nisu dostupni.",
       "watchVideo": "Pogledaj video",
       "copyPrevious": "Kopiraj prethodni",
+      "editSet": "Uredi set",
+      "previousExercise": "← Prethodna vježba",
       "setCompleted": "Set {{number}} završen",
       "setUpcoming": "Set {{number}}",
       "discardDraft": "Odbaci trening"
@@ -320,9 +323,10 @@
       "pause": "Pauza",
       "resume": "Nastavi",
       "dismiss": "Odbaci",
-      "preset60": "60s",
-      "preset90": "90s",
-      "preset120": "120s"
+      "preset60": "1:00",
+      "preset90": "1:30",
+      "preset120": "2:00",
+      "preset180": "3:00"
     },
     "draft": {
       "resumeTitle": "Imate nespremljeni trening",
@@ -714,6 +718,15 @@
       "defaultMessage": "Dogodila se neočekivana greška.",
       "backHome": "Vrati se na početnu",
       "retry": "Pokušaj ponovno"
+    }
+  },
+
+  "workout": {
+    "errors": {
+      "alreadySaved": "Ovaj trening je već spremljen.",
+      "validationFailed": "Podaci treninga nisu ispravni. Provjerite unesene vrijednosti.",
+      "serverError": "Greška na serveru. Vaš napredak je spremljen lokalno — pokušajte ponovo.",
+      "networkError": "Problem s vezom. Vaš napredak je spremljen lokalno — pokušajte ponovo."
     }
   },
 

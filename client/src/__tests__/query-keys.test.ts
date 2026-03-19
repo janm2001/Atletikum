@@ -17,5 +17,10 @@ describe("query keys", () => {
     expect(keys.workouts.lists()).toEqual(["workouts", "list"]);
     expect(keys.workouts.list("mine")).toEqual(["workouts", "list", "mine"]);
     expect(keys.workoutLogs.list()).toEqual(["workout-logs", "list"]);
+    expect(keys.workoutLogs.latest("workout-1")).toEqual([
+      "workout-logs",
+      "latest",
+      "workout-1",
+    ]);
   });
 });

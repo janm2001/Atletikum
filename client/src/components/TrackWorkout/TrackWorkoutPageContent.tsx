@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import ActionToast from "@/components/Common/ActionToast";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import useActionFeedback from "@/hooks/useActionFeedback";
 import { sendAbandonedEvent } from "@/hooks/useTrackEvent";
+import { useLatestWorkoutLog } from "@/hooks/useWorkoutLogs";
 import type { Exercise } from "@/types/Exercise/exercise";
-import type { Workout } from "@/types/Workout/workout";
+import { getExerciseId, type Workout } from "@/types/Workout/workout";
+import type { DraftSetValues } from "@/types/Workout/workoutDraft";
 import { useTrackWorkoutFlow } from "@/hooks/useTrackWorkoutFlow";
 import DraftPrompt from "./DraftPrompt";
 import TrackWorkoutExerciseDetailsModal from "./TrackWorkoutExerciseDetailsModal";
@@ -25,11 +28,14 @@ const TrackWorkoutPageContent = ({
   exerciseById,
 }: TrackWorkoutPageContentProps) => {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const prefillParam = searchParams.get("prefill");
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const [setSaveTrigger, setSetSaveTrigger] = useState(0);
   const {
     completedExerciseCount,
+    completedSetCount,
     control,
     currentExercise,
     currentIndex,
@@ -47,21 +53,76 @@ const TrackWorkoutPageContent = ({
     selectedExerciseId,
     setFields,
     setSelectedExerciseId,
-    setValue,
     startFresh,
+    startFromRepeat,
     totalExercises,
-    watchedSets,
+    onEditSetAtIndex,
+    onGoToExercise,
+    onGoToPreviousExercise,
   } = useTrackWorkoutFlow({ workout });
 
-  // Phase 5 guard — useLatestWorkoutLog doesn't exist yet
-  const isLatestLogLoading = false;
+  const {
+    data: latestLog,
+    isLoading: isLatestLogLoading,
+  } = useLatestWorkoutLog(workout._id, !hasDraft);
 
-  // Case 3: No draft, no decision yet → auto-start fresh
+  const hasRepeatOption =
+    latestLog != null &&
+    (() => {
+      const workoutExerciseIds = workout.exercises
+        .map((exercise) => getExerciseId(exercise.exerciseId))
+        .sort();
+      const logExerciseIds = [
+        ...new Set(latestLog.completedExercises.map((exercise) => exercise.exerciseId)),
+      ].sort();
+
+      return (
+        workoutExerciseIds.length === logExerciseIds.length &&
+        workoutExerciseIds.every((id, index) => id === logExerciseIds[index])
+      );
+    })();
+
+  const handleRepeatLast = useCallback(() => {
+    if (!latestLog) return;
+
+    const setValuesByExercise = new Map<string, DraftSetValues[]>();
+    for (const entry of latestLog.completedExercises) {
+      const existingSets = setValuesByExercise.get(entry.exerciseId) ?? [];
+      existingSets.push({
+        loadKg: entry.loadKg ?? null,
+        resultValue: entry.resultValue,
+        rpe: entry.rpe,
+      });
+      setValuesByExercise.set(entry.exerciseId, existingSets);
+    }
+
+    startFromRepeat({
+      completedExercises: [],
+      setValuesByExercise,
+    });
+    setSearchParams({}, { replace: true });
+  }, [latestLog, setSearchParams, startFromRepeat]);
+
+  // Case 3: No draft, no decision yet → prefill from latest or auto-start
   useEffect(() => {
     if (!hasDraft && draftSource === null && !isLatestLogLoading) {
-      startFresh();
+      if (prefillParam === "last" && hasRepeatOption && latestLog) {
+        handleRepeatLast();
+      } else {
+        // Default to a fresh run unless repeat-last was explicitly requested.
+        startFresh();
+      }
     }
-  }, [hasDraft, draftSource, startFresh, isLatestLogLoading]);
+  }, [
+    hasDraft,
+    draftSource,
+    isLatestLogLoading,
+    prefillParam,
+    hasRepeatOption,
+    latestLog,
+    handleRepeatLast,
+    startFresh,
+  ]);
 
   // beforeunload: fire abandoned analytics event
   useEffect(() => {
@@ -78,18 +139,6 @@ const TrackWorkoutPageContent = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [draftSource, workout._id, currentIndex]);
 
-  const handleCopyPrevious = useCallback(
-    (setIndex: number) => {
-      if (setIndex < 1) return;
-      const prevSet = watchedSets?.[setIndex - 1];
-      if (!prevSet) return;
-      setValue(`sets.${setIndex}.loadKg`, prevSet.loadKg);
-      setValue(`sets.${setIndex}.resultValue`, prevSet.resultValue);
-      setValue(`sets.${setIndex}.rpe`, prevSet.rpe);
-    },
-    [watchedSets, setValue],
-  );
-
   const handleSubmitCurrentExercise = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       clearActionError();
@@ -103,7 +152,13 @@ const TrackWorkoutPageContent = ({
         handleActionError(error, t("common.saveError"));
       }
     },
-    [clearActionError, handleActionError, isLastExercise, onSubmitCurrentExercise, t],
+    [
+      clearActionError,
+      handleActionError,
+      isLastExercise,
+      onSubmitCurrentExercise,
+      t,
+    ],
   );
 
   // Cases 1 & 2: Draft exists but user hasn't decided yet
@@ -112,14 +167,16 @@ const TrackWorkoutPageContent = ({
       <Stack w="100%" maw={700} mx="auto" px="sm" py="md">
         <DraftPrompt
           isSubmitting={isSubmittingFromDraft}
-          hasRepeatOption={false}
+          hasRepeatOption={hasRepeatOption}
           onResume={resumeDraft}
           onStartFresh={() => {
             discardDraft();
             startFresh();
           }}
-          onRepeatLast={() => {}}
-          onRetry={() => { resumeDraft(); }}
+          onRepeatLast={handleRepeatLast}
+          onRetry={() => {
+            resumeDraft();
+          }}
         />
       </Stack>
     );
@@ -154,7 +211,10 @@ const TrackWorkoutPageContent = ({
         currentIndex={currentIndex}
         completedExerciseCount={completedExerciseCount}
         exerciseById={exerciseById}
-        onExerciseSelect={setSelectedExerciseId}
+        onExerciseSelect={(exerciseId, exerciseIndex) => {
+          setSelectedExerciseId(exerciseId);
+          onGoToExercise(exerciseIndex);
+        }}
       />
 
       <TrackWorkoutWorkoutCard
@@ -166,15 +226,19 @@ const TrackWorkoutPageContent = ({
         exerciseById={exerciseById}
         isSubmitting={isSubmitting}
         onSubmit={handleSubmitCurrentExercise}
-        onCopyPrevious={handleCopyPrevious}
+        onEditSet={onEditSetAtIndex}
+        onPreviousExercise={onGoToPreviousExercise}
+        canGoPreviousExercise={currentIndex > 0}
+        completedSetCount={completedSetCount}
+        restTimer={
+          <RestTimerComponent
+            exerciseRestSeconds={currentExercise?.restSeconds}
+            visible={!!currentExercise && !isLastExercise}
+            triggerCount={setSaveTrigger}
+          />
+        }
         setFields={setFields}
         totalExercises={totalExercises}
-      />
-
-      <RestTimerComponent
-        exerciseRestSeconds={currentExercise?.restSeconds}
-        visible={!!currentExercise && !isLastExercise}
-        triggerCount={setSaveTrigger}
       />
 
       <TrackWorkoutExerciseDetailsModal

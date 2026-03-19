@@ -5,6 +5,7 @@ import type {
     WorkoutLogPayload,
 } from "@/types/WorkoutLog/workoutLog";
 import type {
+    LatestWorkoutLogResponse,
     WorkoutLogResponse,
     WorkoutLogsResponse,
 } from "@/types/WorkoutLog/workoutLogApi";
@@ -15,9 +16,29 @@ export async function getWorkoutLogs(): Promise<WorkoutLog[]> {
     return data.data.workoutLogs;
 }
 
-export async function createWorkoutLog(
-    payload: WorkoutLogPayload,
-): Promise<CreateWorkoutLogResult> {
+export type CreateWorkoutLogParams = {
+    payload: WorkoutLogPayload;
+    idempotencyKey?: string;
+};
+
+export async function getLatestWorkoutLog(
+    workoutId: string,
+): Promise<WorkoutLog | null> {
+    const { data, status } = await apiClient.get<LatestWorkoutLogResponse>(
+        `/workout-logs/latest/${workoutId}`,
+        {
+            validateStatus: (s) => s === 200 || s === 204,
+        },
+    );
+
+    if (status === 204) return null;
+    return data.data.workoutLog;
+}
+
+export async function createWorkoutLog({
+    payload,
+    idempotencyKey,
+}: CreateWorkoutLogParams): Promise<CreateWorkoutLogResult> {
     const parsedPayload = workoutLogSchema.safeParse(payload);
 
     if (!parsedPayload.success) {
@@ -26,9 +47,15 @@ export async function createWorkoutLog(
         );
     }
 
+    const headers: Record<string, string> = {};
+    if (idempotencyKey) {
+        headers["X-Idempotency-Key"] = idempotencyKey;
+    }
+
     const { data } = await apiClient.post<WorkoutLogResponse>(
         "/workout-logs",
         parsedPayload.data,
+        { headers },
     );
 
     return {

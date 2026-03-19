@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCompletedExerciseSets,
   createDefaultSets,
+  getDefaultResultFromPrescription,
   getMetricFromPrescription,
 } from "../hooks/useExerciseProgression";
 import { buildWorkoutCelebrationState } from "../hooks/useWorkoutCompletion";
@@ -70,6 +71,30 @@ describe("track workout helpers", () => {
       unitLabel: "reps",
       label: "Ponavljanja",
     });
+    expect(getMetricFromPrescription("4x8")).toEqual({
+      metricType: "reps",
+      unitLabel: "reps",
+      label: "Ponavljanja",
+    });
+    expect(getMetricFromPrescription("4x100 m")).toEqual({
+      metricType: "distance",
+      unitLabel: "m",
+      label: "Udaljenost (m)",
+    });
+  });
+
+  it("parses default results from prescriptions", () => {
+    const repsMetric = getMetricFromPrescription("4x8");
+    expect(getDefaultResultFromPrescription("4x8", repsMetric)).toBe(8);
+    expect(getDefaultResultFromPrescription("8", repsMetric)).toBe(8);
+
+    const distanceMetric = getMetricFromPrescription("100 m");
+    expect(getDefaultResultFromPrescription("100 m", distanceMetric)).toBe(100);
+    expect(getDefaultResultFromPrescription("4x100 m", distanceMetric)).toBe(100);
+
+    const timeMetric = getMetricFromPrescription("30 s");
+    expect(getDefaultResultFromPrescription("30 s", timeMetric)).toBe(30);
+    expect(getDefaultResultFromPrescription("4x30 s", timeMetric)).toBe(30);
   });
 
   it("builds the completed exercise payload for the current exercise", () => {

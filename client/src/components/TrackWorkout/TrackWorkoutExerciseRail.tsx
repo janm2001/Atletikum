@@ -8,7 +8,7 @@ type TrackWorkoutExerciseRailProps = {
   currentIndex: number;
   completedExerciseCount: number;
   exerciseById: Map<string, Exercise>;
-  onExerciseSelect: (exerciseId: string) => void;
+  onExerciseSelect: (exerciseId: string, exerciseIndex: number) => void;
 };
 
 const TrackWorkoutExerciseRail = ({
@@ -36,7 +36,7 @@ const TrackWorkoutExerciseRail = ({
               color={isCompleted ? "teal" : isCurrent ? "violet" : "gray"}
               size="compact-sm"
               style={{ flexShrink: 0 }}
-              onClick={() => onExerciseSelect(exerciseId)}
+              onClick={() => onExerciseSelect(exerciseId, index)}
             >
               {exerciseName.length > 14
                 ? exerciseName.slice(0, 12) + "…"

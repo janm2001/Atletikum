@@ -1,5 +1,6 @@
 const {
   validateCreateWorkoutLogRequest,
+  validateGetLatestWorkoutLogRequest,
 } = require("../validators/workoutLogValidator");
 
 describe("workoutLogValidator", () => {
@@ -56,5 +57,19 @@ describe("workoutLogValidator", () => {
     expect(() => validateCreateWorkoutLogRequest(negativeLoadRequest)).toThrow(
       "Opterećenje za vježbu 1 ne može biti negativno.",
     );
+  });
+
+  it("validates latest workout log params workout id", () => {
+    expect(() =>
+      validateGetLatestWorkoutLogRequest({
+        params: { workoutId: "invalid-id" },
+      }),
+    ).toThrow("Workout nije valjan.");
+
+    expect(() =>
+      validateGetLatestWorkoutLogRequest({
+        params: { workoutId: validWorkoutId },
+      }),
+    ).not.toThrow();
   });
 });

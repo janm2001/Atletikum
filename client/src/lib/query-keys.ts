@@ -34,6 +34,7 @@ export const keys = {
     workoutLogs: {
         all: ['workout-logs'] as const,
         list: () => [...keys.workoutLogs.all, 'list'] as const,
+        latest: (workoutId: string) => [...keys.workoutLogs.all, 'latest', workoutId] as const,
     },
     recommendations: {
         all: ['recommendations'] as const,

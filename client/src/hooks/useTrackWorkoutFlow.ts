@@ -6,6 +6,8 @@ import {
 } from "react-hook-form";
 import {
   createDefaultSets,
+  getDefaultResultFromPrescription,
+  getMetricFromPrescription,
   useExerciseProgression,
 } from "@/hooks/useExerciseProgression";
 import { useWorkoutCompletion } from "@/hooks/useWorkoutCompletion";
@@ -16,7 +18,6 @@ import type {
 import {
   type Workout,
 } from "@/types/Workout/workout";
-import type { CompletedExercisePayload } from "@/types/WorkoutLog/workoutLog";
 
 export { getMetricFromPrescription } from "@/hooks/useExerciseProgression";
 
@@ -43,6 +44,13 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
             workout.exercises[draft.currentIndex]?.progression?.prescribedLoadKg ??
               workout.exercises[draft.currentIndex]?.progression?.initialWeightKg ??
               null,
+            undefined,
+            getDefaultResultFromPrescription(
+              workout.exercises[draft.currentIndex]?.reps ?? "",
+              getMetricFromPrescription(
+                workout.exercises[draft.currentIndex]?.reps ?? "",
+              ),
+            ),
           ),
     },
   });
@@ -54,6 +62,7 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(
     null,
   );
+  const [completedSetCount, setCompletedSetCount] = useState(0);
 
   const {
     advanceToNextExercise,
@@ -75,7 +84,51 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     completedExercises: draft.completedExercises,
     setCompletedExercises: draft.setCompletedExercises,
   });
-  const { completeWorkout, isSubmitting } = useWorkoutCompletion({ workout });
+  const { completeWorkout, isSubmitting } = useWorkoutCompletion({
+    workout,
+    idempotencyKey: draft.idempotencyKey,
+  });
+
+  const getExerciseSetCount = (exerciseIndex: number) =>
+    Math.max(1, Number(workout.exercises[exerciseIndex]?.sets ?? 1));
+
+  const getCompletedSetCountForExercise = (exerciseIndex: number) => {
+    const startOffset = workout.exercises
+      .slice(0, exerciseIndex)
+      .reduce((sum, exercise) => sum + Math.max(1, Number(exercise.sets ?? 1)), 0);
+    const setCount = getExerciseSetCount(exerciseIndex);
+    const exerciseId =
+      typeof workout.exercises[exerciseIndex]?.exerciseId === "object"
+        ? workout.exercises[exerciseIndex].exerciseId._id
+        : (workout.exercises[exerciseIndex]?.exerciseId ?? "");
+    const completedForExercise = draft.completedExercises
+      .slice(startOffset, startOffset + setCount)
+      .filter((setItem) => setItem.exerciseId === exerciseId).length;
+
+    return Math.max(0, Math.min(completedForExercise, setCount - 1));
+  };
+
+  const goToExercise = (exerciseIndex: number) => {
+    const boundedExerciseIndex = Math.max(
+      0,
+      Math.min(exerciseIndex, workout.exercises.length - 1),
+    );
+    setCompletedSetCount(getCompletedSetCountForExercise(boundedExerciseIndex));
+    draft.setCurrentIndex(boundedExerciseIndex);
+  };
+
+  const goToPreviousExercise = () => {
+    if (draft.currentIndex <= 0) {
+      return;
+    }
+
+    goToExercise(draft.currentIndex - 1);
+  };
+
+  const editSetAtIndex = (setIndex: number) => {
+    const boundedSetIndex = Math.max(0, Math.min(setIndex, setFields.length - 1));
+    setCompletedSetCount(boundedSetIndex);
+  };
 
   const submitCurrentExercise: SubmitHandler<TrackWorkoutFormValues> = async (
     values,
@@ -84,8 +137,36 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
       return;
     }
 
-    const areAllSetsValid = await trigger("sets");
-    if (!areAllSetsValid) {
+    const activeSetIndex = Math.min(
+      completedSetCount,
+      Math.max(values.sets.length - 1, 0),
+    );
+    const isActiveSetValid = await trigger([
+      `sets.${activeSetIndex}.loadKg`,
+      `sets.${activeSetIndex}.resultValue`,
+      `sets.${activeSetIndex}.rpe`,
+    ]);
+    if (!isActiveSetValid) {
+      return;
+    }
+
+    const isLastSet = activeSetIndex >= values.sets.length - 1;
+
+    if (!isLastSet) {
+      setCompletedSetCount((previous) => previous + 1);
+      const nextSetIndex = activeSetIndex + 1;
+      if (nextSetIndex < values.sets.length) {
+        const previousSet = values.sets[activeSetIndex];
+        setValue(`sets.${nextSetIndex}.loadKg`, previousSet.loadKg);
+        setValue(`sets.${nextSetIndex}.resultValue`, previousSet.resultValue);
+        setValue(`sets.${nextSetIndex}.rpe`, previousSet.rpe);
+      }
+      draft.persistDraft(
+        draft.currentIndex,
+        draft.completedExercises,
+        values.sets,
+        false,
+      );
       return;
     }
 
@@ -105,6 +186,7 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
       return;
     }
 
+    setCompletedSetCount(0);
     advanceToNextExercise(updatedCompletedExercises);
 
     const nextExercise = workout.exercises[draft.currentIndex + 1];
@@ -113,6 +195,11 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
       nextExercise?.progression?.prescribedLoadKg ??
         nextExercise?.progression?.initialWeightKg ??
         null,
+      undefined,
+      getDefaultResultFromPrescription(
+        nextExercise?.reps ?? "",
+        getMetricFromPrescription(nextExercise?.reps ?? ""),
+      ),
     );
     draft.persistDraft(draft.currentIndex + 1, updatedCompletedExercises, nextSets);
   };
@@ -120,6 +207,7 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
   return {
     ...draft,
     completedExerciseCount,
+    completedSetCount,
     control,
     currentExercise,
     currentIndex: draft.currentIndex,
@@ -128,6 +216,9 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     isLastExercise,
     isSubmitting: isSubmitting || draft.submitting,
     onSubmitCurrentExercise: handleSubmit(submitCurrentExercise),
+    onEditSetAtIndex: editSetAtIndex,
+    onGoToExercise: goToExercise,
+    onGoToPreviousExercise: goToPreviousExercise,
     plannedSetCount,
     progressValue,
     selectedExerciseId,

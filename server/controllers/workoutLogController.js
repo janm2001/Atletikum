@@ -13,11 +13,28 @@ exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
   });
 });
 
+exports.getLatestWorkoutLog = asyncHandler(async (req, res) => {
+  const workoutLog = await workoutLogService.getLatestWorkoutLog({
+    userId: req.userId,
+    workoutId: req.params.workoutId,
+  });
+
+  if (!workoutLog) {
+    return res.status(204).send();
+  }
+
+  return res.status(200).json({
+    status: "success",
+    data: { workoutLog },
+  });
+});
+
 exports.createWorkoutLog = asyncHandler(async (req, res) => {
   const result = await workoutLogService.createWorkoutLog({
     user: req.user,
     userId: req.userId,
     payload: req.body,
+    idempotencyKey: req.headers["x-idempotency-key"],
   });
 
   res.status(201).json({

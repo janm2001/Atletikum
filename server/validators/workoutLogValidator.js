@@ -45,6 +45,11 @@ const validateCreateWorkoutLogRequest = (request) => {
   });
 };
 
+const validateGetLatestWorkoutLogRequest = (request) => {
+  validateObjectId(request.params.workoutId, "Workout");
+};
+
 module.exports = {
   validateCreateWorkoutLogRequest,
+  validateGetLatestWorkoutLogRequest,
 };

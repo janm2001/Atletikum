@@ -1,10 +1,17 @@
-import { ActionIcon, Badge, Card, Group, SegmentedControl, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Badge,
+  Card,
+  Group,
+  SegmentedControl,
+  Text,
+} from "@mantine/core";
 import { IconPlayerPause, IconPlayerPlay, IconX } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRestTimer } from "@/hooks/useRestTimer";
 
-const REST_PRESETS = [60, 90, 120] as const;
+const REST_PRESETS = [60, 90, 120, 180] as const;
 const PRESET_STORAGE_KEY = "atletikum_rest_timer_preset";
 
 const getStoredPreset = (): number => {
@@ -12,7 +19,8 @@ const getStoredPreset = (): number => {
     const stored = localStorage.getItem(PRESET_STORAGE_KEY);
     if (stored) {
       const num = Number(stored);
-      if (REST_PRESETS.includes(num as (typeof REST_PRESETS)[number])) return num;
+      if (REST_PRESETS.includes(num as (typeof REST_PRESETS)[number]))
+        return num;
     }
   } catch {
     // ignore
@@ -23,7 +31,7 @@ const getStoredPreset = (): number => {
 type RestTimerProps = {
   exerciseRestSeconds?: number | null;
   visible: boolean;
-  triggerCount: number; // Incremented each time a set is saved — triggers auto-start
+  triggerCount: number;
 };
 
 const RestTimerComponent = ({
@@ -75,25 +83,13 @@ const RestTimerComponent = ({
   if (!visible && remaining <= 0) return null;
 
   return (
-    <Card
-      withBorder
-      radius="xl"
-      p="xs"
-      px="md"
-      shadow="lg"
-      style={{
-        position: "fixed",
-        bottom: 80,
-        left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: 100,
-        minWidth: 280,
-      }}
-    >
+    <Card withBorder radius="md" p="xs" shadow="sm" style={{ minWidth: 220 }}>
       <Group justify="space-between" gap="xs">
         <Group gap="xs">
           <Text fw={700} size="lg" ff="monospace">
-            {remaining > 0 ? formatTime(remaining) : t("training.timer.restTime")}
+            {remaining > 0
+              ? formatTime(remaining)
+              : t("training.timer.restTime")}
           </Text>
           {remaining <= 0 && (
             <Badge
@@ -112,9 +108,17 @@ const RestTimerComponent = ({
               variant="subtle"
               size="sm"
               onClick={isRunning ? pause : resume}
-              aria-label={isRunning ? t("training.timer.pause") : t("training.timer.resume")}
+              aria-label={
+                isRunning
+                  ? t("training.timer.pause")
+                  : t("training.timer.resume")
+              }
             >
-              {isRunning ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+              {isRunning ? (
+                <IconPlayerPause size={16} />
+              ) : (
+                <IconPlayerPlay size={16} />
+              )}
             </ActionIcon>
             <ActionIcon
               variant="subtle"

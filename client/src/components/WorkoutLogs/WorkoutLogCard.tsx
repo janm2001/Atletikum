@@ -1,12 +1,14 @@
 import {
   Accordion,
   Badge,
+  Button,
   Card,
   Grid,
   Group,
   Stack,
   Text,
 } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 import type { WorkoutLog } from "../../types/WorkoutLog/workoutLog";
 import { useTranslation } from "react-i18next";
 import { WorkoutLogExerciseGroup } from "./WorkoutLogExerciseGroup";
@@ -21,6 +23,7 @@ export const WorkoutLogCard = ({
   exerciseNameById,
 }: WorkoutLogCardProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const groupedExercises = Array.from(
     workoutLog.completedExercises.reduce((acc, set) => {
       const existing = acc.get(set.exerciseId) ?? [];
@@ -69,6 +72,18 @@ export const WorkoutLogCard = ({
             ? new Date(workoutLog.date).toLocaleString("hr-HR")
             : t("training.logs.notAvailable")}
         </Text>
+
+        <Group>
+          <Button
+            variant="subtle"
+            size="compact-xs"
+            onClick={() =>
+              navigate(`/zapis-treninga/${workoutLog.workoutId}?prefill=last`)
+            }
+          >
+            {t("training.draft.repeatLast")}
+          </Button>
+        </Group>
 
         <Accordion variant="contained" radius="sm">
           <Accordion.Item value={`details-${workoutLog._id}`}>
