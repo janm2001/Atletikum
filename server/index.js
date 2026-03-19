@@ -18,6 +18,7 @@ const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const userRoutes = require("./routes/userRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const analyticsEventRoutes = require("./routes/analyticsEventRoutes");
 const challengeRoutes = require("./routes/challengeRoutes");
 const adminChallengeRoutes = require("./routes/adminChallengeRoutes");
 const {
@@ -76,6 +77,7 @@ app.use("/api/v1/leaderboard", leaderboardRoutes);
 app.use("/api/v1/recommendations", recommendationRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/analytics-events", analyticsEventRoutes);
 app.use("/api/v1/challenges", challengeRoutes);
 app.use("/api/v1/admin/challenges", adminChallengeRoutes);
 
