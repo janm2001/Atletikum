@@ -310,6 +310,20 @@
       "noData": "Nema podataka za odabrane vježbe.",
       "weekOf": "Tjedan od",
       "workouts": "Treninzi"
+    },
+    "draft": {
+      "resumeTitle": "Imate nespremljeni trening",
+      "resumeDescription": "Pronašli smo vaš trening u tijeku. Želite li nastaviti ili započeti ispočetka?",
+      "resume": "Nastavi trening",
+      "startFresh": "Započni ispočetka",
+      "submittingTitle": "Vaš trening se sprema...",
+      "submittingDescription": "Trening je u procesu spremanja. Pokušajte ponovo ako se ne završi.",
+      "retry": "Pokušaj ponovo",
+      "discardTitle": "Odbaci trening?",
+      "discardConfirm": "Da, odbaci",
+      "discardCancel": "Ne, nastavi",
+      "repeatLast": "Ponovi zadnji trening",
+      "repeatLastDescription": "Započnite trening s vrijednostima iz zadnje sesije."
     }
   },
 
