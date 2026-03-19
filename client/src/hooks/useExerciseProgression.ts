@@ -35,11 +35,12 @@ const getCurrentPrescribedLoadKg = (
 export const createDefaultSets = (
   setCount: number,
   prescribedLoadKg: number | null | undefined,
+  carryOver?: { loadKg: number | null; resultValue: number; rpe: number },
 ): TrackWorkoutFormValues["sets"] =>
   Array.from({ length: Math.max(1, setCount) }, () => ({
-    loadKg: prescribedLoadKg ?? null,
-    resultValue: 0,
-    rpe: 6,
+    loadKg: carryOver?.loadKg ?? prescribedLoadKg ?? null,
+    resultValue: carryOver?.resultValue ?? 0,
+    rpe: carryOver?.rpe ?? 6,
   }));
 
 export const getMetricFromPrescription = (
@@ -121,9 +122,30 @@ export const useExerciseProgression = ({
   const isLastExercise = currentIndex >= workout.exercises.length - 1;
 
   useEffect(() => {
-    reset({
-      sets: createDefaultSets(plannedSetCount, currentPrescribedLoadKg),
-    });
+    // Get the last completed exercise's last set (if any) to carry over values
+    const prevSet = completedExercises.length > 0
+      ? completedExercises[completedExercises.length - 1]
+      : null;
+
+    let carryOver: { loadKg: number | null; resultValue: number; rpe: number } | undefined;
+
+    if (prevSet) {
+      const currMetricType = currentMetric.metricType;
+      const prevMetricType = prevSet.metricType;
+
+      // Only carry over if metric types match (or both are undefined)
+      if (currMetricType === prevMetricType) {
+        carryOver = {
+          loadKg: prevSet.loadKg ?? null,
+          resultValue: prevSet.resultValue,
+          rpe: prevSet.rpe,
+        };
+      }
+    }
+
+    const defaultSets = createDefaultSets(plannedSetCount, currentPrescribedLoadKg, carryOver);
+    reset({ sets: defaultSets });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentExercise?.exerciseId, currentPrescribedLoadKg, plannedSetCount, reset]);
 
   const getUpdatedCompletedExercises = useCallback(

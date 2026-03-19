@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
+import { useEffect, useRef } from "react";
 import { Controller, useWatch, type Control, type FieldErrors } from "react-hook-form";
 import {
   getExerciseId,
@@ -53,6 +54,12 @@ const TrackWorkoutWorkoutCard = ({
 }: TrackWorkoutWorkoutCardProps) => {
   const { t } = useTranslation();
   const watchedSets = useWatch({ control, name: "sets" });
+  const firstInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => firstInputRef.current?.focus(), 100);
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
   const currentExerciseName =
     exerciseById.get(getExerciseId(currentExercise.exerciseId))?.title ??
     t('training.track.exerciseFallback', { index: currentIndex + 1 });
@@ -181,6 +188,7 @@ const TrackWorkoutWorkoutCard = ({
                             )
                           }
                           error={errors.sets?.[setIndex]?.loadKg?.message}
+                          ref={setIndex === 0 ? firstInputRef : undefined}
                         />
                       )}
                     />
