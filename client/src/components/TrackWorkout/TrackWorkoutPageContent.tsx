@@ -1,4 +1,4 @@
-import { useCallback, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import ActionToast from "@/components/Common/ActionToast";
@@ -10,6 +10,7 @@ import TrackWorkoutExerciseDetailsModal from "./TrackWorkoutExerciseDetailsModal
 import TrackWorkoutExerciseRail from "./TrackWorkoutExerciseRail";
 import TrackWorkoutOverview from "./TrackWorkoutOverview";
 import TrackWorkoutWorkoutCard from "./TrackWorkoutWorkoutCard";
+import RestTimerComponent from "./RestTimer";
 
 type TrackWorkoutPageContentProps = {
   workout: Workout;
@@ -23,6 +24,7 @@ const TrackWorkoutPageContent = ({
   const { t } = useTranslation();
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
+  const [setSaveTrigger, setSetSaveTrigger] = useState(0);
   const {
     completedExerciseCount,
     control,
@@ -30,6 +32,7 @@ const TrackWorkoutPageContent = ({
     currentIndex,
     currentMetric,
     errors,
+    isLastExercise,
     isSubmitting,
     onSubmitCurrentExercise,
     progressValue,
@@ -59,11 +62,14 @@ const TrackWorkoutPageContent = ({
 
       try {
         await onSubmitCurrentExercise(event);
+        if (!isLastExercise) {
+          setSetSaveTrigger((prev) => prev + 1);
+        }
       } catch (error) {
         handleActionError(error, t("common.saveError"));
       }
     },
-    [clearActionError, handleActionError, onSubmitCurrentExercise, t],
+    [clearActionError, handleActionError, isLastExercise, onSubmitCurrentExercise, t],
   );
 
   const selectedExerciseDetail = selectedExerciseId
@@ -105,6 +111,12 @@ const TrackWorkoutPageContent = ({
         onCopyPrevious={handleCopyPrevious}
         setFields={setFields}
         totalExercises={totalExercises}
+      />
+
+      <RestTimerComponent
+        exerciseRestSeconds={currentExercise?.restSeconds}
+        visible={!!currentExercise && !isLastExercise}
+        triggerCount={setSaveTrigger}
       />
 
       <TrackWorkoutExerciseDetailsModal

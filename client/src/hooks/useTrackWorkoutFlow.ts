@@ -105,6 +105,7 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     currentIndex,
     currentMetric,
     errors,
+    isLastExercise,
     isSubmitting,
     onSubmitCurrentExercise: handleSubmit(submitCurrentExercise),
     plannedSetCount,
