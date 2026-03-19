@@ -1,11 +1,14 @@
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import ActionToast from "@/components/Common/ActionToast";
+import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import useActionFeedback from "@/hooks/useActionFeedback";
+import { sendAbandonedEvent } from "@/hooks/useTrackEvent";
 import type { Exercise } from "@/types/Exercise/exercise";
 import type { Workout } from "@/types/Workout/workout";
 import { useTrackWorkoutFlow } from "@/hooks/useTrackWorkoutFlow";
+import DraftPrompt from "./DraftPrompt";
 import TrackWorkoutExerciseDetailsModal from "./TrackWorkoutExerciseDetailsModal";
 import TrackWorkoutExerciseRail from "./TrackWorkoutExerciseRail";
 import TrackWorkoutOverview from "./TrackWorkoutOverview";
@@ -31,18 +34,49 @@ const TrackWorkoutPageContent = ({
     currentExercise,
     currentIndex,
     currentMetric,
+    draftSource,
     errors,
+    hasDraft,
     isLastExercise,
     isSubmitting,
+    isSubmittingFromDraft,
     onSubmitCurrentExercise,
     progressValue,
+    resumeDraft,
+    discardDraft,
     selectedExerciseId,
     setFields,
     setSelectedExerciseId,
     setValue,
+    startFresh,
     totalExercises,
     watchedSets,
   } = useTrackWorkoutFlow({ workout });
+
+  // Phase 5 guard — useLatestWorkoutLog doesn't exist yet
+  const isLatestLogLoading = false;
+
+  // Case 3: No draft, no decision yet → auto-start fresh
+  useEffect(() => {
+    if (!hasDraft && draftSource === null && !isLatestLogLoading) {
+      startFresh();
+    }
+  }, [hasDraft, draftSource, startFresh, isLatestLogLoading]);
+
+  // beforeunload: fire abandoned analytics event
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (draftSource) {
+        sendAbandonedEvent({
+          workoutId: workout._id,
+          exerciseIndex: currentIndex,
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [draftSource, workout._id, currentIndex]);
 
   const handleCopyPrevious = useCallback(
     (setIndex: number) => {
@@ -71,6 +105,30 @@ const TrackWorkoutPageContent = ({
     },
     [clearActionError, handleActionError, isLastExercise, onSubmitCurrentExercise, t],
   );
+
+  // Cases 1 & 2: Draft exists but user hasn't decided yet
+  if (hasDraft && draftSource === null) {
+    return (
+      <Stack w="100%" maw={700} mx="auto" px="sm" py="md">
+        <DraftPrompt
+          isSubmitting={isSubmittingFromDraft}
+          hasRepeatOption={false}
+          onResume={resumeDraft}
+          onStartFresh={() => {
+            discardDraft();
+            startFresh();
+          }}
+          onRepeatLast={() => {}}
+          onRetry={() => { resumeDraft(); }}
+        />
+      </Stack>
+    );
+  }
+
+  // Case 4: No draft and draftSource is still null (startFresh hasn't fired yet) → spinner
+  if (draftSource === null) {
+    return <SpinnerComponent size="md" fullHeight={false} />;
+  }
 
   const selectedExerciseDetail = selectedExerciseId
     ? exerciseById.get(selectedExerciseId)

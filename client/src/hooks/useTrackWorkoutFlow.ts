@@ -9,6 +9,7 @@ import {
   useExerciseProgression,
 } from "@/hooks/useExerciseProgression";
 import { useWorkoutCompletion } from "@/hooks/useWorkoutCompletion";
+import { useWorkoutDraft } from "@/hooks/useWorkoutDraft";
 import type {
   TrackWorkoutFormValues,
 } from "@/types/Workout/trackWorkout";
@@ -24,6 +25,8 @@ type UseTrackWorkoutFlowParams = {
 };
 
 export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
+  const draft = useWorkoutDraft({ workout });
+
   const {
     control,
     handleSubmit,
@@ -33,12 +36,14 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     formState: { errors },
   } = useForm<TrackWorkoutFormValues>({
     defaultValues: {
-      sets: createDefaultSets(
-        workout.exercises[0]?.sets ?? 1,
-        workout.exercises[0]?.progression?.prescribedLoadKg ??
-          workout.exercises[0]?.progression?.initialWeightKg ??
-          null,
-      ),
+      sets: draft.initialSetValues.length > 0
+        ? draft.initialSetValues
+        : createDefaultSets(
+            workout.exercises[draft.currentIndex]?.sets ?? 1,
+            workout.exercises[draft.currentIndex]?.progression?.prescribedLoadKg ??
+              workout.exercises[draft.currentIndex]?.progression?.initialWeightKg ??
+              null,
+          ),
     },
   });
 
@@ -49,10 +54,6 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(
     null,
   );
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [completedExercises, setCompletedExercises] = useState<
-    CompletedExercisePayload[]
-  >([]);
 
   const {
     advanceToNextExercise,
@@ -69,10 +70,10 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     control,
     reset,
     workout,
-    currentIndex,
-    setCurrentIndex,
-    completedExercises,
-    setCompletedExercises,
+    currentIndex: draft.currentIndex,
+    setCurrentIndex: draft.setCurrentIndex,
+    completedExercises: draft.completedExercises,
+    setCompletedExercises: draft.setCompletedExercises,
   });
   const { completeWorkout, isSubmitting } = useWorkoutCompletion({ workout });
 
@@ -91,22 +92,41 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     const updatedCompletedExercises = getUpdatedCompletedExercises(values);
 
     if (isLastExercise) {
-      await completeWorkout(updatedCompletedExercises);
+      draft.markSubmitting(true);
+      draft.persistDraft(draft.currentIndex, updatedCompletedExercises, values.sets, true);
+      try {
+        await completeWorkout(updatedCompletedExercises);
+        draft.clearOnSuccess();
+      } catch (error) {
+        draft.markSubmitting(false);
+        draft.persistDraft(draft.currentIndex, updatedCompletedExercises, values.sets, false);
+        throw error;
+      }
       return;
     }
 
     advanceToNextExercise(updatedCompletedExercises);
+
+    const nextExercise = workout.exercises[draft.currentIndex + 1];
+    const nextSets = createDefaultSets(
+      nextExercise?.sets ?? 1,
+      nextExercise?.progression?.prescribedLoadKg ??
+        nextExercise?.progression?.initialWeightKg ??
+        null,
+    );
+    draft.persistDraft(draft.currentIndex + 1, updatedCompletedExercises, nextSets);
   };
 
   return {
+    ...draft,
     completedExerciseCount,
     control,
     currentExercise,
-    currentIndex,
+    currentIndex: draft.currentIndex,
     currentMetric,
     errors,
     isLastExercise,
-    isSubmitting,
+    isSubmitting: isSubmitting || draft.submitting,
     onSubmitCurrentExercise: handleSubmit(submitCurrentExercise),
     plannedSetCount,
     progressValue,
