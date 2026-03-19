@@ -5,7 +5,8 @@
     "client": "cd client && npm run dev"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "playwright": "^1.58.2"
   },
   "dependencies": {
     "@tabler/icons": "^3.37.1",

@@ -21,6 +21,7 @@ export const useQuizStatus = (articleId: string) => {
     queryKey: keys.quiz.status(articleId),
     queryFn: () => getQuizStatus(articleId),
     enabled: !!articleId,
+    staleTime: 0,
   });
 };
 
@@ -58,6 +59,10 @@ export const useSubmitQuiz = () => {
 
       queryClient.invalidateQueries({
         queryKey: keys.challenges.weekly(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: keys.gamification.status(),
       });
     },
   });

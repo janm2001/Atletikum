@@ -8,5 +8,6 @@ export const useGamificationStatus = () => {
   return useQuery({
     queryKey: keys.gamification.status(),
     queryFn: getGamificationStatus,
+    staleTime: 5 * 60 * 1000,
   });
 };

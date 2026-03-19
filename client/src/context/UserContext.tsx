@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import type { User } from "../types/User/user";
 import { UserContext } from "./UserContextCreate";
 import { queryClient } from "../lib/queryClient";
+import { STORAGE_KEYS } from "../constants/storageKeys";
 
 interface UserProviderProps {
   children: ReactNode;
@@ -13,8 +14,19 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     user: User | null;
     token: string | null;
   }>(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
+    const legacyToken = localStorage.getItem("token");
+    const legacyUser = localStorage.getItem("user");
+    if (legacyToken) {
+      localStorage.setItem(STORAGE_KEYS.TOKEN, legacyToken);
+      localStorage.removeItem("token");
+    }
+    if (legacyUser) {
+      localStorage.setItem(STORAGE_KEYS.USER, legacyUser);
+      localStorage.removeItem("user");
+    }
+
+    const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
 
     if (storedToken && storedUser) {
       try {
@@ -23,8 +35,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           token: storedToken,
         };
       } catch {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        localStorage.removeItem(STORAGE_KEYS.USER);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
       }
     }
 
@@ -33,19 +45,19 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const login = (userData: User, newToken: string) => {
     setAuthState({ user: userData, token: newToken });
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem(STORAGE_KEYS.TOKEN, newToken);
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
   };
 
   const updateUser = (userData: User) => {
     setAuthState((prev) => ({ ...prev, user: userData }));
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
   };
 
   const logout = () => {
     setAuthState({ user: null, token: null });
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
     queryClient.clear();
   };
 
