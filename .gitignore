@@ -21,3 +21,5 @@ yarn-error.log*
 #Claude
 .CLAUDE.MD
 server/config/env.js
+docs
+.worktrees/
