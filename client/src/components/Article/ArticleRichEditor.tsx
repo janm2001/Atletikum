@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Text } from "@mantine/core";
 import { RichTextEditor, Link } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -94,15 +95,9 @@ const ArticleRichEditor = ({
         />
       </RichTextEditor>
       {error && (
-        <p
-          style={{
-            color: "var(--mantine-color-error)",
-            fontSize: 12,
-            marginTop: 4,
-          }}
-        >
+        <Text c="error" size="xs" mt={4}>
           {error}
-        </p>
+        </Text>
       )}
     </div>
   );

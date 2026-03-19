@@ -286,7 +286,11 @@
       "frequency": "Učestalost",
       "selectExercises": "Odaberi vježbe",
       "selectExercisesPlaceholder": "Odaberi vježbe za prikaz",
-      "noDataForExercises": "Nema podataka za odabrane vježbe."
+      "noDataForExercises": "Nema podataka za odabrane vježbe.",
+      "levelBadge": "Razina {{level}}",
+      "personalBest": "PR",
+      "notAvailable": "N/D",
+      "xpGained": "{{count}} XP"
     },
     "charts": {
       "insufficientData": "Potrebna su barem 2 treninga za prikaz statistike.",
