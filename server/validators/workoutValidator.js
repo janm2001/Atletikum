@@ -96,6 +96,14 @@ const validateWorkoutExercises = (exercises) => {
       );
     }
 
+    if (exercise.restSeconds !== undefined && exercise.restSeconds !== null) {
+      validateNumberInRange(exercise.restSeconds, {
+        min: 0,
+        max: 600,
+        message: `Odmor za vježbu ${index + 1} mora biti između 0 i 600 sekundi.`,
+      });
+    }
+
     validateProgression(exercise.progression, index);
   });
 };
