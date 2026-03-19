@@ -28,6 +28,7 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     control,
     handleSubmit,
     reset,
+    setValue,
     trigger,
     formState: { errors },
   } = useForm<TrackWorkoutFormValues>({
@@ -111,6 +112,7 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     selectedExerciseId,
     setFields,
     setSelectedExerciseId,
+    setValue,
     totalExercises,
     watchedSets,
   };

@@ -9,7 +9,7 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import { Controller, type Control, type FieldErrors } from "react-hook-form";
+import { Controller, useWatch, type Control, type FieldErrors } from "react-hook-form";
 import {
   getExerciseId,
   getExerciseImage,
@@ -32,9 +32,10 @@ type TrackWorkoutWorkoutCardProps = {
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   plannedSetCount: number;
   setFields: { id: string }[];
-  watchedSets: TrackWorkoutFormValues["sets"] | undefined;
   control: Control<TrackWorkoutFormValues>;
   totalExercises: number;
+  completedSetCount?: number;
+  onCopyPrevious?: (setIndex: number) => void;
 };
 
 const TrackWorkoutWorkoutCard = ({
@@ -46,11 +47,13 @@ const TrackWorkoutWorkoutCard = ({
   isSubmitting,
   onSubmit,
   setFields,
-  watchedSets,
   control,
   totalExercises,
+  completedSetCount = 0,
+  onCopyPrevious,
 }: TrackWorkoutWorkoutCardProps) => {
   const { t } = useTranslation();
+  const watchedSets = useWatch({ control, name: "sets" });
   const currentExerciseName =
     exerciseById.get(getExerciseId(currentExercise.exerciseId))?.title ??
     t('training.track.exerciseFallback', { index: currentIndex + 1 });
@@ -97,6 +100,36 @@ const TrackWorkoutWorkoutCard = ({
             </Text>
 
             {setFields.map((field, setIndex) => {
+              // Completed state
+              if (setIndex < completedSetCount) {
+                return (
+                  <Card key={field.id} withBorder radius="md" p="xs" bg="var(--mantine-color-gray-light)">
+                    <Group justify="space-between">
+                      <Text size="sm" fw={500}>
+                        {t("training.track.setCompleted", { number: setIndex + 1 })}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {watchedSets?.[setIndex]?.loadKg != null ? `${watchedSets[setIndex].loadKg} kg · ` : "BW · "}
+                        {watchedSets?.[setIndex]?.resultValue ?? 0} {currentMetric.unitLabel} ·{" "}
+                        RPE {watchedSets?.[setIndex]?.rpe ?? 0}
+                      </Text>
+                    </Group>
+                  </Card>
+                );
+              }
+
+              // Upcoming state
+              if (setIndex > completedSetCount) {
+                return (
+                  <Card key={field.id} withBorder radius="md" p="xs" opacity={0.5}>
+                    <Text size="sm" c="dimmed">
+                      {t("training.track.setUpcoming", { number: setIndex + 1 })}
+                    </Text>
+                  </Card>
+                );
+              }
+
+              // Active set (setIndex === completedSetCount)
               return (
                 <Card key={field.id} withBorder radius="md" p="xs">
                   <Group justify="space-between" align="center" mb={8}>
@@ -110,6 +143,17 @@ const TrackWorkoutWorkoutCard = ({
                       {watchedSets?.[setIndex]?.rpe ?? 0}
                     </Text>
                   </Group>
+
+                  {setIndex > 0 && onCopyPrevious && (
+                    <Button
+                      variant="subtle"
+                      size="compact-xs"
+                      onClick={() => onCopyPrevious(setIndex)}
+                      mb={4}
+                    >
+                      {t("training.track.copyPrevious")}
+                    </Button>
+                  )}
 
                   <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xs">
                     <Controller
@@ -129,6 +173,7 @@ const TrackWorkoutWorkoutCard = ({
                           label={t('training.track.weightOptional')}
                           min={0}
                           size="sm"
+                          inputMode="decimal"
                           value={setField.value ?? undefined}
                           onChange={(value) =>
                             setField.onChange(
@@ -155,6 +200,7 @@ const TrackWorkoutWorkoutCard = ({
                           label={currentMetric.label}
                           min={1}
                           size="sm"
+                          inputMode="numeric"
                           value={setField.value}
                           onChange={(value) =>
                             setField.onChange(Number(value) || 0)
@@ -185,6 +231,7 @@ const TrackWorkoutWorkoutCard = ({
                           min={1}
                           max={10}
                           size="sm"
+                          inputMode="numeric"
                           value={setField.value}
                           onChange={(value) =>
                             setField.onChange(Number(value) || 1)

@@ -265,7 +265,10 @@
       "exerciseDetails": "Detalji vježbe",
       "exerciseDetailsUnavailable": "Detalji vježbe nisu dostupni.",
       "noExerciseDetails": "Detalji vježbe nisu dostupni.",
-      "watchVideo": "Pogledaj video"
+      "watchVideo": "Pogledaj video",
+      "copyPrevious": "Kopiraj prethodni",
+      "setCompleted": "Set {{number}} završen",
+      "setUpcoming": "Set {{number}}"
     },
     "logs": {
       "empty": "Još nema spremljenih treninga.",

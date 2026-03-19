@@ -37,9 +37,22 @@ const TrackWorkoutPageContent = ({
     selectedExerciseId,
     setFields,
     setSelectedExerciseId,
+    setValue,
     totalExercises,
     watchedSets,
   } = useTrackWorkoutFlow({ workout });
+
+  const handleCopyPrevious = useCallback(
+    (setIndex: number) => {
+      if (setIndex < 1) return;
+      const prevSet = watchedSets?.[setIndex - 1];
+      if (!prevSet) return;
+      setValue(`sets.${setIndex}.loadKg`, prevSet.loadKg);
+      setValue(`sets.${setIndex}.resultValue`, prevSet.resultValue);
+      setValue(`sets.${setIndex}.rpe`, prevSet.rpe);
+    },
+    [watchedSets, setValue],
+  );
 
   const handleSubmitCurrentExercise = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -90,10 +103,10 @@ const TrackWorkoutPageContent = ({
         exerciseById={exerciseById}
         isSubmitting={isSubmitting}
         onSubmit={handleSubmitCurrentExercise}
+        onCopyPrevious={handleCopyPrevious}
         plannedSetCount={plannedSetCount}
         setFields={setFields}
         totalExercises={totalExercises}
-        watchedSets={watchedSets}
       />
 
       <TrackWorkoutExerciseDetailsModal
