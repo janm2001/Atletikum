@@ -122,7 +122,11 @@ export const useExerciseProgression = ({
   const isLastExercise = currentIndex >= workout.exercises.length - 1;
 
   useEffect(() => {
-    // Get the last completed exercise's last set (if any) to carry over values
+    // completedExercises is a flat array of individual set payloads, appended in
+    // exercise order. The last entry is always the last set of the most recently
+    // completed exercise (exercise at currentIndex - 1). We use it for carry-over
+    // without filtering by exerciseId because this ordering is enforced by
+    // buildCompletedExerciseSets.
     const prevSet = completedExercises.length > 0
       ? completedExercises[completedExercises.length - 1]
       : null;
@@ -131,7 +135,7 @@ export const useExerciseProgression = ({
 
     if (prevSet) {
       const currMetricType = currentMetric.metricType;
-      const prevMetricType = prevSet.metricType;
+      const prevMetricType = prevSet.metricType ?? currMetricType; // default to same type if missing = always carry over
 
       // Only carry over if metric types match (or both are undefined)
       if (currMetricType === prevMetricType) {
@@ -145,8 +149,13 @@ export const useExerciseProgression = ({
 
     const defaultSets = createDefaultSets(plannedSetCount, currentPrescribedLoadKg, carryOver);
     reset({ sets: defaultSets });
+  },
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentExercise?.exerciseId, currentPrescribedLoadKg, plannedSetCount, reset]);
+  // completedExercises intentionally excluded: reset must only fire on exercise change,
+  //   not on every set save within the same exercise.
+  // currentMetric intentionally excluded: always in sync with currentExercise?.exerciseId
+  //   (same derived chain), so including it would be a redundant dep.
+  [currentExercise?.exerciseId, currentPrescribedLoadKg, plannedSetCount, reset]);
 
   const getUpdatedCompletedExercises = useCallback(
     (values: TrackWorkoutFormValues) => {
@@ -171,7 +180,7 @@ export const useExerciseProgression = ({
       setCompletedExercises(updatedCompletedExercises);
       setCurrentIndex((previous) => previous + 1);
     },
-    [],
+    [setCompletedExercises, setCurrentIndex],
   );
 
   return {
