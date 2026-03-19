@@ -15,6 +15,7 @@ import type {
 import {
   type Workout,
 } from "@/types/Workout/workout";
+import type { CompletedExercisePayload } from "@/types/WorkoutLog/workoutLog";
 
 export { getMetricFromPrescription } from "@/hooks/useExerciseProgression";
 
@@ -47,12 +48,15 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(
     null,
   );
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [completedExercises, setCompletedExercises] = useState<
+    CompletedExercisePayload[]
+  >([]);
 
   const {
     advanceToNextExercise,
     completedExerciseCount,
     currentExercise,
-    currentIndex,
     currentMetric,
     getUpdatedCompletedExercises,
     isLastExercise,
@@ -64,6 +68,10 @@ export const useTrackWorkoutFlow = ({ workout }: UseTrackWorkoutFlowParams) => {
     control,
     reset,
     workout,
+    currentIndex,
+    setCurrentIndex,
+    completedExercises,
+    setCompletedExercises,
   });
   const { completeWorkout, isSubmitting } = useWorkoutCompletion({ workout });
 

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import {
   useWatch,
   type Control,
@@ -18,6 +19,10 @@ type UseExerciseProgressionParams = {
   control: Control<TrackWorkoutFormValues>;
   reset: UseFormReset<TrackWorkoutFormValues>;
   workout: Workout;
+  currentIndex: number;
+  setCurrentIndex: Dispatch<SetStateAction<number>>;
+  completedExercises: CompletedExercisePayload[];
+  setCompletedExercises: Dispatch<SetStateAction<CompletedExercisePayload[]>>;
 };
 
 const getCurrentPrescribedLoadKg = (
@@ -94,11 +99,11 @@ export const useExerciseProgression = ({
   control,
   reset,
   workout,
+  currentIndex,
+  setCurrentIndex,
+  completedExercises,
+  setCompletedExercises,
 }: UseExerciseProgressionParams) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [completedExercises, setCompletedExercises] = useState<
-    CompletedExercisePayload[]
-  >([]);
 
   const currentExercise = workout.exercises[currentIndex];
   const currentMetric = useMemo(
