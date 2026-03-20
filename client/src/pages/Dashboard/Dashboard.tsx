@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Container, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Exercises from "../../components/Dashboard/Exercises/Exercises";
 import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
 import { useUser } from "../../hooks/useUser";
@@ -10,6 +11,7 @@ import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { getLevelFromTotalXp } from "../../utils/leveling";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 import type { ArticleSummary } from "@/types/Article/article";
+import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
 import DashboardArticlesSection from "@/components/Dashboard/DashboardArticlesSection";
 import DashboardPersonalBests from "@/components/Dashboard/DashboardPersonalBests";
 import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard";
@@ -22,10 +24,11 @@ import { useGamificationStatus } from "@/hooks/useGamification";
 import { useWeeklyChallenges } from "@/hooks/useChallenges";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { data: articles, isLoading: articlesLoading } = useArticles();
-  const { data: workouts } = useWorkouts();
+  const { data: articles, isLoading: articlesLoading, error: articlesError } = useArticles();
+  const { data: workouts, error: workoutsError } = useWorkouts();
   const { data: completedArticleIds } = useMyQuizCompletions();
   const toggleBookmarkMutation = useToggleArticleBookmark();
   const { data: recommendations, isLoading: recommendationsLoading } =
@@ -113,6 +116,14 @@ const Dashboard = () => {
         />
 
         <XpProgressSection variant="full" />
+
+        {articlesError && (
+          <QueryErrorMessage message={t("dashboard.errors.articles")} />
+        )}
+
+        {workoutsError && (
+          <QueryErrorMessage message={t("dashboard.errors.workouts")} />
+        )}
 
         {gamification && (
           <DashboardAlmostLevelUpCard

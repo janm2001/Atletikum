@@ -33,6 +33,8 @@ import {
 } from "@/types/Workout/workout";
 import type { WorkoutFormValues } from "@/schema/workout.schema";
 import WorkoutFormModal from "./WorkoutFormModal";
+import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
+import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
   title: "",
@@ -49,6 +51,7 @@ const Workouts = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
     getDefaultFormValues(),
@@ -115,20 +118,20 @@ const Workouts = () => {
     setOpened(true);
   }, []);
 
-  const handleDelete = useCallback(
-    async (id: string) => {
-      if (!window.confirm(t("training.workouts.confirmDelete"))) {
-        return;
-      }
+  const handleDeleteClick = useCallback((id: string) => {
+    setDeletingWorkoutId(id);
+  }, []);
 
-      try {
-        await deleteMutation.mutateAsync(id);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [deleteMutation, t],
-  );
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletingWorkoutId) return;
+    try {
+      await deleteMutation.mutateAsync(deletingWorkoutId);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDeletingWorkoutId(null);
+    }
+  }, [deleteMutation, deletingWorkoutId]);
 
   const handleSubmit = async (values: WorkoutFormValues) => {
     const customWorkoutValues = {
@@ -156,6 +159,10 @@ const Workouts = () => {
 
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
+  }
+
+  if (error) {
+    return <QueryErrorMessage message={t("training.workouts.loadError")} />;
   }
 
   return (
@@ -226,7 +233,7 @@ const Workouts = () => {
                     workout={workout}
                     onDelete={
                       isWorkoutOwnedByUser(workout, user?._id)
-                        ? handleDelete
+                        ? handleDeleteClick
                         : undefined
                     }
                     onEdit={
@@ -272,6 +279,15 @@ const Workouts = () => {
           loading={createMutation.isPending || updateMutation.isPending}
           onSubmit={handleSubmit}
           showRequiredLevel={false}
+        />
+
+        <ConfirmDeleteModal
+          opened={!!deletingWorkoutId}
+          onClose={() => setDeletingWorkoutId(null)}
+          onConfirm={handleDeleteConfirm}
+          title={t("training.workouts.deleteConfirmTitle")}
+          message={t("training.workouts.confirmDelete")}
+          loading={deleteMutation.isPending}
         />
       </Box>
     </Stack>

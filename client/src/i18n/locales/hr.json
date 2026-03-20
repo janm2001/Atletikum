@@ -153,6 +153,14 @@
       "quizHint": "Kviz donosi do 125 XP",
       "workoutHint": "Trening donosi XP za svaku vježbu"
     },
+    "almostUnlocked": {
+      "title": "Skoro otključano",
+      "viewAll": "Sva dostignuća"
+    },
+    "errors": {
+      "articles": "Greška pri učitavanju članaka.",
+      "workouts": "Greška pri učitavanju treninga."
+    },
     "exercises": {
       "title": "Atletske vježbe",
       "filterLabel": "Filtriraj po mišićnoj skupini",
@@ -208,6 +216,8 @@
       "privateDescription": "Privatni treninzi vidljivi samo vama.",
       "readyWorkouts": "Gotovi treninzi",
       "noWorkoutsForFilter": "Nema vježbi za odabrani filter.",
+      "loadError": "Greška pri učitavanju treninga.",
+      "deleteConfirmTitle": "Brisanje treninga",
       "confirmDelete": "Jeste li sigurni da želite obrisati ovaj trening?",
       "levelRequiredTooltip": "Trebate biti razina 6 kako biste otključali ovu funkcionalnost.",
       "limitReachedTooltip": "Dosegnuli ste maksimalan broj prilagođenih treninga (10).",
@@ -353,7 +363,8 @@
       "all": "Svi članci",
       "saved": "Spremljeno"
     },
-    "empty": "Nema pronađenih članaka za ovu kategoriju."
+    "empty": "Nema pronađenih članaka za ovu kategoriju.",
+    "error": "Greška pri učitavanju članaka. Pokušajte ponovno."
   },
 
   "articles": {
@@ -437,6 +448,7 @@
   },
 
   "leaderboard": {
+    "error": "Greška pri učitavanju ljestvice.",
     "empty": "Ljestvica je prazna. Budite prvi!",
     "title": "Ljestvica",
     "subtitle": "Najbolji sportaši po ukupnim XP bodovima",
