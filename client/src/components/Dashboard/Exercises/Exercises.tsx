@@ -35,7 +35,7 @@ const Exercises = () => {
   }
 
   return (
-    <Stack gap="md" w="100%">
+    <Stack gap="md" w="100%" py="md">
       <Title order={3}>{t("dashboard.exercises.title")}</Title>
       <Select
         label={t("dashboard.exercises.filterLabel")}

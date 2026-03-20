@@ -25,11 +25,11 @@ const WorkoutLogs = () => {
   }
 
   if (workoutLogs.length === 0) {
-    return <Text c="dimmed">{t('training.logs.noLogs')}</Text>;
+    return <Text c="dimmed">{t("training.logs.noLogs")}</Text>;
   }
 
   return (
-    <Stack gap="md" mt="md">
+    <Stack gap="md" mt="md" py="md">
       <WorkoutLogCharts
         workoutLogs={workoutLogs}
         exerciseNameById={exerciseNameById}

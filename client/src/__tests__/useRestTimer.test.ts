@@ -1,6 +1,6 @@
+import { useRestTimer } from './../hooks/useRestTimer';
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useRestTimer } from "@/hooks/useRestTimer";
 
 describe("useRestTimer", () => {
   beforeEach(() => {

@@ -1,8 +1,8 @@
+import { getDraft } from './../utils/workoutDraftStorage';
+import { useWorkoutDraft } from './../hooks/useWorkoutDraft';
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { useWorkoutDraft } from "@/hooks/useWorkoutDraft";
-import { getDraft } from "@/utils/workoutDraftStorage";
-import type { Workout } from "@/types/Workout/workout";
+import { Workout } from "../types/Workout/workout";
 
 const createTestWorkout = (): Workout => ({
   _id: "w1",

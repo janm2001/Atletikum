@@ -13,6 +13,8 @@ import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
 import KnowledgeBaseEmptyState from "@/components/KnowledgeBase/KnowledgeBaseEmptyState";
 import KnowledgeBaseFilters from "@/components/KnowledgeBase/KnowledgeBaseFilters";
 import KnowledgeBaseHeader from "@/components/KnowledgeBase/KnowledgeBaseHeader";
+import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard";
+import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 
 const KnowledgeBase = () => {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ const KnowledgeBase = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [articleFilter, setArticleFilter] =
     useState<KnowledgeBaseArticleFilter>("all");
+  const { data: recommendations } = useWeeklyRecommendations();
   const { data, isLoading, error } = useArticles({
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     savedOnly: articleFilter === "saved",
@@ -59,6 +62,13 @@ const KnowledgeBase = () => {
       </Group>
 
       <XpProgressSection variant="brain" />
+
+      <DashboardRevisionCard
+        revision={recommendations?.revision}
+        onStartRevision={(articleId) =>
+          navigate(`/edukacija/${articleId}/kviz`)
+        }
+      />
 
       {isLoading ? (
         <SpinnerComponent size="lg" fullHeight={false} />

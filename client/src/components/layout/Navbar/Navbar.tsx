@@ -20,6 +20,11 @@ import {
   IconUser,
   IconSun,
   IconMoon,
+  IconLayoutDashboard,
+  IconBarbell,
+  IconBook,
+  IconTrophy,
+  IconSettings,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useUser } from "../../../hooks/useUser";
@@ -33,11 +38,10 @@ import NavbarStreakDropdown from "./NavbarStreakDropdown";
 const navLinkStyles = {
   textDecoration: "none",
   color: "var(--mantine-color-text)",
-  fontSize: "15px",
+  fontSize: "14px",
   fontWeight: 500,
-  padding: "8px 16px",
-  borderRadius: "8px 8px 0 0",
-  borderBottom: "2px solid transparent",
+  padding: "5px 12px",
+  borderRadius: "20px",
   transition: "all 0.2s ease",
 };
 
@@ -68,12 +72,12 @@ const Navbar = () => {
 
   const navItems = useMemo(
     () => [
-      { to: "/pregled", label: t("nav.overview") },
-      { to: "/zapis-treninga", label: t("nav.trainingLogs") },
-      { to: "/edukacija", label: t("nav.education") },
-      { to: "/ljestvica", label: t("nav.leaderboard") },
+      { to: "/pregled", label: t("nav.overview"), icon: IconLayoutDashboard },
+      { to: "/zapis-treninga", label: t("nav.trainingLogs"), icon: IconBarbell },
+      { to: "/edukacija", label: t("nav.education"), icon: IconBook },
+      { to: "/ljestvica", label: t("nav.leaderboard"), icon: IconTrophy },
       ...(user?.role === "admin"
-        ? [{ to: "/upravljanje", label: t("nav.admin") }]
+        ? [{ to: "/upravljanje", label: t("nav.admin"), icon: IconSettings }]
         : []),
     ],
     [user?.role, t],
@@ -91,12 +95,11 @@ const Navbar = () => {
 
   const getNavLinkStyle = (path: string) => ({
     ...navLinkStyles,
-    color: isActive(path) ? colors.primary.light : "var(--mantine-color-text)",
-    fontWeight: isActive(path) ? 700 : 500,
-    backgroundColor: isActive(path) ? colors.interactive.hover : "transparent",
-    borderBottom: isActive(path)
-      ? `2px solid ${colors.primary.light}`
-      : "2px solid transparent",
+    color: isActive(path) ? "white" : "var(--mantine-color-text)",
+    fontWeight: isActive(path) ? 600 : 500,
+    backgroundColor: isActive(path)
+      ? "var(--mantine-color-violet-filled)"
+      : "transparent",
   });
 
   const streakBadgeProps = {
@@ -143,17 +146,23 @@ const Navbar = () => {
         </Title>
       </Link>
 
-      <Group gap="xs" visibleFrom="md">
-        {navItems.map((item) => (
-          <Anchor
-            key={item.to}
-            component={Link}
-            to={item.to}
-            style={getNavLinkStyle(item.to)}
-          >
-            {item.label}
-          </Anchor>
-        ))}
+      <Group gap="xs" visibleFrom="lg">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Anchor
+              key={item.to}
+              component={Link}
+              to={item.to}
+              style={getNavLinkStyle(item.to)}
+            >
+              <Group gap={6} wrap="nowrap">
+                <Icon size={15} />
+                {item.label}
+              </Group>
+            </Anchor>
+          );
+        })}
 
         <HoverCard width={240} shadow="md" position="bottom" withArrow>
           <HoverCard.Target>
@@ -211,7 +220,7 @@ const Navbar = () => {
           <IconLogout2 size={20} />
         </Button>
       </Group>
-      <Flex gap={16} hiddenFrom="md" align="center">
+      <Flex gap={16} hiddenFrom="lg" align="center">
         <Burger
           opened={opened}
           onClick={() => setOpened((o) => !o)}
@@ -222,7 +231,7 @@ const Navbar = () => {
       {opened && (
         <>
           <Box
-            hiddenFrom="md"
+            hiddenFrom="lg"
             onClick={close}
             style={{
               position: "fixed",
@@ -234,7 +243,7 @@ const Navbar = () => {
           />
 
           <Box
-            hiddenFrom="md"
+            hiddenFrom="lg"
             style={{
               position: "fixed",
               top: 0,
@@ -285,20 +294,26 @@ const Navbar = () => {
                 </HoverCard>
               </Group>
 
-              {navItems.map((item) => (
-                <Anchor
-                  key={item.to}
-                  component={Link}
-                  to={item.to}
-                  onClick={close}
-                  style={{
-                    ...getNavLinkStyle(item.to),
-                    display: "block",
-                  }}
-                >
-                  {item.label}
-                </Anchor>
-              ))}
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Anchor
+                    key={item.to}
+                    component={Link}
+                    to={item.to}
+                    onClick={close}
+                    style={{
+                      ...getNavLinkStyle(item.to),
+                      display: "block",
+                    }}
+                  >
+                    <Group gap={8} wrap="nowrap">
+                      <Icon size={16} />
+                      {item.label}
+                    </Group>
+                  </Anchor>
+                );
+              })}
 
               <Button
                 variant="subtle"
