@@ -87,7 +87,7 @@
       "email": "Email",
       "emailPlaceholder": "ime@primjer.hr",
       "successTitle": "Zahtjev je zaprimljen",
-      "successDescription": "Ako je poveznica dostupna, bit ćete automatski preusmjereni na stranicu za reset lozinke.",
+      "successDescription": "Zahtjev za promijenu lozinke poslan je na Vaš E-mail.",
       "submit": "Pošalji zahtjev za promjenu lozinke",
       "backToLogin": "Povratak na prijavu",
       "loginLink": "Prijavite se"
