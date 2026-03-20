@@ -12,7 +12,12 @@ import {
 } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
 import { useEffect, useRef, type ReactNode } from "react";
-import { Controller, useWatch, type Control, type FieldErrors } from "react-hook-form";
+import {
+  Controller,
+  useWatch,
+  type Control,
+  type FieldErrors,
+} from "react-hook-form";
 import {
   getExerciseId,
   getExerciseImage,
@@ -70,7 +75,7 @@ const TrackWorkoutWorkoutCard = ({
   }, [currentIndex]);
   const currentExerciseName =
     exerciseById.get(getExerciseId(currentExercise.exerciseId))?.title ??
-    t('training.track.exerciseFallback', { index: currentIndex + 1 });
+    t("training.track.exerciseFallback", { index: currentIndex + 1 });
   const isLastSet = completedSetCount >= setFields.length - 1;
 
   return (
@@ -78,7 +83,7 @@ const TrackWorkoutWorkoutCard = ({
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text fw={600} size="sm">
-            {t('training.track.currentExercise')}
+            {t("training.track.currentExercise")}
           </Text>
           {restTimer}
         </Group>
@@ -94,7 +99,7 @@ const TrackWorkoutWorkoutCard = ({
           />
         </Flex>
         <Text size="sm" c="dimmed" ta="center">
-          {t('training.track.plan', {
+          {t("training.track.plan", {
             sets: currentExercise.sets,
             reps: currentExercise.reps,
             rpe: currentExercise.rpe,
@@ -102,7 +107,7 @@ const TrackWorkoutWorkoutCard = ({
         </Text>
         {currentExercise.progression?.enabled && (
           <Text size="sm" c="teal" ta="center" fw={600}>
-            {t('training.track.targetWeight', {
+            {t("training.track.targetWeight", {
               weight:
                 currentExercise.progression.prescribedLoadKg ??
                 currentExercise.progression.initialWeightKg ??
@@ -115,7 +120,7 @@ const TrackWorkoutWorkoutCard = ({
           <Stack gap="xs">
             {canGoPreviousExercise && onPreviousExercise && (
               <Button
-                variant="subtle"
+                variant="transparent"
                 size="compact-sm"
                 onClick={onPreviousExercise}
               >
@@ -123,46 +128,69 @@ const TrackWorkoutWorkoutCard = ({
               </Button>
             )}
             <Text size="sm" fw={600}>
-              {t('training.track.enterSetResults')}
+              {t("training.track.enterSetResults")}
             </Text>
 
             {setFields.map((field, setIndex) => {
               // Completed state
-                if (setIndex < completedSetCount) {
-                  return (
-                    <Card key={field.id} withBorder radius="md" p="xs" bg="var(--mantine-color-gray-light)">
-                      <Group justify="space-between" align="flex-start" wrap="nowrap">
-                        <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                          <Text size="sm" fw={500}>
-                            {t("training.track.setCompleted", { number: setIndex + 1 })}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {watchedSets?.[setIndex]?.loadKg != null ? `${watchedSets[setIndex].loadKg} kg · ` : "BW · "}
-                            {watchedSets?.[setIndex]?.resultValue ?? 0} {currentMetric.unitLabel} ·{" "}
-                            RPE {watchedSets?.[setIndex]?.rpe ?? 0}
-                          </Text>
-                        </Stack>
-                        {onEditSet && (
-                          <ActionIcon
-                            variant="subtle"
-                            size="sm"
-                            onClick={() => onEditSet(setIndex)}
-                            aria-label={t("training.track.editSet")}
-                          >
-                            <IconPencil size={14} />
-                          </ActionIcon>
-                        )}
-                      </Group>
-                    </Card>
-                  );
-                }
+              if (setIndex < completedSetCount) {
+                return (
+                  <Card
+                    key={field.id}
+                    withBorder
+                    radius="md"
+                    p="xs"
+                    bg="var(--mantine-color-gray-light)"
+                  >
+                    <Group
+                      justify="space-between"
+                      align="flex-start"
+                      wrap="nowrap"
+                    >
+                      <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                        <Text size="sm" fw={500}>
+                          {t("training.track.setCompleted", {
+                            number: setIndex + 1,
+                          })}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {watchedSets?.[setIndex]?.loadKg != null
+                            ? `${watchedSets[setIndex].loadKg} kg · `
+                            : "BW · "}
+                          {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
+                          {currentMetric.unitLabel} · RPE{" "}
+                          {watchedSets?.[setIndex]?.rpe ?? 0}
+                        </Text>
+                      </Stack>
+                      {onEditSet && (
+                        <ActionIcon
+                          variant="subtle"
+                          size="sm"
+                          onClick={() => onEditSet(setIndex)}
+                          aria-label={t("training.track.editSet")}
+                        >
+                          <IconPencil size={14} />
+                        </ActionIcon>
+                      )}
+                    </Group>
+                  </Card>
+                );
+              }
 
               // Upcoming state
               if (setIndex > completedSetCount) {
                 return (
-                  <Card key={field.id} withBorder radius="md" p="xs" opacity={0.5}>
+                  <Card
+                    key={field.id}
+                    withBorder
+                    radius="md"
+                    p="xs"
+                    opacity={0.5}
+                  >
                     <Text size="sm" c="dimmed">
-                      {t("training.track.setUpcoming", { number: setIndex + 1 })}
+                      {t("training.track.setUpcoming", {
+                        number: setIndex + 1,
+                      })}
                     </Text>
                   </Card>
                 );
@@ -173,14 +201,15 @@ const TrackWorkoutWorkoutCard = ({
                 <Card key={field.id} withBorder radius="md" p="xs">
                   <Group justify="space-between" align="center" mb={8}>
                     <Text size="sm" fw={600}>
-                      {t('training.track.setNumber', { number: setIndex + 1 })}
+                      {t("training.track.setNumber", { number: setIndex + 1 })}
                     </Text>
                     <Text size="xs" c="dimmed">
                       {watchedSets?.[setIndex]?.loadKg != null
                         ? `${watchedSets[setIndex].loadKg} kg · `
                         : "BW · "}
-                      {watchedSets?.[setIndex]?.resultValue ?? 0} {currentMetric.unitLabel} ·{" "}
-                      RPE {watchedSets?.[setIndex]?.rpe ?? 0}
+                      {watchedSets?.[setIndex]?.resultValue ?? 0}{" "}
+                      {currentMetric.unitLabel} · RPE{" "}
+                      {watchedSets?.[setIndex]?.rpe ?? 0}
                     </Text>
                   </Group>
 
@@ -194,12 +223,14 @@ const TrackWorkoutWorkoutCard = ({
                             return true;
                           }
 
-                          return value >= 0 || t('training.track.weightNonNegative');
+                          return (
+                            value >= 0 || t("training.track.weightNonNegative")
+                          );
                         },
                       }}
                       render={({ field: setField }) => (
                         <NumberInput
-                          label={t('training.track.weightOptional')}
+                          label={t("training.track.weightOptional")}
                           min={0}
                           size="sm"
                           inputMode="decimal"
@@ -221,9 +252,9 @@ const TrackWorkoutWorkoutCard = ({
                       rules={{
                         min: {
                           value: 1,
-                          message: t('training.track.setMinValue'),
+                          message: t("training.track.setMinValue"),
                         },
-                        required: t('training.track.enterSetResult'),
+                        required: t("training.track.enterSetResult"),
                       }}
                       render={({ field: setField }) => (
                         <NumberInput
@@ -247,13 +278,13 @@ const TrackWorkoutWorkoutCard = ({
                       rules={{
                         min: {
                           value: 1,
-                          message: t('training.track.rpeMin'),
+                          message: t("training.track.rpeMin"),
                         },
                         max: {
                           value: 10,
-                          message: t('training.track.rpeMax'),
+                          message: t("training.track.rpeMax"),
                         },
-                        required: t('training.track.enterRpe'),
+                        required: t("training.track.enterRpe"),
                       }}
                       render={({ field: setField }) => (
                         <NumberInput
@@ -285,8 +316,8 @@ const TrackWorkoutWorkoutCard = ({
               {!isLastSet
                 ? t("training.track.saveSetAndNext")
                 : currentIndex >= totalExercises - 1
-                  ? t('training.track.finishAndSave')
-                  : t('training.track.saveAndContinue')}
+                  ? t("training.track.finishAndSave")
+                  : t("training.track.saveAndContinue")}
             </Button>
           </Stack>
         </form>
