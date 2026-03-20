@@ -22,6 +22,10 @@ jest.mock("../utils/sanitizeUser", () => ({
   sanitizeUser: jest.fn(),
 }));
 
+jest.mock("../utils/emailService", () => ({
+  sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
 const { User } = require("../models/User");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
@@ -133,7 +137,6 @@ describe("authService", () => {
     expect(result).toEqual({
       message:
         "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.",
-      resetUrl: "http://localhost:5173/reset-lozinka/raw-reset-token",
     });
   });
 

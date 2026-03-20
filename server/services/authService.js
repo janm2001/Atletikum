@@ -5,6 +5,7 @@ const { User } = require("../models/User");
 const { getClientUrl, getJwtSecret, getNodeEnv } = require("../config/env");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const AppError = require("../utils/AppError");
+const { sendPasswordResetEmail } = require("../utils/emailService");
 
 const PASSWORD_RESET_REQUEST_MESSAGE =
   "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.";
@@ -93,9 +94,10 @@ const requestPasswordReset = async ({ username, email }) => {
   const resetUrl = buildResetUrl(resetToken);
   logDevelopmentResetUrl(resetUrl);
 
+  await sendPasswordResetEmail(user.email, resetUrl);
+
   return {
     message: PASSWORD_RESET_REQUEST_MESSAGE,
-    ...(getNodeEnv() === "development" ? { resetUrl } : {}),
   };
 };
 

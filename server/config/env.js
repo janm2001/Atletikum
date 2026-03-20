@@ -118,6 +118,11 @@ const getTrustProxy = () => {
   );
 };
 
+const getResendApiKey = () => getTrimmedEnvValue("RESEND_API_KEY") || "";
+
+const getEmailFrom = () =>
+  getTrimmedEnvValue("EMAIL_FROM") || "Atletikum <onboarding@resend.dev>";
+
 const validateServerEnvironment = () => {
   getJwtSecret();
   getMongoUri();
@@ -126,16 +131,22 @@ const validateServerEnvironment = () => {
   if (isCloudinaryStorageEnabled()) {
     getCloudinaryConfig({ required: true });
   }
+
+  if (getNodeEnv() === "production" && !getResendApiKey()) {
+    throw new Error("Missing required environment variable: RESEND_API_KEY");
+  }
 };
 
 module.exports = {
   getArticleImageStorage,
   getClientUrl,
   getCloudinaryConfig,
+  getEmailFrom,
   getJwtSecret,
   getMongoUri,
   getNodeEnv,
   getPort,
+  getResendApiKey,
   getTrustProxy,
   isCloudinaryStorageEnabled,
   validateServerEnvironment,

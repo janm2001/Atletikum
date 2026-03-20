@@ -7,7 +7,11 @@
       "Bash(git checkout:*)",
       "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(find C:Usersjan.mackovicDesktopAtletikumserver -type f \\\\\\(-name *email* -o -name *mail* -o -name *nodemailer* \\\\\\))",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

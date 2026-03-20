@@ -53,7 +53,6 @@ const ForgotPassword = () => {
     try {
       const response = await requestResetMutation.mutateAsync(formData);
       setResult(response);
-
       if (response.resetUrl) {
         window.location.assign(response.resetUrl);
       }

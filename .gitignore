@@ -19,7 +19,6 @@ yarn-error.log*
 .DS_Store
 
 #Claude
-.CLAUDE.MD
+CLAUDE.MD
 server/config/env.js
-docs
 .worktrees/
