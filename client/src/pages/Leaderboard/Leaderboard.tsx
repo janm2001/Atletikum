@@ -5,17 +5,26 @@ import LeaderboardTable from "@/components/Leaderboard/LeaderboardTable";
 import LeaderboardChaseCard from "@/components/Leaderboard/LeaderboardChaseCard";
 import WeeklyChallengeLeaderboard from "@/components/Challenges/WeeklyChallengeLeaderboard";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
+import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useUser } from "@/hooks/useUser";
 import { useTranslation } from "react-i18next";
 
 const Leaderboard = () => {
   const { t } = useTranslation();
-  const { data, isLoading } = useLeaderboard();
+  const { data, isLoading, error } = useLeaderboard();
   const { user } = useUser();
 
   if (isLoading) {
     return <SpinnerComponent />;
+  }
+
+  if (error) {
+    return (
+      <Container size="md" py="xl">
+        <QueryErrorMessage message={t("leaderboard.error")} />
+      </Container>
+    );
   }
 
   const leaderboard = data?.leaderboard ?? [];

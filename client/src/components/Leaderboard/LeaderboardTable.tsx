@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, Pagination, Stack, Table, Text } from "@mantine/core";
+import { Badge, Box, Card, Group, Pagination, Stack, Table, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconFlame } from "@tabler/icons-react";
 import type { LeaderboardUser } from "@/hooks/useLeaderboard";
@@ -84,6 +84,23 @@ const LeaderboardTable = ({
                       levelVariant="none"
                       usernameSize="sm"
                     />
+                    <Box hiddenFrom="sm" mt={2}>
+                      <Group gap={4}>
+                        <Badge variant="light" color="violet" size="xs">
+                          {t("common.levelBadge", { level: entry.level })}
+                        </Badge>
+                        {entry.dailyStreak > 0 && (
+                          <Badge
+                            variant="light"
+                            color="orange"
+                            size="xs"
+                            leftSection={<IconFlame size={10} />}
+                          >
+                            {entry.dailyStreak}d
+                          </Badge>
+                        )}
+                      </Group>
+                    </Box>
                   </Table.Td>
                   <Table.Td ta="center" visibleFrom="sm">
                     <Text size="sm" fw={600}>

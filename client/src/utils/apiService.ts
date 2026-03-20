@@ -16,6 +16,7 @@ export const apiClient = axios.create({
         "Content-Type": "application/json",
     },
     paramsSerializer: { indexes: null },
+    timeout: 10000,
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -29,6 +30,9 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
+        if (error.code === "ECONNABORTED" || error.code === "ERR_CANCELED") {
+            return Promise.reject(new Error("Zahtjev je prekoračio vremensko ograničenje. Pokušajte ponovo."));
+        }
         if (error.response?.status === 401) {
             const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
             if (token) {
