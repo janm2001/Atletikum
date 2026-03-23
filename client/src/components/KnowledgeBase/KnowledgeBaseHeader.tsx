@@ -10,7 +10,7 @@ const KnowledgeBaseHeader = () => {
       <Group gap="md" align="center">
         <IconBooks size={40} stroke={1.5} color="var(--mantine-color-violet-6)" />
         <div>
-          <Title order={2} mb={4}>
+          <Title order={1} mb={4}>
             {t("knowledgeBase.header.title")}
           </Title>
           <Text size="sm" c="var(--app-text-muted)">

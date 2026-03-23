@@ -7,7 +7,7 @@ const KnowledgeBaseEmptyState = () => {
 
   return (
     <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
-      <IconBook size={48} color="gray" />
+      <IconBook size={48} color="var(--app-text-muted)" />
       <Text c="var(--app-text-muted)">{t("knowledgeBase.empty")}</Text>
     </Center>
   );

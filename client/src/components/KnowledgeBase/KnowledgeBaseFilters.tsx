@@ -19,6 +19,7 @@ import type {
   KnowledgeBaseArticleFilter,
   KnowledgeBaseSortOption,
 } from "@/types/Article/knowledgeBase";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 interface KnowledgeBaseFiltersProps {
@@ -45,49 +46,47 @@ const KnowledgeBaseFilters = ({
   const { t } = useTranslation();
   const isMobile = useMatches({ base: true, sm: false });
 
-  const sortOptions = [
-    { value: "newest", label: t("knowledgeBase.sort.newest") },
-    { value: "oldest", label: t("knowledgeBase.sort.oldest") },
-    { value: "alphabetical", label: t("knowledgeBase.sort.alphabetical") },
-  ];
+  const sortOptions = useMemo(
+    () => [
+      { value: "newest", label: t("knowledgeBase.sort.newest") },
+      { value: "oldest", label: t("knowledgeBase.sort.oldest") },
+      { value: "alphabetical", label: t("knowledgeBase.sort.alphabetical") },
+    ],
+    [t],
+  );
+
+  const searchInput = (
+    <TextInput
+      placeholder={t("knowledgeBase.search.placeholder")}
+      leftSection={<IconSearch size={16} />}
+      value={searchQuery}
+      onChange={(e) => onSearchQueryChange(e.currentTarget.value)}
+      style={isMobile ? undefined : { flex: 1 }}
+    />
+  );
+
+  const sortSelect = (
+    <Select
+      label={t("knowledgeBase.sort.label")}
+      data={sortOptions}
+      value={sortBy}
+      onChange={(value) =>
+        onSortByChange((value ?? "newest") as KnowledgeBaseSortOption)
+      }
+      allowDeselect={false}
+      w={isMobile ? undefined : 160}
+    />
+  );
 
   const topRow = isMobile ? (
     <Stack gap="sm">
-      <TextInput
-        placeholder={t("knowledgeBase.search.placeholder")}
-        leftSection={<IconSearch size={16} />}
-        value={searchQuery}
-        onChange={(e) => onSearchQueryChange(e.currentTarget.value)}
-      />
-      <Select
-        label={t("knowledgeBase.sort.label")}
-        data={sortOptions}
-        value={sortBy}
-        onChange={(value) =>
-          onSortByChange((value ?? "newest") as KnowledgeBaseSortOption)
-        }
-        allowDeselect={false}
-      />
+      {searchInput}
+      {sortSelect}
     </Stack>
   ) : (
     <Group gap="sm" align="flex-end">
-      <TextInput
-        placeholder={t("knowledgeBase.search.placeholder")}
-        leftSection={<IconSearch size={16} />}
-        value={searchQuery}
-        onChange={(e) => onSearchQueryChange(e.currentTarget.value)}
-        style={{ flex: 1 }}
-      />
-      <Select
-        label={t("knowledgeBase.sort.label")}
-        data={sortOptions}
-        value={sortBy}
-        onChange={(value) =>
-          onSortByChange((value ?? "newest") as KnowledgeBaseSortOption)
-        }
-        allowDeselect={false}
-        w={160}
-      />
+      {searchInput}
+      {sortSelect}
     </Group>
   );
 

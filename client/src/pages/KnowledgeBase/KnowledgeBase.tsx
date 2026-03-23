@@ -65,7 +65,7 @@ const KnowledgeBase = () => {
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
       }
-      return a.title.localeCompare(b.title);
+      return a.title.localeCompare(b.title, "hr");
     });
 
     return result;
