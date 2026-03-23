@@ -51,7 +51,9 @@ const Workouts = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
-  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(null);
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(
+    null,
+  );
   const [actionError, setActionError] = useState("");
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
     getDefaultFormValues(),
@@ -166,8 +168,8 @@ const Workouts = () => {
   }
 
   return (
-    <Stack w="100%" mih="60vh" align="center" px="md" py="lg">
-      <Box w="100%" maw={1200}>
+    <Stack w="100%" mih="60vh" align="center" py="md">
+      <Box w="100%">
         <Flex
           my={16}
           align="center"

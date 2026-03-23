@@ -1,15 +1,22 @@
-import { Badge, Box, Button, Card, Group, Stack, Text, Title } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Group,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import type { Workout } from "@/types/Workout/workout";
 import { getExerciseImage } from "@/types/Workout/workout";
+import { gradients } from "@/styles/colors";
 
 interface DashboardTrainingRecommendationProps {
   workout: Workout | null;
   onStart: (id: string) => void;
 }
-
-const FALLBACK_BG =
-  "linear-gradient(135deg, var(--mantine-color-violet-8) 0%, var(--mantine-color-grape-8) 100%)";
 
 const DashboardTrainingRecommendation = ({
   workout,
@@ -24,13 +31,11 @@ const DashboardTrainingRecommendation = ({
         radius="md"
         shadow="sm"
         p="md"
-        h="100%"
         style={{
-          backgroundImage: FALLBACK_BG,
+          backgroundImage: gradients.fallbackImage,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          flex: 1,
         }}
       >
         <Text c="dimmed" size="sm" ta="center">
@@ -56,12 +61,11 @@ const DashboardTrainingRecommendation = ({
       withBorder
       radius="md"
       shadow="sm"
+      h={"100%"}
+      mih={"300px"}
       p={0}
-      h="100%"
-      mih={320}
-      style={{ overflow: "hidden", position: "relative", flex: 1 }}
+      style={{ overflow: "hidden", position: "relative" }}
     >
-      {/* Background: image if available, otherwise gradient */}
       {heroImage ? (
         <Box
           component="img"
@@ -81,22 +85,18 @@ const DashboardTrainingRecommendation = ({
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: FALLBACK_BG,
+            backgroundImage: gradients.fallbackImage,
           }}
         />
       )}
 
-      {/* Dark gradient overlay */}
       <Box
         style={{
           position: "absolute",
           inset: 0,
-          background:
-            "linear-gradient(to top, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.1) 100%)",
+          background: gradients.imageOverlay,
         }}
       />
-
-      {/* Content */}
       <Stack
         p="lg"
         gap="sm"
@@ -117,7 +117,9 @@ const DashboardTrainingRecommendation = ({
           <Text size="sm" c="gray.3">
             {t("dashboard.trainingRec.duration", { count: estimatedMinutes })}
           </Text>
-          <Text size="sm" c="gray.3">·</Text>
+          <Text size="sm" c="gray.3">
+            ·
+          </Text>
           <Badge variant="filled" color="yellow" size="sm">
             {totalBaseXp} XP
           </Badge>

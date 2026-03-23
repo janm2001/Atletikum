@@ -1,4 +1,10 @@
-import { Group, Stack, Text } from "@mantine/core";
+import {
+  Group,
+  Stack,
+  Text,
+  useComputedColorScheme,
+  useMantineTheme,
+} from "@mantine/core";
 import {
   IconFlame,
   IconAlertTriangle,
@@ -29,6 +35,10 @@ const NavbarStreakDropdown = ({
   dailyStreak,
 }: NavbarStreakDropdownProps) => {
   const { t } = useTranslation();
+  const theme = useMantineTheme();
+  const computedColorScheme = useComputedColorScheme("dark");
+  const mode = computedColorScheme === "dark" ? "dark" : "light";
+  const muted = theme.other.stitch[mode].textMuted;
   const remaining = getTimeRemaining(streakExpiresAt);
 
   return (
@@ -50,7 +60,7 @@ const NavbarStreakDropdown = ({
               {t("nav.streakAtRisk")}
             </Text>
           </Group>
-          <Text size="xs" c="dimmed">
+          <Text size="xs" c={muted}>
             {t("nav.streakExpires", {
               hours: remaining.hours,
               minutes: remaining.minutes,

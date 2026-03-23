@@ -23,7 +23,7 @@ const TrainingLogs = () => {
     <Container size="xl" py="md">
       <XpProgressSection variant="body" />
 
-      <Tabs value={activeTab} onChange={setActiveTab} my={8}>
+      <Tabs value={activeTab} onChange={setActiveTab} my={16}>
         <Tabs.List
           justify="center"
           grow
@@ -34,9 +34,9 @@ const TrainingLogs = () => {
             backgroundColor: "var(--mantine-color-body)",
           }}
         >
-          <Tabs.Tab value="workouts">{t('training.suggestedTab')}</Tabs.Tab>
-          <Tabs.Tab value="workout-log">{t('training.historyTab')}</Tabs.Tab>
-          <Tabs.Tab value="exercises">{t('training.exercisesTab')}</Tabs.Tab>
+          <Tabs.Tab value="workouts">{t("training.suggestedTab")}</Tabs.Tab>
+          <Tabs.Tab value="workout-log">{t("training.historyTab")}</Tabs.Tab>
+          <Tabs.Tab value="exercises">{t("training.exercisesTab")}</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="workouts">

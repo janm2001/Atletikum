@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { Container, Grid, Stack } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useUser } from "../../hooks/useUser";
@@ -25,10 +24,6 @@ const Dashboard = () => {
   const { data: recommendations } = useWeeklyRecommendations();
   const { data: weeklyChallenges } = useWeeklyChallenges();
 
-  const isDesktop = useMediaQuery("(min-width: 768px)", true, {
-    getInitialValueInEffect: false,
-  });
-
   const level = user ? getLevelFromTotalXp(user.totalXp) : 1;
 
   const suggestedWorkout = useMemo(() => {
@@ -52,11 +47,8 @@ const Dashboard = () => {
   }, [articles, recommendations]);
 
   return (
-    <Container size="xl" py="md">
-      <Stack
-        gap="md"
-        style={isDesktop ? { height: "calc(100dvh - 124px)" } : undefined}
-      >
+    <Container size="xl" py={{ base: "sm", md: "md" }}>
+      <Stack gap="md">
         <DashboardStatsGrid
           level={level}
           totalXp={user?.totalXp ?? 0}
@@ -71,31 +63,23 @@ const Dashboard = () => {
           <QueryErrorMessage message={t("dashboard.errors.workouts")} />
         )}
 
-        <Grid
-          gutter="md"
-          align="stretch"
-          style={{ flex: 1, minHeight: 0 }}
-          styles={{ inner: { height: "100%" } }}
-        >
-          <Grid.Col
-            span={{ base: 12, md: 4 }}
-            style={{ display: "flex", flexDirection: "column" }}
-          >
+        <Grid gutter="md" align="stretch">
+          <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
             <DashboardQuestsCard
               insight={recommendations?.insight}
               weeklyChallenges={weeklyChallenges}
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
             <DashboardTrainingRecommendation
               workout={suggestedWorkout}
               onStart={(id) => navigate(`/zapis-treninga/trening/${id}`)}
             />
           </Grid.Col>
 
-          <Grid.Col span={{ base: 12, md: 4 }}>
-            <Stack gap="md" style={{ flex: 1 }}>
+          <Grid.Col span={{ base: 12, md: 12, xl: 4 }}>
+            <Stack gap="md">
               <DashboardLeaderboardPeek />
               <DashboardRecommendedContent
                 articles={topArticles}
