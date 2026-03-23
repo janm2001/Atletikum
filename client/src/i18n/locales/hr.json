@@ -224,6 +224,11 @@
     }
   },
 
+  "settings": {
+    "title": "Postavke",
+    "backToProfile": "Natrag na profil"
+  },
+
   "training": {
     "suggestedTab": "Predloženi set vježbi",
     "historyTab": "Povijest vježbanja",

@@ -1,0 +1,7 @@
+.card {
+  overflow: hidden;
+}
+
+.avatar {
+  border: 3px solid var(--mantine-color-violet-5);
+}

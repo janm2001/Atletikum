@@ -72,6 +72,14 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "postavke",
+        lazy: async () => {
+          const { default: Settings } =
+            await import("./pages/Settings/Settings.tsx");
+          return { Component: Settings };
+        },
+      },
+      {
         path: "zapis-treninga",
         lazy: async () => {
           const { default: TrainingLogs } =
