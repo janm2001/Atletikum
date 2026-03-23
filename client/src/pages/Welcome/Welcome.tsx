@@ -20,7 +20,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import atletikumFullLogo from "../../assets/atletikum_full_logo.png";
+import atletikumFullLogo from "../../assets/atletikum_redesign2.png";
 
 const FEATURES = [
   { key: "training", icon: IconBarbell, color: "violet" },
@@ -42,9 +42,11 @@ const Welcome = () => {
           <img
             src={atletikumFullLogo}
             alt="Atletikum"
-            style={{ maxWidth: 300 }}
+            style={{ maxWidth: 300, height: 180 }}
           />
-          <Title order={1}>{t("welcome.title")}</Title>
+          <Title style={{ marginTop: "-25px" }} order={1}>
+            {t("welcome.title")}
+          </Title>
           <Text c="dimmed" size="lg">
             {t("welcome.subtitle")}
           </Text>
