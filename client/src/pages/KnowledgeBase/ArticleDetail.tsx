@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Button, Center, Container, Group, Text, Title } from "@mantine/core";
+import { Button, Card, Center, Container, Group, Text, Title } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useArticleDetail } from "../../hooks/useArticle";
@@ -84,25 +84,27 @@ const ArticleDetail = () => {
 
       <ArticleActionSummary items={article.actionSummary} />
 
-      <Group my="lg" justify="space-between" align="center">
-        <Button
-          variant={isRead ? "filled" : "light"}
-          color={isRead ? "green" : undefined}
-          leftSection={isRead ? <IconCheck size={16} /> : undefined}
-          onClick={handleMarkAsRead}
-          disabled={isRead}
-        >
-          {isRead ? t('articles.read') : t('articles.markAsRead')}
-        </Button>
-        {article.bookmark?.lastViewedAt && (
-          <Text size="sm" c="dimmed">
-            {t('articles.lastRead')}{" "}
-            {new Date(article.bookmark.lastViewedAt).toLocaleDateString(
-              "hr-HR",
-            )}
-          </Text>
-        )}
-      </Group>
+      <Card my="lg" withBorder radius="md" shadow="sm" p="md">
+        <Group justify="space-between" align="center">
+          <Button
+            variant={isRead ? "filled" : "light"}
+            color={isRead ? "green" : undefined}
+            leftSection={isRead ? <IconCheck size={16} /> : undefined}
+            onClick={handleMarkAsRead}
+            disabled={isRead}
+          >
+            {isRead ? t('articles.read') : t('articles.markAsRead')}
+          </Button>
+          {article.bookmark?.lastViewedAt && (
+            <Text size="sm" c="var(--app-text-muted)">
+              {t('articles.lastRead')}{" "}
+              {new Date(article.bookmark.lastViewedAt).toLocaleDateString(
+                "hr-HR",
+              )}
+            </Text>
+          )}
+        </Group>
+      </Card>
 
       <ArticleSourceCard
         sourceUrl={article.sourceUrl}

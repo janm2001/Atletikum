@@ -1,4 +1,4 @@
-import { Divider, SimpleGrid } from "@mantine/core";
+import { SimpleGrid, Stack, Text } from "@mantine/core";
 import type { ArticleSummary } from "@/types/Article/article";
 import { ArticleCard } from "./ArticleCard";
 import { useTranslation } from "react-i18next";
@@ -21,8 +21,10 @@ const ArticleRelatedArticlesSection = ({
   }
 
   return (
-    <>
-      <Divider my="xl" label={t('articles.relatedArticles')} labelPosition="center" />
+    <Stack gap="md" mt="xl">
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)" mb="sm">
+        {t('articles.relatedArticles')}
+      </Text>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         {articles.map((article) => (
           <ArticleCard
@@ -33,7 +35,7 @@ const ArticleRelatedArticlesSection = ({
           />
         ))}
       </SimpleGrid>
-    </>
+    </Stack>
   );
 };
 

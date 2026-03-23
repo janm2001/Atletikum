@@ -15,6 +15,7 @@ import {
   type WorkoutLog,
 } from "../../types/WorkoutLog/workoutLog";
 import { useTranslation } from "react-i18next";
+import classes from "./WorkoutLogCharts.module.css";
 
 interface WorkoutLogChartsProps {
   workoutLogs: WorkoutLog[];
@@ -223,7 +224,7 @@ const WorkoutLogCharts = ({
               searchable
             />
             {weightData.length > 0 && weightSeries.length > 0 ? (
-              <Box w="100%" style={{ minWidth: 0 }}>
+              <Box w="100%" className={classes.chartBox}>
                 <LineChart
                   h={{ base: 220, sm: 300 }}
                   data={weightData}
@@ -257,7 +258,7 @@ const WorkoutLogCharts = ({
         )}
 
         {chartView === "volume" && (
-          <Box w="100%" style={{ minWidth: 0 }}>
+          <Box w="100%" className={classes.chartBox}>
             <BarChart
               h={{ base: 220, sm: 300 }}
               data={volumeData}
@@ -285,7 +286,7 @@ const WorkoutLogCharts = ({
         )}
 
         {chartView === "frequency" && (
-          <Box w="100%" style={{ minWidth: 0 }}>
+          <Box w="100%" className={classes.chartBox}>
             <BarChart
               h={{ base: 220, sm: 300 }}
               data={frequencyData}

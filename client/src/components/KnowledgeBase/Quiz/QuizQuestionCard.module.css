@@ -1,0 +1,11 @@
+.card {
+  overflow: hidden;
+}
+
+.textMuted {
+  color: var(--app-text-muted);
+}
+
+.alertCard {
+  border-color: var(--app-border-subtle);
+}

@@ -21,7 +21,7 @@ const Leaderboard = () => {
 
   if (error) {
     return (
-      <Container size="md" py="xl">
+      <Container size="xl" py={{ base: "sm", md: "md" }}>
         <QueryErrorMessage message={t("leaderboard.error")} />
       </Container>
     );
@@ -34,7 +34,7 @@ const Leaderboard = () => {
   const top3 = leaderboard.slice(0, 3);
 
   return (
-    <Container size="md" py="xl">
+    <Container size="xl" py={{ base: "sm", md: "md" }}>
       <LeaderboardHeader myRank={myRank} />
 
       <Tabs defaultValue="overall" mt="md">

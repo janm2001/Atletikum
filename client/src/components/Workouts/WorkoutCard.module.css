@@ -1,0 +1,37 @@
+.card {
+  position: relative;
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+.cardLocked {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+
+.lockedOverlay {
+  pointer-events: none;
+  z-index: 2;
+}
+
+.titleBox {
+  flex: 1;
+  min-width: 0;
+}
+
+.shrink0 {
+  flex-shrink: 0;
+}
+
+.lockedStack {
+  flex: 1;
+}
+
+.exerciseRow {
+  min-width: 0;
+  flex: 1;
+}
+
+.exerciseDetail {
+  white-space: nowrap;
+  flex-shrink: 0;
+}

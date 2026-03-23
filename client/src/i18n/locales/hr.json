@@ -109,11 +109,6 @@
 
   "dashboard": {
     "welcome": "Pratite svoj napredak, učite i trenirajte - sve na jednom mjestu.",
-    "stats": {
-      "level": "Razina",
-      "totalXp": "Ukupni XP",
-      "dailyStreak": "Dnevni niz"
-    },
     "articles": {
       "title": "Preporučeni članci",
       "viewAll": "Svi članci"
@@ -156,6 +151,29 @@
     "almostUnlocked": {
       "title": "Skoro otključano",
       "viewAll": "Sva dostignuća"
+    },
+    "quests": {
+      "title": "Izazovi i zadaci"
+    },
+    "trainingRec": {
+      "title": "Preporučeni trening",
+      "start": "Započni trening",
+      "duration": "{{count}} min",
+      "empty": "Nema preporučenih treninga."
+    },
+    "leaderboardPeek": {
+      "title": "Pregled ljestvice",
+      "viewAll": "Pogledaj cijelu ljestvicu"
+    },
+    "recommendedContent": {
+      "title": "Preporučeni sadržaj",
+      "viewAll": "Svi članci"
+    },
+    "stats": {
+      "level": "Razina",
+      "totalXp": "Ukupno XP",
+      "dailyStreak": "Dnevni niz",
+      "toLevel": "do razine {{level}}"
     },
     "errors": {
       "articles": "Greška pri učitavanju članaka.",
@@ -206,9 +224,15 @@
     }
   },
 
+  "settings": {
+    "title": "Postavke",
+    "backToProfile": "Natrag na profil"
+  },
+
   "training": {
     "suggestedTab": "Predloženi set vježbi",
     "historyTab": "Povijest vježbanja",
+    "exercisesTab": "Atletske vježbe",
     "workouts": {
       "title": "Treninzi",
       "customWorkout": "Moj trening",
@@ -314,7 +338,10 @@
       "levelBadge": "Razina {{level}}",
       "personalBest": "PR",
       "notAvailable": "N/D",
-      "xpGained": "{{count}} XP"
+      "xpGained": "{{count}} XP",
+      "totalSessions": "Ukupno sesija",
+      "totalXp": "Ukupni XP",
+      "totalPRs": "Osobni rekordi"
     },
     "charts": {
       "insufficientData": "Potrebna su barem 2 treninga za prikaz statistike.",
@@ -364,7 +391,16 @@
       "saved": "Spremljeno"
     },
     "empty": "Nema pronađenih članaka za ovu kategoriju.",
-    "error": "Greška pri učitavanju članaka. Pokušajte ponovno."
+    "error": "Greška pri učitavanju članaka. Pokušajte ponovno.",
+    "search": {
+      "placeholder": "Pretraži članke..."
+    },
+    "sort": {
+      "label": "Sortiraj",
+      "newest": "Najnovije",
+      "oldest": "Najstarije",
+      "alphabetical": "Abecedno"
+    }
   },
 
   "articles": {

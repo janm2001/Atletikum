@@ -34,6 +34,7 @@ import {
 import type { WorkoutFormValues } from "@/schema/workout.schema";
 import WorkoutFormModal from "./WorkoutFormModal";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
+import classes from "./Workouts.module.css";
 import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
@@ -51,7 +52,9 @@ const Workouts = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [opened, setOpened] = useState(false);
   const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
-  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(null);
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(
+    null,
+  );
   const [actionError, setActionError] = useState("");
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
     getDefaultFormValues(),
@@ -166,8 +169,8 @@ const Workouts = () => {
   }
 
   return (
-    <Stack w="100%" mih="60vh" align="center" px="md" py="lg">
-      <Box w="100%" maw={1200}>
+    <Stack w="100%" mih="60vh" align="center" py="md">
+      <Box w="100%">
         <Flex
           my={16}
           align="center"
@@ -260,7 +263,7 @@ const Workouts = () => {
         </Stack>
 
         {!error && workouts.length === 0 && (
-          <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
+          <Center py="xl" className={classes.emptyState}>
             <IconBook size={48} color="gray" />
             <Text c="dimmed">{t("training.workouts.noWorkoutsForFilter")}</Text>
           </Center>

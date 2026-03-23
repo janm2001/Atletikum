@@ -1,4 +1,4 @@
-import { Button, Paper, Text } from "@mantine/core";
+import { Button, Card, Text } from "@mantine/core";
 import { IconExternalLink } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -18,7 +18,7 @@ const ArticleSourceCard = ({
   }
 
   return (
-    <Paper my="xl" p="md" withBorder radius="md" bg="dark.7">
+    <Card my="xl" p="md" withBorder radius="md" shadow="sm">
       <Text fw={600} mb="xs">
         {t('articles.sourceHeader')}
       </Text>
@@ -34,7 +34,7 @@ const ArticleSourceCard = ({
       >
         {sourceTitle || t('articles.readSource')}
       </Button>
-    </Paper>
+    </Card>
   );
 };
 

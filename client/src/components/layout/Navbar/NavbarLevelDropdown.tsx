@@ -1,4 +1,10 @@
-import { Progress, Stack, Text } from "@mantine/core";
+import {
+  Progress,
+  Stack,
+  Text,
+  useComputedColorScheme,
+  useMantineTheme,
+} from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { getXpProgress } from "../../../utils/leveling";
 
@@ -9,6 +15,10 @@ interface NavbarLevelDropdownProps {
 
 const NavbarLevelDropdown = ({ level, totalXp }: NavbarLevelDropdownProps) => {
   const { t } = useTranslation();
+  const theme = useMantineTheme();
+  const computedColorScheme = useComputedColorScheme("dark");
+  const mode = computedColorScheme === "dark" ? "dark" : "light";
+  const muted = theme.other.stitch[mode].textMuted;
   const { xpInLevel, xpForNext, remaining, percent } = getXpProgress(
     level,
     totalXp,
@@ -19,11 +29,11 @@ const NavbarLevelDropdown = ({ level, totalXp }: NavbarLevelDropdownProps) => {
       <Text size="sm" fw={600}>
         {t("nav.levelProgress", { current: level, next: level + 1 })}
       </Text>
-      <Progress value={percent} color="violet" radius="xl" size="md" />
-      <Text size="xs" c="dimmed">
+      <Progress value={percent} color="stitch" radius="xl" size="md" />
+      <Text size="xs" c={muted}>
         {t("nav.xpProgress", { current: xpInLevel, total: xpForNext, percent })}
       </Text>
-      <Text size="xs" c="dimmed">
+      <Text size="xs" c={muted}>
         {t("nav.xpRemaining", { remaining })}
       </Text>
     </Stack>

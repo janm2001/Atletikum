@@ -1,0 +1,7 @@
+.card {
+  overflow: hidden;
+}
+
+.backButton {
+  align-self: flex-start;
+}

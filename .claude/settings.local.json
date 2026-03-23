@@ -11,7 +11,12 @@
       "Bash(find C:Usersjan.mackovicDesktopAtletikumserver -type f \\\\\\(-name *email* -o -name *mail* -o -name *nodemailer* \\\\\\))",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find /c/Users/jan.mackovic/Desktop/Atletikum/client/src -type f -name *Navbar* -o -name *Header*)",
+      "WebFetch(domain:stitch.withgoogle.com)",
+      "Bash(find C:Usersjan.mackovicDesktopAtletikumclientsrc -type f -name *theme*)",
+      "Bash(npx eslint:*)",
+      "Bash(find C:Usersjan.mackovicDesktopAtletikumclientsrctypes -name *Workout* -o -name *Exercise*)"
     ]
   }
 }

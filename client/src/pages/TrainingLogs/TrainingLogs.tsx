@@ -1,49 +1,73 @@
-import { useState } from "react";
-import { Container, Tabs } from "@mantine/core";
-import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { Container, SegmentedControl, Stack } from "@mantine/core";
+import { useLocation, useSearchParams } from "react-router-dom";
 import Workouts from "@/components/Workouts/Workouts";
 import WorkoutLogs from "@/components/WorkoutLogs/WorkoutLogs";
+import Exercises from "@/components/Dashboard/Exercises/Exercises";
 import { XpProgressSection } from "@/components/XpProgress/XpProgressSection";
 import { useTranslation } from "react-i18next";
+import classes from "./TrainingLogs.module.css";
+
+type TabValue = "set-vježbi" | "povijest-vježbanja" | "vježbe";
+
+const VALID_TABS: TabValue[] = ["set-vježbi", "povijest-vježbanja", "vježbe"];
 
 type TrainingLogsLocationState = {
-  activeTab?: "workouts" | "workout-log";
+  activeTab?: TabValue;
 };
+
+const isValidTab = (value: string | null): value is TabValue =>
+  value != null && VALID_TABS.includes(value as TabValue);
 
 const TrainingLogs = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const locationState = location.state as TrainingLogsLocationState | null;
-  const [activeTab, setActiveTab] = useState<string | null>(
-    locationState?.activeTab ?? "workouts",
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tabFromUrl = searchParams.get("tab");
+  const tabFromState = locationState?.activeTab;
+
+  const activeTab: string = isValidTab(tabFromUrl)
+    ? tabFromUrl
+    : isValidTab(tabFromState ?? null)
+      ? tabFromState!
+      : "set-vježbi";
+
+  // Sync location.state into URL on first mount (backward compat)
+  useEffect(() => {
+    if (!isValidTab(tabFromUrl) && isValidTab(tabFromState ?? null)) {
+      setSearchParams({ tab: tabFromState! }, { replace: true });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value }, { replace: true });
+  };
+
+  const tabData = [
+    { label: t("training.suggestedTab"), value: "set-vježbi" },
+    { label: t("training.historyTab"), value: "povijest-vježbanja" },
+    { label: t("training.exercisesTab"), value: "vježbe" },
+  ];
 
   return (
     <Container size="xl" py="md">
-      <XpProgressSection variant="body" />
+      <Stack gap="md">
+        <XpProgressSection variant="body" />
 
-      <Tabs value={activeTab} onChange={setActiveTab} my={8}>
-        <Tabs.List
-          justify="center"
-          grow
-          style={{
-            position: "sticky",
-            top: 60,
-            zIndex: 10,
-            backgroundColor: "var(--mantine-color-body)",
-          }}
-        >
-          <Tabs.Tab value="workouts">{t('training.suggestedTab')}</Tabs.Tab>
-          <Tabs.Tab value="workout-log">{t('training.historyTab')}</Tabs.Tab>
-        </Tabs.List>
+        <SegmentedControl
+          value={activeTab}
+          onChange={handleTabChange}
+          data={tabData}
+          fullWidth
+          className={classes.tabs}
+        />
 
-        <Tabs.Panel value="workouts">
-          <Workouts />
-        </Tabs.Panel>
-        <Tabs.Panel value="workout-log">
-          <WorkoutLogs />
-        </Tabs.Panel>
-      </Tabs>
+        {activeTab === "set-vježbi" && <Workouts />}
+        {activeTab === "povijest-vježbanja" && <WorkoutLogs />}
+        {activeTab === "vježbe" && <Exercises showAll />}
+      </Stack>
     </Container>
   );
 };

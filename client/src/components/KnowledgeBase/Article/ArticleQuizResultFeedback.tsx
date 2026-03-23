@@ -38,7 +38,7 @@ const ArticleQuizResultFeedback = ({
             {t('articles.quiz.failedMessage', { score: quizResult.score, total: quizResult.totalQuestions, percent: Math.round((quizResult.score / quizResult.totalQuestions) * 100) })}
           </Text>
           {nextAvailableDate && (
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="var(--app-text-muted)">
               {t('articles.quiz.availableDate', { date: nextAvailableDate.toLocaleDateString("hr-HR", {
                   day: "numeric",
                   month: "long",

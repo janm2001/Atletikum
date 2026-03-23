@@ -1,63 +1,73 @@
 import {
-  Group,
-  Button,
-  Title,
-  Anchor,
-  Burger,
-  Stack,
-  Box,
-  Badge,
-  Flex,
-  HoverCard,
   ActionIcon,
+  Badge,
+  Box,
+  Button,
+  Group,
+  HoverCard,
+  Stack,
+  Text,
+  Title,
   useComputedColorScheme,
   useMantineColorScheme,
 } from "@mantine/core";
 import { Link, useLocation } from "react-router-dom";
 import {
+  IconBarbell,
+  IconBook,
   IconFlame,
+  IconLayoutDashboard,
   IconLogout2,
-  IconUser,
-  IconSun,
+  IconMenu2,
   IconMoon,
+  IconSettings,
+  IconSun,
+  IconTrophy,
+  IconUser,
+  IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useUser } from "../../../hooks/useUser";
-import { useGamificationStatus } from "../../../hooks/useGamification";
-import { colors, styles } from "../../../styles/colors";
 import { useEffect, useMemo, useState } from "react";
-import atletikumIcon from "../../../assets/atletikum_icon.png";
+import { useGamificationStatus } from "@/hooks/useGamification";
+import { useUser } from "@/hooks/useUser";
+import atletikumIcon from "@/assets/atletikum_redesign2.png";
 import NavbarLevelDropdown from "./NavbarLevelDropdown";
 import NavbarStreakDropdown from "./NavbarStreakDropdown";
+import classes from "./Navbar.module.css";
 
-const navLinkStyles = {
-  textDecoration: "none",
-  color: "var(--mantine-color-text)",
-  fontSize: "15px",
-  fontWeight: 500,
-  padding: "8px 16px",
-  borderRadius: "8px 8px 0 0",
-  borderBottom: "2px solid transparent",
-  transition: "all 0.2s ease",
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof IconLayoutDashboard;
 };
 
 const Navbar = () => {
-  const { logout } = useUser();
-  const [opened, setOpened] = useState(false);
-  const { user } = useUser();
+  const { logout, user } = useUser();
+  const { t } = useTranslation();
   const location = useLocation();
+  const [opened, setOpened] = useState(false);
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("dark");
-  const { t } = useTranslation();
   const { data: gamification } = useGamificationStatus();
 
-  const toggleColorScheme = () => {
-    setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
-  };
+  const isDark = computedColorScheme === "dark";
 
-  const close = () => {
-    setOpened(false);
-  };
+  const navItems = useMemo<NavItem[]>(
+    () => [
+      { to: "/pregled", label: t("nav.overview"), icon: IconLayoutDashboard },
+      {
+        to: "/zapis-treninga",
+        label: t("nav.trainingLogs"),
+        icon: IconBarbell,
+      },
+      { to: "/edukacija", label: t("nav.education"), icon: IconBook },
+      { to: "/ljestvica", label: t("nav.leaderboard"), icon: IconTrophy },
+      ...(user?.role === "admin"
+        ? [{ to: "/upravljanje", label: t("nav.admin"), icon: IconSettings }]
+        : []),
+    ],
+    [user?.role, t],
+  );
 
   useEffect(() => {
     document.body.style.overflow = opened ? "hidden" : "";
@@ -66,49 +76,15 @@ const Navbar = () => {
     };
   }, [opened]);
 
-  const navItems = useMemo(
-    () => [
-      { to: "/pregled", label: t("nav.overview") },
-      { to: "/zapis-treninga", label: t("nav.trainingLogs") },
-      { to: "/edukacija", label: t("nav.education") },
-      { to: "/ljestvica", label: t("nav.leaderboard") },
-      ...(user?.role === "admin"
-        ? [{ to: "/upravljanje", label: t("nav.admin") }]
-        : []),
-    ],
-    [user?.role, t],
-  );
-
   const isActive = (path: string) => {
-    const pathname = location.pathname;
-
-    if (pathname === path) {
+    if (location.pathname === path) {
       return true;
     }
-
-    return pathname.startsWith(`${path}/`);
+    return location.pathname.startsWith(`${path}/`);
   };
 
-  const getNavLinkStyle = (path: string) => ({
-    ...navLinkStyles,
-    color: isActive(path) ? colors.primary.light : "var(--mantine-color-text)",
-    fontWeight: isActive(path) ? 700 : 500,
-    backgroundColor: isActive(path) ? colors.interactive.hover : "transparent",
-    borderBottom: isActive(path)
-      ? `2px solid ${colors.primary.light}`
-      : "2px solid transparent",
-  });
-
-  const streakBadgeProps = {
-    color: gamification?.streakAtRisk ? "red" : ("orange" as const),
-    variant: "light" as const,
-    leftSection: <IconFlame size={14} />,
-    style: {
-      cursor: "pointer",
-      ...(gamification?.streakAtRisk
-        ? { animation: "pulse 2s ease-in-out infinite" }
-        : {}),
-    },
+  const toggleColorScheme = () => {
+    setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
   };
 
   const streakDropdownProps = {
@@ -118,191 +94,219 @@ const Navbar = () => {
     dailyStreak: user?.dailyStreak ?? 0,
   };
 
+  const close = () => setOpened(false);
+
   return (
-    <Group h="100%" px="md" justify="space-between">
-      <Link
-        to="/"
-        style={{
-          textDecoration: "none",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        <img src={atletikumIcon} alt="Atletikum" style={{ height: 36 }} />
-        <Title
-          order={3}
-          style={{
-            ...styles.gradientText,
-            fontWeight: 700,
-            letterSpacing: "0.5px",
-            cursor: "pointer",
-          }}
-        >
+    <Group
+      h="100%"
+      px={{ base: "sm", sm: "md", lg: "lg", xl: "xl" }}
+      justify="space-between"
+      wrap="nowrap"
+      className={classes.navGroup}
+    >
+      <Link to="/" className={classes.logoLink}>
+        <img
+          src={atletikumIcon}
+          alt="Atletikum"
+          className={classes.logoImage}
+        />
+        <Title order={3} fw={800} className={classes.logoTitle}>
           ATLETIKUM
         </Title>
       </Link>
 
-      <Group gap="xs" visibleFrom="md">
-        {navItems.map((item) => (
-          <Anchor
-            key={item.to}
-            component={Link}
-            to={item.to}
-            style={getNavLinkStyle(item.to)}
-          >
-            {item.label}
-          </Anchor>
-        ))}
+      <Group gap={8} visibleFrom="lg" wrap="nowrap">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.to);
+          return (
+            <Button
+              key={item.to}
+              component={Link}
+              to={item.to}
+              size="sm"
+              radius="xl"
+              leftSection={<Icon size={16} />}
+              variant={active ? "filled" : "light"}
+              color={active ? "stitch" : isDark ? "gray" : "dark"}
+              className={active ? undefined : classes.navBtn}
+            >
+              {item.label}
+            </Button>
+          );
+        })}
+      </Group>
 
-        <HoverCard width={240} shadow="md" position="bottom" withArrow>
+      <Group gap={8} visibleFrom="lg" wrap="nowrap">
+        <HoverCard width={250} shadow="md" position="bottom-end" withArrow>
           <HoverCard.Target>
-            <Badge color="violet" style={{ cursor: "pointer" }}>
+            <Badge
+              variant="light"
+              color="stitch"
+              size="lg"
+              className={classes.surfaceControl}
+            >
               {t("nav.levelBadge", { level: user?.level })}
             </Badge>
           </HoverCard.Target>
-          <HoverCard.Dropdown>
+          <HoverCard.Dropdown className={classes.hoverDropdown}>
             <NavbarLevelDropdown
               level={user?.level ?? 1}
               totalXp={user?.totalXp ?? 0}
             />
           </HoverCard.Dropdown>
         </HoverCard>
-        <HoverCard width={240} shadow="md" position="bottom" withArrow>
+
+        <HoverCard width={250} shadow="md" position="bottom-end" withArrow>
           <HoverCard.Target>
-            <Badge {...streakBadgeProps}>{user?.dailyStreak ?? 0}</Badge>
+            <Badge
+              size="lg"
+              variant="light"
+              color={gamification?.streakAtRisk ? "red" : "orange"}
+              leftSection={<IconFlame size={14} />}
+              className={classes.surfaceControl}
+            >
+              {user?.dailyStreak ?? 0}
+            </Badge>
           </HoverCard.Target>
-          <HoverCard.Dropdown>
+          <HoverCard.Dropdown className={classes.hoverDropdown}>
             <NavbarStreakDropdown {...streakDropdownProps} />
           </HoverCard.Dropdown>
         </HoverCard>
 
         <ActionIcon
-          variant="subtle"
-          color="violet"
+          variant="light"
+          color="stitch"
+          radius="xl"
+          size={40}
           onClick={toggleColorScheme}
-          radius="md"
-          size="lg"
           aria-label="Toggle color scheme"
+          className={classes.surfaceControl}
         >
           {computedColorScheme === "dark" ? (
-            <IconSun size={20} />
+            <IconSun size={19} />
           ) : (
-            <IconMoon size={20} />
+            <IconMoon size={19} />
           )}
         </ActionIcon>
 
-        <Button
+        <ActionIcon
           component={Link}
-          variant="subtle"
           to="/profil"
-          radius="md"
-          color="violet"
-          style={{ marginLeft: "8px" }}
+          variant="light"
+          color="stitch"
+          radius="xl"
+          size={40}
+          aria-label={t("nav.profile")}
+          className={classes.surfaceControl}
         >
-          <IconUser size={20} />
-        </Button>
+          <IconUser size={19} />
+        </ActionIcon>
+
         <Button
           onClick={logout}
-          radius="md"
+          radius="xl"
+          size="sm"
           variant="gradient"
-          gradient={{ from: "violet", to: "grape", deg: 135 }}
+          gradient={{ from: "stitch.6", to: "stitch.8", deg: 140 }}
+          className={classes.logoutBtn}
         >
-          <IconLogout2 size={20} />
+          <IconLogout2 size={16} />
         </Button>
       </Group>
-      <Flex gap={16} hiddenFrom="md" align="center">
-        <Burger
-          opened={opened}
-          onClick={() => setOpened((o) => !o)}
-          aria-label="Toggle navigation"
-        />
-      </Flex>
+
+      <ActionIcon
+        hiddenFrom="lg"
+        variant="light"
+        color="stitch"
+        radius="xl"
+        size={40}
+        onClick={() => setOpened((prev) => !prev)}
+        aria-label="Toggle navigation"
+        className={classes.surfaceControl}
+      >
+        {opened ? <IconX size={20} /> : <IconMenu2 size={20} />}
+      </ActionIcon>
 
       {opened && (
         <>
-          <Box
-            hiddenFrom="md"
-            onClick={close}
-            style={{
-              position: "fixed",
-              inset: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.45)",
-              backdropFilter: "blur(4px)",
-              zIndex: 1998,
-            }}
-          />
+          <Box hiddenFrom="lg" onClick={close} className={classes.overlay} />
 
-          <Box
-            hiddenFrom="md"
-            style={{
-              position: "fixed",
-              top: 0,
-              right: 0,
-              width: "min(85vw, 320px)",
-              height: "100vh",
-              backgroundColor: "var(--mantine-color-body)",
-              borderLeft: `1px solid ${colors.interactive.hover}`,
-              padding: "20px 14px",
-              zIndex: 1999,
-              overflowY: "auto",
-            }}
-          >
+          <Box hiddenFrom="lg" className={classes.sidebar}>
             <Group justify="space-between" mb="md">
-              <Title order={4}>{t("nav.menu")}</Title>
-              <Burger
-                opened={opened}
+              <Text fw={700}>{t("nav.menu")}</Text>
+              <ActionIcon
+                variant="light"
+                color="gray"
+                radius="xl"
                 onClick={close}
                 aria-label="Close navigation"
-                size="sm"
-              />
+              >
+                <IconX size={18} />
+              </ActionIcon>
             </Group>
 
             <Stack gap="sm">
-              <Group gap="xs" mb="xs">
+              <Group gap="xs" mb={2}>
                 <HoverCard width={220} shadow="md" position="bottom" withArrow>
                   <HoverCard.Target>
-                    <Badge style={{ cursor: "pointer" }}>
+                    <Badge
+                      variant="light"
+                      color="stitch"
+                      className={classes.surfaceControl}
+                    >
                       {t("nav.levelBadge", { level: user?.level })}
                     </Badge>
                   </HoverCard.Target>
-                  <HoverCard.Dropdown>
+                  <HoverCard.Dropdown className={classes.hoverDropdown}>
                     <NavbarLevelDropdown
                       level={user?.level ?? 1}
                       totalXp={user?.totalXp ?? 0}
                     />
                   </HoverCard.Dropdown>
                 </HoverCard>
+
                 <HoverCard width={220} shadow="md" position="bottom" withArrow>
                   <HoverCard.Target>
-                    <Badge {...streakBadgeProps}>
+                    <Badge
+                      variant="light"
+                      color={gamification?.streakAtRisk ? "red" : "orange"}
+                      leftSection={<IconFlame size={12} />}
+                      className={classes.surfaceControl}
+                    >
                       {user?.dailyStreak ?? 0}
                     </Badge>
                   </HoverCard.Target>
-                  <HoverCard.Dropdown>
+                  <HoverCard.Dropdown className={classes.hoverDropdown}>
                     <NavbarStreakDropdown {...streakDropdownProps} />
                   </HoverCard.Dropdown>
                 </HoverCard>
               </Group>
 
-              {navItems.map((item) => (
-                <Anchor
-                  key={item.to}
-                  component={Link}
-                  to={item.to}
-                  onClick={close}
-                  style={{
-                    ...getNavLinkStyle(item.to),
-                    display: "block",
-                  }}
-                >
-                  {item.label}
-                </Anchor>
-              ))}
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.to);
+                return (
+                  <Button
+                    key={item.to}
+                    component={Link}
+                    to={item.to}
+                    onClick={close}
+                    leftSection={<Icon size={17} />}
+                    justify="flex-start"
+                    radius="md"
+                    variant={active ? "filled" : "light"}
+                    color={active ? "stitch" : isDark ? "gray" : "dark"}
+                    className={active ? undefined : classes.navBtn}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
 
               <Button
-                variant="subtle"
-                color="violet"
+                variant="light"
+                color="stitch"
                 leftSection={
                   computedColorScheme === "dark" ? (
                     <IconSun size={18} />
@@ -312,30 +316,34 @@ const Navbar = () => {
                 }
                 justify="flex-start"
                 onClick={toggleColorScheme}
+                className={classes.surfaceControl}
               >
                 {computedColorScheme === "dark"
                   ? t("nav.lightTheme")
                   : t("nav.darkTheme")}
               </Button>
+
               <Button
                 component={Link}
                 to="/profil"
                 onClick={close}
-                variant="subtle"
-                color="violet"
+                variant="light"
+                color="stitch"
                 leftSection={<IconUser size={18} />}
                 justify="flex-start"
+                className={classes.surfaceControl}
               >
                 {t("nav.profile")}
               </Button>
+
               <Button
                 onClick={() => {
                   logout();
                   close();
                 }}
                 variant="gradient"
-                gradient={{ from: "violet", to: "grape", deg: 135 }}
                 leftSection={<IconLogout2 size={18} />}
+                gradient={{ from: "stitch.6", to: "stitch.8", deg: 140 }}
                 justify="flex-start"
               >
                 {t("nav.logout")}

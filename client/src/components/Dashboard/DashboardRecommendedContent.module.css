@@ -1,0 +1,7 @@
+[data-mantine-color-scheme="dark"] .card {
+  background: linear-gradient(
+    180deg,
+    rgba(34, 40, 54, 0.75) 0%,
+    rgba(20, 26, 38, 0.95) 100%
+  );
+}

@@ -1,45 +1,28 @@
 import { useMemo } from "react";
-import { Container, Stack } from "@mantine/core";
+import { Container, Grid, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Exercises from "../../components/Dashboard/Exercises/Exercises";
-import { XpProgressSection } from "../../components/XpProgress/XpProgressSection";
 import { useUser } from "../../hooks/useUser";
-import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
+import { useArticles } from "../../hooks/useArticle";
 import { useWorkouts } from "../../hooks/useWorkout";
-import { useMyQuizCompletions } from "../../hooks/useQuiz";
 import { getLevelFromTotalXp } from "../../utils/leveling";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
-import type { ArticleSummary } from "@/types/Article/article";
-import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
-import DashboardArticlesSection from "@/components/Dashboard/DashboardArticlesSection";
-import DashboardPersonalBests from "@/components/Dashboard/DashboardPersonalBests";
-import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard";
-import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
-import DashboardWelcomeText from "@/components/Dashboard/DashboardWelcomeText";
-import DashboardWorkoutSection from "@/components/Dashboard/DashboardWorkoutSection";
-import DashboardAlmostLevelUpCard from "@/components/Dashboard/DashboardAlmostLevelUpCard";
-import DashboardEngagementGrid from "@/components/Dashboard/DashboardEngagementGrid";
-import { useGamificationStatus } from "@/hooks/useGamification";
 import { useWeeklyChallenges } from "@/hooks/useChallenges";
+import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
+import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
+import DashboardQuestsCard from "@/components/Dashboard/DashboardQuestsCard";
+import DashboardTrainingRecommendation from "@/components/Dashboard/DashboardTrainingRecommendation";
+import DashboardLeaderboardPeek from "@/components/Dashboard/DashboardLeaderboardPeek";
+import DashboardRecommendedContent from "@/components/Dashboard/DashboardRecommendedContent";
 
 const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { data: articles, isLoading: articlesLoading, error: articlesError } = useArticles();
+  const { data: articles, error: articlesError } = useArticles();
   const { data: workouts, error: workoutsError } = useWorkouts();
-  const { data: completedArticleIds } = useMyQuizCompletions();
-  const toggleBookmarkMutation = useToggleArticleBookmark();
-  const { data: recommendations, isLoading: recommendationsLoading } =
-    useWeeklyRecommendations();
-  const { data: gamification } = useGamificationStatus();
+  const { data: recommendations } = useWeeklyRecommendations();
   const { data: weeklyChallenges } = useWeeklyChallenges();
-
-  const completedSet = useMemo(
-    () => new Set(completedArticleIds ?? []),
-    [completedArticleIds],
-  );
 
   const level = user ? getLevelFromTotalXp(user.totalXp) : 1;
 
@@ -63,59 +46,14 @@ const Dashboard = () => {
     return (articles ?? []).slice(0, 3);
   }, [articles, recommendations]);
 
-  const resumeArticle = useMemo(() => {
-    if (!articles?.length) {
-      return null;
-    }
-
-    const inProgress = articles.filter((article) => {
-      const progress = Number(article.bookmark?.progressPercent ?? 0);
-      return progress > 0 && progress < 100;
-    });
-
-    if (inProgress.length === 0) {
-      return null;
-    }
-
-    const sortedCandidates = [...inProgress].sort((left, right) => {
-      const leftLastViewed = left.bookmark?.lastViewedAt
-        ? new Date(left.bookmark.lastViewedAt).getTime()
-        : 0;
-      const rightLastViewed = right.bookmark?.lastViewedAt
-        ? new Date(right.bookmark.lastViewedAt).getTime()
-        : 0;
-
-      if (rightLastViewed !== leftLastViewed) {
-        return rightLastViewed - leftLastViewed;
-      }
-
-      const leftProgress = Number(left.bookmark?.progressPercent ?? 0);
-      const rightProgress = Number(right.bookmark?.progressPercent ?? 0);
-      return rightProgress - leftProgress;
-    });
-
-    return sortedCandidates[0] ?? null;
-  }, [articles]);
-
-  const handleToggleBookmark = (article: ArticleSummary) => {
-    toggleBookmarkMutation.mutate({
-      articleId: article._id,
-      shouldBookmark: !article.bookmark?.isBookmarked,
-    });
-  };
-
   return (
-    <Container size="lg" py="md">
-      <Stack gap="lg">
-        <DashboardWelcomeText />
-
+    <Container size="xl" py={{ base: "sm", md: "md" }}>
+      <Stack gap="md">
         <DashboardStatsGrid
           level={level}
           totalXp={user?.totalXp ?? 0}
           dailyStreak={user?.dailyStreak ?? 0}
         />
-
-        <XpProgressSection variant="full" />
 
         {articlesError && (
           <QueryErrorMessage message={t("dashboard.errors.articles")} />
@@ -125,47 +63,31 @@ const Dashboard = () => {
           <QueryErrorMessage message={t("dashboard.errors.workouts")} />
         )}
 
-        {gamification && (
-          <DashboardAlmostLevelUpCard
-            gamification={gamification}
-            onDoQuiz={() => navigate("/edukacija")}
-            onDoWorkout={() => navigate("/zapis-treninga")}
-          />
-        )}
+        <Grid gutter="md" align="stretch">
+          <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
+            <DashboardQuestsCard
+              insight={recommendations?.insight}
+              weeklyChallenges={weeklyChallenges}
+            />
+          </Grid.Col>
 
-        <DashboardEngagementGrid
-          insight={recommendations?.insight}
-          weeklyChallenges={weeklyChallenges}
-          resumeArticle={resumeArticle}
-          onContinue={(articleId) => navigate(`/edukacija/${articleId}`)}
-        />
+          <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
+            <DashboardTrainingRecommendation
+              workout={suggestedWorkout}
+              onStart={(id) => navigate(`/zapis-treninga/trening/${id}`)}
+            />
+          </Grid.Col>
 
-        <DashboardRevisionCard
-          revision={recommendations?.revision}
-          onStartRevision={(articleId) =>
-            navigate(`/edukacija/${articleId}/kviz`)
-          }
-        />
-
-        <DashboardPersonalBests
-          summaries={recommendations?.personalBestSummaries}
-        />
-
-        <DashboardArticlesSection
-          articles={topArticles}
-          isLoading={articlesLoading || recommendationsLoading}
-          completedArticleIds={completedSet}
-          onNavigateArticle={(id) => navigate(`/edukacija/${id}`)}
-          onOpenArticles={() => navigate("/edukacija")}
-          onToggleBookmark={handleToggleBookmark}
-        />
-
-        <DashboardWorkoutSection
-          workout={suggestedWorkout}
-          onOpenWorkouts={() => navigate("/zapis-treninga")}
-        />
-
-        <Exercises />
+          <Grid.Col span={{ base: 12, md: 12, xl: 4 }}>
+            <Stack gap="md">
+              <DashboardLeaderboardPeek />
+              <DashboardRecommendedContent
+                articles={topArticles}
+                onNavigate={(id) => navigate(`/edukacija/${id}`)}
+              />
+            </Stack>
+          </Grid.Col>
+        </Grid>
       </Stack>
     </Container>
   );

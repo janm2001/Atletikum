@@ -105,7 +105,7 @@ export const ArticleCard = ({
               )}
             </ActionIcon>
           )}
-          <Text size="xs" c="dimmed">
+          <Text size="xs" c="var(--app-text-muted)">
             {new Date(article.createdAt).toLocaleDateString("hr-HR")}
           </Text>
         </Group>
@@ -115,13 +115,12 @@ export const ArticleCard = ({
         {article.title}
       </Text>
 
-      <Text size="sm" c="dimmed" mt="sm" lineClamp={3} style={{ flex: 1 }}>
+      <Text size="sm" c="var(--app-text-muted)" mt="sm" lineClamp={3} style={{ flex: 1 }}>
         {article.summary}
       </Text>
 
       <Button
         variant="light"
-        color="blue"
         fullWidth
         mt="md"
         radius="md"

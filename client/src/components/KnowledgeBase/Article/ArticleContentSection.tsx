@@ -35,7 +35,7 @@ const ArticleContentSection = ({
         mb="xl"
         style={{
           fontStyle: "italic",
-          borderLeft: "4px solid var(--mantine-color-blue-6)",
+          borderLeft: "4px solid var(--mantine-color-violet-6)",
           paddingLeft: "1rem",
         }}
       >

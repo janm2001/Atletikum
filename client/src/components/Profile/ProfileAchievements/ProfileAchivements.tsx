@@ -13,6 +13,7 @@ import { IconTrendingUp, IconTargetArrow } from "@tabler/icons-react";
 import { useAchievements } from "../../../hooks/useAchievements";
 import { AchievementCard } from "../../Achievements/AchievementCard";
 import type { Achievement } from "../../../types/Achievement/achievement";
+import classes from "./ProfileAchievements.module.css";
 
 const sortLockedByProgress = (items: Achievement[]): Achievement[] => {
   return [...items].sort((a, b) => {
@@ -75,7 +76,7 @@ const ProfileAchievements = () => {
       <Stack gap="lg">
         <Card withBorder shadow="sm" radius="md">
           <Group justify="space-around">
-            <div style={{ textAlign: "center" }}>
+            <div className={classes.textCenter}>
               <Text size="sm" c="dimmed">
                 {t("profile.achievements.unlocked")}
               </Text>
@@ -83,7 +84,7 @@ const ProfileAchievements = () => {
                 {unlockedCount}/{all.length}
               </Text>
             </div>
-            <div style={{ textAlign: "center" }}>
+            <div className={classes.textCenter}>
               <Group gap={4} justify="center">
                 <IconTrendingUp size={20} color="var(--mantine-color-blue-6)" />
                 <Text size="sm" c="dimmed">

@@ -26,8 +26,7 @@ import {
 } from "../../schema/register.schema";
 import { useRegister } from "../../hooks/useAuth";
 import { useTranslation } from "react-i18next";
-import atletikumFullLogoWhiteText from "../../assets/atletikum_full_white_text.png";
-import atletikumIcon from "../../assets/atletikum_icon.png";
+import atletikumIcon from "../../assets/atletikum_redesign2.png";
 
 const Register = () => {
   const { t } = useTranslation();
@@ -77,9 +76,15 @@ const Register = () => {
       }
     } catch (error) {
       if (isAxiosError(error)) {
-        setError(error.response?.data?.message || t("auth.register.serverError"));
+        setError(
+          error.response?.data?.message || t("auth.register.serverError"),
+        );
       } else {
-        setError(error instanceof Error ? error.message : t("auth.register.serverError"));
+        setError(
+          error instanceof Error
+            ? error.message
+            : t("auth.register.serverError"),
+        );
       }
     }
   };
@@ -105,10 +110,25 @@ const Register = () => {
         }}
       >
         <img
-          src={atletikumFullLogoWhiteText}
+          src={atletikumIcon}
           alt="Atletikum"
           style={{ width: "100%", maxWidth: 550 }}
         />
+        <Title
+          ta="center"
+          order={1}
+          c="white"
+          fw={900}
+          size="2.5rem"
+          mt="lg"
+          style={{
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            textShadow: "0 2px 10px rgba(0,0,0,0.2)",
+          }}
+        >
+          Atletikum
+        </Title>
         <Text c="white" opacity={0.85} size="lg" ta="center" mt="sm" maw={320}>
           {t("dashboard.welcome")}
         </Text>
@@ -125,8 +145,18 @@ const Register = () => {
       >
         <Stack w="100%" maw={420}>
           <Box hiddenFrom="md" ta="center" mb="md">
-            <img src={atletikumIcon} alt="Atletikum" style={{ height: 48 }} />
-            <Title order={2} mt="xs">
+            <img src={atletikumIcon} alt="Atletikum" style={{ height: 60 }} />
+            <Title
+              order={1}
+              mt="xs"
+              fw={900}
+              size="2rem"
+              c="violet"
+              style={{
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
               Atletikum
             </Title>
           </Box>
@@ -240,7 +270,12 @@ const Register = () => {
                 </Text>
               )}
 
-              <Button fullWidth mt="xl" type="submit" loading={isSubmitting || registerMutation.isPending}>
+              <Button
+                fullWidth
+                mt="xl"
+                type="submit"
+                loading={isSubmitting || registerMutation.isPending}
+              >
                 {t("auth.register.submit")}
               </Button>
             </form>

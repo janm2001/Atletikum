@@ -14,6 +14,7 @@ import type { QuizQuestion } from "@/types/Article/article";
 import { QuizOptionCard } from "./QuizOptionCard";
 import QuizBackButton from "./QuizBackButton";
 import { useTranslation } from "react-i18next";
+import classes from "./QuizQuestionCard.module.css";
 
 interface QuizQuestionCardProps {
   articleTitle: string;
@@ -55,7 +56,7 @@ const QuizQuestionCard = ({
       <Title order={2} mb="xs">
         {articleTitle}
       </Title>
-      <Text c="dimmed" mb="sm">
+      <Text className={classes.textMuted} mb="sm">
         {t('articles.quiz.sectionTitle')}
       </Text>
 
@@ -68,12 +69,12 @@ const QuizQuestionCard = ({
         {t('articles.quiz.alertMessage', { xp: totalQuestions * 25 })}
       </Alert>
 
-      <Card withBorder padding="xl" radius="md">
+      <Card withBorder padding="xl" radius="md" shadow="sm" className={classes.card}>
         <Group justify="space-between" mb="md">
           <Badge variant="outline">
             {t('articles.quiz.questionProgress', { current: questionIndex + 1, total: totalQuestions })}
           </Badge>
-          <Badge color="blue">{t('articles.quiz.quizTitle')}</Badge>
+          <Badge color="violet">{t('articles.quiz.quizTitle')}</Badge>
         </Group>
 
         <Title order={4} mb="xl">

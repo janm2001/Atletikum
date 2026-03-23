@@ -10,7 +10,11 @@ import {
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
 
-const Exercises = () => {
+interface ExercisesProps {
+  showAll?: boolean;
+}
+
+const Exercises = ({ showAll }: ExercisesProps) => {
   const { t } = useTranslation();
   const { data, isLoading, error } = useExercises();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("ALL");
@@ -28,14 +32,16 @@ const Exercises = () => {
     );
   }, [exercises, selectedMuscleGroup]);
 
-  const visibleExercises = filteredExercises.slice(0, 3);
+  const visibleExercises = showAll
+    ? filteredExercises
+    : filteredExercises.slice(0, 3);
 
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
   }
 
   return (
-    <Stack gap="md" w="100%">
+    <Stack gap="md" w="100%" py="md">
       <Title order={3}>{t("dashboard.exercises.title")}</Title>
       <Select
         label={t("dashboard.exercises.filterLabel")}

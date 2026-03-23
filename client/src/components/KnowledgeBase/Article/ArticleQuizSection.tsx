@@ -2,9 +2,8 @@ import {
   Alert,
   Badge,
   Button,
-  Divider,
+  Card,
   Group,
-  Paper,
   Stack,
   Text,
   Title,
@@ -39,14 +38,14 @@ const ArticleQuizSection = ({
   }
 
   return (
-    <>
-      <Divider my="xl" label={t('articles.quiz.sectionTitle')} labelPosition="center" />
-      <Paper p="xl" withBorder radius="md" ta="center">
+    <Stack gap="md" mt="xl">
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)">{t('articles.quiz.sectionTitle')}</Text>
+      <Card p="xl" withBorder radius="md" shadow="sm" ta="center">
         {quizStatus && !quizStatus.canTakeQuiz && quizStatus.lastCompletion ? (
           <Stack align="center" gap="md">
             <IconLock size={48} color="var(--mantine-color-gray-5)" />
             <Title order={3}>{t('articles.quiz.locked')}</Title>
-            <Text c="dimmed">
+            <Text c="var(--app-text-muted)">
               {t('articles.quiz.lockedMessage')}
             </Text>
 
@@ -56,7 +55,7 @@ const ArticleQuizSection = ({
                   {quizStatus.lastCompletion.score}/
                   {quizStatus.lastCompletion.totalQuestions}
                 </Text>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="var(--app-text-muted)">
                   {t('articles.quiz.correctLabel')}
                 </Text>
               </Stack>
@@ -64,7 +63,7 @@ const ArticleQuizSection = ({
                 <Text size="xl" fw={700} c="teal">
                   +{quizStatus.lastCompletion.xpGained}
                 </Text>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="var(--app-text-muted)">
                   {t('articles.quiz.xpEarned')}
                 </Text>
               </Stack>
@@ -85,7 +84,7 @@ const ArticleQuizSection = ({
                     ? t('articles.quiz.passed')
                     : t('articles.quiz.failed')}
                 </Badge>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="var(--app-text-muted)">
                   {t('articles.quiz.status')}
                 </Text>
               </Stack>
@@ -94,7 +93,7 @@ const ArticleQuizSection = ({
             {quizStatus.nextAvailableAt && (
               <Alert
                 icon={<IconClock size={18} />}
-                color="blue"
+                color="violet"
                 variant="light"
                 w="100%"
                 maw={400}
@@ -113,7 +112,7 @@ const ArticleQuizSection = ({
           </Stack>
         ) : quizStatus?.lastCompletion ? (
           <Stack align="center" gap="md">
-            <IconBrain size={48} color="var(--mantine-color-blue-5)" />
+            <IconBrain size={48} color="var(--mantine-color-violet-5)" />
             <Title order={3}>{t('articles.quiz.testKnowledge')}</Title>
 
             <Group justify="center" gap="md">
@@ -134,7 +133,7 @@ const ArticleQuizSection = ({
               </Badge>
             </Group>
 
-            <Text c="dimmed" size="sm">
+            <Text c="var(--app-text-muted)" size="sm">
               {t('articles.quiz.retryDescription')}
             </Text>
 
@@ -148,9 +147,9 @@ const ArticleQuizSection = ({
           </Stack>
         ) : (
           <Stack align="center" gap="md">
-            <IconBrain size={48} color="var(--mantine-color-blue-5)" />
+            <IconBrain size={48} color="var(--mantine-color-violet-5)" />
             <Title order={3}>{t('articles.quiz.testKnowledge')}</Title>
-            <Text c="dimmed">{t('articles.quiz.firstDescription')}</Text>
+            <Text c="var(--app-text-muted)">{t('articles.quiz.firstDescription')}</Text>
             <Badge size="lg" variant="light" color="grape">
               {t('articles.quiz.maxXp', { xp: quizQuestionCount * 25 })}
             </Badge>
@@ -159,8 +158,8 @@ const ArticleQuizSection = ({
             </Button>
           </Stack>
         )}
-      </Paper>
-    </>
+      </Card>
+    </Stack>
   );
 };
 
