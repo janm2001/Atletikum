@@ -1,4 +1,4 @@
-import { Paper, Stack, Text, Title } from "@mantine/core";
+import { Card, Stack, Text, Title } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
 interface ArticleActionSummaryProps {
@@ -13,7 +13,7 @@ const ArticleActionSummary = ({ items }: ArticleActionSummaryProps) => {
   }
 
   return (
-    <Paper my="xl" p="md" withBorder radius="md">
+    <Card my="xl" p="md" withBorder radius="md" shadow="sm">
       <Title order={4} mb="sm">
         {t('articles.actionSummary')}
       </Title>
@@ -24,7 +24,7 @@ const ArticleActionSummary = ({ items }: ArticleActionSummaryProps) => {
           </Text>
         ))}
       </Stack>
-    </Paper>
+    </Card>
   );
 };
 

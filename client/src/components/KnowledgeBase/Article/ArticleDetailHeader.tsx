@@ -39,7 +39,7 @@ const ArticleDetailHeader = ({
   const { t } = useTranslation();
 
   const breadcrumbs = [
-    <Anchor key="knowledge-base" onClick={onBack} c="dimmed">
+    <Anchor key="knowledge-base" onClick={onBack} c="var(--app-text-muted)">
       {t('articles.breadcrumb')}
     </Anchor>,
     <Text key="title" truncate w={200}>
@@ -60,7 +60,7 @@ const ArticleDetailHeader = ({
 
       <Breadcrumbs mb="xl">{breadcrumbs}</Breadcrumbs>
 
-      <Badge size="lg" mb="sm" variant="light" color="blue">
+      <Badge size="lg" mb="sm" variant="light" color="violet">
         {tag}
       </Badge>
 
@@ -82,12 +82,12 @@ const ArticleDetailHeader = ({
         </ActionIcon>
       </Group>
 
-      <Group mb="xl" c="dimmed">
-        <Text size="sm">{t('articles.authorLabel')}{author}</Text>
-        <Text size="sm">•</Text>
-        <Text size="sm">{new Date(createdAt).toLocaleDateString("hr-HR")}</Text>
-        <Text size="sm">•</Text>
-        <Text size="sm">{t('articles.progressLabel')}{progressPercent}%</Text>
+      <Group mb="xl">
+        <Text size="sm" c="var(--app-text-muted)">{t('articles.authorLabel')}{author}</Text>
+        <Text size="sm" c="var(--app-text-muted)">•</Text>
+        <Text size="sm" c="var(--app-text-muted)">{new Date(createdAt).toLocaleDateString("hr-HR")}</Text>
+        <Text size="sm" c="var(--app-text-muted)">•</Text>
+        <Text size="sm" c="var(--app-text-muted)">{t('articles.progressLabel')}{progressPercent}%</Text>
       </Group>
     </>
   );

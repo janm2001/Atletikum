@@ -1,4 +1,4 @@
-import { Divider, SimpleGrid } from "@mantine/core";
+import { SimpleGrid, Stack, Text } from "@mantine/core";
 import ExerciseCard from "@/components/Dashboard/ExerciseCard/ExerciseCard";
 import type { Exercise } from "@/types/Exercise/exercise";
 import { useTranslation } from "react-i18next";
@@ -17,14 +17,16 @@ const ArticleRelatedExercisesSection = ({
   }
 
   return (
-    <>
-      <Divider my="xl" label={t('articles.relatedExercises')} labelPosition="center" />
+    <Stack gap="md" mt="xl">
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)" mb="xs">
+        {t('articles.relatedExercises')}
+      </Text>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         {exercises.map((exercise) => (
           <ExerciseCard key={exercise._id} exercise={exercise} />
         ))}
       </SimpleGrid>
-    </>
+    </Stack>
   );
 };
 
