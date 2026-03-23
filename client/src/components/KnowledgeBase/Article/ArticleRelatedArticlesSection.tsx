@@ -22,7 +22,7 @@ const ArticleRelatedArticlesSection = ({
 
   return (
     <Stack gap="md" mt="xl">
-      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)" mb="xs">
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)" mb="sm">
         {t('articles.relatedArticles')}
       </Text>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">

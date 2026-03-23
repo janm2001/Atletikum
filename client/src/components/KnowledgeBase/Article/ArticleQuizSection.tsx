@@ -2,9 +2,8 @@ import {
   Alert,
   Badge,
   Button,
-  Divider,
+  Card,
   Group,
-  Paper,
   Stack,
   Text,
   Title,
@@ -39,9 +38,9 @@ const ArticleQuizSection = ({
   }
 
   return (
-    <>
-      <Divider my="xl" label={t('articles.quiz.sectionTitle')} labelPosition="center" />
-      <Paper p="xl" withBorder radius="md" ta="center">
+    <Stack gap="md" mt="xl">
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)">{t('articles.quiz.sectionTitle')}</Text>
+      <Card p="xl" withBorder radius="md" shadow="sm" ta="center">
         {quizStatus && !quizStatus.canTakeQuiz && quizStatus.lastCompletion ? (
           <Stack align="center" gap="md">
             <IconLock size={48} color="var(--mantine-color-gray-5)" />
@@ -159,8 +158,8 @@ const ArticleQuizSection = ({
             </Button>
           </Stack>
         )}
-      </Paper>
-    </>
+      </Card>
+    </Stack>
   );
 };
 
