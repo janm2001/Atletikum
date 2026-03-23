@@ -34,6 +34,7 @@ import {
 import type { WorkoutFormValues } from "@/schema/workout.schema";
 import WorkoutFormModal from "./WorkoutFormModal";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
+import classes from "./Workouts.module.css";
 import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 
 const getDefaultFormValues = (): WorkoutFormValues => ({
@@ -262,7 +263,7 @@ const Workouts = () => {
         </Stack>
 
         {!error && workouts.length === 0 && (
-          <Center py="xl" style={{ flexDirection: "column", gap: 10 }}>
+          <Center py="xl" className={classes.emptyState}>
             <IconBook size={48} color="gray" />
             <Text c="dimmed">{t("training.workouts.noWorkoutsForFilter")}</Text>
           </Center>

@@ -15,7 +15,8 @@
       "Bash(find /c/Users/jan.mackovic/Desktop/Atletikum/client/src -type f -name *Navbar* -o -name *Header*)",
       "WebFetch(domain:stitch.withgoogle.com)",
       "Bash(find C:Usersjan.mackovicDesktopAtletikumclientsrc -type f -name *theme*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(find C:Usersjan.mackovicDesktopAtletikumclientsrctypes -name *Workout* -o -name *Exercise*)"
     ]
   }
 }

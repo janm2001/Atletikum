@@ -1,0 +1,18 @@
+.kpiCard {
+  background-color: var(--app-surface-raised);
+  border: 1px solid var(--app-border-subtle);
+  text-align: center;
+  padding: var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-md);
+}
+
+.kpiValue {
+  font-size: var(--mantine-font-size-xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kpiLabel {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--app-text-muted);
+}

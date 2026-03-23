@@ -10,7 +10,11 @@ import {
 import SpinnerComponent from "../../SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
 
-const Exercises = () => {
+interface ExercisesProps {
+  showAll?: boolean;
+}
+
+const Exercises = ({ showAll }: ExercisesProps) => {
   const { t } = useTranslation();
   const { data, isLoading, error } = useExercises();
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>("ALL");
@@ -28,7 +32,9 @@ const Exercises = () => {
     );
   }, [exercises, selectedMuscleGroup]);
 
-  const visibleExercises = filteredExercises.slice(0, 3);
+  const visibleExercises = showAll
+    ? filteredExercises
+    : filteredExercises.slice(0, 3);
 
   if (isLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;

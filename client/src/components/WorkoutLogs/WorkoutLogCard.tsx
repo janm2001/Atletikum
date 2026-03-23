@@ -75,8 +75,9 @@ export const WorkoutLogCard = ({
 
         <Group>
           <Button
-            variant="subtle"
-            size="compact-xs"
+            variant="light"
+            color="stitch"
+            size="xs"
             onClick={() =>
               navigate(`/zapis-treninga/${workoutLog.workoutId}?prefill=last`)
             }

@@ -29,6 +29,7 @@ import {
 import { useUser } from "@/hooks/useUser";
 import { useTranslation } from "react-i18next";
 import { memo } from "react";
+import classes from "./WorkoutCard.module.css";
 
 interface WorkoutCardProps {
   workout: Workout;
@@ -79,12 +80,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
       shadow="sm"
       h="100%"
       mih={450}
-      style={{
-        position: "relative",
-        opacity: isLocked ? 0.55 : 1,
-        filter: isLocked ? "grayscale(0.4)" : "none",
-        transition: "opacity 0.3s, filter 0.3s",
-      }}
+      className={`${classes.card}${isLocked ? ` ${classes.cardLocked}` : ""}`}
     >
       {isLocked && (
         <Overlay
@@ -92,16 +88,13 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
           backgroundOpacity={0}
           blur={0}
           radius="md"
-          style={{
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
+          className={classes.lockedOverlay}
         />
       )}
 
       <Stack gap="sm" h="100%" justify="space-between">
         <Group justify="space-between" align="flex-start">
-          <Box style={{ flex: 1, minWidth: 0 }}>
+          <Box className={classes.titleBox}>
             <Title order={4}>{workout.title}</Title>
             <Text size="sm" c="dimmed" lineClamp={2} mt={2}>
               {workout.description || t("training.workouts.noDescription")}
@@ -109,14 +102,14 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
           </Box>
 
           {customWorkout ? (
-            <Badge variant="light" color="teal" style={{ flexShrink: 0 }}>
+            <Badge variant="light" color="teal" className={classes.shrink0}>
               {t("training.workouts.customWorkout")}
             </Badge>
           ) : (
             <Badge
               variant="light"
               color={isLocked ? "red" : "violet"}
-              style={{ flexShrink: 0 }}
+              className={classes.shrink0}
             >
               {t('common.levelBadge', { level: workout.requiredLevel })}
             </Badge>
@@ -156,7 +149,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
         )}
 
         {isLocked ? (
-          <Stack gap="sm" style={{ flex: 1 }} justify="space-between">
+          <Stack gap="sm" className={classes.lockedStack} justify="space-between">
             <Group gap="xs">
               <Badge variant="dot" color="blue">
                 {t("training.workouts.exerciseCount", { count: exerciseCount })}
@@ -233,13 +226,13 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                     <Group
                       gap="xs"
                       wrap="nowrap"
-                      style={{ minWidth: 0, flex: 1 }}
+                      className={classes.exerciseRow}
                     >
                       <Avatar
                         src={image}
                         size={56}
                         radius="sm"
-                        style={{ flexShrink: 0 }}
+                        className={classes.shrink0}
                       >
                         <IconBarbell size={16} />
                       </Avatar>
@@ -250,7 +243,7 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
                     <Text
                       size="sm"
                       fw={500}
-                      style={{ whiteSpace: "nowrap", flexShrink: 0 }}
+                      className={classes.exerciseDetail}
                     >
                       {t('common.exercisePlan', { sets: exercise.sets, reps: exercise.reps })}
                       {exercise.progression?.enabled

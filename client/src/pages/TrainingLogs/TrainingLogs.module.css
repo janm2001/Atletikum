@@ -1,0 +1,5 @@
+.tabs {
+  background-color: var(--app-surface-interactive);
+  border: 1px solid var(--app-border-subtle);
+  border-radius: var(--mantine-radius-md);
+}

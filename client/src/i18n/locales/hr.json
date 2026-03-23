@@ -333,7 +333,10 @@
       "levelBadge": "Razina {{level}}",
       "personalBest": "PR",
       "notAvailable": "N/D",
-      "xpGained": "{{count}} XP"
+      "xpGained": "{{count}} XP",
+      "totalSessions": "Ukupno sesija",
+      "totalXp": "Ukupni XP",
+      "totalPRs": "Osobni rekordi"
     },
     "charts": {
       "insufficientData": "Potrebna su barem 2 treninga za prikaz statistike.",
