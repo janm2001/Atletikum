@@ -49,7 +49,7 @@ const stitchTokens: StitchTokens = {
     borderStrong: "rgba(69, 85, 116, 0.3)",
     textMuted: "#4E5C79",
   },
-  navbarHeight: 72,
+  navbarHeight: 96,
   headerGradientDark:
     "linear-gradient(180deg, rgba(34, 40, 54, 0.96) 0%, rgba(20, 26, 38, 0.94) 100%)",
   headerGradientLight:

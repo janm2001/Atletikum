@@ -30,7 +30,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { useGamificationStatus } from "@/hooks/useGamification";
 import { useUser } from "@/hooks/useUser";
-import atletikumIcon from "@/assets/atletikum_icon.png";
+import atletikumIcon from "@/assets/atletikum_redesign2.png";
 import NavbarLevelDropdown from "./NavbarLevelDropdown";
 import NavbarStreakDropdown from "./NavbarStreakDropdown";
 import classes from "./Navbar.module.css";
@@ -230,11 +230,7 @@ const Navbar = () => {
 
       {opened && (
         <>
-          <Box
-            hiddenFrom="lg"
-            onClick={close}
-            className={classes.overlay}
-          />
+          <Box hiddenFrom="lg" onClick={close} className={classes.overlay} />
 
           <Box hiddenFrom="lg" className={classes.sidebar}>
             <Group justify="space-between" mb="md">
