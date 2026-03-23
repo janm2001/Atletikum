@@ -13,6 +13,7 @@ import { IconClock, IconLock } from "@tabler/icons-react";
 import type { QuizStatus } from "@/hooks/useQuiz";
 import QuizBackButton from "./QuizBackButton";
 import { useTranslation } from "react-i18next";
+import classes from "./QuizLockedState.module.css";
 
 interface QuizLockedStateProps {
   quizStatus: QuizStatus;
@@ -27,14 +28,14 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
   const lastScore = quizStatus.lastCompletion;
 
   return (
-    <Container size="sm" py="xl">
+    <Container size="sm" py={{ base: "sm", md: "md" }}>
       <QuizBackButton onClick={onBack} mb="xl" />
 
-      <Card withBorder padding="xl" radius="md">
+      <Card withBorder padding="xl" radius="md" shadow="sm" className={classes.card}>
         <Stack align="center" gap="md">
-          <IconLock size={48} color="var(--mantine-color-gray-5)" />
+          <IconLock size={48} className={classes.iconLock} />
           <Title order={3}>{t('articles.quiz.locked')}</Title>
-          <Text c="dimmed" ta="center">
+          <Text className={classes.textMuted} ta="center">
             {t('articles.quiz.lockedDetailMessage')}
           </Text>
 
@@ -44,7 +45,7 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
               withBorder
               radius="md"
               w="100%"
-              style={{ maxWidth: 300 }}
+              className={classes.scorePaper}
             >
               <Text fw={600} ta="center" mb="xs">
                 {t('articles.quiz.previousResult')}
@@ -54,15 +55,15 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
                   <Text size="xl" fw={700}>
                     {lastScore.score}/{lastScore.totalQuestions}
                   </Text>
-                  <Text size="xs" c="dimmed">
+                  <Text size="xs" className={classes.textMuted}>
                     {t('articles.quiz.correctLabel')}
                   </Text>
                 </Stack>
                 <Stack gap={2} align="center">
-                  <Text size="xl" fw={700} c="teal">
+                  <Text size="xl" fw={700} className={classes.textTeal}>
                     +{lastScore.xpGained}
                   </Text>
-                  <Text size="xs" c="dimmed">
+                  <Text size="xs" className={classes.textMuted}>
                     {t('articles.quiz.xpEarned')}
                   </Text>
                 </Stack>
@@ -73,10 +74,10 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
           {nextDate && (
             <Alert
               icon={<IconClock size={18} />}
-              color="blue"
+              color="violet"
               variant="light"
               w="100%"
-              style={{ maxWidth: 400 }}
+              className={classes.alertCard}
             >
               {t('articles.quiz.availableDate', { date: nextDate.toLocaleDateString("hr-HR", {
                   day: "numeric",

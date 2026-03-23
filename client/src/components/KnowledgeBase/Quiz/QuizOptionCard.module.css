@@ -1,0 +1,36 @@
+.optionCard {
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.optionCardDisabled {
+  cursor: default;
+}
+
+.optionCardCorrect {
+  border-color: var(--mantine-color-green-6);
+  background-color: var(--mantine-color-green-1);
+}
+
+.optionCardIncorrect {
+  border-color: var(--mantine-color-red-6);
+  background-color: var(--mantine-color-red-1);
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+.optionLabelCorrect {
+  color: var(--mantine-color-green-6);
+  font-weight: 600;
+}
+
+.optionLabelIncorrect {
+  color: var(--mantine-color-red-6);
+  font-weight: 600;
+}
+
+.icon {
+  margin-left: auto;
+}

@@ -37,7 +37,7 @@ const QuizPageContent = ({
   });
 
   return (
-    <Container size="sm" py="xl">
+    <Container size="sm" py={{ base: "sm", md: "md" }}>
       <ActionToast message={actionError} onClose={clearActionError} />
 
       <QuizQuestionCard

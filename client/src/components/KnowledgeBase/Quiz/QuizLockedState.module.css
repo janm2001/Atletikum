@@ -1,0 +1,23 @@
+.card {
+  overflow: hidden;
+}
+
+.iconLock {
+  color: var(--app-text-muted);
+}
+
+.textMuted {
+  color: var(--app-text-muted);
+}
+
+.textTeal {
+  color: var(--mantine-color-teal-6);
+}
+
+.scorePaper {
+  max-width: 300px;
+}
+
+.alertCard {
+  max-width: 400px;
+}
