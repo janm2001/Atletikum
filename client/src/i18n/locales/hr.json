@@ -386,7 +386,16 @@
       "saved": "Spremljeno"
     },
     "empty": "Nema pronađenih članaka za ovu kategoriju.",
-    "error": "Greška pri učitavanju članaka. Pokušajte ponovno."
+    "error": "Greška pri učitavanju članaka. Pokušajte ponovno.",
+    "search": {
+      "placeholder": "Pretraži članke..."
+    },
+    "sort": {
+      "label": "Sortiraj",
+      "newest": "Najnovije",
+      "oldest": "Najstarije",
+      "alphabetical": "Abecedno"
+    }
   },
 
   "articles": {

@@ -1,4 +1,4 @@
-import { Container, Group, SimpleGrid } from "@mantine/core";
+import { Container, SimpleGrid, Stack } from "@mantine/core";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
@@ -6,7 +6,10 @@ import { useTranslation } from "react-i18next";
 import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
 import { useMyQuizCompletions } from "@/hooks/useQuiz";
 import { type ArticleSummary } from "@/types/Article/article";
-import type { KnowledgeBaseArticleFilter } from "@/types/Article/knowledgeBase";
+import type {
+  KnowledgeBaseArticleFilter,
+  KnowledgeBaseSortOption,
+} from "@/types/Article/knowledgeBase";
 import { ArticleCard } from "@/components/KnowledgeBase/Article/ArticleCard";
 import { XpProgressSection } from "@/components/XpProgress/XpProgressSection";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
@@ -22,6 +25,9 @@ const KnowledgeBase = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [articleFilter, setArticleFilter] =
     useState<KnowledgeBaseArticleFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<KnowledgeBaseSortOption>("newest");
+
   const { data: recommendations } = useWeeklyRecommendations();
   const { data, isLoading, error } = useArticles({
     tags: selectedTags.length > 0 ? selectedTags : undefined,
@@ -29,11 +35,41 @@ const KnowledgeBase = () => {
   });
   const { data: completedArticleIds } = useMyQuizCompletions();
   const toggleBookmarkMutation = useToggleArticleBookmark();
+
   const articles = useMemo(() => data ?? [], [data]);
   const completedSet = useMemo(
     () => new Set(completedArticleIds ?? []),
     [completedArticleIds],
   );
+
+  const filteredAndSortedArticles = useMemo(() => {
+    let result = articles;
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (article) =>
+          article.title.toLowerCase().includes(query) ||
+          (article.summary ?? "").toLowerCase().includes(query),
+      );
+    }
+
+    result = [...result].sort((a, b) => {
+      if (sortBy === "newest") {
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      if (sortBy === "oldest") {
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      }
+      return a.title.localeCompare(b.title);
+    });
+
+    return result;
+  }, [articles, searchQuery, sortBy]);
 
   const handleToggleBookmark = (article: ArticleSummary) => {
     toggleBookmarkMutation.mutate({
@@ -44,51 +80,45 @@ const KnowledgeBase = () => {
 
   return (
     <Container size="xl" py="xl">
-      <Group
-        justify="space-between"
-        align="flex-end"
-        mb="xl"
-        wrap="wrap"
-        gap="sm"
-      >
+      <Stack gap="md">
         <KnowledgeBaseHeader />
-
+        <XpProgressSection variant="brain" />
         <KnowledgeBaseFilters
           articleFilter={articleFilter}
           onArticleFilterChange={setArticleFilter}
           selectedTags={selectedTags}
           onSelectedTagsChange={setSelectedTags}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
         />
-      </Group>
-
-      <XpProgressSection variant="brain" />
-
-      <DashboardRevisionCard
-        revision={recommendations?.revision}
-        onStartRevision={(articleId) =>
-          navigate(`/edukacija/${articleId}/kviz`)
-        }
-      />
-
-      {isLoading ? (
-        <SpinnerComponent size="lg" fullHeight={false} />
-      ) : error ? (
-        <QueryErrorMessage message={t("knowledgeBase.error")} />
-      ) : articles?.length === 0 ? (
-        <KnowledgeBaseEmptyState />
-      ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" my={16}>
-          {articles?.map((article) => (
-            <ArticleCard
-              key={article._id}
-              article={article}
-              isQuizCompleted={completedSet.has(article._id)}
-              onNavigate={(id) => navigate(`/edukacija/${id}`)}
-              onToggleBookmark={handleToggleBookmark}
-            />
-          ))}
-        </SimpleGrid>
-      )}
+        <DashboardRevisionCard
+          revision={recommendations?.revision}
+          onStartRevision={(articleId) =>
+            navigate(`/edukacija/${articleId}/kviz`)
+          }
+        />
+        {isLoading ? (
+          <SpinnerComponent size="lg" fullHeight={false} />
+        ) : error ? (
+          <QueryErrorMessage message={t("knowledgeBase.error")} />
+        ) : filteredAndSortedArticles.length === 0 ? (
+          <KnowledgeBaseEmptyState />
+        ) : (
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+            {filteredAndSortedArticles.map((article) => (
+              <ArticleCard
+                key={article._id}
+                article={article}
+                isQuizCompleted={completedSet.has(article._id)}
+                onNavigate={(id) => navigate(`/edukacija/${id}`)}
+                onToggleBookmark={handleToggleBookmark}
+              />
+            ))}
+          </SimpleGrid>
+        )}
+      </Stack>
     </Container>
   );
 };
