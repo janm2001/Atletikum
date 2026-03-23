@@ -11,7 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { Workout } from "@/types/Workout/workout";
 import { getExerciseImage } from "@/types/Workout/workout";
-import { gradients } from "@/styles/colors";
+import classes from "./DashboardTrainingRecommendation.module.css";
 
 interface DashboardTrainingRecommendationProps {
   workout: Workout | null;
@@ -31,12 +31,7 @@ const DashboardTrainingRecommendation = ({
         radius="md"
         shadow="sm"
         p="md"
-        style={{
-          backgroundImage: gradients.fallbackImage,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className={classes.emptyCard}
       >
         <Text c="dimmed" size="sm" ta="center">
           {t("dashboard.trainingRec.empty")}
@@ -61,48 +56,30 @@ const DashboardTrainingRecommendation = ({
       withBorder
       radius="md"
       shadow="sm"
-      h={"100%"}
-      mih={"300px"}
+      h="100%"
+      mih="300px"
       p={0}
-      style={{ overflow: "hidden", position: "relative" }}
+      className={classes.card}
     >
       {heroImage ? (
         <Box
           component="img"
           src={heroImage}
           alt=""
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
+          className={classes.heroImage}
         />
       ) : (
-        <Box
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: gradients.fallbackImage,
-          }}
-        />
+        <Box className={classes.fallbackBg} />
       )}
 
-      <Box
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: gradients.imageOverlay,
-        }}
-      />
+      <Box className={classes.overlay} />
+
       <Stack
         p="lg"
         gap="sm"
         justify="flex-end"
         h="100%"
-        style={{ position: "relative", zIndex: 1 }}
+        className={classes.content}
       >
         <div>
           <Text size="sm" tt="uppercase" c="dimmed" fw={600} mb={4}>

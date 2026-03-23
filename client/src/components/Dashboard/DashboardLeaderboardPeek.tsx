@@ -6,13 +6,13 @@ import {
   Text,
   ThemeIcon,
   useComputedColorScheme,
-  useMantineTheme,
 } from "@mantine/core";
 import { IconCrown, IconMedal, IconTrophy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { useUser } from "@/hooks/useUser";
-import { colors, gradients } from "@/styles/colors";
+import { colors } from "@/styles/colors";
+import classes from "./DashboardLeaderboardPeek.module.css";
 
 const rankVisuals = [
   {
@@ -52,10 +52,8 @@ const fallbackRankVisual = {
 
 const DashboardLeaderboardPeek = () => {
   const { t } = useTranslation();
-  const theme = useMantineTheme();
   const computedColorScheme = useComputedColorScheme("dark");
-  const mode = computedColorScheme === "dark" ? "dark" : "light";
-  const stitch = theme.other.stitch[mode];
+  const isDark = computedColorScheme === "dark";
   const { data: leaderboardData } = useLeaderboard();
   const { user } = useUser();
 
@@ -64,13 +62,8 @@ const DashboardLeaderboardPeek = () => {
   const top3 = leaderboardData.leaderboard.slice(0, 3);
 
   return (
-    <Card
-      p="md"
-      style={{
-        background: mode === "dark" ? gradients.cardDark : undefined,
-      }}
-    >
-      <Text size="xs" tt="uppercase" fw={700} c={stitch.textMuted} mb="sm">
+    <Card p="md" className={classes.card}>
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)" mb="sm">
         {t("dashboard.leaderboardPeek.title")}
       </Text>
 
@@ -86,47 +79,25 @@ const DashboardLeaderboardPeek = () => {
               gap="sm"
               justify="space-between"
               wrap="nowrap"
-              style={
-                isCurrentUser
-                  ? {
-                      backgroundColor:
-                        mode === "dark"
-                          ? colors.leaderboard.currentUser.bgDark
-                          : colors.leaderboard.currentUser.bgLight,
-                      border: `1px solid ${
-                        mode === "dark"
-                          ? colors.leaderboard.currentUser.borderDark
-                          : colors.leaderboard.currentUser.borderLight
-                      }`,
-                      borderRadius: 12,
-                      padding: "7px 10px",
-                    }
-                  : {
-                      backgroundColor: stitch.surfaceInteractive,
-                      border: `1px solid ${stitch.borderSubtle}`,
-                      borderRadius: 12,
-                      padding: "7px 10px",
-                    }
-              }
+              className={`${classes.row}${isCurrentUser ? ` ${classes.rowCurrentUser}` : ""}`}
             >
-              <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+              <Group gap="sm" wrap="nowrap" className={classes.minWidth0}>
                 <ThemeIcon
                   size={28}
                   radius="xl"
                   variant="light"
-                  style={{
-                    flexShrink: 0,
-                    color: rankVisual.iconColor,
-                    backgroundColor:
-                      mode === "dark"
+                  style={
+                    {
+                      "--rank-icon-color": rankVisual.iconColor,
+                      "--rank-icon-bg": isDark
                         ? rankVisual.iconBackgroundDark
                         : rankVisual.iconBackgroundLight,
-                    border: `1px solid ${
-                      mode === "dark"
+                      "--rank-icon-border": isDark
                         ? rankVisual.iconBorderDark
-                        : rankVisual.iconBorderLight
-                    }`,
-                  }}
+                        : rankVisual.iconBorderLight,
+                    } as React.CSSProperties
+                  }
+                  className={classes.rankIcon}
                 >
                   <RankIcon size={16} stroke={1.9} />
                 </ThemeIcon>
@@ -141,20 +112,16 @@ const DashboardLeaderboardPeek = () => {
                   size="sm"
                   fw={isCurrentUser ? 700 : 500}
                   lineClamp={1}
-                  style={{ minWidth: 0 }}
+                  className={classes.minWidth0}
                 >
                   {entry.username}
                 </Text>
               </Group>
               <Text
                 size="sm"
-                c={stitch.textMuted}
+                c="var(--app-text-muted)"
                 fw={700}
-                style={{
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                  fontVariantNumeric: "tabular-nums",
-                }}
+                className={classes.xpText}
               >
                 {entry.totalXp} XP
               </Text>

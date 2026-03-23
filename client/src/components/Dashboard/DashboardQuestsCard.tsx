@@ -7,17 +7,13 @@ import {
   Text,
   ThemeIcon,
   Title,
-  useComputedColorScheme,
-  useMantineTheme,
 } from "@mantine/core";
 import { IconTarget } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { RecommendationInsight } from "@/hooks/useRecommendations";
 import type { WeeklyChallenge } from "@/types/Challenge/challenge";
-import {
-  ChallengeRow,
-  type DashboardStitchPalette,
-} from "./DashboardChallengeRow";
+import { ChallengeRow } from "./DashboardChallengeRow";
+import classes from "./DashboardQuestsCard.module.css";
 
 interface DashboardQuestsCardProps {
   insight: RecommendationInsight | undefined;
@@ -29,10 +25,6 @@ const DashboardQuestsCard = ({
   weeklyChallenges,
 }: DashboardQuestsCardProps) => {
   const { t } = useTranslation();
-  const theme = useMantineTheme();
-  const computedColorScheme = useComputedColorScheme("dark");
-  const mode = computedColorScheme === "dark" ? "dark" : "light";
-  const stitch: DashboardStitchPalette = theme.other.stitch[mode];
 
   const hasGoal = !!insight;
   const hasChallenges = !!(weeklyChallenges && weeklyChallenges.length > 0);
@@ -46,11 +38,11 @@ const DashboardQuestsCard = ({
           fw={700}
           mb="md"
           size="xs"
-          c={stitch.textMuted}
+          c="var(--app-text-muted)"
         >
           {t("dashboard.quests.title")}
         </Title>
-        <Text c={stitch.textMuted} size="sm">
+        <Text c="var(--app-text-muted)" size="sm">
           {t("dashboard.weeklyChallenges.completed")}
         </Text>
       </Card>
@@ -73,7 +65,7 @@ const DashboardQuestsCard = ({
         fw={700}
         mb="sm"
         size="xs"
-        c={stitch.textMuted}
+        c="var(--app-text-muted)"
       >
         {t("dashboard.quests.title")}
       </Title>
@@ -85,10 +77,7 @@ const DashboardQuestsCard = ({
             radius="md"
             p="sm"
             shadow="xs"
-            style={{
-              backgroundColor: stitch.surfaceInteractive,
-              borderColor: stitch.borderSubtle,
-            }}
+            className={classes.innerCard}
           >
             <Stack gap={8}>
               <Group justify="space-between" align="center" wrap="nowrap">
@@ -98,7 +87,7 @@ const DashboardQuestsCard = ({
                     radius="xl"
                     color="violet"
                     variant="light"
-                    style={{ flexShrink: 0 }}
+                    className={classes.shrink0}
                   >
                     <IconTarget size={22} />
                   </ThemeIcon>
@@ -106,7 +95,7 @@ const DashboardQuestsCard = ({
                     <Text fw={600} size="md">
                       {t("dashboard.weeklyGoal.title")}
                     </Text>
-                    <Text size="sm" c={stitch.textMuted}>
+                    <Text size="sm" c="var(--app-text-muted)">
                       {completed}/{weeklyTarget}
                     </Text>
                   </Stack>
@@ -131,11 +120,7 @@ const DashboardQuestsCard = ({
         {hasChallenges && (
           <Stack gap="lg">
             {weeklyChallenges!.map((challenge) => (
-              <ChallengeRow
-                key={challenge._id}
-                challenge={challenge}
-                stitch={stitch}
-              />
+              <ChallengeRow key={challenge._id} challenge={challenge} />
             ))}
           </Stack>
         )}

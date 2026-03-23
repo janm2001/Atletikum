@@ -1,0 +1,19 @@
+.root {
+  background-color: var(--app-background);
+  min-height: 100vh;
+}
+
+.appShell {
+  background-color: transparent !important;
+}
+
+.header {
+  background: var(--app-header-gradient);
+  border-bottom: 1px solid var(--app-border-subtle);
+  backdrop-filter: blur(10px);
+}
+
+.main {
+  background-color: var(--app-surface);
+  min-height: calc(100vh - var(--app-header-height));
+}

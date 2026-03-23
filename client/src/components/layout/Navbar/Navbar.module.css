@@ -1,0 +1,86 @@
+.navGroup {
+  border-bottom: 1px solid var(--app-border-subtle);
+}
+
+.logoLink {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logoImage {
+  height: 34px;
+  width: 34px;
+  border-radius: 8px;
+}
+
+.logoTitle {
+  letter-spacing: 0.7px;
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-stitch-5) 0%,
+    var(--mantine-color-stitch-8) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Applied to inactive nav buttons, badges, and icon buttons */
+.surfaceControl {
+  background-color: var(--app-surface-interactive) !important;
+  border: 1px solid var(--app-border-subtle) !important;
+  cursor: pointer;
+}
+
+/* Inactive nav button text color — dark is default, light overrides */
+.navBtn {
+  background-color: var(--app-surface-interactive) !important;
+  border: 1px solid var(--app-border-subtle) !important;
+  color: #dfe5f6 !important;
+}
+
+[data-mantine-color-scheme="light"] .navBtn {
+  color: #1f2a3d !important;
+}
+
+/* HoverCard dropdown */
+.hoverDropdown {
+  border-color: var(--app-border-subtle) !important;
+  background-color: var(--app-surface-raised) !important;
+}
+
+/* Logout button shadow (dark only) */
+.logoutBtn {
+  box-shadow: none;
+}
+
+[data-mantine-color-scheme="dark"] .logoutBtn {
+  box-shadow: 0 8px 20px rgba(127, 86, 208, 0.28);
+}
+
+/* Mobile overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(5, 10, 18, 0.56);
+  backdrop-filter: blur(5px);
+  z-index: 1998;
+}
+
+/* Mobile sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(88vw, 360px);
+  height: 100vh;
+  background-color: var(--app-surface);
+  border-left: 1px solid var(--app-border-strong);
+  box-shadow: -18px 0 40px rgba(2, 6, 14, 0.45);
+  padding: 18px 14px;
+  z-index: 1999;
+  overflow-y: auto;
+}

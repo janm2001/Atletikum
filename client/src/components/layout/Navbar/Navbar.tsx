@@ -10,7 +10,6 @@ import {
   Title,
   useComputedColorScheme,
   useMantineColorScheme,
-  useMantineTheme,
 } from "@mantine/core";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -34,6 +33,7 @@ import { useUser } from "@/hooks/useUser";
 import atletikumIcon from "@/assets/atletikum_icon.png";
 import NavbarLevelDropdown from "./NavbarLevelDropdown";
 import NavbarStreakDropdown from "./NavbarStreakDropdown";
+import classes from "./Navbar.module.css";
 
 type NavItem = {
   to: string;
@@ -45,20 +45,21 @@ const Navbar = () => {
   const { logout, user } = useUser();
   const { t } = useTranslation();
   const location = useLocation();
-  const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("dark");
   const { data: gamification } = useGamificationStatus();
 
-  const mode = computedColorScheme === "dark" ? "dark" : "light";
-  const stitch = theme.other.stitch[mode];
-  const isDark = mode === "dark";
+  const isDark = computedColorScheme === "dark";
 
   const navItems = useMemo<NavItem[]>(
     () => [
       { to: "/pregled", label: t("nav.overview"), icon: IconLayoutDashboard },
-      { to: "/zapis-treninga", label: t("nav.trainingLogs"), icon: IconBarbell },
+      {
+        to: "/zapis-treninga",
+        label: t("nav.trainingLogs"),
+        icon: IconBarbell,
+      },
       { to: "/edukacija", label: t("nav.education"), icon: IconBook },
       { to: "/ljestvica", label: t("nav.leaderboard"), icon: IconTrophy },
       ...(user?.role === "admin"
@@ -101,36 +102,15 @@ const Navbar = () => {
       px={{ base: "sm", sm: "md", lg: "lg", xl: "xl" }}
       justify="space-between"
       wrap="nowrap"
-      style={{
-        borderBottom: `1px solid ${stitch.borderSubtle}`,
-      }}
+      className={classes.navGroup}
     >
-      <Link
-        to="/"
-        style={{
-          textDecoration: "none",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          minWidth: 0,
-        }}
-      >
+      <Link to="/" className={classes.logoLink}>
         <img
           src={atletikumIcon}
           alt="Atletikum"
-          style={{ height: 34, width: 34, borderRadius: 8 }}
+          className={classes.logoImage}
         />
-        <Title
-          order={3}
-          fw={800}
-          style={{
-            letterSpacing: "0.7px",
-            background: `linear-gradient(135deg, ${theme.colors.stitch[5]} 0%, ${theme.colors.stitch[8]} 100%)`,
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
+        <Title order={3} fw={800} className={classes.logoTitle}>
           ATLETIKUM
         </Title>
       </Link>
@@ -149,11 +129,7 @@ const Navbar = () => {
               leftSection={<Icon size={16} />}
               variant={active ? "filled" : "light"}
               color={active ? "stitch" : isDark ? "gray" : "dark"}
-              style={{
-                backgroundColor: active ? undefined : stitch.surfaceInteractive,
-                border: `1px solid ${active ? "transparent" : stitch.borderSubtle}`,
-                color: active ? undefined : isDark ? "#DFE5F6" : "#1F2A3D",
-              }}
+              className={active ? undefined : classes.navBtn}
             >
               {item.label}
             </Button>
@@ -168,21 +144,12 @@ const Navbar = () => {
               variant="light"
               color="stitch"
               size="lg"
-              style={{
-                cursor: "pointer",
-                backgroundColor: stitch.surfaceInteractive,
-                border: `1px solid ${stitch.borderSubtle}`,
-              }}
+              className={classes.surfaceControl}
             >
               {t("nav.levelBadge", { level: user?.level })}
             </Badge>
           </HoverCard.Target>
-          <HoverCard.Dropdown
-            style={{
-              borderColor: stitch.borderSubtle,
-              backgroundColor: stitch.surfaceRaised,
-            }}
-          >
+          <HoverCard.Dropdown className={classes.hoverDropdown}>
             <NavbarLevelDropdown
               level={user?.level ?? 1}
               totalXp={user?.totalXp ?? 0}
@@ -197,21 +164,12 @@ const Navbar = () => {
               variant="light"
               color={gamification?.streakAtRisk ? "red" : "orange"}
               leftSection={<IconFlame size={14} />}
-              style={{
-                cursor: "pointer",
-                backgroundColor: stitch.surfaceInteractive,
-                border: `1px solid ${stitch.borderSubtle}`,
-              }}
+              className={classes.surfaceControl}
             >
               {user?.dailyStreak ?? 0}
             </Badge>
           </HoverCard.Target>
-          <HoverCard.Dropdown
-            style={{
-              borderColor: stitch.borderSubtle,
-              backgroundColor: stitch.surfaceRaised,
-            }}
-          >
+          <HoverCard.Dropdown className={classes.hoverDropdown}>
             <NavbarStreakDropdown {...streakDropdownProps} />
           </HoverCard.Dropdown>
         </HoverCard>
@@ -223,10 +181,7 @@ const Navbar = () => {
           size={40}
           onClick={toggleColorScheme}
           aria-label="Toggle color scheme"
-          style={{
-            backgroundColor: stitch.surfaceInteractive,
-            border: `1px solid ${stitch.borderSubtle}`,
-          }}
+          className={classes.surfaceControl}
         >
           {computedColorScheme === "dark" ? (
             <IconSun size={19} />
@@ -243,10 +198,7 @@ const Navbar = () => {
           radius="xl"
           size={40}
           aria-label={t("nav.profile")}
-          style={{
-            backgroundColor: stitch.surfaceInteractive,
-            border: `1px solid ${stitch.borderSubtle}`,
-          }}
+          className={classes.surfaceControl}
         >
           <IconUser size={19} />
         </ActionIcon>
@@ -256,13 +208,10 @@ const Navbar = () => {
           radius="xl"
           size="sm"
           variant="gradient"
-          leftSection={<IconLogout2 size={16} />}
           gradient={{ from: "stitch.6", to: "stitch.8", deg: 140 }}
-          style={{
-            boxShadow: isDark ? "0 8px 20px rgba(127, 86, 208, 0.28)" : "none",
-          }}
+          className={classes.logoutBtn}
         >
-          {t("nav.logout")}
+          <IconLogout2 size={16} />
         </Button>
       </Group>
 
@@ -274,10 +223,7 @@ const Navbar = () => {
         size={40}
         onClick={() => setOpened((prev) => !prev)}
         aria-label="Toggle navigation"
-        style={{
-          backgroundColor: stitch.surfaceInteractive,
-          border: `1px solid ${stitch.borderSubtle}`,
-        }}
+        className={classes.surfaceControl}
       >
         {opened ? <IconX size={20} /> : <IconMenu2 size={20} />}
       </ActionIcon>
@@ -287,31 +233,10 @@ const Navbar = () => {
           <Box
             hiddenFrom="lg"
             onClick={close}
-            style={{
-              position: "fixed",
-              inset: 0,
-              backgroundColor: "rgba(5, 10, 18, 0.56)",
-              backdropFilter: "blur(5px)",
-              zIndex: 1998,
-            }}
+            className={classes.overlay}
           />
 
-          <Box
-            hiddenFrom="lg"
-            style={{
-              position: "fixed",
-              top: 0,
-              right: 0,
-              width: "min(88vw, 360px)",
-              height: "100vh",
-              backgroundColor: stitch.surface,
-              borderLeft: `1px solid ${stitch.borderStrong}`,
-              boxShadow: "-18px 0 40px rgba(2, 6, 14, 0.45)",
-              padding: "18px 14px",
-              zIndex: 1999,
-              overflowY: "auto",
-            }}
-          >
+          <Box hiddenFrom="lg" className={classes.sidebar}>
             <Group justify="space-between" mb="md">
               <Text fw={700}>{t("nav.menu")}</Text>
               <ActionIcon
@@ -332,21 +257,12 @@ const Navbar = () => {
                     <Badge
                       variant="light"
                       color="stitch"
-                      style={{
-                        cursor: "pointer",
-                        backgroundColor: stitch.surfaceInteractive,
-                        border: `1px solid ${stitch.borderSubtle}`,
-                      }}
+                      className={classes.surfaceControl}
                     >
                       {t("nav.levelBadge", { level: user?.level })}
                     </Badge>
                   </HoverCard.Target>
-                  <HoverCard.Dropdown
-                    style={{
-                      borderColor: stitch.borderSubtle,
-                      backgroundColor: stitch.surfaceRaised,
-                    }}
-                  >
+                  <HoverCard.Dropdown className={classes.hoverDropdown}>
                     <NavbarLevelDropdown
                       level={user?.level ?? 1}
                       totalXp={user?.totalXp ?? 0}
@@ -360,21 +276,12 @@ const Navbar = () => {
                       variant="light"
                       color={gamification?.streakAtRisk ? "red" : "orange"}
                       leftSection={<IconFlame size={12} />}
-                      style={{
-                        cursor: "pointer",
-                        backgroundColor: stitch.surfaceInteractive,
-                        border: `1px solid ${stitch.borderSubtle}`,
-                      }}
+                      className={classes.surfaceControl}
                     >
                       {user?.dailyStreak ?? 0}
                     </Badge>
                   </HoverCard.Target>
-                  <HoverCard.Dropdown
-                    style={{
-                      borderColor: stitch.borderSubtle,
-                      backgroundColor: stitch.surfaceRaised,
-                    }}
-                  >
+                  <HoverCard.Dropdown className={classes.hoverDropdown}>
                     <NavbarStreakDropdown {...streakDropdownProps} />
                   </HoverCard.Dropdown>
                 </HoverCard>
@@ -394,15 +301,7 @@ const Navbar = () => {
                     radius="md"
                     variant={active ? "filled" : "light"}
                     color={active ? "stitch" : isDark ? "gray" : "dark"}
-                    style={{
-                      backgroundColor: active
-                        ? undefined
-                        : stitch.surfaceInteractive,
-                      border: `1px solid ${
-                        active ? "transparent" : stitch.borderSubtle
-                      }`,
-                      color: active ? undefined : isDark ? "#DFE5F6" : "#1F2A3D",
-                    }}
+                    className={active ? undefined : classes.navBtn}
                   >
                     {item.label}
                   </Button>
@@ -421,10 +320,7 @@ const Navbar = () => {
                 }
                 justify="flex-start"
                 onClick={toggleColorScheme}
-                style={{
-                  backgroundColor: stitch.surfaceInteractive,
-                  border: `1px solid ${stitch.borderSubtle}`,
-                }}
+                className={classes.surfaceControl}
               >
                 {computedColorScheme === "dark"
                   ? t("nav.lightTheme")
@@ -439,10 +335,7 @@ const Navbar = () => {
                 color="stitch"
                 leftSection={<IconUser size={18} />}
                 justify="flex-start"
-                style={{
-                  backgroundColor: stitch.surfaceInteractive,
-                  border: `1px solid ${stitch.borderSubtle}`,
-                }}
+                className={classes.surfaceControl}
               >
                 {t("nav.profile")}
               </Button>

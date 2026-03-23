@@ -59,6 +59,7 @@ const stitchTokens: StitchTokens = {
 export const appCssVariablesResolver: CSSVariablesResolver = () => ({
   variables: {
     "--app-navbar-height": `${stitchTokens.navbarHeight}px`,
+    "--app-header-height": `${stitchTokens.navbarHeight - 20}px`,
   },
   dark: {
     "--app-background": stitchTokens.dark.appBackground,
@@ -69,6 +70,16 @@ export const appCssVariablesResolver: CSSVariablesResolver = () => ({
     "--app-border-strong": stitchTokens.dark.borderStrong,
     "--app-text-muted": stitchTokens.dark.textMuted,
     "--app-header-gradient": stitchTokens.headerGradientDark,
+    "--leaderboard-gold-bg": "rgba(224, 177, 58, 0.2)",
+    "--leaderboard-gold-border": "rgba(224, 177, 58, 0.42)",
+    "--leaderboard-silver-bg": "rgba(168, 181, 199, 0.2)",
+    "--leaderboard-silver-border": "rgba(168, 181, 199, 0.44)",
+    "--leaderboard-bronze-bg": "rgba(198, 135, 83, 0.2)",
+    "--leaderboard-bronze-border": "rgba(198, 135, 83, 0.46)",
+    "--leaderboard-fallback-bg": "rgba(145, 89, 240, 0.2)",
+    "--leaderboard-fallback-border": "rgba(145, 89, 240, 0.36)",
+    "--leaderboard-current-bg": "rgba(127, 86, 208, 0.18)",
+    "--leaderboard-current-border": "rgba(127, 86, 208, 0.35)",
   },
   light: {
     "--app-background": stitchTokens.light.appBackground,
@@ -79,6 +90,16 @@ export const appCssVariablesResolver: CSSVariablesResolver = () => ({
     "--app-border-strong": stitchTokens.light.borderStrong,
     "--app-text-muted": stitchTokens.light.textMuted,
     "--app-header-gradient": stitchTokens.headerGradientLight,
+    "--leaderboard-gold-bg": "rgba(224, 177, 58, 0.14)",
+    "--leaderboard-gold-border": "rgba(224, 177, 58, 0.3)",
+    "--leaderboard-silver-bg": "rgba(168, 181, 199, 0.14)",
+    "--leaderboard-silver-border": "rgba(168, 181, 199, 0.32)",
+    "--leaderboard-bronze-bg": "rgba(198, 135, 83, 0.14)",
+    "--leaderboard-bronze-border": "rgba(198, 135, 83, 0.34)",
+    "--leaderboard-fallback-bg": "rgba(145, 89, 240, 0.12)",
+    "--leaderboard-fallback-border": "rgba(145, 89, 240, 0.26)",
+    "--leaderboard-current-bg": "rgba(127, 86, 208, 0.1)",
+    "--leaderboard-current-border": "rgba(127, 86, 208, 0.24)",
   },
 });
 

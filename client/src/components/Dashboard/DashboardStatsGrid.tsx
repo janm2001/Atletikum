@@ -3,6 +3,7 @@ import { IconFlame } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { getXpProgress } from "../../utils/leveling";
 import { XpProgressSection } from "../XpProgress/XpProgressSection";
+import classes from "./DashboardStatsGrid.module.css";
 
 interface DashboardStatsGridProps {
   level: number;
@@ -24,7 +25,7 @@ const DashboardStatsGrid = ({
       radius="md"
       shadow="sm"
       p="md"
-      style={{ overflow: "hidden" }}
+      className={classes.card}
     >
       <Stack gap="xs">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
@@ -41,12 +42,8 @@ const DashboardStatsGrid = ({
             </Text>
           </Stack>
 
-          <Stack gap={0} align="center" style={{ minWidth: 0 }}>
-            <Title
-              order={1}
-              fw={700}
-              style={{ fontSize: "clamp(2rem, 2.4vw, 3rem)", lineHeight: 1 }}
-            >
+          <Stack gap={0} align="center" className={classes.minWidth0}>
+            <Title order={1} fw={700} className={classes.xpTitle}>
               {totalXp}
             </Title>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>

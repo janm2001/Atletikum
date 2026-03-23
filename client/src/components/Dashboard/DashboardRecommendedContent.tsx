@@ -1,14 +1,8 @@
-import {
-  Card,
-  SimpleGrid,
-  Text,
-  useComputedColorScheme,
-  useMantineTheme,
-} from "@mantine/core";
+import { Card, SimpleGrid, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import type { ArticleSummary } from "@/types/Article/article";
-import { gradients } from "@/styles/colors";
 import { ArticleThumb } from "./DashboardArticleThumb";
+import classes from "./DashboardRecommendedContent.module.css";
 
 interface DashboardRecommendedContentProps {
   articles: ArticleSummary[];
@@ -20,21 +14,12 @@ const DashboardRecommendedContent = ({
   onNavigate,
 }: DashboardRecommendedContentProps) => {
   const { t } = useTranslation();
-  const theme = useMantineTheme();
-  const computedColorScheme = useComputedColorScheme("dark");
-  const mode = computedColorScheme === "dark" ? "dark" : "light";
-  const stitch = theme.other.stitch[mode];
 
   if (!articles?.length) return null;
 
   return (
-    <Card
-      p="md"
-      style={{
-        background: mode === "dark" ? gradients.cardDarkAlt : undefined,
-      }}
-    >
-      <Text size="xs" tt="uppercase" fw={700} c={stitch.textMuted} mb="sm">
+    <Card p="md" className={classes.card}>
+      <Text size="xs" tt="uppercase" fw={700} c="var(--app-text-muted)" mb="sm">
         {t("dashboard.recommendedContent.title")}
       </Text>
 
@@ -44,9 +29,6 @@ const DashboardRecommendedContent = ({
             key={article._id}
             article={article}
             onNavigate={onNavigate}
-            mutedText={stitch.textMuted}
-            surfaceColor={stitch.surfaceInteractive}
-            borderColor={stitch.borderSubtle}
           />
         ))}
       </SimpleGrid>

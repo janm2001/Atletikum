@@ -1,0 +1,12 @@
+.card {
+  overflow: hidden;
+}
+
+.minWidth0 {
+  min-width: 0;
+}
+
+.xpTitle {
+  font-size: clamp(2rem, 2.4vw, 3rem);
+  line-height: 1;
+}

@@ -18,12 +18,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { WeeklyChallenge } from "@/types/Challenge/challenge";
 import { useClaimChallengeReward } from "@/hooks/useChallenges";
-
-export interface DashboardStitchPalette {
-  surfaceInteractive: string;
-  borderSubtle: string;
-  textMuted: string;
-}
+import classes from "./DashboardChallengeRow.module.css";
 
 const CHALLENGE_CONFIG = {
   quiz: { icon: IconBrain, color: "blue" },
@@ -39,10 +34,8 @@ const ChallengeCategoryLabel: Record<WeeklyChallenge["type"], string> = {
 
 export const ChallengeRow = ({
   challenge,
-  stitch,
 }: {
   challenge: WeeklyChallenge;
-  stitch: DashboardStitchPalette;
 }) => {
   const { t } = useTranslation();
   const claimMutation = useClaimChallengeReward();
@@ -69,15 +62,7 @@ export const ChallengeRow = ({
   };
 
   return (
-    <Card
-      withBorder
-      radius="md"
-      p="sm"
-      style={{
-        backgroundColor: stitch.surfaceInteractive,
-        borderColor: stitch.borderSubtle,
-      }}
-    >
+    <Card withBorder radius="md" p="sm" className={classes.card}>
       <Stack gap={6}>
         <Group justify="space-between" align="center" wrap="nowrap">
           <Group gap="sm" wrap="nowrap">
@@ -86,7 +71,7 @@ export const ChallengeRow = ({
               radius="xl"
               color={challenge.completed ? "green" : config.color}
               variant="light"
-              style={{ flexShrink: 0 }}
+              className={classes.shrink0}
             >
               {challenge.completed ? (
                 <IconCheck size={22} />
@@ -98,7 +83,7 @@ export const ChallengeRow = ({
               <Text fw={600} size="md">
                 {t(ChallengeCategoryLabel[challenge.type])}
               </Text>
-              <Text size="sm" c={stitch.textMuted}>
+              <Text size="sm" c="var(--app-text-muted)">
                 {challenge.completed
                   ? t("dashboard.weeklyChallenges.completed")
                   : t("dashboard.weeklyChallenges.progress", {
@@ -112,7 +97,7 @@ export const ChallengeRow = ({
             size="sm"
             variant="filled"
             color={challenge.xpAwarded ? "green" : "yellow"}
-            style={{ flexShrink: 0 }}
+            className={classes.shrink0}
           >
             {challenge.xpAwarded
               ? t("dashboard.weeklyChallenges.rewardClaimed")

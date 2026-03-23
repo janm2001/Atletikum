@@ -1,0 +1,8 @@
+.card {
+  background-color: var(--app-surface-interactive) !important;
+  border-color: var(--app-border-subtle) !important;
+}
+
+.shrink0 {
+  flex-shrink: 0;
+}

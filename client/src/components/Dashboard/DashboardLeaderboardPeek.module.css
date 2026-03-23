@@ -1,0 +1,36 @@
+[data-mantine-color-scheme="dark"] .card {
+  background: linear-gradient(
+    180deg,
+    rgba(34, 40, 54, 0.78) 0%,
+    rgba(20, 26, 38, 0.95) 100%
+  );
+}
+
+.row {
+  background-color: var(--app-surface-interactive);
+  border: 1px solid var(--app-border-subtle);
+  border-radius: 12px;
+  padding: 7px 10px;
+}
+
+.rowCurrentUser {
+  background-color: var(--leaderboard-current-bg);
+  border-color: var(--leaderboard-current-border);
+}
+
+.rankIcon {
+  flex-shrink: 0;
+  color: var(--rank-icon-color) !important;
+  background-color: var(--rank-icon-bg) !important;
+  border: 1px solid var(--rank-icon-border) !important;
+}
+
+.minWidth0 {
+  min-width: 0;
+}
+
+.xpText {
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}

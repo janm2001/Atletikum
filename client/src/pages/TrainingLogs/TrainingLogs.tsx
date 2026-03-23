@@ -28,9 +28,6 @@ const TrainingLogs = () => {
           justify="center"
           grow
           style={{
-            position: "sticky",
-            top: 60,
-            zIndex: 10,
             backgroundColor: "var(--mantine-color-body)",
           }}
         >
