@@ -44,9 +44,7 @@ const Welcome = () => {
             alt="Atletikum"
             style={{ maxWidth: 300, height: 180 }}
           />
-          <Title style={{ marginTop: "-25px" }} order={1}>
-            {t("welcome.title")}
-          </Title>
+          <Title order={1}>{t("welcome.title")}</Title>
           <Text c="dimmed" size="lg">
             {t("welcome.subtitle")}
           </Text>

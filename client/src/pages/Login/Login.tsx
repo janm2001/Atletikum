@@ -92,7 +92,7 @@ const Login = () => {
           order={1}
           c="white"
           fw={900}
-          size="2.5rem"
+          size="3rem"
           mt="lg"
           style={{
             letterSpacing: "0.05em",
