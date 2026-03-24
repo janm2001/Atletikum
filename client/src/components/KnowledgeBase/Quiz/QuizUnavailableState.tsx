@@ -11,7 +11,7 @@ const QuizUnavailableState = ({ onBack }: QuizUnavailableStateProps) => {
   return (
     <Center className={classes.centerContainer}>
       <Title order={2}>{t('articles.quiz.unavailable')}</Title>
-      <Button mt="md" onClick={onBack}>
+      <Button mt="md" color="violet" onClick={onBack}>
         {t('articles.quiz.backToArticle')}
       </Button>
     </Center>

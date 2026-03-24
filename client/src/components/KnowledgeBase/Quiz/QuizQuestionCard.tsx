@@ -120,11 +120,11 @@ const QuizQuestionCard = ({
 
         <Group justify="flex-end" mt="xl">
           {!isAnswered ? (
-            <Button onClick={onSubmitAnswer} disabled={selectedOption === null}>
+            <Button color="violet" onClick={onSubmitAnswer} disabled={selectedOption === null}>
               {t('articles.quiz.confirmAnswer')}
             </Button>
           ) : (
-            <Button onClick={onNextQuestion} loading={isSubmitting}>
+            <Button color="violet" onClick={onNextQuestion} loading={isSubmitting}>
               {questionIndex === totalQuestions - 1
                 ? t('articles.quiz.finishQuiz')
                 : t('articles.quiz.nextQuestion')}
