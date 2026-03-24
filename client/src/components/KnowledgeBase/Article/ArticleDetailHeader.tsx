@@ -73,6 +73,7 @@ const ArticleDetailHeader = ({
           color={isBookmarked ? "grape" : "gray"}
           size="lg"
           onClick={onToggleBookmark}
+          aria-label={isBookmarked ? t('articles.removeBookmark') : t('articles.addBookmark')}
         >
           {isBookmarked ? (
             <IconBookmarkFilled size={18} />

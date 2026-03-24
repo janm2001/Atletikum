@@ -78,18 +78,22 @@ const syncArticleBookmarkState = (
   );
 };
 
-export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean }) => {
+export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean; q?: string }) => {
   const tags = options?.tags;
   const savedOnly = options?.savedOnly ?? false;
+  const q = options?.q?.trim() ?? "";
+
+  const baseKey = savedOnly
+    ? keys.knowledgeBase.saved(tags)
+    : tags && tags.length > 0
+      ? keys.knowledgeBase.categories(tags)
+      : keys.knowledgeBase.list();
+
+  const effectiveKey = q ? [...baseKey, "search", q] : baseKey;
 
   return useQuery({
-    queryKey:
-      savedOnly
-        ? keys.knowledgeBase.saved(tags)
-        : tags && tags.length > 0
-          ? keys.knowledgeBase.categories(tags)
-          : keys.knowledgeBase.list(),
-    queryFn: () => getArticles({ tags, savedOnly }),
+    queryKey: effectiveKey,
+    queryFn: () => getArticles({ tags, savedOnly, q: q || undefined }),
   });
 };
 

@@ -57,6 +57,7 @@ const KnowledgeBaseFilters = ({
 
   const searchInput = (
     <TextInput
+      label={t("knowledgeBase.search.label")}
       placeholder={t("knowledgeBase.search.placeholder")}
       leftSection={<IconSearch size={16} />}
       value={searchQuery}

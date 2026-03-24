@@ -243,10 +243,17 @@ const getAllArticles = async ({ userId, query }) => {
     return [];
   }
 
-  const articles = await Article.find(filter)
-    .select("-quiz")
-    .sort({ createdAt: -1 })
-    .lean();
+  const q = typeof query.q === "string" ? query.q.trim() : "";
+
+  if (q) {
+    filter.$text = { $search: q };
+  }
+
+  const sort = q ? { score: { $meta: "textScore" } } : { createdAt: -1 };
+
+  const queryBuilder = Article.find(filter).select("-quiz -content").sort(sort);
+
+  const articles = await queryBuilder.lean();
 
   const bookmarkMap = await getBookmarkMap(
     userId,
@@ -261,6 +268,8 @@ const getArticleById = async ({ articleId, userId }) => {
   if (!article) {
     throw new AppError("Članak nije pronađen", 404);
   }
+
+  const relatedExercisesPromise = getRelatedExercises(article.relatedExerciseIds);
 
   const relatedIds =
     Array.isArray(article.relatedArticleIds) &&
@@ -290,13 +299,13 @@ const getArticleById = async ({ articleId, userId }) => {
       .lean();
   }
 
-  const bookmarkMap = await getBookmarkMap(userId, [
-    article._id,
-    ...relatedArticles.map((relatedArticle) => relatedArticle._id),
+  const [bookmarkMap, relatedExercises] = await Promise.all([
+    getBookmarkMap(userId, [
+      article._id,
+      ...relatedArticles.map((relatedArticle) => relatedArticle._id),
+    ]),
+    relatedExercisesPromise,
   ]);
-  const relatedExercises = await getRelatedExercises(
-    article.relatedExerciseIds,
-  );
 
   return {
     ...article,

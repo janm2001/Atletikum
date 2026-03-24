@@ -7,6 +7,7 @@ const {
 } = require("../middleware/rateLimiters");
 const upload = require("../middleware/upload");
 const {
+  validateGetArticlesRequest,
   validateArticleIdRequest,
   validateUpdateReadingProgressRequest,
 } = require("../validators/articleValidator");
@@ -18,7 +19,7 @@ router.use(protect);
 
 router
   .route("/")
-  .get(articleController.getAllArticles)
+  .get(validate(validateGetArticlesRequest), articleController.getAllArticles)
   .post(
     restrictTo("admin"),
     articleMutationLimiter,

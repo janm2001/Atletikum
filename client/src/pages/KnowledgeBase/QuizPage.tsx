@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { Container } from "@mantine/core";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useArticleDetail } from "../../hooks/useArticle";
 import { useQuizStatus } from "../../hooks/useQuiz";
@@ -19,27 +20,35 @@ const QuizPage = () => {
   }
 
   if (!article || !article.quiz || article.quiz.length === 0) {
-    return <QuizUnavailableState onBack={() => navigate(`/edukacija/${id}`)} />;
+    return (
+      <Container size="xl" py="md">
+        <QuizUnavailableState onBack={() => navigate(`/edukacija/${id}`)} />
+      </Container>
+    );
   }
 
   const questions: QuizQuestion[] = article.quiz;
 
   if (quizStatus && !quizStatus.canTakeQuiz) {
     return (
-      <QuizLockedState
-        quizStatus={quizStatus}
-        onBack={() => navigate(`/edukacija/${id}`)}
-      />
+      <Container size="xl" py="md">
+        <QuizLockedState
+          quizStatus={quizStatus}
+          onBack={() => navigate(`/edukacija/${id}`)}
+        />
+      </Container>
     );
   }
 
   return (
-    <QuizPageContent
-      articleId={id!}
-      articleTitle={article.title}
-      questions={questions}
-      onBack={() => navigate(`/edukacija/${id}`)}
-    />
+    <Container size="xl" py="md">
+      <QuizPageContent
+        articleId={id!}
+        articleTitle={article.title}
+        questions={questions}
+        onBack={() => navigate(`/edukacija/${id}`)}
+      />
+    </Container>
   );
 };
 

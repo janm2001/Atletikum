@@ -42,6 +42,9 @@ const workoutSchema = new mongoose.Schema({
   exercises: [workoutExerciseSchema],
 });
 
+workoutSchema.index({ requiredLevel: 1, createdBy: 1 });
+workoutSchema.index({ createdBy: 1 });
+
 const Workout = mongoose.model("Workout", workoutSchema);
 
 module.exports = {

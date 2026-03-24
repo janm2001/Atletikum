@@ -1,8 +1,6 @@
 jest.mock("../models/User", () => ({
   User: {
-    find: jest.fn(),
-    findOne: jest.fn(),
-    countDocuments: jest.fn(),
+    aggregate: jest.fn(),
   },
 }));
 
@@ -20,24 +18,6 @@ const createLeaderboardUser = (id, username, totalXp) => ({
   dailyStreak: 0,
 });
 
-const mockFindChain = (result) => ({
-  sort: jest.fn().mockReturnValue({
-    limit: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue(result),
-      }),
-    }),
-  }),
-});
-
-const mockFindOneChain = (result) => ({
-  sort: jest.fn().mockReturnValue({
-    select: jest.fn().mockReturnValue({
-      lean: jest.fn().mockResolvedValue(result),
-    }),
-  }),
-});
-
 describe("leaderboardService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -50,7 +30,13 @@ describe("leaderboardService", () => {
       createLeaderboardUser("u3", "Me", 600),
     ];
 
-    User.find.mockReturnValue(mockFindChain(topUsers));
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [{ count: 2 }],
+        nextUser: [{ username: "Runner", totalXp: 800 }],
+      },
+    ]);
 
     const currentUser = {
       _id: "u3",
@@ -83,7 +69,13 @@ describe("leaderboardService", () => {
       createLeaderboardUser("u2", "Runner", 800),
     ];
 
-    User.find.mockReturnValue(mockFindChain(topUsers));
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [],
+        nextUser: [],
+      },
+    ]);
 
     const currentUser = {
       _id: "u1",
@@ -108,18 +100,15 @@ describe("leaderboardService", () => {
   });
 
   it("queries for next rank user when current user is outside top 50", async () => {
-    const topUsers = [
-      createLeaderboardUser("u1", "Leader", 5000),
-    ];
+    const topUsers = [createLeaderboardUser("u1", "Leader", 5000)];
 
-    User.find.mockReturnValue(mockFindChain(topUsers));
-    User.countDocuments.mockResolvedValue(100);
-    User.findOne.mockReturnValue(
-      mockFindOneChain({
-        username: "JustAbove",
-        totalXp: 120,
-      }),
-    );
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [{ count: 100 }],
+        nextUser: [{ username: "JustAbove", totalXp: 120 }],
+      },
+    ]);
 
     const currentUser = {
       _id: "u999",
@@ -144,5 +133,80 @@ describe("leaderboardService", () => {
       totalXp: 120,
     });
     expect(result.xpGapToNextRank).toBe(20);
+  });
+
+  it("handles totalXp === 0 without crashing and returns myRank >= 1", async () => {
+    const topUsers = [
+      createLeaderboardUser("u1", "Leader", 500),
+      createLeaderboardUser("u2", "Runner", 200),
+    ];
+
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [],
+        nextUser: [],
+      },
+    ]);
+
+    const currentUser = {
+      _id: "u5",
+      username: "NewUser",
+      totalXp: 0,
+      level: 1,
+      brainXp: 0,
+      bodyXp: 0,
+      dailyStreak: 0,
+      role: "user",
+      achievements: [],
+    };
+
+    const result = await leaderboardService.getLeaderboard({
+      currentUser,
+      currentUserId: "u5",
+    });
+
+    expect(result.myRank).toBeGreaterThanOrEqual(1);
+    expect(result.nextRankUser).toBeNull();
+    expect(result.xpGapToNextRank).toBeNull();
+  });
+
+  it("returns correct nextRankUser when user is outside top 50 with a valid nextUser", async () => {
+    const topUsers = Array.from({ length: 50 }, (_, i) =>
+      createLeaderboardUser(`u${i + 1}`, `User${i + 1}`, 5000 - i * 10)
+    );
+
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [{ count: 50 }],
+        nextUser: [{ username: "User50", totalXp: 4510 }],
+      },
+    ]);
+
+    const currentUser = {
+      _id: "u999",
+      username: "Outsider",
+      totalXp: 4500,
+      level: 1,
+      brainXp: 2250,
+      bodyXp: 2250,
+      dailyStreak: 0,
+      role: "user",
+      achievements: [],
+    };
+
+    const result = await leaderboardService.getLeaderboard({
+      currentUser,
+      currentUserId: "u999",
+    });
+
+    expect(result.myRank).toBe(51);
+    expect(result.leaderboard).toHaveLength(50);
+    expect(result.nextRankUser).toEqual({
+      username: "User50",
+      totalXp: 4510,
+    });
+    expect(result.xpGapToNextRank).toBe(10);
   });
 });

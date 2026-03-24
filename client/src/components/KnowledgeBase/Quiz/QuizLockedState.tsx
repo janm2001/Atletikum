@@ -3,7 +3,6 @@ import {
   Card,
   Container,
   Group,
-  Paper,
   Stack,
   Text,
   Title,
@@ -35,15 +34,16 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
         <Stack align="center" gap="md">
           <IconLock size={48} className={classes.iconLock} />
           <Title order={3}>{t('articles.quiz.locked')}</Title>
-          <Text className={classes.textMuted} ta="center">
+          <Text c="var(--app-text-muted)" ta="center">
             {t('articles.quiz.lockedDetailMessage')}
           </Text>
 
           {lastScore && (
-            <Paper
+            <Card
               p="md"
               withBorder
               radius="md"
+              shadow="sm"
               w="100%"
               className={classes.scorePaper}
             >
@@ -55,7 +55,7 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
                   <Text size="xl" fw={700}>
                     {lastScore.score}/{lastScore.totalQuestions}
                   </Text>
-                  <Text size="xs" className={classes.textMuted}>
+                  <Text size="xs" c="var(--app-text-muted)">
                     {t('articles.quiz.correctLabel')}
                   </Text>
                 </Stack>
@@ -63,12 +63,12 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
                   <Text size="xl" fw={700} className={classes.textTeal}>
                     +{lastScore.xpGained}
                   </Text>
-                  <Text size="xs" className={classes.textMuted}>
+                  <Text size="xs" c="var(--app-text-muted)">
                     {t('articles.quiz.xpEarned')}
                   </Text>
                 </Stack>
               </Group>
-            </Paper>
+            </Card>
           )}
 
           {nextDate && (
@@ -87,7 +87,7 @@ const QuizLockedState = ({ quizStatus, onBack }: QuizLockedStateProps) => {
             </Alert>
           )}
 
-          <Button variant="light" onClick={onBack} mt="md">
+          <Button variant="light" color="violet" onClick={onBack} mt="md">
             {t('articles.quiz.backToArticle')}
           </Button>
         </Stack>

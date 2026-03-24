@@ -2,14 +2,18 @@ const asyncHandler = require("../middleware/asyncHandler");
 const workoutLogService = require("../services/workoutLogService");
 
 exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
-  const workoutLogs = await workoutLogService.getMyWorkoutLogs({
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 30;
+
+  const result = await workoutLogService.getMyWorkoutLogs({
     userId: req.userId,
+    page,
+    limit,
   });
 
   res.status(200).json({
     status: "success",
-    results: workoutLogs.length,
-    data: { workoutLogs },
+    data: result,
   });
 });
 

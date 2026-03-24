@@ -43,18 +43,18 @@ const KnowledgeBase = () => {
   );
 
   const filteredAndSortedArticles = useMemo(() => {
-    let result = articles;
+    const q = searchQuery.trim().toLowerCase();
+    const filtered = q
+      ? articles.filter(
+          (a) =>
+            a.title.toLowerCase().includes(q) ||
+            a.summary?.toLowerCase().includes(q),
+        )
+      : articles;
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.trim().toLowerCase();
-      result = result.filter(
-        (article) =>
-          article.title.toLowerCase().includes(query) ||
-          (article.summary ?? "").toLowerCase().includes(query),
-      );
-    }
+    if (q) return filtered;
 
-    result = [...result].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       if (sortBy === "newest") {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -67,8 +67,6 @@ const KnowledgeBase = () => {
       }
       return a.title.localeCompare(b.title, "hr");
     });
-
-    return result;
   }, [articles, searchQuery, sortBy]);
 
   const handleToggleBookmark = (article: ArticleSummary) => {

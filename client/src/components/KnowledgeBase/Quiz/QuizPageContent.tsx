@@ -1,4 +1,4 @@
-import { Container } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import ActionToast from "@/components/Common/ActionToast";
 import type { QuizQuestion } from "@/types/Article/article";
 import { useQuizFlow } from "@/hooks/useQuizFlow";
@@ -37,7 +37,7 @@ const QuizPageContent = ({
   });
 
   return (
-    <Container size="sm" py={{ base: "sm", md: "md" }}>
+    <Stack gap="md" maw={600} mx="auto">
       <ActionToast message={actionError} onClose={clearActionError} />
 
       <QuizQuestionCard
@@ -55,7 +55,7 @@ const QuizPageContent = ({
         onSubmitAnswer={handleAnswerSubmit}
         onNextQuestion={handleNextQuestion}
       />
-    </Container>
+    </Stack>
   );
 };
 

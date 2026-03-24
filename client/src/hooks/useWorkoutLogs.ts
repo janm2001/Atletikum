@@ -1,11 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     type CreateWorkoutLogParams,
+    type PaginatedWorkoutLogs,
     createWorkoutLog,
     getLatestWorkoutLog,
     getWorkoutLogs,
 } from "@/api/workoutLogs";
-import { prependCachedEntity } from "@/lib/query-cache";
 import { keys } from "@/lib/query-keys";
 import type {
     WorkoutLog,
@@ -16,9 +16,12 @@ import type {
 export type { WorkoutLog, WorkoutLogPayload, CreateWorkoutLogResult };
 
 export function useWorkoutLogs() {
-    return useQuery<WorkoutLog[], Error>({
+    return useInfiniteQuery<PaginatedWorkoutLogs, Error>({
         queryKey: keys.workoutLogs.list(),
-        queryFn: getWorkoutLogs,
+        queryFn: ({ pageParam }) => getWorkoutLogs({ page: pageParam as number }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) =>
+            lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
     });
 }
 
@@ -37,10 +40,9 @@ export function useCreateWorkoutLog() {
     return useMutation<CreateWorkoutLogResult, Error, CreateWorkoutLogParams>({
         mutationFn: createWorkoutLog,
         onSuccess: ({ workoutLog }) => {
-            queryClient.setQueryData<WorkoutLog[] | undefined>(
-                keys.workoutLogs.list(),
-                (workoutLogs) => prependCachedEntity(workoutLogs, workoutLog),
-            );
+            queryClient.invalidateQueries({
+                queryKey: keys.workoutLogs.list(),
+            });
             queryClient.invalidateQueries({
                 queryKey: keys.challenges.weekly(),
             });

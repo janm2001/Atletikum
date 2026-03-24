@@ -96,7 +96,7 @@ export const ArticleCard = ({
               variant="subtle"
               color={article.bookmark?.isBookmarked ? "grape" : "gray"}
               onClick={() => onToggleBookmark(article)}
-              aria-label={t('articles.card.bookmarkLabel')}
+              aria-label={article.bookmark?.isBookmarked ? t('articles.card.removeBookmark') : t('articles.card.addBookmark')}
             >
               {article.bookmark?.isBookmarked ? (
                 <IconBookmarkFilled size={16} />

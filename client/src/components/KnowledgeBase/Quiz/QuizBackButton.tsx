@@ -12,6 +12,7 @@ const QuizBackButton = ({ onClick, mb = "md" }: QuizBackButtonProps) => {
   return (
     <Button
       variant="subtle"
+      color="violet"
       leftSection={<IconArrowLeft size={16} />}
       onClick={onClick}
       mb={mb}

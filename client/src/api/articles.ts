@@ -18,11 +18,13 @@ export async function getArticles(
 ): Promise<ArticleSummary[]> {
     const tags = options?.tags;
     const savedOnly = options?.savedOnly ?? false;
+    const q = options?.q;
 
     const { data } = await apiClient.get<ArticlesResponse>(API_URL, {
         params: {
             ...(tags && tags.length > 0 ? { tag: tags } : {}),
             ...(savedOnly ? { saved: true } : {}),
+            ...(q ? { q } : {}),
         },
     });
 

@@ -2,11 +2,11 @@ const AppError = require("../utils/AppError");
 const { Exercise } = require("../models/Exercise");
 
 const getAllExercises = async () => {
-  return Exercise.find().sort({ createdAt: -1 });
+  return Exercise.find().sort({ createdAt: -1 }).lean();
 };
 
 const getExerciseById = async (exerciseId) => {
-  const exercise = await Exercise.findById(exerciseId);
+  const exercise = await Exercise.findById(exerciseId).lean();
 
   if (!exercise) {
     throw new AppError("Exercise not found", 404);
