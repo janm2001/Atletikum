@@ -17,6 +17,9 @@ const exerciseSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+exerciseSchema.index({ muscleGroup: 1 });
+exerciseSchema.index({ level: 1 });
+
 const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 module.exports = { Exercise, exerciseSchema };
