@@ -297,13 +297,13 @@ const getArticleById = async ({ articleId, userId }) => {
       .lean();
   }
 
-  const bookmarkMap = await getBookmarkMap(userId, [
-    article._id,
-    ...relatedArticles.map((relatedArticle) => relatedArticle._id),
+  const [bookmarkMap, relatedExercises] = await Promise.all([
+    getBookmarkMap(userId, [
+      article._id,
+      ...relatedArticles.map((relatedArticle) => relatedArticle._id),
+    ]),
+    getRelatedExercises(article.relatedExerciseIds),
   ]);
-  const relatedExercises = await getRelatedExercises(
-    article.relatedExerciseIds,
-  );
 
   return {
     ...article,
