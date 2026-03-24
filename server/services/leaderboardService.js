@@ -3,24 +3,44 @@ const { sanitizeUser } = require("../utils/sanitizeUser");
 const { requireUserId } = require("../utils/userIdentity");
 
 const getLeaderboard = async ({ currentUser, currentUserId }) => {
-  const topUsers = await User.find()
-    .sort({ totalXp: -1 })
-    .limit(50)
-    .select("username level totalXp brainXp bodyXp profilePicture dailyStreak")
-    .lean();
-
   const userId = requireUserId({ userId: currentUserId, user: currentUser });
-  const myIndex = topUsers.findIndex((user) => user._id.toString() === userId);
 
-  let myRank = null;
-  if (myIndex !== -1) {
-    myRank = myIndex + 1;
-  } else {
-    const count = await User.countDocuments({
-      totalXp: { $gt: currentUser.totalXp },
-    });
-    myRank = count + 1;
-  }
+  const [result] = await User.aggregate([
+    {
+      $facet: {
+        topUsers: [
+          { $sort: { totalXp: -1 } },
+          { $limit: 50 },
+          {
+            $project: {
+              username: 1,
+              level: 1,
+              totalXp: 1,
+              brainXp: 1,
+              bodyXp: 1,
+              profilePicture: 1,
+              dailyStreak: 1,
+            },
+          },
+        ],
+        userRank: [
+          { $match: { totalXp: { $gt: currentUser.totalXp } } },
+          { $count: "count" },
+        ],
+        nextUser: [
+          { $match: { totalXp: { $gt: currentUser.totalXp } } },
+          { $sort: { totalXp: 1 } },
+          { $limit: 1 },
+          { $project: { username: 1, totalXp: 1 } },
+        ],
+      },
+    },
+  ]);
+
+  const topUsers = result.topUsers;
+  const myRank = (result.userRank[0]?.count ?? 0) + 1;
+
+  const myIndex = topUsers.findIndex((user) => user._id.toString() === userId);
 
   let nextRankUser = null;
   let xpGapToNextRank = null;
@@ -29,21 +49,10 @@ const getLeaderboard = async ({ currentUser, currentUserId }) => {
     const above = topUsers[myIndex - 1];
     nextRankUser = { username: above.username, totalXp: above.totalXp };
     xpGapToNextRank = above.totalXp - currentUser.totalXp;
-  } else if (myIndex === -1 && topUsers.length > 0) {
-    const aboveUser = await User.findOne({
-      totalXp: { $gt: currentUser.totalXp },
-    })
-      .sort({ totalXp: 1 })
-      .select("username totalXp")
-      .lean();
-
-    if (aboveUser) {
-      nextRankUser = {
-        username: aboveUser.username,
-        totalXp: aboveUser.totalXp,
-      };
-      xpGapToNextRank = aboveUser.totalXp - currentUser.totalXp;
-    }
+  } else if (myIndex === -1 && result.nextUser[0]) {
+    const aboveUser = result.nextUser[0];
+    nextRankUser = { username: aboveUser.username, totalXp: aboveUser.totalXp };
+    xpGapToNextRank = aboveUser.totalXp - currentUser.totalXp;
   }
 
   return {

@@ -1,8 +1,6 @@
 jest.mock("../models/User", () => ({
   User: {
-    find: jest.fn(),
-    findOne: jest.fn(),
-    countDocuments: jest.fn(),
+    aggregate: jest.fn(),
   },
 }));
 
@@ -20,24 +18,6 @@ const createLeaderboardUser = (id, username, totalXp) => ({
   dailyStreak: 0,
 });
 
-const mockFindChain = (result) => ({
-  sort: jest.fn().mockReturnValue({
-    limit: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue(result),
-      }),
-    }),
-  }),
-});
-
-const mockFindOneChain = (result) => ({
-  sort: jest.fn().mockReturnValue({
-    select: jest.fn().mockReturnValue({
-      lean: jest.fn().mockResolvedValue(result),
-    }),
-  }),
-});
-
 describe("leaderboardService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -50,7 +30,13 @@ describe("leaderboardService", () => {
       createLeaderboardUser("u3", "Me", 600),
     ];
 
-    User.find.mockReturnValue(mockFindChain(topUsers));
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [{ count: 2 }],
+        nextUser: [{ username: "Runner", totalXp: 800 }],
+      },
+    ]);
 
     const currentUser = {
       _id: "u3",
@@ -83,7 +69,13 @@ describe("leaderboardService", () => {
       createLeaderboardUser("u2", "Runner", 800),
     ];
 
-    User.find.mockReturnValue(mockFindChain(topUsers));
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [],
+        nextUser: [],
+      },
+    ]);
 
     const currentUser = {
       _id: "u1",
@@ -108,18 +100,15 @@ describe("leaderboardService", () => {
   });
 
   it("queries for next rank user when current user is outside top 50", async () => {
-    const topUsers = [
-      createLeaderboardUser("u1", "Leader", 5000),
-    ];
+    const topUsers = [createLeaderboardUser("u1", "Leader", 5000)];
 
-    User.find.mockReturnValue(mockFindChain(topUsers));
-    User.countDocuments.mockResolvedValue(100);
-    User.findOne.mockReturnValue(
-      mockFindOneChain({
-        username: "JustAbove",
-        totalXp: 120,
-      }),
-    );
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [{ count: 100 }],
+        nextUser: [{ username: "JustAbove", totalXp: 120 }],
+      },
+    ]);
 
     const currentUser = {
       _id: "u999",
