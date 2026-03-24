@@ -394,7 +394,8 @@
     "empty": "Nema pronađenih članaka za ovu kategoriju.",
     "error": "Greška pri učitavanju članaka. Pokušajte ponovno.",
     "search": {
-      "placeholder": "Pretraži članke..."
+      "placeholder": "Pretraži članke...",
+      "label": "Pretraži članke"
     },
     "sort": {
       "label": "Sortiraj",
@@ -419,10 +420,14 @@
     "readSource": "Pročitaj izvorno istraživanje",
     "relatedArticles": "Povezani članci",
     "relatedExercises": "Povezane vježbe",
+    "addBookmark": "Spremi članak",
+    "removeBookmark": "Ukloni iz spremljenih",
     "card": {
       "quizBadge": "Kviz",
       "readBadge": "Pročitano",
       "bookmarkLabel": "Spremi članak",
+      "addBookmark": "Spremi članak",
+      "removeBookmark": "Ukloni iz spremljenih",
       "readMore": "Pročitaj više"
     },
     "quiz": {

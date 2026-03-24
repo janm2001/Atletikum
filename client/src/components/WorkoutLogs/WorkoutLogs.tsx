@@ -29,6 +29,7 @@ const WorkoutLogs = () => {
   useEffect(() => {
     if (!data?.logs || isFetching) return;
     if (page === 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAllLogs(data.logs);
     } else {
       setAllLogs((prev) => {
