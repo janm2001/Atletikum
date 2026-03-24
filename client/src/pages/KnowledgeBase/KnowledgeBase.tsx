@@ -32,7 +32,6 @@ const KnowledgeBase = () => {
   const { data, isLoading, error } = useArticles({
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     savedOnly: articleFilter === "saved",
-    q: searchQuery.trim() || undefined,
   });
   const { data: completedArticleIds } = useMyQuizCompletions();
   const toggleBookmarkMutation = useToggleArticleBookmark();
@@ -44,11 +43,18 @@ const KnowledgeBase = () => {
   );
 
   const filteredAndSortedArticles = useMemo(() => {
-    if (searchQuery.trim()) {
-      return articles;
-    }
+    const q = searchQuery.trim().toLowerCase();
+    const filtered = q
+      ? articles.filter(
+          (a) =>
+            a.title.toLowerCase().includes(q) ||
+            a.summary?.toLowerCase().includes(q),
+        )
+      : articles;
 
-    return [...articles].sort((a, b) => {
+    if (q) return filtered;
+
+    return [...filtered].sort((a, b) => {
       if (sortBy === "newest") {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
