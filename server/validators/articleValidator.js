@@ -11,6 +11,9 @@ const validateGetArticlesRequest = (request) => {
     if (typeof q !== "string") {
       throw new AppError("Parametar pretrage mora biti tekst.", 400);
     }
+    if (q.trim().length === 0) {
+      throw new AppError("Parametar pretrage ne smije biti prazan.", 400);
+    }
     if (q.length > 100) {
       throw new AppError("Pretraga ne smije biti dulja od 100 znakova.", 400);
     }

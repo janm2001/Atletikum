@@ -253,10 +253,6 @@ const getAllArticles = async ({ userId, query }) => {
 
   const queryBuilder = Article.find(filter).select("-quiz -content").sort(sort);
 
-  if (q) {
-    queryBuilder.select({ score: { $meta: "textScore" } });
-  }
-
   const articles = await queryBuilder.lean();
 
   const bookmarkMap = await getBookmarkMap(
