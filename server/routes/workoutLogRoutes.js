@@ -6,6 +6,7 @@ const validate = require("../middleware/validate");
 const {
   validateCreateWorkoutLogRequest,
   validateGetLatestWorkoutLogRequest,
+  validateGetWorkoutLogsRequest,
 } = require("../validators/workoutLogValidator");
 
 const router = express.Router();
@@ -20,7 +21,7 @@ router.get(
 
 router
   .route("/")
-  .get(workoutLogController.getMyWorkoutLogs)
+  .get(validate(validateGetWorkoutLogsRequest), workoutLogController.getMyWorkoutLogs)
   .post(
     workoutLogCreationLimiter,
     validate(validateCreateWorkoutLogRequest),

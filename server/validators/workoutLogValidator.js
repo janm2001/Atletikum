@@ -49,7 +49,38 @@ const validateGetLatestWorkoutLogRequest = (request) => {
   validateObjectId(request.params.workoutId, "Workout");
 };
 
+const validateGetWorkoutLogsRequest = (request) => {
+  const { page, limit } = request.query ?? {};
+
+  if (page !== undefined) {
+    validateNumberInRange(page, {
+      min: 1,
+      max: Infinity,
+      message: "Parametar page mora biti pozitivan cijeli broj.",
+    });
+
+    const pageNum = Number(page);
+    if (!Number.isInteger(pageNum)) {
+      throw new AppError("Parametar page mora biti pozitivan cijeli broj.", 400);
+    }
+  }
+
+  if (limit !== undefined) {
+    validateNumberInRange(limit, {
+      min: 1,
+      max: 100,
+      message: "Parametar limit mora biti cijeli broj između 1 i 100.",
+    });
+
+    const limitNum = Number(limit);
+    if (!Number.isInteger(limitNum)) {
+      throw new AppError("Parametar limit mora biti cijeli broj između 1 i 100.", 400);
+    }
+  }
+};
+
 module.exports = {
   validateCreateWorkoutLogRequest,
   validateGetLatestWorkoutLogRequest,
+  validateGetWorkoutLogsRequest,
 };

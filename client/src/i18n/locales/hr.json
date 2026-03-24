@@ -341,7 +341,8 @@
       "xpGained": "{{count}} XP",
       "totalSessions": "Ukupno sesija",
       "totalXp": "Ukupni XP",
-      "totalPRs": "Osobni rekordi"
+      "totalPRs": "Osobni rekordi",
+      "loadMore": "Učitaj više"
     },
     "charts": {
       "insufficientData": "Potrebna su barem 2 treninga za prikaz statistike.",

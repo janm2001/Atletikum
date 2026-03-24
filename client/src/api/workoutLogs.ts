@@ -11,9 +11,21 @@ import type {
 } from "@/types/WorkoutLog/workoutLogApi";
 import { apiClient } from "@/utils/apiService";
 
-export async function getWorkoutLogs(): Promise<WorkoutLog[]> {
-    const { data } = await apiClient.get<WorkoutLogsResponse>("/workout-logs");
-    return data.data.workoutLogs;
+export type GetWorkoutLogsParams = {
+    page?: number;
+    limit?: number;
+};
+
+export type PaginatedWorkoutLogs = {
+    logs: WorkoutLog[];
+    total: number;
+    page: number;
+    totalPages: number;
+};
+
+export async function getWorkoutLogs(params: GetWorkoutLogsParams = {}): Promise<PaginatedWorkoutLogs> {
+    const { data } = await apiClient.get<WorkoutLogsResponse>("/workout-logs", { params });
+    return data.data;
 }
 
 export type CreateWorkoutLogParams = {

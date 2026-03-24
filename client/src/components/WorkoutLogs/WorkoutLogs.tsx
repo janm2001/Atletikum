@@ -1,4 +1,5 @@
-import { Card, SimpleGrid, Stack, Text } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Button, Card, SimpleGrid, Stack, Text } from "@mantine/core";
 import { IconBarbell, IconBolt, IconTrophy } from "@tabler/icons-react";
 import QueryErrorMessage from "../Common/QueryErrorMessage";
 import { useWorkoutLogs } from "@/hooks/useWorkoutLogs";
@@ -8,15 +9,32 @@ import { WorkoutLogCard } from "./WorkoutLogCard";
 import WorkoutLogCharts from "./WorkoutLogCharts";
 import { useTranslation } from "react-i18next";
 import classes from "./WorkoutLogs.module.css";
+import type { WorkoutLog } from "@/types/WorkoutLog/workoutLog";
 
 const WorkoutLogs = () => {
   const { t } = useTranslation();
-  const { data, isLoading, error } = useWorkoutLogs();
+  const [page, setPage] = useState(1);
+  const [allLogs, setAllLogs] = useState<WorkoutLog[]>([]);
+
+  const { data, isLoading, isFetching, error } = useWorkoutLogs(page);
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
-  const workoutLogs = data ?? [];
+
   const exerciseNameById = new Map(
     (exercises ?? []).map((exercise) => [exercise._id, exercise.title]),
   );
+
+  const totalPages = data?.totalPages ?? 1;
+  const total = data?.total ?? 0;
+
+  useEffect(() => {
+    if (!data?.logs || isFetching) return;
+    setAllLogs((prev) => {
+      const existingIds = new Set(prev.map((l) => l._id));
+      const newItems = data.logs.filter((l) => !existingIds.has(l._id));
+      if (newItems.length === 0) return prev;
+      return [...prev, ...newItems];
+    });
+  }, [data?.logs, isFetching]);
 
   if (isLoading || exercisesLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
@@ -26,16 +44,16 @@ const WorkoutLogs = () => {
     return <QueryErrorMessage message={error.message} />;
   }
 
-  if (workoutLogs.length === 0) {
+  if (allLogs.length === 0 && !isFetching) {
     return <Text c="dimmed">{t("training.logs.noLogs")}</Text>;
   }
 
-  const totalSessions = workoutLogs.length;
-  const totalXp = workoutLogs.reduce(
+  const totalSessions = total;
+  const totalXp = allLogs.reduce(
     (sum, log) => sum + (log.totalXpGained ?? 0),
     0,
   );
-  const totalPRs = workoutLogs.reduce(
+  const totalPRs = allLogs.reduce(
     (sum, log) =>
       sum + log.completedExercises.filter((ex) => ex.isPersonalBest).length,
     0,
@@ -74,16 +92,26 @@ const WorkoutLogs = () => {
       </SimpleGrid>
 
       <WorkoutLogCharts
-        workoutLogs={workoutLogs}
+        workoutLogs={allLogs}
         exerciseNameById={exerciseNameById}
       />
-      {workoutLogs.map((workoutLog) => (
+      {allLogs.map((workoutLog) => (
         <WorkoutLogCard
           key={workoutLog._id}
           workoutLog={workoutLog}
           exerciseNameById={exerciseNameById}
         />
       ))}
+
+      {page < totalPages && (
+        <Button
+          variant="outline"
+          loading={isFetching}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          {t("training.logs.loadMore")}
+        </Button>
+      )}
     </Stack>
   );
 };

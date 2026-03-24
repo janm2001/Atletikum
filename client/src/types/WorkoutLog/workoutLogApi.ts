@@ -6,7 +6,10 @@ import type {
 } from "@/types/WorkoutLog/workoutLog";
 
 export type WorkoutLogsPayload = {
-    workoutLogs: WorkoutLog[];
+    logs: WorkoutLog[];
+    total: number;
+    page: number;
+    totalPages: number;
 };
 
 export type WorkoutLogPayloadData = {
@@ -19,7 +22,6 @@ export type WorkoutLogPayloadData = {
 
 export type WorkoutLogsResponse = {
     status: string;
-    results: number;
     data: WorkoutLogsPayload;
 };
 

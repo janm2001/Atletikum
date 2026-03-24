@@ -18,10 +18,26 @@ const { updateChallengeProgress } = require("./weeklyChallengeService");
 
 const DUPLICATE_WINDOW_MS = 60 * 1000;
 
-const getMyWorkoutLogs = async ({ userId, user }) => {
+const getMyWorkoutLogs = async ({ userId, user, page = 1, limit = 30 }) => {
   const normalizedUserId = requireUserId({ userId, user });
 
-  return WorkoutLog.find({ user: normalizedUserId }).sort({ date: -1 });
+  const skip = (page - 1) * limit;
+
+  const [logs, total] = await Promise.all([
+    WorkoutLog.find({ user: normalizedUserId })
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    WorkoutLog.countDocuments({ user: normalizedUserId }),
+  ]);
+
+  return {
+    logs,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 const getLatestWorkoutLog = async ({ userId, user, workoutId }) => {
