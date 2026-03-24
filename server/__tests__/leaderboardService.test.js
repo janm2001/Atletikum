@@ -134,4 +134,79 @@ describe("leaderboardService", () => {
     });
     expect(result.xpGapToNextRank).toBe(20);
   });
+
+  it("handles totalXp === 0 without crashing and returns myRank >= 1", async () => {
+    const topUsers = [
+      createLeaderboardUser("u1", "Leader", 500),
+      createLeaderboardUser("u2", "Runner", 200),
+    ];
+
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [],
+        nextUser: [],
+      },
+    ]);
+
+    const currentUser = {
+      _id: "u5",
+      username: "NewUser",
+      totalXp: 0,
+      level: 1,
+      brainXp: 0,
+      bodyXp: 0,
+      dailyStreak: 0,
+      role: "user",
+      achievements: [],
+    };
+
+    const result = await leaderboardService.getLeaderboard({
+      currentUser,
+      currentUserId: "u5",
+    });
+
+    expect(result.myRank).toBeGreaterThanOrEqual(1);
+    expect(result.nextRankUser).toBeNull();
+    expect(result.xpGapToNextRank).toBeNull();
+  });
+
+  it("returns correct nextRankUser when user is outside top 50 with a valid nextUser", async () => {
+    const topUsers = Array.from({ length: 50 }, (_, i) =>
+      createLeaderboardUser(`u${i + 1}`, `User${i + 1}`, 5000 - i * 10)
+    );
+
+    User.aggregate.mockResolvedValue([
+      {
+        topUsers,
+        userRank: [{ count: 50 }],
+        nextUser: [{ username: "User50", totalXp: 4510 }],
+      },
+    ]);
+
+    const currentUser = {
+      _id: "u999",
+      username: "Outsider",
+      totalXp: 4500,
+      level: 1,
+      brainXp: 2250,
+      bodyXp: 2250,
+      dailyStreak: 0,
+      role: "user",
+      achievements: [],
+    };
+
+    const result = await leaderboardService.getLeaderboard({
+      currentUser,
+      currentUserId: "u999",
+    });
+
+    expect(result.myRank).toBe(51);
+    expect(result.leaderboard).toHaveLength(50);
+    expect(result.nextRankUser).toEqual({
+      username: "User50",
+      totalXp: 4510,
+    });
+    expect(result.xpGapToNextRank).toBe(10);
+  });
 });

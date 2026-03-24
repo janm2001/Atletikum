@@ -5,6 +5,7 @@ const { requireUserId } = require("../utils/userIdentity");
 const getLeaderboard = async ({ currentUser, currentUserId }) => {
   const userId = requireUserId({ userId: currentUserId, user: currentUser });
 
+  // $facet always emits exactly one document; result is guaranteed to be defined
   const [result] = await User.aggregate([
     {
       $facet: {
