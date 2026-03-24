@@ -17,7 +17,7 @@ import useActionFeedback from "@/hooks/useActionFeedback";
 
 import ExercisesTable from "./ExercisesTable";
 import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   useCreateExercise,
   useDeleteExercise,
@@ -25,7 +25,11 @@ import {
   useUpdateExercise,
 } from "@/hooks/useExercise";
 import { Controller, useForm } from "react-hook-form";
-import { MuscleGroup, type MuscleGroupValue } from "@/enums/muscleGroup";
+import {
+  getMuscleGroupLabel,
+  MuscleGroup,
+  type MuscleGroupValue,
+} from "@/enums/muscleGroup";
 import { exerciseSchema, type ExerciseInput } from "@/schema/exercise.schema";
 import type { Exercise } from "@/types/Exercise/exercise";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +50,9 @@ const ExerciseTab = () => {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
     null,
   );
-  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(null);
+  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
+    null,
+  );
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const { data, isLoading, error } = useExercises();
@@ -65,15 +71,6 @@ const ExerciseTab = () => {
     resolver: zodResolver(exerciseSchema),
     defaultValues: getDefaultFormValues(),
   });
-
-  const muscleGroupOptions = useMemo(
-    () =>
-      Object.values(MuscleGroup).map((value) => ({
-        value,
-        label: value.replaceAll("_", " "),
-      })),
-    [],
-  );
 
   const openCreateModal = () => {
     setEditingExerciseId(null);
@@ -124,7 +121,7 @@ const ExerciseTab = () => {
         message: t("admin.exercises.saveSuccess"),
       });
     } catch (saveError) {
-      handleActionError(saveError, t('admin.exercises.saveError'));
+      handleActionError(saveError, t("admin.exercises.saveError"));
     }
   };
 
@@ -142,7 +139,7 @@ const ExerciseTab = () => {
         message: t("admin.exercises.deleteSuccess"),
       });
     } catch (deleteError) {
-      handleActionError(deleteError, t('admin.exercises.deleteError'));
+      handleActionError(deleteError, t("admin.exercises.deleteError"));
     } finally {
       setDeletingExerciseId(null);
     }
@@ -157,12 +154,12 @@ const ExerciseTab = () => {
       <ActionFeedback message={actionError} />
       <Stack gap="md">
         <Group justify="space-between">
-          <Text fw={600}>{t('admin.exercises.list')}</Text>
+          <Text fw={600}>{t("admin.exercises.list")}</Text>
           <Button
             leftSection={<IconPlus size={16} />}
             onClick={openCreateModal}
           >
-            {t('admin.exercises.add')}
+            {t("admin.exercises.add")}
           </Button>
         </Group>
 
@@ -183,18 +180,22 @@ const ExerciseTab = () => {
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title={editingExerciseId ? t('admin.exercises.editTitle') : t('admin.exercises.addTitle')}
+        title={
+          editingExerciseId
+            ? t("admin.exercises.editTitle")
+            : t("admin.exercises.addTitle")
+        }
         centered
       >
         <Stack component="form" onSubmit={handleSubmit(handleSave)}>
           <TextInput
-            label={t('admin.exercises.name')}
+            label={t("admin.exercises.name")}
             error={errors.title?.message}
             {...register("title")}
             required
           />
           <Textarea
-            label={t('admin.exercises.description')}
+            label={t("admin.exercises.description")}
             error={errors.description?.message}
             {...register("description")}
             minRows={3}
@@ -205,8 +206,11 @@ const ExerciseTab = () => {
             name="muscleGroup"
             render={({ field }) => (
               <Select
-                label={t('admin.exercises.muscleGroup')}
-                data={muscleGroupOptions}
+                label={t("admin.exercises.muscleGroup")}
+                data={Object.values(MuscleGroup).map((group) => ({
+                  value: group,
+                  label: getMuscleGroupLabel(group),
+                }))}
                 value={field.value}
                 onChange={(value) => {
                   if (value) {
@@ -223,7 +227,7 @@ const ExerciseTab = () => {
             name="level"
             render={({ field }) => (
               <NumberInput
-                label={t('admin.exercises.level')}
+                label={t("admin.exercises.level")}
                 min={1}
                 max={100}
                 value={field.value}
@@ -238,19 +242,19 @@ const ExerciseTab = () => {
             )}
           />
           <TextInput
-            label={t('admin.exercises.imageUrl')}
+            label={t("admin.exercises.imageUrl")}
             error={errors.imageLink?.message}
             {...register("imageLink")}
           />
           <TextInput
-            label={t('admin.exercises.videoUrl')}
+            label={t("admin.exercises.videoUrl")}
             error={errors.videoLink?.message}
             {...register("videoLink")}
           />
 
           <Group justify="flex-end" mt="sm">
             <Button variant="default" onClick={() => setOpened(false)}>
-              {t('common.cancel')}
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -260,7 +264,7 @@ const ExerciseTab = () => {
                 updateExerciseMutation.isPending
               }
             >
-              {t('common.save')}
+              {t("common.save")}
             </Button>
           </Group>
         </Stack>

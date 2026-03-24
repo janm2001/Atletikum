@@ -1,7 +1,10 @@
 import { ActionIcon, Badge, Group, Table, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
-import type { ArticleSummary } from "../../types/Article/article";
+import {
+  getArticleTagLabel,
+  type ArticleSummary,
+} from "../../types/Article/article";
 
 interface ArticlesTableProps {
   articles: ArticleSummary[];
@@ -43,7 +46,7 @@ const ArticlesTable = ({ articles, onEdit, onDelete }: ArticlesTableProps) => {
         {article.title}
       </Text>,
       <Badge key="tag" color={tagColors[article.tag] || "blue"} variant="light">
-        {article.tag}
+        {getArticleTagLabel(article.tag)}
       </Badge>,
       <Text size="sm" c="dimmed" lineClamp={1} key="summary">
         {article.summary}

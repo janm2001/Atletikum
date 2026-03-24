@@ -2,6 +2,7 @@ import { ActionIcon, Badge, Button, Group, Table, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import type { Exercise } from "../../types/Exercise/exercise";
+import { getMuscleGroupLabel } from "@/enums/muscleGroup";
 
 interface ExercisesTableProps {
   exercises: Exercise[];
@@ -32,7 +33,7 @@ const ExercisesTable = ({
         </Text>
       </div>,
       <Badge key="muscle" variant="light">
-        {exercise.muscleGroup.replaceAll("_", " ")}
+        {getMuscleGroupLabel(exercise.muscleGroup)}
       </Badge>,
       exercise.level,
       <Group gap="xs" key="media">
@@ -84,12 +85,7 @@ const ExercisesTable = ({
 
   return (
     <Table.ScrollContainer minWidth={600}>
-      <Table
-        striped
-        highlightOnHover
-        withTableBorder
-        data={tableData}
-      />
+      <Table striped highlightOnHover withTableBorder data={tableData} />
     </Table.ScrollContainer>
   );
 };

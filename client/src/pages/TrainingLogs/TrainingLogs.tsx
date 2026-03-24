@@ -38,7 +38,6 @@ const TrainingLogs = () => {
       ? tabFromState!
       : "set-vježbi";
 
-  // Sync location.state into URL on first mount (backward compat)
   useEffect(() => {
     if (!isValidTab(tabFromUrl) && isValidTab(tabFromState ?? null)) {
       setSearchParams({ tab: tabFromState! }, { replace: true });
