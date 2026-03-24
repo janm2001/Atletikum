@@ -23,6 +23,7 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const analyticsEventRoutes = require("./routes/analyticsEventRoutes");
 const challengeRoutes = require("./routes/challengeRoutes");
 const adminChallengeRoutes = require("./routes/adminChallengeRoutes");
+const { startStreakExpirationJob } = require("./jobs/streakExpirationJob");
 const {
   getClientUrl,
   getMongoUri,
@@ -107,6 +108,8 @@ const startServer = async () => {
     autoIndex: process.env.NODE_ENV !== "production",
   });
   console.log("MongoDB povezan!");
+
+  startStreakExpirationJob();
 
   const port = getPort();
 
