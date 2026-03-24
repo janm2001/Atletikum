@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const compression = require("compression");
+const morgan = require("morgan");
 const sanitizeMongo = require("./middleware/sanitizeMongo");
 const errorHandler = require("./middleware/errorHandler");
 const hpp = require("hpp");
@@ -34,6 +36,9 @@ const path = require("path");
 require("dotenv").config();
 
 const app = express();
+
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
 const trustProxy = getTrustProxy();
 if (trustProxy !== false) {
   app.set("trust proxy", trustProxy);
@@ -60,6 +65,7 @@ app.use(
 app.use(express.json({ limit: "10kb" }));
 app.use(sanitizeMongo);
 app.use(hpp());
+app.use(compression());
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -94,7 +100,12 @@ app.use(errorHandler);
 const startServer = async () => {
   validateServerEnvironment();
 
-  await mongoose.connect(getMongoUri());
+  await mongoose.connect(getMongoUri(), {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    autoIndex: process.env.NODE_ENV !== "production",
+  });
   console.log("MongoDB povezan!");
 
   const port = getPort();
@@ -123,6 +134,16 @@ if (require.main === module) {
       process.exit(1);
     });
 }
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Promise Rejection:", reason);
+  // Don't exit — let existing shutdown handlers deal with it
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  process.exit(1);
+});
 
 module.exports = {
   app,
