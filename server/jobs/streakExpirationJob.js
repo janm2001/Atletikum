@@ -1,14 +1,13 @@
 const cron = require('node-cron');
 const User = require('../models/User');
+const { startOfUtcDay, addUtcDays } = require('../utils/dateUtils');
 const logger = console; // use console until a proper logger is set up
 
 const startStreakExpirationJob = () => {
   // Run daily at 2am UTC
   cron.schedule('0 2 * * *', async () => {
     try {
-      const yesterday = new Date();
-      yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-      yesterday.setUTCHours(0, 0, 0, 0);
+      const yesterday = addUtcDays(startOfUtcDay(new Date()), -1);
 
       const result = await User.updateMany(
         { lastActivityDate: { $lt: yesterday }, dailyStreak: { $gt: 0 } },

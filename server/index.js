@@ -109,7 +109,9 @@ const startServer = async () => {
   });
   console.log("MongoDB povezan!");
 
-  startStreakExpirationJob();
+  if (process.env.NODE_ENV !== 'test') {
+    startStreakExpirationJob();
+  }
 
   const port = getPort();
 
