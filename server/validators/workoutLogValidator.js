@@ -55,12 +55,10 @@ const validateGetWorkoutLogsRequest = (request) => {
   if (page !== undefined) {
     validateNumberInRange(page, {
       min: 1,
-      max: Infinity,
       message: "Parametar page mora biti pozitivan cijeli broj.",
     });
 
-    const pageNum = Number(page);
-    if (!Number.isInteger(pageNum)) {
+    if (!Number.isInteger(Number(page))) {
       throw new AppError("Parametar page mora biti pozitivan cijeli broj.", 400);
     }
   }

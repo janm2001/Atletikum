@@ -28,13 +28,17 @@ const WorkoutLogs = () => {
 
   useEffect(() => {
     if (!data?.logs || isFetching) return;
-    setAllLogs((prev) => {
-      const existingIds = new Set(prev.map((l) => l._id));
-      const newItems = data.logs.filter((l) => !existingIds.has(l._id));
-      if (newItems.length === 0) return prev;
-      return [...prev, ...newItems];
-    });
-  }, [data?.logs, isFetching]);
+    if (page === 1) {
+      setAllLogs(data.logs);
+    } else {
+      setAllLogs((prev) => {
+        const existingIds = new Set(prev.map((l) => l._id));
+        const newItems = data.logs.filter((l) => !existingIds.has(l._id));
+        if (newItems.length === 0) return prev;
+        return [...prev, ...newItems];
+      });
+    }
+  }, [data?.logs, isFetching, page]);
 
   if (isLoading || exercisesLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
@@ -48,7 +52,6 @@ const WorkoutLogs = () => {
     return <Text c="dimmed">{t("training.logs.noLogs")}</Text>;
   }
 
-  const totalSessions = total;
   const totalXp = allLogs.reduce(
     (sum, log) => sum + (log.totalXpGained ?? 0),
     0,
@@ -65,7 +68,7 @@ const WorkoutLogs = () => {
         <Card className={classes.kpiCard} radius="md">
           <Stack align="center" gap={4}>
             <IconBarbell size={20} stroke={1.5} />
-            <Text className={classes.kpiValue}>{totalSessions}</Text>
+            <Text className={classes.kpiValue}>{total}</Text>
             <Text className={classes.kpiLabel}>
               {t("training.logs.totalSessions")}
             </Text>

@@ -36,7 +36,7 @@ const getMyWorkoutLogs = async ({ userId, user, page = 1, limit = 30 }) => {
     logs,
     total,
     page,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(total / limit) || 1,
   };
 };
 
