@@ -112,7 +112,7 @@ const Register = () => {
         <img
           src={atletikumIcon}
           alt="Atletikum"
-          style={{ width: "100%", maxWidth: 550 }}
+          style={{ width: "100%", maxWidth: 350 }}
         />
         <Title
           ta="center"
