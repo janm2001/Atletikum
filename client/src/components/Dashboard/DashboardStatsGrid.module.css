@@ -7,6 +7,6 @@
 }
 
 .xpTitle {
-  font-size: clamp(2rem, 2.4vw, 3rem);
+  font-size: clamp(1.25rem, 5vw, 2.5rem);
   line-height: 1;
 }

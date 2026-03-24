@@ -38,7 +38,7 @@ const Leaderboard = () => {
       <LeaderboardHeader myRank={myRank} />
 
       <Tabs defaultValue="overall" mt="md">
-        <Tabs.List mb="md">
+        <Tabs.List mb="md" grow>
           <Tabs.Tab value="overall">{t("leaderboard.tabs.overall")}</Tabs.Tab>
           <Tabs.Tab value="weekly">{t("leaderboard.tabs.weekly")}</Tabs.Tab>
         </Tabs.List>
