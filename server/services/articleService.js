@@ -269,6 +269,8 @@ const getArticleById = async ({ articleId, userId }) => {
     throw new AppError("Članak nije pronađen", 404);
   }
 
+  const relatedExercisesPromise = getRelatedExercises(article.relatedExerciseIds);
+
   const relatedIds =
     Array.isArray(article.relatedArticleIds) &&
     article.relatedArticleIds.length > 0
@@ -302,7 +304,7 @@ const getArticleById = async ({ articleId, userId }) => {
       article._id,
       ...relatedArticles.map((relatedArticle) => relatedArticle._id),
     ]),
-    getRelatedExercises(article.relatedExerciseIds),
+    relatedExercisesPromise,
   ]);
 
   return {
