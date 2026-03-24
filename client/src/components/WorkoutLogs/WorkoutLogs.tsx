@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Button, Card, SimpleGrid, Stack, Text } from "@mantine/core";
 import { IconBarbell, IconBolt, IconTrophy } from "@tabler/icons-react";
 import QueryErrorMessage from "../Common/QueryErrorMessage";
@@ -9,37 +9,24 @@ import { WorkoutLogCard } from "./WorkoutLogCard";
 import WorkoutLogCharts from "./WorkoutLogCharts";
 import { useTranslation } from "react-i18next";
 import classes from "./WorkoutLogs.module.css";
-import type { WorkoutLog } from "@/types/WorkoutLog/workoutLog";
 
 const WorkoutLogs = () => {
   const { t } = useTranslation();
-  const [page, setPage] = useState(1);
-  const [allLogs, setAllLogs] = useState<WorkoutLog[]>([]);
 
-  const { data, isLoading, isFetching, error } = useWorkoutLogs(page);
+  const { data, isLoading, isFetching, error, fetchNextPage, hasNextPage } =
+    useWorkoutLogs();
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
+
+  const allLogs = useMemo(
+    () => data?.pages.flatMap((p) => p.logs) ?? [],
+    [data],
+  );
 
   const exerciseNameById = new Map(
     (exercises ?? []).map((exercise) => [exercise._id, exercise.title]),
   );
 
-  const totalPages = data?.totalPages ?? 1;
-  const total = data?.total ?? 0;
-
-  useEffect(() => {
-    if (!data?.logs || isFetching) return;
-    if (page === 1) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAllLogs(data.logs);
-    } else {
-      setAllLogs((prev) => {
-        const existingIds = new Set(prev.map((l) => l._id));
-        const newItems = data.logs.filter((l) => !existingIds.has(l._id));
-        if (newItems.length === 0) return prev;
-        return [...prev, ...newItems];
-      });
-    }
-  }, [data?.logs, isFetching, page]);
+  const total = data?.pages[0]?.total ?? 0;
 
   if (isLoading || exercisesLoading) {
     return <SpinnerComponent fullHeight={false} size="md" />;
@@ -107,11 +94,11 @@ const WorkoutLogs = () => {
         />
       ))}
 
-      {page < totalPages && (
+      {hasNextPage && (
         <Button
           variant="outline"
           loading={isFetching}
-          onClick={() => setPage((p) => p + 1)}
+          onClick={() => fetchNextPage()}
         >
           {t("training.logs.loadMore")}
         </Button>

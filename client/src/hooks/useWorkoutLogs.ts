@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     type CreateWorkoutLogParams,
     type PaginatedWorkoutLogs,
@@ -15,11 +15,13 @@ import type {
 
 export type { WorkoutLog, WorkoutLogPayload, CreateWorkoutLogResult };
 
-export function useWorkoutLogs(page = 1) {
-    return useQuery<PaginatedWorkoutLogs, Error>({
-        queryKey: [...keys.workoutLogs.list(), page],
-        queryFn: () => getWorkoutLogs({ page }),
-        placeholderData: keepPreviousData,
+export function useWorkoutLogs() {
+    return useInfiniteQuery<PaginatedWorkoutLogs, Error>({
+        queryKey: keys.workoutLogs.list(),
+        queryFn: ({ pageParam }) => getWorkoutLogs({ page: pageParam as number }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) =>
+            lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
     });
 }
 
