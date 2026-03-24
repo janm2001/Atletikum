@@ -1,4 +1,4 @@
-import { Card, Group, Stack, Text, Title } from "@mantine/core";
+import { Card, Group, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { IconFlame } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { getXpProgress } from "../../utils/leveling";
@@ -28,7 +28,7 @@ const DashboardStatsGrid = ({
       className={classes.card}
     >
       <Stack gap="xs">
-        <Group justify="space-between" align="flex-start" wrap="nowrap">
+        <SimpleGrid cols={{ base: 3 }} spacing="xs">
           <Stack gap={0} align="flex-start">
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
               {t("dashboard.stats.level")}
@@ -55,14 +55,14 @@ const DashboardStatsGrid = ({
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
               {t("dashboard.stats.dailyStreak")}
             </Text>
-            <Group gap={4} align="center">
+            <Group gap={4} align="center" justify="flex-end">
               <IconFlame size={24} color="var(--mantine-color-orange-5)" />
               <Text size="xl" fw={700}>
                 {dailyStreak}
               </Text>
             </Group>
           </Stack>
-        </Group>
+        </SimpleGrid>
 
         <XpProgressSection />
       </Stack>

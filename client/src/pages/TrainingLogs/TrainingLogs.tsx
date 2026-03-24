@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Container, SegmentedControl, Stack } from "@mantine/core";
+import { Container, SegmentedControl, Stack, useMatches } from "@mantine/core";
 import { useLocation, useSearchParams } from "react-router-dom";
 import Workouts from "@/components/Workouts/Workouts";
 import WorkoutLogs from "@/components/WorkoutLogs/WorkoutLogs";
@@ -21,6 +21,10 @@ const isValidTab = (value: string | null): value is TabValue =>
 
 const TrainingLogs = () => {
   const { t } = useTranslation();
+  const tabOrientation = useMatches<"horizontal" | "vertical">({
+    base: "vertical",
+    sm: "horizontal",
+  });
   const location = useLocation();
   const locationState = location.state as TrainingLogsLocationState | null;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -61,6 +65,7 @@ const TrainingLogs = () => {
           onChange={handleTabChange}
           data={tabData}
           fullWidth
+          orientation={tabOrientation}
           className={classes.tabs}
         />
 
