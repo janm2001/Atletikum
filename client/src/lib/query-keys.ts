@@ -10,6 +10,7 @@ export const keys = {
         categories: (cats: string[]) => [...keys.knowledgeBase.lists(), 'categories', ...cats] as const,
         list: () => [...keys.knowledgeBase.lists(), 'all'] as const,
         saved: (cats: string[] = []) => [...keys.knowledgeBase.lists(), 'saved', ...cats] as const,
+        search: (q: string) => [...keys.knowledgeBase.lists(), 'search', q] as const,
         details: () => [...keys.knowledgeBase.all, 'detail'] as const,
         detail: (id: string) => [...keys.knowledgeBase.details(), id] as const,
         bookmark: (id: string) => [...keys.knowledgeBase.all, 'bookmark', id] as const,

@@ -4,6 +4,19 @@ const {
   validateObjectId,
 } = require("../utils/validationHelpers");
 
+const validateGetArticlesRequest = (request) => {
+  const { q } = request.query ?? {};
+
+  if (q !== undefined) {
+    if (typeof q !== "string") {
+      throw new AppError("Parametar pretrage mora biti tekst.", 400);
+    }
+    if (q.length > 100) {
+      throw new AppError("Pretraga ne smije biti dulja od 100 znakova.", 400);
+    }
+  }
+};
+
 const validateArticleIdRequest = (request) => {
   validateObjectId(request.params.id, "ID članka");
 };
@@ -27,6 +40,7 @@ const validateUpdateReadingProgressRequest = (request) => {
 };
 
 module.exports = {
+  validateGetArticlesRequest,
   validateArticleIdRequest,
   validateUpdateReadingProgressRequest,
 };

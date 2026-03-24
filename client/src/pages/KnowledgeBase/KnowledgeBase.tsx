@@ -32,6 +32,7 @@ const KnowledgeBase = () => {
   const { data, isLoading, error } = useArticles({
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     savedOnly: articleFilter === "saved",
+    q: searchQuery.trim() || undefined,
   });
   const { data: completedArticleIds } = useMyQuizCompletions();
   const toggleBookmarkMutation = useToggleArticleBookmark();
@@ -43,18 +44,11 @@ const KnowledgeBase = () => {
   );
 
   const filteredAndSortedArticles = useMemo(() => {
-    let result = articles;
-
     if (searchQuery.trim()) {
-      const query = searchQuery.trim().toLowerCase();
-      result = result.filter(
-        (article) =>
-          article.title.toLowerCase().includes(query) ||
-          (article.summary ?? "").toLowerCase().includes(query),
-      );
+      return articles;
     }
 
-    result = [...result].sort((a, b) => {
+    return [...articles].sort((a, b) => {
       if (sortBy === "newest") {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -67,8 +61,6 @@ const KnowledgeBase = () => {
       }
       return a.title.localeCompare(b.title, "hr");
     });
-
-    return result;
   }, [articles, searchQuery, sortBy]);
 
   const handleToggleBookmark = (article: ArticleSummary) => {

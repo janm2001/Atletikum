@@ -243,10 +243,21 @@ const getAllArticles = async ({ userId, query }) => {
     return [];
   }
 
-  const articles = await Article.find(filter)
-    .select("-quiz")
-    .sort({ createdAt: -1 })
-    .lean();
+  const q = typeof query.q === "string" ? query.q.trim() : "";
+
+  if (q) {
+    filter.$text = { $search: q };
+  }
+
+  const sort = q ? { score: { $meta: "textScore" } } : { createdAt: -1 };
+
+  const queryBuilder = Article.find(filter).select("-quiz -content").sort(sort);
+
+  if (q) {
+    queryBuilder.select({ score: { $meta: "textScore" } });
+  }
+
+  const articles = await queryBuilder.lean();
 
   const bookmarkMap = await getBookmarkMap(
     userId,

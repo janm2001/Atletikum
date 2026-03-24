@@ -58,6 +58,10 @@ const articleSchema = new mongoose.Schema(
 
 articleSchema.index({ createdAt: -1 });
 articleSchema.index({ tag: 1, createdAt: -1 });
+articleSchema.index(
+  { title: 'text', summary: 'text' },
+  { weights: { title: 10, summary: 5 }, name: 'ArticleTextIndex' },
+);
 
 const Article = mongoose.model("Article", articleSchema);
 

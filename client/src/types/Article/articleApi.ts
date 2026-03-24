@@ -19,6 +19,7 @@ export type BookmarkPayload = {
 export type ArticleQueryOptions = {
     tags?: string[];
     savedOnly?: boolean;
+    q?: string;
 };
 
 export type ArticlesResponse = {
