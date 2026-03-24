@@ -11,13 +11,13 @@
 }
 
 .logoImage {
-  height: 124px;
-  width: 124px;
+  height: 48px;
+  width: 120px;
 }
 
 .logoTitle {
   letter-spacing: 0.7px;
-  margin-left: -25px;
+  margin-left: -35px;
   background: linear-gradient(
     135deg,
     var(--mantine-color-stitch-5) 0%,
