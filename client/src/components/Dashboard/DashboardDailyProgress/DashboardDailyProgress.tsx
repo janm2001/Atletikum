@@ -1,4 +1,4 @@
-import { Group, Text, RingProgress, ThemeIcon } from "@mantine/core";
+import { Center, Group, Text, RingProgress } from "@mantine/core";
 import { IconBarbell } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useDailyProgress } from "@/hooks/useDailyProgress";
@@ -15,13 +15,13 @@ export const DashboardDailyProgress = () => {
   return (
     <Group gap="xs" className={classes.container}>
       <RingProgress
-        size={40}
+        size={50}
         thickness={4}
         sections={[{ value: percentage, color: "violet" }]}
         label={
-          <ThemeIcon size="sm" radius="xl" variant="light" color="violet">
-            <IconBarbell size={14} />
-          </ThemeIcon>
+          <Center>
+            <IconBarbell size={16} color="var(--mantine-color-violet-5)" />
+          </Center>
         }
       />
       <Text size="sm" c="dimmed">

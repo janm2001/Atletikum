@@ -14,6 +14,8 @@ import DashboardQuestsCard from "@/components/Dashboard/DashboardQuestsCard";
 import DashboardTrainingRecommendation from "@/components/Dashboard/DashboardTrainingRecommendation";
 import DashboardLeaderboardPeek from "@/components/Dashboard/DashboardLeaderboardPeek";
 import DashboardRecommendedContent from "@/components/Dashboard/DashboardRecommendedContent";
+import { DashboardDailyProgress } from "@/components/Dashboard/DashboardDailyProgress/DashboardDailyProgress";
+import { DashboardWeeklyPlan } from "@/components/Dashboard/DashboardWeeklyPlan/DashboardWeeklyPlan";
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -65,10 +67,13 @@ const Dashboard = () => {
 
         <Grid gutter="md" align="stretch">
           <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
-            <DashboardQuestsCard
-              insight={recommendations?.insight}
-              weeklyChallenges={weeklyChallenges}
-            />
+            <Stack gap="md">
+              <DashboardQuestsCard
+                insight={recommendations?.insight}
+                weeklyChallenges={weeklyChallenges}
+              />
+              <DashboardWeeklyPlan />
+            </Stack>
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
@@ -80,6 +85,7 @@ const Dashboard = () => {
 
           <Grid.Col span={{ base: 12, md: 12, xl: 4 }}>
             <Stack gap="md">
+              <DashboardDailyProgress />
               <DashboardLeaderboardPeek />
               <DashboardRecommendedContent
                 articles={topArticles}

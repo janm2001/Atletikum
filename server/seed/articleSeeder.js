@@ -18,6 +18,15 @@ const articles = [
     coverImage:
       "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
     author: "Atletikum Edukacija",
+    difficulty: "intermediate",
+    sequenceGroup: "fiziologija-performansi",
+    sequenceOrder: 1,
+    actionSummary: [
+      "Uključite intervalne treninge na 90–100% vVO2max (npr. 5×1000 m s 2–3 min odmora) barem jednom tjedno.",
+      "Pratite omjer 80% laganog i 20% visokog intenziteta kako biste izbjegli pretreniranost.",
+      "Procijenite svoj VO2max Cooperovim testom i pratite napredak svaka 4–6 tjedana.",
+      "Kombinirajte LSD treninge za aerobnu bazu s intervalima za podizanje vVO2max.",
+    ],
     quiz: [
       {
         question: "Što označava VO2max?",
@@ -89,6 +98,15 @@ const articles = [
     coverImage:
       "https://images.unsplash.com/photo-1536922246289-88c42f95e61a?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
     author: "Atletikum Edukacija",
+    difficulty: "intermediate",
+    sequenceGroup: "fiziologija-performansi",
+    sequenceOrder: 2,
+    actionSummary: [
+      "Uključite jedan do dva tempo treninga tjedno (20–40 min na 'udobno teško' tempu).",
+      "Progresivno produžujte trajanje tempo trčanja — počnite s 20 minuta i gradite prema 40.",
+      "Pokušajte cruise intervale (npr. 4×2000 m s 1 min odmora) za veći volumen rada na pragu.",
+      "Koristite puls ili GPS tempo za zadržavanje intenziteta u zoni laktatnog praga.",
+    ],
     quiz: [
       {
         question: "Što definira laktatni prag?",
@@ -162,6 +180,15 @@ const articles = [
     coverImage:
       "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=2938&ixlib=rb-4.0.3",
     author: "Atletikum Edukacija",
+    difficulty: "intermediate",
+    sequenceGroup: "fiziologija-performansi",
+    sequenceOrder: 3,
+    actionSummary: [
+      "Ciljajte na kadencu od 170–180 koraka u minuti kako biste smanjili vertikalnu oscilaciju.",
+      "Izvodite trkački ABC (A-skokovi, B-skokovi, visoka koljena) 2–3 puta tjedno kao dio zagrijavanja.",
+      "Uključite plyometrijski trening (skokovi na kutiju, pogo skokovi) 1–2× tjedno za bolji povrat elastične energije.",
+      "Držite laktove savijene na oko 90° i ruke krećite naprijed-natrag bez bočnih kretnji.",
+    ],
     quiz: [
       {
         question: "Što je ekonomičnost trčanja?",
@@ -234,6 +261,15 @@ const articles = [
     coverImage:
       "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&q=80&w=2906&ixlib=rb-4.0.3",
     author: "Atletikum Edukacija",
+    difficulty: "beginner",
+    sequenceGroup: "podrska-treningu",
+    sequenceOrder: 1,
+    actionSummary: [
+      "Konzumirajte 8–10 g ugljikohidrata po kg tjelesne mase u posljednja 24–36 sati prije natjecanja.",
+      "Jedite laganu večeru bogatu ugljikohidratima dan prije utrke i izbjegavajte alkohol.",
+      "Pripremite obrok 3–4 sata prije utrke s 1–2 g ugljikohidrata/kg — npr. zobene pahuljice s bananom.",
+      "Testirajte grickalicu 30–60 minuta prije utrke na treningu, nikad prvo na samoj utrci.",
+    ],
     quiz: [
       {
         question:
@@ -298,6 +334,15 @@ const articles = [
     coverImage:
       "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
     author: "Atletikum Edukacija",
+    difficulty: "advanced",
+    sequenceGroup: "podrska-treningu",
+    sequenceOrder: 2,
+    actionSummary: [
+      "Izvodite teške treninge snage s 3–5 serija × 3–6 ponavljanja na 80–90% 1RM.",
+      "Smjestite sesije snage na isti dan kao teže trkačke treninge kako bi lagani dani ostali pravi odmor.",
+      "Uključite hip thrust i romanijsko mrtvo dizanje za jačanje gluteusa i stražnje lože.",
+      "Pred-sezona: povećajte volumen snažnog treninga; u sezoni smanjite volumen ali zadržite intenzitet.",
+    ],
     quiz: [
       {
         question: "Znanstveni pregled navodi da teški trening snage za trkače:",
