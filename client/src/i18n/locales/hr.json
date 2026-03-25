@@ -379,6 +379,21 @@
       "discardCancel": "Ne, nastavi",
       "repeatLast": "Ponovi zadnji trening",
       "repeatLastDescription": "Započnite trening s vrijednostima iz zadnje sesije."
+    },
+    "dailyProgress": "Danas trenirano"
+  },
+
+  "weeklyPlan": {
+    "title": "Tjedni plan",
+    "completed": "{{current}}/{{target}} sesija",
+    "dayLabels": {
+      "mon": "Pon",
+      "tue": "Uto",
+      "wed": "Sri",
+      "thu": "Čet",
+      "fri": "Pet",
+      "sat": "Sub",
+      "sun": "Ned"
     }
   },
 
@@ -807,6 +822,11 @@
       "PSYCHOLOGY": "Psihologija",
       "BIOMECHANICS": "Biomehanika",
       "PERIODIZATION": "Periodizacija"
+    },
+    "articleDifficulty": {
+      "beginner": "Početnik",
+      "intermediate": "Srednji",
+      "advanced": "Napredno"
     },
     "muscleGroups": {
       "ALL": "Sve mišićne skupine",

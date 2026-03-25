@@ -102,6 +102,34 @@ const workoutBlueprints = [
     ],
   },
   {
+    title: "Razina 1: Mobilnost i Pokretljivost",
+    description:
+      "Osnovna mobilizacija zglobova i mekih tkiva za poboljšanje raspona pokreta i prevenciju ozljeda.",
+    requiredLevel: 1,
+    tags: ["MOBILITY", "CORE"],
+    exercises: [
+      { title: "Ljuljanje gležnja", sets: 2, reps: "10/str", rpe: "4", baseXp: 10 },
+      { title: "Rotacijska mobilnost prsnog koša", sets: 2, reps: "10/str", rpe: "4", baseXp: 10 },
+      { title: "Istezanje fleksora kuka", sets: 2, reps: "30s/str", rpe: "4", baseXp: 10 },
+      { title: "Ptica i pas", sets: 3, reps: "8/str", rpe: "5", baseXp: 12 },
+      { title: "Mrtvi kukac", sets: 3, reps: "8", rpe: "5", baseXp: 12 },
+    ],
+  },
+  {
+    title: "Razina 1: Oporavak i Regeneracija",
+    description:
+      "Lagani trening usmjeren na aktivni oporavak, smanjenje napetosti mišića i poboljšanje cirkulacije.",
+    requiredLevel: 1,
+    tags: ["RECOVERY", "MOBILITY"],
+    exercises: [
+      { title: "Most sa šetnjom za stražnju ložu", sets: 2, reps: "8", rpe: "4", baseXp: 10 },
+      { title: "Ekstenzija prsnog koša na valjku", sets: 2, reps: "10", rpe: "4", baseXp: 10 },
+      { title: "Istezanje fleksora kuka", sets: 2, reps: "30s/str", rpe: "4", baseXp: 10 },
+      { title: "Ljuljanje gležnja", sets: 2, reps: "10/str", rpe: "3", baseXp: 8 },
+      { title: "Plank", sets: 2, reps: "20s", rpe: "4", baseXp: 10 },
+    ],
+  },
+  {
     title: "Razina 10: Elitna Izvedba",
     description:
       "Kompletan elitni trening koji kombinira maksimalnu snagu, reaktivnost i specifičnu atletsku pripremu.",

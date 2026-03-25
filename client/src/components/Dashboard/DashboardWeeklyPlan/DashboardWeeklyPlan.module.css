@@ -1,0 +1,25 @@
+.card {
+  background-color: var(--app-surface-card);
+}
+
+.dayCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--mantine-radius-sm);
+}
+
+.dayIndicator {
+  font-size: 1rem;
+  color: var(--app-text-muted);
+}
+
+.completed .dayIndicator {
+  color: var(--mantine-color-violet-6);
+}
+
+.today {
+  background-color: var(--app-surface-interactive);
+}

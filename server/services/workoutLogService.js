@@ -15,6 +15,10 @@ const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { syncWorkoutProgressions } = require("./progressionService");
 const { updateChallengeProgress } = require("./weeklyChallengeService");
+const {
+  checkDailyLimitReached,
+  getNextAvailableDaySlot,
+} = require("./dailyLimitService");
 
 const DUPLICATE_WINDOW_MS = 60 * 1000;
 
@@ -97,6 +101,22 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
       );
     }
 
+    const dailyLimitReached = await checkDailyLimitReached({
+      userId: normalizedUserId,
+      session,
+    });
+    if (dailyLimitReached) {
+      throw new AppError(
+        "Dosegnuli ste dnevni limit treninga. Nastavite sutra!",
+        429,
+      );
+    }
+
+    const daySlot = await getNextAvailableDaySlot({
+      userId: normalizedUserId,
+      session,
+    });
+
     const createdBy = workoutDoc.createdBy ? String(workoutDoc.createdBy) : null;
     const isGlobal = createdBy === null;
     const isOwner = createdBy === normalizedUserId;
@@ -159,6 +179,7 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
         requiredLevel: workoutDoc.requiredLevel,
         completedExercises: completedWithPersonalBests,
         totalXpGained: xpGain,
+        daySlot,
         ...(idempotencyKey ? { idempotencyKey } : {}),
       },
       session,

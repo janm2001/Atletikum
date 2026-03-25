@@ -12,8 +12,12 @@ import {
   IconBookmark,
   IconBookmarkFilled,
 } from "@tabler/icons-react";
-import type { ArticleSummary, ArticleTagType } from "@/types/Article/article";
-import { getArticleTagLabel } from "@/types/Article/article";
+import type {
+  ArticleSummary,
+  ArticleTagType,
+  ArticleDifficultyType,
+} from "@/types/Article/article";
+import { getArticleTagLabel, getArticleDifficultyLabel } from "@/types/Article/article";
 import { useTranslation } from "react-i18next";
 import { resolveArticleCoverImageUrl } from "@/utils/articleCoverImage";
 
@@ -28,6 +32,12 @@ const tagColors: Record<ArticleTagType, string> = {
   PSYCHOLOGY: "violet",
   BIOMECHANICS: "orange",
   PERIODIZATION: "grape",
+};
+
+const difficultyColors: Record<ArticleDifficultyType, string> = {
+  beginner: "green",
+  intermediate: "yellow",
+  advanced: "red",
 };
 
 interface ArticleCardProps {
@@ -68,6 +78,15 @@ export const ArticleCard = ({
           <Badge color={tagColors[article.tag] || "blue"} variant="light">
             {getArticleTagLabel(article.tag)}
           </Badge>
+          {article.difficulty && (
+            <Badge
+              color={difficultyColors[article.difficulty] || "gray"}
+              variant="outline"
+              size="xs"
+            >
+              {getArticleDifficultyLabel(article.difficulty)}
+            </Badge>
+          )}
           {isQuizCompleted && (
             <Badge
               color="teal"

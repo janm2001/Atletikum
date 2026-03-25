@@ -13,6 +13,8 @@ const router = express.Router();
 
 router.use(protect);
 
+router.get("/daily-progress", workoutLogController.getDailyProgress);
+
 router.get(
   "/latest/:workoutId",
   validate(validateGetLatestWorkoutLogRequest),

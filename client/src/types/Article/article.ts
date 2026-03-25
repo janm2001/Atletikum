@@ -1,6 +1,19 @@
 import i18next from "i18next";
 import type { Exercise } from "@/types/Exercise/exercise";
 
+export const ArticleDifficulty = {
+  BEGINNER: "beginner",
+  INTERMEDIATE: "intermediate",
+  ADVANCED: "advanced",
+} as const;
+
+export type ArticleDifficultyType =
+  (typeof ArticleDifficulty)[keyof typeof ArticleDifficulty];
+
+export const getArticleDifficultyLabel = (
+  difficulty: ArticleDifficultyType
+): string => i18next.t(`enums.articleDifficulty.${difficulty}`);
+
 export const ArticleTag = {
   TRAINING: "TRAINING",
   NUTRITION: "NUTRITION",
@@ -38,6 +51,9 @@ export interface Article {
   content: string;
   actionSummary?: string[];
   tag: ArticleTagType;
+  difficulty?: ArticleDifficultyType;
+  sequenceGroup?: string;
+  sequenceOrder?: number;
   sourceUrl?: string;
   sourceTitle?: string;
   coverImage?: string;

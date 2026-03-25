@@ -37,6 +37,11 @@ jest.mock("../utils/workoutMetrics", () => ({
   flagPersonalBests: jest.fn(),
 }));
 
+jest.mock("../services/dailyLimitService", () => ({
+  checkDailyLimitReached: jest.fn().mockResolvedValue(false),
+  getNextAvailableDaySlot: jest.fn().mockResolvedValue(1),
+}));
+
 const { WorkoutLog } = require("../models/WorkoutLog");
 const { Workout } = require("../models/Workout");
 const { applyUserProgress } = require("../services/userProgressService");

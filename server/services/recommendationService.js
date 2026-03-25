@@ -32,6 +32,12 @@ const FOCUS_CONFIG = {
   },
 };
 
+const getDifficultiesForLevel = (level) => {
+  if (level <= 4) return ["beginner", "intermediate"];
+  if (level <= 8) return ["beginner", "intermediate", "advanced"];
+  return ["intermediate", "advanced"];
+};
+
 const WORKOUT_LOG_PROJECTION = {
   date: 1,
   workoutId: 1,
@@ -237,12 +243,15 @@ const getWeeklyRecommendations = async ({ user, userId }) => {
   });
   const revisionPromise = getRevisionRecommendation(normalizedUserId);
   const enrichedRecommendedArticlesPromise = (async () => {
+    const appropriateDifficulties = getDifficultiesForLevel(user.level);
+
     const recommendedArticles = await Article.find({
       tag: { $in: focusConfig.articleTags },
+      difficulty: { $in: appropriateDifficulties },
       _id: { $nin: [...completedArticleIds] },
     })
       .select("-quiz")
-      .sort({ createdAt: -1 })
+      .sort({ sequenceOrder: 1, createdAt: -1 })
       .limit(3)
       .lean();
 
