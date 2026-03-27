@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import type { User } from "../types/User/user";
 import { UserContext } from "./UserContextCreate";
 import { queryClient } from "../lib/queryClient";
 import { STORAGE_KEYS } from "../constants/storageKeys";
+import { getMe } from "../api/users";
 
 interface UserProviderProps {
   children: ReactNode;
@@ -60,6 +61,19 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     localStorage.removeItem(STORAGE_KEYS.USER);
     queryClient.clear();
   };
+
+  useEffect(() => {
+    if (!authState.token) return;
+    getMe()
+      .then((freshUser) => {
+        setAuthState((prev) => ({ ...prev, user: freshUser }));
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(freshUser));
+      })
+      .catch(() => {
+        // Silently ignore – stale localStorage data is better than crashing
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <UserContext.Provider

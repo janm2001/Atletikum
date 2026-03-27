@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { useUser } from "../../hooks/useUser";
 import { useArticles } from "../../hooks/useArticle";
 import { useWorkouts } from "../../hooks/useWorkout";
-import { getLevelFromTotalXp } from "../../utils/leveling";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 import { useWeeklyChallenges } from "@/hooks/useChallenges";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
@@ -26,7 +25,7 @@ const Dashboard = () => {
   const { data: recommendations } = useWeeklyRecommendations();
   const { data: weeklyChallenges } = useWeeklyChallenges();
 
-  const level = user ? getLevelFromTotalXp(user.totalXp) : 1;
+  const level = user?.level ?? 1;
 
   const suggestedWorkout = useMemo(() => {
     if (recommendations?.workouts?.[0]) {

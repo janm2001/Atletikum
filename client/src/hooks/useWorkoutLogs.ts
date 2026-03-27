@@ -55,6 +55,12 @@ export function useCreateWorkoutLog() {
             queryClient.invalidateQueries({
                 queryKey: keys.weeklyPlan.current(),
             });
+            queryClient.invalidateQueries({
+                queryKey: keys.leaderboard.all,
+            });
+            queryClient.invalidateQueries({
+                queryKey: keys.gamification.status(),
+            });
         },
     });
 }
