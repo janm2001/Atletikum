@@ -85,7 +85,13 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
             size={56}
             radius="xl"
             variant={achievement.isUnlocked ? "light" : "subtle"}
-            color={isAlmostUnlocked ? "yellow" : achievement.isUnlocked ? "teal" : "gray"}
+            color={
+              isAlmostUnlocked
+                ? "yellow"
+                : achievement.isUnlocked
+                  ? "teal"
+                  : "gray"
+            }
           >
             <BadgeIcon size={32} stroke={1.8} />
           </ThemeIcon>
