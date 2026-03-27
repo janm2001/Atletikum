@@ -49,6 +49,12 @@ export function useCreateWorkoutLog() {
             queryClient.invalidateQueries({
                 queryKey: keys.workoutLogs.latest(workoutLog.workoutId),
             });
+            queryClient.invalidateQueries({
+                queryKey: keys.dailyProgress.current(),
+            });
+            queryClient.invalidateQueries({
+                queryKey: keys.weeklyPlan.current(),
+            });
         },
     });
 }

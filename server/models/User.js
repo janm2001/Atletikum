@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema(
     bodyXp: { type: Number, default: 0 },
     dailyStreak: { type: Number, default: 0 },
     longestStreak: { type: Number, default: 0 },
+    dailyWorkoutLimit: { type: Number, default: 2, min: 1, max: 5 },
     lastActivityDate: { type: Date, default: null },
     achievements: [
       {

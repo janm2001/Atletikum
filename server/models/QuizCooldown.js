@@ -12,6 +12,24 @@ const quizCooldownSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    cooldownLevel: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 4,
+    },
+    attemptCount: {
+      type: Number,
+      default: 0,
+    },
+    lastScore: {
+      type: Number,
+      default: null,
+    },
+    lastPassed: {
+      type: Boolean,
+      default: null,
+    },
   },
   { timestamps: true },
 );

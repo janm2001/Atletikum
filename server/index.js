@@ -23,6 +23,7 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const analyticsEventRoutes = require("./routes/analyticsEventRoutes");
 const challengeRoutes = require("./routes/challengeRoutes");
 const adminChallengeRoutes = require("./routes/adminChallengeRoutes");
+const weeklyPlanRoutes = require("./routes/weeklyPlanRoutes");
 const { startStreakExpirationJob } = require("./jobs/streakExpirationJob");
 const {
   getClientUrl,
@@ -87,6 +88,7 @@ app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/analytics-events", analyticsEventRoutes);
 app.use("/api/v1/challenges", challengeRoutes);
 app.use("/api/v1/admin/challenges", adminChallengeRoutes);
+app.use("/api/v1/weekly-plan", weeklyPlanRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok" });

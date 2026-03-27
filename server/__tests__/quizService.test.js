@@ -240,9 +240,10 @@ describe("quizService", () => {
   it("rejects submission when a cooldown lock already exists", async () => {
     QuizCompletion.findOne.mockReturnValue(createSortedQuery(null));
     QuizCooldown.findOneAndUpdate.mockRejectedValue({ code: 11000 });
+    const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days in future
     QuizCooldown.findOne.mockReturnValue({
       lean: jest.fn().mockResolvedValue({
-        nextAvailableAt: new Date("2026-03-20T10:00:00.000Z"),
+        nextAvailableAt: futureDate,
       }),
     });
     Article.findById.mockReturnValue({

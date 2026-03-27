@@ -6,6 +6,10 @@ const {
   buildRevisionEligibilityFilter,
   getQuizCooldownEnd,
   selectRandomEligibleRevisionCompletion,
+  getCooldownDays,
+  getNextCooldownLevel,
+  getXpMultiplier,
+  MASTERY_THRESHOLD,
 } = require("../utils/quizTiming");
 const {
   attachSession,

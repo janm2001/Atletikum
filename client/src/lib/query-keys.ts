@@ -55,4 +55,12 @@ export const keys = {
         all: ['admin-challenges'] as const,
         templates: (params?: Record<string, unknown>) => [...keys.adminChallenges.all, 'templates', params] as const,
     },
+    weeklyPlan: {
+        all: ['weeklyPlan'] as const,
+        current: () => [...keys.weeklyPlan.all, 'current'] as const,
+    },
+    dailyProgress: {
+        all: ['dailyProgress'] as const,
+        current: () => [...keys.dailyProgress.all, 'current'] as const,
+    },
 }

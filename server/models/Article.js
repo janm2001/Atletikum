@@ -52,6 +52,21 @@ const articleSchema = new mongoose.Schema(
     ],
     quiz: [quizQuestionSchema],
     author: { type: String, default: "Atletikum Tim" },
+    difficulty: {
+      type: String,
+      enum: ["beginner", "intermediate", "advanced"],
+      default: "beginner",
+      index: true,
+    },
+    sequenceGroup: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    sequenceOrder: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );

@@ -1,0 +1,27 @@
+.card {
+  background-color: var(--app-surface-card);
+}
+
+.dayCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  border-radius: var(--mantine-radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease;
+}
+
+.completed {
+  background-color: var(--mantine-color-violet-0);
+}
+
+[data-mantine-color-scheme="dark"] .completed {
+  background-color: rgba(145, 103, 197, 0.12);
+}
+
+.today {
+  background-color: var(--app-surface-interactive);
+  border-color: var(--mantine-color-violet-4);
+}

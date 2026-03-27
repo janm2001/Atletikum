@@ -1,5 +1,17 @@
 const asyncHandler = require("../middleware/asyncHandler");
 const workoutLogService = require("../services/workoutLogService");
+const dailyLimitService = require("../services/dailyLimitService");
+
+exports.getDailyProgress = asyncHandler(async (req, res) => {
+  const progress = await dailyLimitService.getDailyProgress({
+    userId: req.userId,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: progress,
+  });
+});
 
 exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;

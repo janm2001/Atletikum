@@ -29,6 +29,7 @@ const workoutLogSchema = new mongoose.Schema({
     },
   ],
   idempotencyKey: { type: String, unique: true, sparse: true },
+  daySlot: { type: Number, min: 1, max: 5 },
   totalXpGained: { type: Number },
   date: { type: Date, default: Date.now },
 });
