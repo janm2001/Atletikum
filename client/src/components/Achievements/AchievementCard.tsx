@@ -1,41 +1,31 @@
 import { memo } from "react";
 import {
   Card,
-  Image,
   Badge,
   Text,
   Tooltip,
   Stack,
   Group,
   Progress,
+  ThemeIcon,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconLock, IconCheck } from "@tabler/icons-react";
 import type { Achievement } from "../../types/Achievement/achievement";
+import {
+  achievementBadgeIconMap,
+  DEFAULT_ACHIEVEMENT_BADGE_ICON,
+} from "./achievementBadgeIcons";
 
 interface AchievementCardProps {
   achievement: Achievement;
 }
 
-const badgeIconMap: Record<string, string> = {
-  shoe: "https://api.dicebear.com/7.x/icons/svg?seed=shoe",
-  brain: "https://api.dicebear.com/7.x/icons/svg?seed=brain",
-  star: "https://api.dicebear.com/7.x/icons/svg?seed=star",
-  flame: "https://api.dicebear.com/7.x/icons/svg?seed=flame",
-  diamond: "https://api.dicebear.com/7.x/icons/svg?seed=diamond",
-  trophy: "https://api.dicebear.com/7.x/icons/svg?seed=trophy",
-  medal: "https://api.dicebear.com/7.x/icons/svg?seed=medal",
-  crown: "https://api.dicebear.com/7.x/icons/svg?seed=crown",
-  barbell: "https://api.dicebear.com/7.x/icons/svg?seed=barbell",
-  book: "https://api.dicebear.com/7.x/icons/svg?seed=book",
-  sparkles: "https://api.dicebear.com/7.x/icons/svg?seed=sparkles",
-};
-
 export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
   const { t } = useTranslation();
-  const imageUrl =
-    badgeIconMap[achievement.badgeIcon] ||
-    `https://api.dicebear.com/7.x/icons/svg?seed=${achievement.badgeIcon}`;
+  const BadgeIcon =
+    achievementBadgeIconMap[achievement.badgeIcon] ||
+    DEFAULT_ACHIEVEMENT_BADGE_ICON;
 
   const progress = achievement.progress;
   const isAlmostUnlocked =
@@ -91,13 +81,14 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
         }}
       >
         <Stack align="center" gap="xs">
-          <Image
-            src={imageUrl}
-            w={56}
-            h={56}
-            fit="contain"
-            alt={achievement.title}
-          />
+          <ThemeIcon
+            size={56}
+            radius="xl"
+            variant={achievement.isUnlocked ? "light" : "subtle"}
+            color={isAlmostUnlocked ? "yellow" : achievement.isUnlocked ? "teal" : "gray"}
+          >
+            <BadgeIcon size={32} stroke={1.8} />
+          </ThemeIcon>
           <Text size="xs" fw={600} ta="center" lineClamp={2}>
             {achievement.title}
           </Text>
