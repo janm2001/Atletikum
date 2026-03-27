@@ -275,6 +275,8 @@
     },
     "track": {
       "notFound": "Trening nije pronađen.",
+      "dailyLimitTitle": "Dnevni limit dosegnut",
+      "dailyLimitBody": "Dostigli ste dnevni limit od {{limit}} treninga. Nastavite sutra!",
       "progress": "Napredak",
       "progressCount": "{{current}}/{{total}}",
       "exerciseDefault": "Vježba {{index}}",

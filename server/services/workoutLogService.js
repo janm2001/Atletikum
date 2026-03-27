@@ -15,10 +15,12 @@ const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { syncWorkoutProgressions } = require("./progressionService");
 const { updateChallengeProgress } = require("./weeklyChallengeService");
+const { markDayComplete } = require("./weeklyPlanService");
 const {
   checkDailyLimitReached,
   getNextAvailableDaySlot,
 } = require("./dailyLimitService");
+const { getIsoWeekDay } = require("../utils/dateUtils");
 
 const DUPLICATE_WINDOW_MS = 60 * 1000;
 
@@ -204,6 +206,8 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
     });
 
     await updateChallengeProgress({ userId: normalizedUserId, type: "workout", session });
+
+    await markDayComplete({ userId: normalizedUserId, day: getIsoWeekDay(new Date()) }).catch(() => {});
 
     return {
       workoutLog,

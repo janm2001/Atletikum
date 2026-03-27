@@ -95,33 +95,63 @@ const KnowledgeBaseFilters = ({
     <Card withBorder radius="md" shadow="sm" p="md">
       <Stack gap="sm">
         {topRow}
-        <Group gap="sm" align="center" wrap="wrap">
-          <SegmentedControl
-            value={articleFilter}
-            onChange={(value) =>
-              onArticleFilterChange(value as KnowledgeBaseArticleFilter)
-            }
-            data={[
-              { value: "all", label: t("knowledgeBase.filters.all") },
-              { value: "saved", label: t("knowledgeBase.filters.saved") },
-            ]}
-          />
-          <ScrollArea type="never" style={{ flex: 1 }}>
-            <Chip.Group
-              multiple
-              value={selectedTags}
-              onChange={onSelectedTagsChange}
-            >
-              <Group gap="xs" wrap="nowrap">
-                {Object.values(ArticleTag).map((tag) => (
-                  <Chip key={tag} value={tag} variant="outline" color="violet">
-                    {getArticleTagLabel(tag as ArticleTagType)}
-                  </Chip>
-                ))}
-              </Group>
-            </Chip.Group>
-          </ScrollArea>
-        </Group>
+        {isMobile ? (
+          <Stack gap="sm">
+            <SegmentedControl
+              value={articleFilter}
+              onChange={(value) =>
+                onArticleFilterChange(value as KnowledgeBaseArticleFilter)
+              }
+              data={[
+                { value: "all", label: t("knowledgeBase.filters.all") },
+                { value: "saved", label: t("knowledgeBase.filters.saved") },
+              ]}
+            />
+            <ScrollArea type="never">
+              <Chip.Group
+                multiple
+                value={selectedTags}
+                onChange={onSelectedTagsChange}
+              >
+                <Group gap="xs" wrap="nowrap">
+                  {Object.values(ArticleTag).map((tag) => (
+                    <Chip key={tag} value={tag} variant="outline" color="violet">
+                      {getArticleTagLabel(tag as ArticleTagType)}
+                    </Chip>
+                  ))}
+                </Group>
+              </Chip.Group>
+            </ScrollArea>
+          </Stack>
+        ) : (
+          <Group gap="sm" align="center" justify="space-between">
+            <SegmentedControl
+              value={articleFilter}
+              onChange={(value) =>
+                onArticleFilterChange(value as KnowledgeBaseArticleFilter)
+              }
+              data={[
+                { value: "all", label: t("knowledgeBase.filters.all") },
+                { value: "saved", label: t("knowledgeBase.filters.saved") },
+              ]}
+            />
+            <ScrollArea type="never" style={{ flex: 1 }}>
+              <Chip.Group
+                multiple
+                value={selectedTags}
+                onChange={onSelectedTagsChange}
+              >
+                <Group gap="xs" wrap="nowrap">
+                  {Object.values(ArticleTag).map((tag) => (
+                    <Chip key={tag} value={tag} variant="outline" color="violet">
+                      {getArticleTagLabel(tag as ArticleTagType)}
+                    </Chip>
+                  ))}
+                </Group>
+              </Chip.Group>
+            </ScrollArea>
+          </Group>
+        )}
       </Stack>
     </Card>
   );

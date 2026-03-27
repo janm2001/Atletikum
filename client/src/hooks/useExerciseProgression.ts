@@ -91,7 +91,7 @@ export const getDefaultResultFromPrescription = (
   const compact = withoutSetPrefix.replace(/\s+/g, "");
 
   if (metric.metricType === "reps") {
-    const repsMatch = compact.match(/^(\d+)$/);
+    const repsMatch = compact.match(/^(\d+)/);
     if (repsMatch) {
       return Number(repsMatch[1]);
     }

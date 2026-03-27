@@ -7,19 +7,21 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 4px;
+  padding: 6px 4px;
   border-radius: var(--mantine-radius-sm);
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease;
 }
 
-.dayIndicator {
-  font-size: 1rem;
-  color: var(--app-text-muted);
+.completed {
+  background-color: var(--mantine-color-violet-0);
 }
 
-.completed .dayIndicator {
-  color: var(--mantine-color-violet-6);
+[data-mantine-color-scheme="dark"] .completed {
+  background-color: rgba(145, 103, 197, 0.12);
 }
 
 .today {
   background-color: var(--app-surface-interactive);
+  border-color: var(--mantine-color-violet-4);
 }

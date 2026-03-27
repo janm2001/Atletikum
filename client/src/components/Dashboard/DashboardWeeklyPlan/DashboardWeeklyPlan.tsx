@@ -6,7 +6,14 @@ import {
   Stack,
   Badge,
   SimpleGrid,
+  ThemeIcon,
+  Tooltip,
 } from "@mantine/core";
+import {
+  IconCheck,
+  IconCircle,
+  IconCircleDot,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useWeeklyPlan } from "@/hooks/useWeeklyPlan";
 import classes from "./DashboardWeeklyPlan.module.css";
@@ -43,18 +50,38 @@ export const DashboardWeeklyPlan = () => {
             const isCompleted = plan.completedDays.includes(dayNum);
             const isToday = dayNum === plan.todayIsoDay;
 
+            let icon = <IconCircle size={14} />;
+            let iconVariant: "filled" | "outline" | "subtle" = "subtle";
+            let iconColor = "gray";
+
+            if (isCompleted) {
+              icon = <IconCheck size={14} />;
+              iconVariant = "filled";
+              iconColor = "violet";
+            } else if (isToday) {
+              icon = <IconCircleDot size={14} />;
+              iconVariant = "outline";
+              iconColor = "violet";
+            }
+
             return (
-              <div
-                key={dayNum}
-                className={`${classes.dayCell} ${isCompleted ? classes.completed : ""} ${isToday ? classes.today : ""}`}
-              >
-                <Text size="xs" ta="center">
-                  {label}
-                </Text>
-                <div className={classes.dayIndicator}>
-                  {isCompleted ? "✓" : isToday ? "•" : "○"}
+              <Tooltip key={dayNum} label={label} withArrow position="top">
+                <div
+                  className={`${classes.dayCell} ${isCompleted ? classes.completed : ""} ${isToday ? classes.today : ""}`}
+                >
+                  <Text size="xs" ta="center" c={isCompleted || isToday ? "violet" : "dimmed"} fw={isToday ? 600 : 400}>
+                    {label}
+                  </Text>
+                  <ThemeIcon
+                    variant={iconVariant}
+                    color={iconColor}
+                    size="sm"
+                    radius="xl"
+                  >
+                    {icon}
+                  </ThemeIcon>
                 </div>
-              </div>
+              </Tooltip>
             );
           })}
         </SimpleGrid>
