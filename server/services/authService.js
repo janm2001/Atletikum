@@ -10,6 +10,11 @@ const { sendPasswordResetEmail } = require("../utils/emailService");
 const PASSWORD_RESET_REQUEST_MESSAGE =
   "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.";
 
+// Pre-computed dummy hash used to ensure constant-time response on login
+// regardless of whether the username exists (prevents username enumeration via timing).
+const DUMMY_HASH =
+  "$2b$12$invaliddummyhashfortimingprotection.AAAAAAAAAAAAAAAAAAA";
+
 const signToken = (id) => {
   return jwt.sign({ id }, getJwtSecret(), { expiresIn: "7d" });
 };
@@ -58,7 +63,11 @@ const login = async ({ username, password }) => {
   }
 
   const user = await User.findOne({ username: String(username).trim() }).collation({ locale: "en", strength: 2 });
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  if (!user) {
+    await bcrypt.compare(password, DUMMY_HASH); // constant-time: prevent username enumeration
+    throw new AppError("Pogrešni podaci", 401);
+  }
+  if (!(await bcrypt.compare(password, user.password))) {
     throw new AppError("Pogrešni podaci", 401);
   }
 
