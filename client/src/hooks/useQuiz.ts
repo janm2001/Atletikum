@@ -64,6 +64,10 @@ export const useSubmitQuiz = () => {
       queryClient.invalidateQueries({
         queryKey: keys.gamification.status(),
       });
+
+      queryClient.invalidateQueries({
+        queryKey: keys.leaderboard.all,
+      });
     },
   });
 };
