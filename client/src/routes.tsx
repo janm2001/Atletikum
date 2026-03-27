@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute.tsx";
+import { AdminRoute } from "./components/ProtectedRoute/AdminRoute.tsx";
 import RootLayout from "./components/layout/RootLayout.tsx";
 import { ErrorPage } from "./pages/Error/ErrorPage.tsx";
 
@@ -121,11 +122,17 @@ export const router = createBrowserRouter([
       },
       {
         path: "upravljanje",
-        lazy: async () => {
-          const { default: AdminPanel } =
-            await import("./pages/AdminPanel/AdminPanel.tsx");
-          return { Component: AdminPanel };
-        },
+        element: <AdminRoute />,
+        children: [
+          {
+            index: true,
+            lazy: async () => {
+              const { default: AdminPanel } =
+                await import("./pages/AdminPanel/AdminPanel.tsx");
+              return { Component: AdminPanel };
+            },
+          },
+        ],
       },
       {
         path: "ljestvica",

@@ -26,10 +26,10 @@ describe("sanitizeMongo middleware", () => {
     expect(req.body).toEqual({ clean: true });
   });
 
-  it("replaces string values starting with $ with empty string", () => {
+  it("rejects string values starting with $ with a 400 error", () => {
     const req = makeMockReq({ role: "$admin" });
     sanitizeMongo(req, {}, next);
-    expect(req.body.role).toBe("");
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
   it("sanitizes nested objects", () => {
@@ -38,10 +38,10 @@ describe("sanitizeMongo middleware", () => {
     expect(req.body.nested).toEqual({ ok: "yes" });
   });
 
-  it("sanitizes arrays", () => {
+  it("rejects arrays containing values starting with $", () => {
     const req = makeMockReq({ items: ["$evil", "good"] });
     sanitizeMongo(req, {}, next);
-    expect(req.body.items).toEqual(["", "good"]);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
   it("sanitizes query parameters", () => {
@@ -50,10 +50,10 @@ describe("sanitizeMongo middleware", () => {
     expect(req.query).toEqual({});
   });
 
-  it("sanitizes route params", () => {
+  it("rejects route params with values starting with $", () => {
     const req = makeMockReq({}, {}, { id: "$oid" });
     sanitizeMongo(req, {}, next);
-    expect(req.params.id).toBe("");
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
   it("leaves clean data untouched", () => {

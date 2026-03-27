@@ -1,10 +1,14 @@
 const FORBIDDEN_PATTERN = /^\$|\..*\$/;
+const AppError = require("../utils/AppError");
 
 function sanitizeValue(value) {
   if (value === null || value === undefined) return value;
 
   if (typeof value === "string") {
-    return FORBIDDEN_PATTERN.test(value) ? "" : value;
+    if (FORBIDDEN_PATTERN.test(value)) {
+      throw new AppError("Nevažeći znakovi u zahtjevu.", 400);
+    }
+    return value;
   }
 
   if (Array.isArray(value)) {
@@ -35,14 +39,16 @@ function sanitizeObject(obj) {
 }
 
 function sanitizeMongo(req, _res, next) {
-  if (req.body) sanitizeObject(req.body);
-  if (req.params) sanitizeObject(req.params);
-
-  if (req.query && typeof req.query === "object") {
-    sanitizeObject(req.query);
+  try {
+    if (req.body) sanitizeObject(req.body);
+    if (req.params) sanitizeObject(req.params);
+    if (req.query && typeof req.query === "object") {
+      sanitizeObject(req.query);
+    }
+    next();
+  } catch (err) {
+    next(err);
   }
-
-  next();
 }
 
 module.exports = sanitizeMongo;
