@@ -9,6 +9,7 @@ interface QuizPageContentProps {
   articleTitle: string;
   questions: QuizQuestion[];
   onBack: () => void;
+  onCompleting?: () => void;
 }
 
 const QuizPageContent = ({
@@ -16,6 +17,7 @@ const QuizPageContent = ({
   articleTitle,
   questions,
   onBack,
+  onCompleting,
 }: QuizPageContentProps) => {
   const {
     currentQuestion,
@@ -34,6 +36,7 @@ const QuizPageContent = ({
     articleId,
     articleTitle,
     questions,
+    onCompleting,
   });
 
   return (
