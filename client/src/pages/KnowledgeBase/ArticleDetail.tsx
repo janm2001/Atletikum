@@ -13,12 +13,14 @@ import ArticleRelatedArticlesSection from "@/components/KnowledgeBase/Article/Ar
 import ArticleRelatedExercisesSection from "@/components/KnowledgeBase/Article/ArticleRelatedExercisesSection";
 import ArticleSourceCard from "@/components/KnowledgeBase/Article/ArticleSourceCard";
 import { useArticleDetailFlow } from "@/hooks/useArticleDetailFlow";
+import { useTrackArticleRead } from "@/hooks/useDailyMissions";
 import { useTranslation } from "react-i18next";
 
 const ArticleDetail = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { data: article, isLoading, error } = useArticleDetail(id!);
+  const trackArticleRead = useTrackArticleRead();
   const {
     quizStatus,
     quizResult,
@@ -35,6 +37,8 @@ const ArticleDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    trackArticleRead.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (isLoading) {

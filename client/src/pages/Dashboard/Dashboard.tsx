@@ -15,6 +15,8 @@ import DashboardLeaderboardPeek from "@/components/Dashboard/DashboardLeaderboar
 import DashboardRecommendedContent from "@/components/Dashboard/DashboardRecommendedContent";
 import { DashboardDailyProgress } from "@/components/Dashboard/DashboardDailyProgress/DashboardDailyProgress";
 import { DashboardWeeklyPlan } from "@/components/Dashboard/DashboardWeeklyPlan/DashboardWeeklyPlan";
+import DailyMissionsCard from "@/components/DailyMissions/DailyMissionsCard";
+import ActivityFeed from "@/components/ActivityFeed/ActivityFeed";
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -67,6 +69,7 @@ const Dashboard = () => {
         <Grid gutter="md" align="stretch">
           <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
             <Stack gap="md">
+              <DailyMissionsCard />
               <DashboardQuestsCard
                 insight={recommendations?.insight}
                 weeklyChallenges={weeklyChallenges}
@@ -90,6 +93,7 @@ const Dashboard = () => {
                 articles={topArticles}
                 onNavigate={(id) => navigate(`/edukacija/${id}`)}
               />
+              <ActivityFeed />
             </Stack>
           </Grid.Col>
         </Grid>

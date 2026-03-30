@@ -42,7 +42,8 @@
     "streakAtRisk": "Streak u opasnosti!",
     "streakExpires": "Istječe za {{hours}}h {{minutes}}min",
     "streakSafe": "Streak osiguran za danas",
-    "keepStreak": "Aktiviraj se da sačuvaš streak!"
+    "keepStreak": "Aktiviraj se da sačuvaš streak!",
+    "friends": "Prijatelji"
   },
 
   "auth": {

@@ -29,11 +29,14 @@ import CelebrationAchievementsCard from "./CelebrationAchievementsCard";
 import CelebrationPersonalBestsCard from "./CelebrationPersonalBestsCard";
 import CelebrationWhatsNextCard from "./CelebrationWhatsNextCard";
 import ConfettiTrigger from "@/components/Celebrations/ConfettiTrigger";
+import ShareButton from "@/components/ShareCard/ShareButton";
+import { useUser } from "@/hooks/useUser";
 
 const XpCelebration = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useUser();
   const routeState = location.state as CelebrationState | null;
   const state = routeState ?? getPersistedCelebrationState();
 
@@ -190,7 +193,7 @@ const XpCelebration = () => {
 
         <Transition mounted={showActions} transition="fade" duration={400}>
           {(transitionStyles) => (
-            <Group gap="md" style={transitionStyles}>
+            <Group gap="md" style={transitionStyles} wrap="wrap" justify="center">
               <Button
                 variant="light"
                 onClick={() => handleNavigateAway(backPath)}
@@ -205,6 +208,23 @@ const XpCelebration = () => {
               >
                 {t("celebration.backToOverview")}
               </Button>
+              {didLevelUp && user && (
+                <ShareButton
+                  type="level_up"
+                  username={user.username}
+                  level={level}
+                  totalXp={totalXp}
+                  variant="icon"
+                />
+              )}
+              {achievements.length > 0 && user && (
+                <ShareButton
+                  type="achievement"
+                  username={user.username}
+                  achievementTitle={achievements[0]?.title}
+                  variant="icon"
+                />
+              )}
             </Group>
           )}
         </Transition>
