@@ -23,7 +23,7 @@ const DashboardRecommendedContent = ({
         {t("dashboard.recommendedContent.title")}
       </Text>
 
-      <SimpleGrid cols={{ base: 1, xs: 2 }} spacing={10}>
+      <SimpleGrid cols={articles.length === 1 ? { base: 1 } : { base: 1, xs: 2 }} spacing={10}>
         {articles.slice(0, 2).map((article) => (
           <ArticleThumb
             key={article._id}

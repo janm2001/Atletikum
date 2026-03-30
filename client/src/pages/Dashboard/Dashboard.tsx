@@ -21,12 +21,26 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { data: articles, error: articlesError, isLoading: articlesLoading } = useArticles();
-  const { data: workouts, error: workoutsError, isLoading: workoutsLoading } = useWorkouts();
-  const { data: recommendations, isLoading: recommendationsLoading } = useWeeklyRecommendations();
-  const { data: weeklyChallenges, isLoading: challengesLoading } = useWeeklyChallenges();
+  const {
+    data: articles,
+    error: articlesError,
+    isLoading: articlesLoading,
+  } = useArticles();
+  const {
+    data: workouts,
+    error: workoutsError,
+    isLoading: workoutsLoading,
+  } = useWorkouts();
+  const { data: recommendations, isLoading: recommendationsLoading } =
+    useWeeklyRecommendations();
+  const { data: weeklyChallenges, isLoading: challengesLoading } =
+    useWeeklyChallenges();
 
-  const isLoading = articlesLoading || workoutsLoading || recommendationsLoading || challengesLoading;
+  const isLoading =
+    articlesLoading ||
+    workoutsLoading ||
+    recommendationsLoading ||
+    challengesLoading;
 
   const level = user?.level ?? 1;
 
@@ -83,7 +97,7 @@ const Dashboard = () => {
           <Grid.Col span={{ base: 12, md: 6, xl: 4 }}>
             <DashboardTrainingRecommendation
               workout={suggestedWorkout}
-              onStart={(id) => navigate(`/zapis-treninga/trening/${id}`)}
+              onStart={(id) => navigate(`/zapis-treninga/${id}`)}
             />
           </Grid.Col>
 

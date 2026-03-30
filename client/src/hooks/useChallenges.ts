@@ -6,6 +6,7 @@ import {
     getWeeklyLeaderboard,
 } from "@/api/challenges";
 import { keys } from "@/lib/query-keys";
+import { useUser } from "@/hooks/useUser";
 
 export type {
     WeeklyChallenge,
@@ -26,12 +27,23 @@ export const useWeeklyChallenges = () => {
 
 export const useClaimChallengeReward = () => {
     const queryClient = useQueryClient();
+    const { user, updateUser } = useUser();
 
     return useMutation({
         mutationFn: claimChallengeReward,
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: keys.challenges.weekly() });
             queryClient.invalidateQueries({ queryKey: keys.gamification.status() });
+            queryClient.invalidateQueries({ queryKey: keys.leaderboard.all });
+            if (user) {
+                updateUser({
+                    ...user,
+                    totalXp: data.progress.totalXp,
+                    level: data.progress.level,
+                    brainXp: data.progress.brainXp,
+                    bodyXp: data.progress.bodyXp,
+                });
+            }
         },
     });
 };
