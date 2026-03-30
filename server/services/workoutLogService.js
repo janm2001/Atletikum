@@ -21,6 +21,8 @@ const {
   getNextAvailableDaySlot,
 } = require("./dailyLimitService");
 const { getIsoWeekDay } = require("../utils/dateUtils");
+const { createActivityEvent } = require("./activityService");
+const { incrementMissionProgress } = require("./dailyMissionService");
 
 const DUPLICATE_WINDOW_MS = 60 * 1000;
 
@@ -209,14 +211,46 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
 
     await markDayComplete({ userId: normalizedUserId, day: getIsoWeekDay(new Date()) }).catch(() => {});
 
+    const personalBests = completedWithPersonalBests.filter(
+      (exercise) => exercise.isPersonalBest,
+    );
+
+    // Fire-and-forget activity events
+    createActivityEvent({
+      userId: normalizedUserId,
+      type: "workout_completed",
+      data: { workoutTitle: workoutDoc.title, xpGained: xpGain },
+    }).catch(() => {});
+
+    if (personalBests.length > 0) {
+      createActivityEvent({
+        userId: normalizedUserId,
+        type: "personal_best",
+        data: {
+          workoutTitle: workoutDoc.title,
+          count: personalBests.length,
+        },
+      }).catch(() => {});
+    }
+
+    if (progress.newAchievements.length > 0) {
+      for (const achievement of progress.newAchievements) {
+        createActivityEvent({
+          userId: normalizedUserId,
+          type: "achievement_unlocked",
+          data: { title: achievement.title, badgeIcon: achievement.badgeIcon },
+        }).catch(() => {});
+      }
+    }
+
+    incrementMissionProgress({ userId: normalizedUserId, missionType: "log_workout" }).catch(() => {});
+
     return {
       workoutLog,
       user: progress.user,
       newAchievements: progress.newAchievements,
       totalXpGained: xpGain,
-      personalBests: completedWithPersonalBests.filter(
-        (exercise) => exercise.isPersonalBest,
-      ),
+      personalBests,
     };
   });
 };

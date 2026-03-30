@@ -20,6 +20,8 @@ const { scoreQuizSubmission } = require("../utils/quizScoring");
 const { requireUserId } = require("../utils/userIdentity");
 const { applyUserProgress } = require("./userProgressService");
 const { updateChallengeProgress } = require("./weeklyChallengeService");
+const { createActivityEvent } = require("./activityService");
+const { incrementMissionProgress } = require("./dailyMissionService");
 const QUIZ_SCORING_ERROR_MESSAGES = new Set([
   "Odgovori kviza moraju biti poslani kao polje.",
   "Broj odgovora mora odgovarati broju pitanja.",
@@ -241,6 +243,33 @@ const submitQuiz = async ({ userId, articleId, submittedAnswers }) => {
     });
 
     await updateChallengeProgress({ userId: normalizedUserId, type: "quiz", session });
+
+    if (quizResult.passed) {
+      incrementMissionProgress({ userId: normalizedUserId, missionType: "complete_quiz" }).catch(() => {});
+
+      if (quizResult.score === quizResult.totalQuestions) {
+        createActivityEvent({
+          userId: normalizedUserId,
+          type: "quiz_aced",
+          data: {
+            articleId,
+            score: quizResult.score,
+            totalQuestions: quizResult.totalQuestions,
+            xpGained: quizResult.xpGained,
+          },
+        }).catch(() => {});
+      }
+
+      if (progress.newAchievements.length > 0) {
+        for (const achievement of progress.newAchievements) {
+          createActivityEvent({
+            userId: normalizedUserId,
+            type: "achievement_unlocked",
+            data: { title: achievement.title, badgeIcon: achievement.badgeIcon },
+          }).catch(() => {});
+        }
+      }
+    }
 
     return {
       completion: {
