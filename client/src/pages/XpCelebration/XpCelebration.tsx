@@ -28,6 +28,7 @@ import CelebrationLevelCard from "./CelebrationLevelCard";
 import CelebrationAchievementsCard from "./CelebrationAchievementsCard";
 import CelebrationPersonalBestsCard from "./CelebrationPersonalBestsCard";
 import CelebrationWhatsNextCard from "./CelebrationWhatsNextCard";
+import ConfettiTrigger from "@/components/Celebrations/ConfettiTrigger";
 
 const XpCelebration = () => {
   const { t } = useTranslation();
@@ -40,6 +41,8 @@ const XpCelebration = () => {
   const [showLevel, setShowLevel] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [confettiLevel, setConfettiLevel] = useState(false);
+  const [confettiAchievement, setConfettiAchievement] = useState(false);
 
   useEffect(() => {
     if (!routeState) {
@@ -54,8 +57,14 @@ const XpCelebration = () => {
 
     const timers = [
       setTimeout(() => setShowXp(true), 300),
-      setTimeout(() => setShowLevel(true), 800),
-      setTimeout(() => setShowAchievements(true), 1300),
+      setTimeout(() => {
+        setShowLevel(true);
+        if (didLevelUp) setConfettiLevel(true);
+      }, 800),
+      setTimeout(() => {
+        setShowAchievements(true);
+        if (achievements.length > 0) setConfettiAchievement(true);
+      }, 1300),
       setTimeout(() => setShowActions(true), 1800),
     ];
 
@@ -87,6 +96,8 @@ const XpCelebration = () => {
   );
 
   const achievements = state.newAchievements ?? [];
+  const previousLevel = getLevelFromTotalXp((state.totalXp ?? 0) - (state.xpGained ?? 0));
+  const didLevelUp = level > previousLevel;
   const personalBests = state.personalBests ?? [];
   const backPath = isQuiz ? "/edukacija" : "/zapis-treninga";
   const handleNavigateAway = (path: string) => {
@@ -96,6 +107,8 @@ const XpCelebration = () => {
 
   return (
     <Container size="sm" py="xl">
+      <ConfettiTrigger trigger={confettiLevel} variant="levelup" />
+      <ConfettiTrigger trigger={confettiAchievement} variant="achievement" />
       <Stack align="center" gap="xl">
         <Transition mounted={showXp} transition="slide-down" duration={500}>
           {(transitionStyles) => (

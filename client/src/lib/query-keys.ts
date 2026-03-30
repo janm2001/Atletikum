@@ -63,4 +63,18 @@ export const keys = {
         all: ['dailyProgress'] as const,
         current: () => [...keys.dailyProgress.all, 'current'] as const,
     },
+    friends: {
+        all: ['friends'] as const,
+        list: () => [...keys.friends.all, 'list'] as const,
+        requests: () => [...keys.friends.all, 'requests'] as const,
+        leaderboard: () => [...keys.friends.all, 'leaderboard'] as const,
+    },
+    activity: {
+        all: ['activity'] as const,
+        feed: (page: number) => [...keys.activity.all, 'feed', page] as const,
+    },
+    dailyMissions: {
+        all: ['daily-missions'] as const,
+        today: () => [...keys.dailyMissions.all, 'today'] as const,
+    },
 }
