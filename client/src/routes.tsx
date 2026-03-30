@@ -4,44 +4,47 @@ import { AdminRoute } from "./components/ProtectedRoute/AdminRoute.tsx";
 import RootLayout from "./components/layout/RootLayout.tsx";
 import { ErrorPage } from "./pages/Error/ErrorPage.tsx";
 
+type RouteModule = { default: React.ComponentType<unknown> };
+
+const lazyRoute = (importFn: () => Promise<RouteModule>) =>
+  async () => {
+    try {
+      const { default: Component } = await importFn();
+      return { Component };
+    } catch (error) {
+      if (
+        error instanceof TypeError &&
+        (error.message.includes("Failed to fetch dynamically imported module") ||
+          error.message.includes("Importing a module script failed") ||
+          error.message.includes("error loading dynamically imported module"))
+      ) {
+        window.location.reload();
+        return new Promise<never>(() => {});
+      }
+      throw error;
+    }
+  };
+
 export const router = createBrowserRouter([
   {
     path: "login",
-    lazy: async () => {
-      const { default: Login } = await import("./pages/Login/Login.tsx");
-      return { Component: Login };
-    },
+    lazy: lazyRoute(() => import("./pages/Login/Login.tsx")),
   },
   {
     path: "register",
-    lazy: async () => {
-      const { default: Register } =
-        await import("./pages/Register/Register.tsx");
-      return { Component: Register };
-    },
+    lazy: lazyRoute(() => import("./pages/Register/Register.tsx")),
   },
   {
     path: "dobrodosli",
-    lazy: async () => {
-      const { default: Welcome } = await import("./pages/Welcome/Welcome.tsx");
-      return { Component: Welcome };
-    },
+    lazy: lazyRoute(() => import("./pages/Welcome/Welcome.tsx")),
   },
   {
     path: "zaboravljena-lozinka",
-    lazy: async () => {
-      const { default: ForgotPassword } =
-        await import("./pages/ForgotPassword/ForgotPassword.tsx");
-      return { Component: ForgotPassword };
-    },
+    lazy: lazyRoute(() => import("./pages/ForgotPassword/ForgotPassword.tsx")),
   },
   {
     path: "reset-lozinka/:token",
-    lazy: async () => {
-      const { default: ResetPassword } =
-        await import("./pages/ResetPassword/ResetPassword.tsx");
-      return { Component: ResetPassword };
-    },
+    lazy: lazyRoute(() => import("./pages/ResetPassword/ResetPassword.tsx")),
   },
   {
     path: "/",
@@ -58,67 +61,35 @@ export const router = createBrowserRouter([
       },
       {
         path: "pregled",
-        lazy: async () => {
-          const { default: Dashboard } =
-            await import("./pages/Dashboard/Dashboard.tsx");
-          return { Component: Dashboard };
-        },
+        lazy: lazyRoute(() => import("./pages/Dashboard/Dashboard.tsx")),
       },
       {
         path: "profil",
-        lazy: async () => {
-          const { default: Profile } =
-            await import("./pages/Profile/Profile.tsx");
-          return { Component: Profile };
-        },
+        lazy: lazyRoute(() => import("./pages/Profile/Profile.tsx")),
       },
       {
         path: "postavke",
-        lazy: async () => {
-          const { default: Settings } =
-            await import("./pages/Settings/Settings.tsx");
-          return { Component: Settings };
-        },
+        lazy: lazyRoute(() => import("./pages/Settings/Settings.tsx")),
       },
       {
         path: "zapis-treninga",
-        lazy: async () => {
-          const { default: TrainingLogs } =
-            await import("./pages/TrainingLogs/TrainingLogs.tsx");
-          return { Component: TrainingLogs };
-        },
+        lazy: lazyRoute(() => import("./pages/TrainingLogs/TrainingLogs.tsx")),
       },
       {
         path: "zapis-treninga/:id",
-        lazy: async () => {
-          const { default: TrackWorkout } =
-            await import("./pages/TrackWorkout/TrackWorkout.tsx");
-          return { Component: TrackWorkout };
-        },
+        lazy: lazyRoute(() => import("./pages/TrackWorkout/TrackWorkout.tsx")),
       },
       {
         path: "edukacija",
-        lazy: async () => {
-          const { default: KnowledgeBase } =
-            await import("./pages/KnowledgeBase/KnowledgeBase.tsx");
-          return { Component: KnowledgeBase };
-        },
+        lazy: lazyRoute(() => import("./pages/KnowledgeBase/KnowledgeBase.tsx")),
       },
       {
         path: "edukacija/:id",
-        lazy: async () => {
-          const { default: ArticleDetail } =
-            await import("./pages/KnowledgeBase/ArticleDetail.tsx");
-          return { Component: ArticleDetail };
-        },
+        lazy: lazyRoute(() => import("./pages/KnowledgeBase/ArticleDetail.tsx")),
       },
       {
         path: "edukacija/:id/kviz",
-        lazy: async () => {
-          const { default: QuizPage } =
-            await import("./pages/KnowledgeBase/QuizPage.tsx");
-          return { Component: QuizPage };
-        },
+        lazy: lazyRoute(() => import("./pages/KnowledgeBase/QuizPage.tsx")),
       },
       {
         path: "upravljanje",
@@ -126,46 +97,26 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            lazy: async () => {
-              const { default: AdminPanel } =
-                await import("./pages/AdminPanel/AdminPanel.tsx");
-              return { Component: AdminPanel };
-            },
+            lazy: lazyRoute(() => import("./pages/AdminPanel/AdminPanel.tsx")),
           },
         ],
       },
       {
         path: "ljestvica",
-        lazy: async () => {
-          const { default: Leaderboard } =
-            await import("./pages/Leaderboard/Leaderboard.tsx");
-          return { Component: Leaderboard };
-        },
+        lazy: lazyRoute(() => import("./pages/Leaderboard/Leaderboard.tsx")),
       },
       {
         path: "izazovi/povijest",
-        lazy: async () => {
-          const { default: ChallengeHistory } =
-            await import("./pages/Challenges/ChallengeHistory.tsx");
-          return { Component: ChallengeHistory };
-        },
+        lazy: lazyRoute(() => import("./pages/Challenges/ChallengeHistory.tsx")),
       },
       {
         path: "slavlje",
-        lazy: async () => {
-          const { default: XpCelebration } =
-            await import("./pages/XpCelebration/XpCelebration.tsx");
-          return { Component: XpCelebration };
-        },
+        lazy: lazyRoute(() => import("./pages/XpCelebration/XpCelebration.tsx")),
       },
     ],
   },
   {
     path: "*",
-    lazy: async () => {
-      const { default: NotFoundPage } =
-        await import("./pages/NotFound/NotFoundPage.tsx");
-      return { Component: NotFoundPage };
-    },
+    lazy: lazyRoute(() => import("./pages/NotFound/NotFoundPage.tsx")),
   },
 ]);

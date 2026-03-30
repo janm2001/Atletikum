@@ -6,6 +6,7 @@ const ArticleTag = require("../enums/ArticleTag.enum");
 
 const articles = [
   {
+    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f6a7b8c9d1"),
     title: "Važnost VO2max u utrkama na srednje i duge pruge",
     summary:
       "U ovom članku obrađujemo koncept maksimalnog primitka kisika (VO2max) i njegov utjecaj na sportske performanse.",
@@ -87,6 +88,7 @@ const articles = [
     ],
   },
   {
+    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f6a7b8c9d2"),
     title: "Laktatni prag i njegov utjecaj na izdržljivost",
     summary:
       "Saznajte kako odgoditi nakupljanje mliječne kiseline i trčati brže na duljim distancama.",
@@ -168,6 +170,7 @@ const articles = [
     ],
   },
   {
+    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f6a7b8c9d3"),
     title: "Biomehanika trčanja i ekonomičnost",
     summary:
       "Zašto nije važno samo koliko kisika možete primiti, nego i kako učinkovito ga trošite kroz pravilnu formu.",
@@ -250,6 +253,7 @@ const articles = [
     ],
   },
   {
+    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f6a7b8c9d4"),
     title: "Prehrana i unos ugljikohidrata prije utrke",
     summary:
       "Strukturirano punjenje glikogenskih zaliha ključ je za sprječavanje prijevremenog umora.",
@@ -322,6 +326,7 @@ const articles = [
     ],
   },
   {
+    _id: new mongoose.Types.ObjectId("65f0a1b2c3d4e5f6a7b8c9d5"),
     title: "Trening snage za trkače (Eksplozivnost i prevencija ozljeda)",
     summary:
       "Zašto atletičari moraju dizati utege te kako to utječe na prevenciju ozljeda i snagu u finišu utrke.",
@@ -498,9 +503,18 @@ const applyArticleRelations = async (insertedArticles) => {
 
 const importData = async () => {
   try {
-    await Article.deleteMany();
-    const insertedArticles = await Article.insertMany(articles);
-    await applyArticleRelations(insertedArticles);
+    const operations = articles.map((article) => ({
+      replaceOne: {
+        filter: { _id: article._id },
+        replacement: article,
+        upsert: true,
+      },
+    }));
+    await Article.bulkWrite(operations);
+    const upsertedArticles = await Article.find({
+      _id: { $in: articles.map((a) => a._id) },
+    });
+    await applyArticleRelations(upsertedArticles);
     console.log("Article seed imported successfully.");
     process.exit(0);
   } catch (err) {
