@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container } from "@mantine/core";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
@@ -11,6 +12,7 @@ import QuizPageContent from "@/components/KnowledgeBase/Quiz/QuizPageContent";
 const QuizPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const { data: article, isLoading: articleLoading } = useArticleDetail(id!);
   const { data: quizStatus, isLoading: statusLoading } = useQuizStatus(id!);
@@ -29,7 +31,7 @@ const QuizPage = () => {
 
   const questions: QuizQuestion[] = article.quiz;
 
-  if (quizStatus && !quizStatus.canTakeQuiz) {
+  if (quizStatus && !quizStatus.canTakeQuiz && !isCompleting) {
     return (
       <Container size="xl" py="md">
         <QuizLockedState
@@ -40,6 +42,8 @@ const QuizPage = () => {
     );
   }
 
+  if (isCompleting) return <SpinnerComponent />;
+
   return (
     <Container size="xl" py="md">
       <QuizPageContent
@@ -47,6 +51,7 @@ const QuizPage = () => {
         articleTitle={article.title}
         questions={questions}
         onBack={() => navigate(`/edukacija/${id}`)}
+        onCompleting={() => setIsCompleting(true)}
       />
     </Container>
   );

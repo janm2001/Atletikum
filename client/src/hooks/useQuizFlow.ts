@@ -17,12 +17,14 @@ interface UseQuizFlowParams {
   articleId: string;
   articleTitle: string;
   questions: QuizQuestion[];
+  onCompleting?: () => void;
 }
 
 export const useQuizFlow = ({
   articleId,
   articleTitle,
   questions,
+  onCompleting,
 }: UseQuizFlowParams) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -63,6 +65,7 @@ export const useQuizFlow = ({
   };
 
   const handleQuizComplete = async (answers: number[]) => {
+    onCompleting?.();
     clearActionError();
 
     try {

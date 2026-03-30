@@ -8,6 +8,7 @@ import { useWorkouts } from "../../hooks/useWorkout";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 import { useWeeklyChallenges } from "@/hooks/useChallenges";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
+import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
 import DashboardQuestsCard from "@/components/Dashboard/DashboardQuestsCard";
 import DashboardTrainingRecommendation from "@/components/Dashboard/DashboardTrainingRecommendation";
@@ -20,10 +21,12 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { data: articles, error: articlesError } = useArticles();
-  const { data: workouts, error: workoutsError } = useWorkouts();
-  const { data: recommendations } = useWeeklyRecommendations();
-  const { data: weeklyChallenges } = useWeeklyChallenges();
+  const { data: articles, error: articlesError, isLoading: articlesLoading } = useArticles();
+  const { data: workouts, error: workoutsError, isLoading: workoutsLoading } = useWorkouts();
+  const { data: recommendations, isLoading: recommendationsLoading } = useWeeklyRecommendations();
+  const { data: weeklyChallenges, isLoading: challengesLoading } = useWeeklyChallenges();
+
+  const isLoading = articlesLoading || workoutsLoading || recommendationsLoading || challengesLoading;
 
   const level = user?.level ?? 1;
 
@@ -46,6 +49,8 @@ const Dashboard = () => {
 
     return (articles ?? []).slice(0, 3);
   }, [articles, recommendations]);
+
+  if (isLoading) return <SpinnerComponent />;
 
   return (
     <Container size="xl" py={{ base: "sm", md: "md" }}>
