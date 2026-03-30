@@ -6,6 +6,7 @@ const { updateDailyStreak } = require("../utils/updateDailyStreak");
 const { attachSession, saveWithSession } = require("../utils/mongoTransaction");
 const { requireUserId } = require("../utils/userIdentity");
 const { recordXpEvent } = require("./xpLedgerService");
+const { createActivityEvent } = require("./activityService");
 
 const loadUser = (userId, session) =>
   attachSession(User.findById(userId), session);
@@ -15,12 +16,22 @@ const applyExperienceGain = async ({ user, brainXp, bodyXp, session }) => {
     return user;
   }
 
+  const previousLevel = user.level;
+
   user.brainXp += brainXp;
   user.bodyXp += bodyXp;
   user.totalXp = user.brainXp + user.bodyXp;
   user.level = getLevelFromTotalXp(user.totalXp);
 
   await saveWithSession(user, session);
+
+  if (user.level > previousLevel) {
+    createActivityEvent({
+      userId: user._id,
+      type: "level_up",
+      data: { level: user.level, totalXp: user.totalXp },
+    }).catch(() => {});
+  }
 
   return user;
 };
@@ -103,9 +114,23 @@ const applyUserProgress = async ({
   }
 
   if (shouldUpdateStreak) {
+    const prevStreak = user.dailyStreak ?? 0;
     user =
       (await updateDailyStreak(normalizedUserId, { session })) ??
       user;
+
+    const newStreak = user.dailyStreak ?? 0;
+    const STREAK_MILESTONES = [7, 30, 100];
+    if (
+      newStreak > prevStreak &&
+      STREAK_MILESTONES.includes(newStreak)
+    ) {
+      createActivityEvent({
+        userId: normalizedUserId,
+        type: "streak_milestone",
+        data: { streak: newStreak },
+      }).catch(() => {});
+    }
   }
 
   const newAchievements = shouldUnlockAchievements
