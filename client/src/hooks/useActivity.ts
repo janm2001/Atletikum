@@ -7,7 +7,8 @@ export const useActivityFeed = (page = 1) =>
   useQuery({
     queryKey: keys.activity.feed(page),
     queryFn: () => getActivityFeed(page),
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   });
 
 export const useAddReaction = () => {

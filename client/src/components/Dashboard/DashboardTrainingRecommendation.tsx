@@ -57,6 +57,7 @@ const DashboardTrainingRecommendation = ({
       radius="md"
       shadow="sm"
       h="100%"
+      mah={"600px"}
       mih="300px"
       p={0}
       className={classes.card}

@@ -170,6 +170,9 @@
       "title": "Preporučeni sadržaj",
       "viewAll": "Svi članci"
     },
+    "sections": {
+      "community": "Zajednica"
+    },
     "stats": {
       "level": "Razina",
       "totalXp": "Ukupno XP",
@@ -908,6 +911,19 @@
       "rpeRequired": "Unesi RPE",
       "rpeMin": "RPE mora biti najmanje 1",
       "rpeMax": "RPE može biti najviše 10"
+    }
+  },
+
+  "dailyMissions": {
+    "title": "Dnevni zadaci",
+    "error": "Greška pri učitavanju zadataka.",
+    "bonus": "Bonus: +{{xp}} XP za sve zadatke!",
+    "progress": "{{completed}}/{{total}} završeno",
+    "missions": {
+      "log_workout": "Zabilježi trening",
+      "complete_quiz": "Završi kviz",
+      "read_article": "Pročitaj članak",
+      "check_leaderboard": "Provjeri ljestvicu"
     }
   }
 }

@@ -44,6 +44,7 @@ export const useAcceptFriendRequest = () => {
     mutationFn: (friendshipId: string) => acceptFriendRequest(friendshipId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: keys.friends.all });
+      qc.invalidateQueries({ queryKey: keys.activity.all });
     },
   });
 };

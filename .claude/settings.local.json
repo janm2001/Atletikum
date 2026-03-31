@@ -17,7 +17,9 @@
       "Bash(find C:Usersjan.mackovicDesktopAtletikumclientsrc -type f -name *theme*)",
       "Bash(npx eslint:*)",
       "Bash(find C:Usersjan.mackovicDesktopAtletikumclientsrctypes -name *Workout* -o -name *Exercise*)",
-      "Bash(find /c/Users/jan.mackovic/Desktop/Atletikum/server -name seed* -o -name *seed*)"
+      "Bash(find /c/Users/jan.mackovic/Desktop/Atletikum/server -name seed* -o -name *seed*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
     ]
   }
 }

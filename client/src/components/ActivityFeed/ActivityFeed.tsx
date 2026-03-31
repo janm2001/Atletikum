@@ -31,7 +31,7 @@ const ActivityFeed = () => {
 
   if (isError) {
     return (
-      <Card withBorder radius="md" p="md">
+      <Card radius="md" p="md">
         <Center>
           <Stack align="center" gap="xs">
             <IconAlertCircle size={24} color="var(--mantine-color-red-5)" />
