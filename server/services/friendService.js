@@ -147,11 +147,9 @@ const blockUser = async ({ userId, targetUserId }) => {
   const existing = await getFriendshipBetween(userId, targetUserId);
 
   if (existing) {
-    existing.status = "blocked";
     await Friendship.findByIdAndUpdate(existing._id, {
       status: "blocked",
-      requester: userId,
-      recipient: targetUserId,
+      acceptedAt: null,
     });
     return;
   }

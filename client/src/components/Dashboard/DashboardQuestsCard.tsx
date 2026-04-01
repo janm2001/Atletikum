@@ -1,4 +1,5 @@
 import {
+  Anchor,
   Badge,
   Card,
   Group,
@@ -9,6 +10,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IconTarget } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { RecommendationInsight } from "@/hooks/useRecommendations";
 import type { WeeklyChallenge } from "@/types/Challenge/challenge";
@@ -59,16 +61,20 @@ const DashboardQuestsCard = ({
 
   return (
     <Card withBorder radius="md" shadow="sm" p="md">
-      <Title
-        order={5}
-        tt="uppercase"
-        fw={700}
-        mb="sm"
-        size="xs"
-        c="var(--app-text-muted)"
-      >
-        {t("dashboard.quests.title")}
-      </Title>
+      <Group justify="space-between" align="center" mb="sm">
+        <Title
+          order={5}
+          tt="uppercase"
+          fw={700}
+          size="xs"
+          c="var(--app-text-muted)"
+        >
+          {t("dashboard.quests.title")}
+        </Title>
+        <Anchor component={Link} to="/izazovi/povijest" size="xs" c="dimmed">
+          Vidi povijest
+        </Anchor>
+      </Group>
 
       <Stack gap="sm">
         {hasGoal && (

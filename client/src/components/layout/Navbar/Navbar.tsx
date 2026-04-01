@@ -24,7 +24,6 @@ import {
   IconSun,
   IconTrophy,
   IconUser,
-  IconUsers,
   IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -63,7 +62,6 @@ const Navbar = () => {
       },
       { to: "/edukacija", label: t("nav.education"), icon: IconBook },
       { to: "/ljestvica", label: t("nav.leaderboard"), icon: IconTrophy },
-      { to: "/prijatelji", label: t("nav.friends"), icon: IconUsers },
       ...(user?.role === "admin"
         ? [{ to: "/upravljanje", label: t("nav.admin"), icon: IconSettings }]
         : []),

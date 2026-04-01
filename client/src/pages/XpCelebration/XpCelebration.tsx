@@ -37,15 +37,20 @@ const XpCelebration = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useUser();
-  const routeState = location.state as CelebrationState | null;
-  const state = routeState ?? getPersistedCelebrationState();
-
   const [showXp, setShowXp] = useState(false);
   const [showLevel, setShowLevel] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [confettiLevel, setConfettiLevel] = useState(false);
   const [confettiAchievement, setConfettiAchievement] = useState(false);
+  const routeState = location.state as CelebrationState | null;
+  const state = routeState ?? getPersistedCelebrationState();
+  const achievements = state?.newAchievements ?? [];
+  const achievementCount = achievements.length;
+  const totalXp = state?.totalXp ?? 0;
+  const level = state?.level ?? getLevelFromTotalXp(totalXp);
+  const previousLevel = getLevelFromTotalXp(totalXp - (state?.xpGained ?? 0));
+  const didLevelUp = Boolean(state) && level > previousLevel;
 
   useEffect(() => {
     if (!routeState) {
@@ -66,13 +71,13 @@ const XpCelebration = () => {
       }, 800),
       setTimeout(() => {
         setShowAchievements(true);
-        if (achievements.length > 0) setConfettiAchievement(true);
+        if (achievementCount > 0) setConfettiAchievement(true);
       }, 1300),
       setTimeout(() => setShowActions(true), 1800),
     ];
 
     return () => timers.forEach(clearTimeout);
-  }, [state]);
+  }, [state, didLevelUp, achievementCount]);
 
   if (!state) {
     return (
@@ -86,10 +91,7 @@ const XpCelebration = () => {
       </Center>
     );
   }
-
   const isQuiz = state.type === "quiz";
-  const level = state.level ?? getLevelFromTotalXp(state.totalXp ?? 0);
-  const totalXp = state.totalXp ?? 0;
   const levelStartXp = getTotalXpForLevelStart(level);
   const xpForNextLevel = getXpRequiredForLevelUp(level);
   const xpInCurrentLevel = totalXp - levelStartXp;
@@ -97,10 +99,6 @@ const XpCelebration = () => {
     100,
     Math.round((xpInCurrentLevel / xpForNextLevel) * 100),
   );
-
-  const achievements = state.newAchievements ?? [];
-  const previousLevel = getLevelFromTotalXp((state.totalXp ?? 0) - (state.xpGained ?? 0));
-  const didLevelUp = level > previousLevel;
   const personalBests = state.personalBests ?? [];
   const backPath = isQuiz ? "/edukacija" : "/zapis-treninga";
   const handleNavigateAway = (path: string) => {
@@ -193,7 +191,12 @@ const XpCelebration = () => {
 
         <Transition mounted={showActions} transition="fade" duration={400}>
           {(transitionStyles) => (
-            <Group gap="md" style={transitionStyles} wrap="wrap" justify="center">
+            <Group
+              gap="md"
+              style={transitionStyles}
+              wrap="wrap"
+              justify="center"
+            >
               <Button
                 variant="light"
                 onClick={() => handleNavigateAway(backPath)}

@@ -106,10 +106,6 @@ export const router = createBrowserRouter([
         lazy: lazyRoute(() => import("./pages/Leaderboard/Leaderboard.tsx")),
       },
       {
-        path: "prijatelji",
-        lazy: lazyRoute(() => import("./pages/Friends/FriendsList.tsx")),
-      },
-      {
         path: "izazovi/povijest",
         lazy: lazyRoute(() => import("./pages/Challenges/ChallengeHistory.tsx")),
       },

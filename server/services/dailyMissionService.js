@@ -34,55 +34,79 @@ const getOrCreateTodaysMissions = async ({ userId }) => {
 const incrementMissionProgress = async ({ userId, missionType }) => {
   const date = getTodayDate();
 
-  const doc = await DailyMission.findOne({ user: userId, date });
-  if (!doc) return null;
+  // Step 1: Atomically increment progress, but only if the mission is not yet completed.
+  // The positional $ operator updates the first array element matching the filter.
+  const afterIncrement = await DailyMission.findOneAndUpdate(
+    {
+      user: userId,
+      date,
+      missions: { $elemMatch: { type: missionType, completed: false } },
+    },
+    { $inc: { "missions.$.progress": 1 } },
+    { new: true },
+  );
 
-  let anyCompleted = false;
-  for (const mission of doc.missions) {
-    if (mission.type === missionType && !mission.completed) {
-      mission.progress = Math.min(mission.progress + 1, mission.target);
-      if (mission.progress >= mission.target) {
-        mission.completed = true;
-        anyCompleted = true;
-      }
-      break;
+  if (!afterIncrement) {
+    // Doc doesn't exist, mission not found, or already completed — nothing to do
+    return null;
+  }
+
+  const mission = afterIncrement.missions.find((m) => m.type === missionType);
+  if (!mission || mission.progress < mission.target) {
+    return afterIncrement.toObject();
+  }
+
+  // Step 2: Atomically mark the mission as completed. The guard on `completed: false`
+  // ensures only one concurrent request wins this update.
+  const afterComplete = await DailyMission.findOneAndUpdate(
+    {
+      user: userId,
+      date,
+      missions: {
+        $elemMatch: { type: missionType, completed: false, progress: { $gte: mission.target } },
+      },
+    },
+    { $set: { "missions.$.completed": true } },
+    { new: true },
+  );
+
+  if (!afterComplete) {
+    // Another concurrent request already claimed the completion
+    return afterIncrement.toObject();
+  }
+
+  // Award individual mission XP (awaited so silent failures don't go unnoticed)
+  const config = MISSION_CONFIGS.find((c) => c.type === missionType);
+  if (config) {
+    await applyUserProgress({
+      userId,
+      brainXp: config.xpReward,
+      source: "daily_mission",
+      description: `Daily mission completed: ${missionType}`,
+    });
+  }
+
+  // Step 3: Award bonus XP if all missions are now complete.
+  // Atomically claim the bonus so concurrent requests cannot double-award it.
+  const allDone = afterComplete.missions.every((m) => m.completed);
+  if (allDone) {
+    const bonusClaimed = await DailyMission.findOneAndUpdate(
+      { user: userId, date, bonusClaimed: false },
+      { $set: { bonusClaimed: true } },
+      { new: true },
+    );
+
+    if (bonusClaimed) {
+      await applyUserProgress({
+        userId,
+        brainXp: BONUS_XP,
+        source: "daily_mission_bonus",
+        description: "All daily missions completed bonus",
+      });
     }
   }
 
-  if (!anyCompleted) {
-    return doc.toObject();
-  }
-
-  const allDone = doc.missions.every((m) => m.completed);
-
-  await doc.save();
-
-  // Award individual mission XP
-  const completedMission = doc.missions.find(
-    (m) => m.type === missionType && m.completed,
-  );
-  if (completedMission) {
-    applyUserProgress({
-      userId,
-      brainXp: completedMission.xpReward,
-      source: "daily_mission",
-      description: `Daily mission completed: ${missionType}`,
-    }).catch(() => {});
-  }
-
-  // Award bonus if all missions complete and not yet claimed
-  if (allDone && !doc.bonusClaimed) {
-    doc.bonusClaimed = true;
-    await doc.save();
-    applyUserProgress({
-      userId,
-      brainXp: BONUS_XP,
-      source: "daily_mission_bonus",
-      description: "All daily missions completed bonus",
-    }).catch(() => {});
-  }
-
-  return doc.toObject();
+  return afterComplete.toObject();
 };
 
 module.exports = {

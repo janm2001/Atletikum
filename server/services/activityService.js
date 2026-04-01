@@ -1,5 +1,6 @@
 const { ActivityEvent } = require("../models/ActivityEvent");
 const { Friendship } = require("../models/Friendship");
+const AppError = require("../utils/AppError");
 
 const FEED_PAGE_SIZE = 20;
 
@@ -19,9 +20,29 @@ const getFriendIds = async (userId) => {
     .select("requester recipient")
     .lean();
 
-  return friendships.map((f) =>
+  const friendIds = friendships.map((f) =>
     String(f.requester) === String(userId) ? f.recipient : f.requester,
   );
+
+  // Exclude any users involved in a blocked relationship (either direction)
+  const blocked = await Friendship.find({
+    $or: [
+      { requester: userId, status: "blocked" },
+      { recipient: userId, status: "blocked" },
+    ],
+  })
+    .select("requester recipient")
+    .lean();
+
+  const blockedIds = new Set(
+    blocked.map((f) =>
+      String(f.requester) === String(userId)
+        ? String(f.recipient)
+        : String(f.requester),
+    ),
+  );
+
+  return friendIds.filter((id) => !blockedIds.has(String(id)));
 };
 
 const getActivityFeed = async ({ userId, page = 1 }) => {
@@ -54,8 +75,20 @@ const getActivityFeed = async ({ userId, page = 1 }) => {
 const addReaction = async ({ userId, eventId, emoji }) => {
   const event = await ActivityEvent.findById(eventId);
   if (!event) {
-    const AppError = require("../utils/AppError");
     throw new AppError("Aktivnost nije pronađena.", 404);
+  }
+
+  // Verify the reacting user is friends with the event owner
+  const friendship = await Friendship.findOne({
+    $or: [
+      { requester: userId, recipient: event.user },
+      { requester: event.user, recipient: userId },
+    ],
+    status: "accepted",
+  }).lean();
+
+  if (!friendship) {
+    throw new AppError("Nemate pristup ovoj aktivnosti.", 403);
   }
 
   // Remove existing reaction from this user (one per user)
@@ -72,8 +105,23 @@ const addReaction = async ({ userId, eventId, emoji }) => {
 const removeReaction = async ({ userId, eventId }) => {
   const event = await ActivityEvent.findById(eventId);
   if (!event) {
-    const AppError = require("../utils/AppError");
     throw new AppError("Aktivnost nije pronađena.", 404);
+  }
+
+  // Verify the user is friends with the event owner (or owns the reaction)
+  const isSelf = String(event.user) === String(userId);
+  if (!isSelf) {
+    const friendship = await Friendship.findOne({
+      $or: [
+        { requester: userId, recipient: event.user },
+        { requester: event.user, recipient: userId },
+      ],
+      status: "accepted",
+    }).lean();
+
+    if (!friendship) {
+      throw new AppError("Nemate pristup ovoj aktivnosti.", 403);
+    }
   }
 
   event.reactions = event.reactions.filter(
