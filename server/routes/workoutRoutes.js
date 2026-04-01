@@ -32,7 +32,7 @@ router.post(
 
 router
   .route("/:id")
-  .get(workoutController.getWorkoutById)
+  .get(validate(validateWorkoutIdRequest), workoutController.getWorkoutById)
   .patch(
     workoutMutationLimiter,
     validate(validateUpdateWorkoutRequest),

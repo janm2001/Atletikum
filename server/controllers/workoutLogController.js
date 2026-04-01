@@ -14,13 +14,10 @@ exports.getDailyProgress = asyncHandler(async (req, res) => {
 });
 
 exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 30;
-
   const result = await workoutLogService.getMyWorkoutLogs({
     userId: req.userId,
-    page,
-    limit,
+    page: req.query.page,
+    limit: req.query.limit,
   });
 
   res.status(200).json({

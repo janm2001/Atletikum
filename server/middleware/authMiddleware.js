@@ -39,7 +39,7 @@ exports.protect = async (req, res, next) => {
       return next(new AppError("Nevažeći token ili neautoriziran pristup.", 401));
     }
 
-    const currentUser = await User.findById(decoded.id);
+    const currentUser = await User.findById(decoded.id).lean();
 
     if (!currentUser) {
       return next(new AppError("Korisnik više ne postoji.", 401));

@@ -49,7 +49,7 @@ router.patch(
 
 router
   .route("/:id")
-  .get(articleController.getArticleById)
+  .get(validate(validateArticleIdRequest), articleController.getArticleById)
   .patch(
     restrictTo("admin"),
     articleMutationLimiter,
