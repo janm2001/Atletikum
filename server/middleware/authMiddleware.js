@@ -36,10 +36,12 @@ exports.protect = async (req, res, next) => {
     const decoded = jwt.verify(token, getJwtSecret());
 
     if (!decoded?.id) {
-      return next(new AppError("Nevažeći token ili neautoriziran pristup.", 401));
+      return next(
+        new AppError("Nevažeći token ili neautoriziran pristup.", 401),
+      );
     }
 
-    const currentUser = await User.findById(decoded.id);
+    const currentUser = await User.findById(decoded.id).lean();
 
     if (!currentUser) {
       return next(new AppError("Korisnik više ne postoji.", 401));
@@ -57,7 +59,9 @@ exports.protect = async (req, res, next) => {
     }
 
     if (err instanceof jwt.JsonWebTokenError) {
-      return next(new AppError("Nevažeći token ili neautoriziran pristup.", 401));
+      return next(
+        new AppError("Nevažeći token ili neautoriziran pristup.", 401),
+      );
     }
 
     return next(err);

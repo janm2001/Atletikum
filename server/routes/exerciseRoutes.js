@@ -25,7 +25,7 @@ router
 
 router
   .route("/:id")
-  .get(exerciseController.getExerciseById)
+  .get(validate(validateExerciseIdRequest), exerciseController.getExerciseById)
   .patch(
     restrictTo("admin"),
     exerciseMutationLimiter,

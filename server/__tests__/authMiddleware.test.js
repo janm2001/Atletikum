@@ -20,6 +20,12 @@ const jwt = require("jsonwebtoken");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
 
 describe("authMiddleware", () => {
+  const createFindByIdQuery = (result, options = {}) => ({
+    lean: options.reject
+      ? jest.fn().mockRejectedValue(result)
+      : jest.fn().mockResolvedValue(result),
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.JWT_SECRET = "test-secret";
@@ -53,7 +59,7 @@ describe("authMiddleware", () => {
       const currentUser = { _id: "user-1", role: "user" };
 
       jwt.verify.mockReturnValue({ id: "user-1" });
-      User.findById.mockResolvedValue(currentUser);
+      User.findById.mockReturnValue(createFindByIdQuery(currentUser));
 
       await protect(request, response, next);
 
@@ -121,7 +127,7 @@ describe("authMiddleware", () => {
       const next = jest.fn();
 
       jwt.verify.mockReturnValue({ id: "user-1" });
-      User.findById.mockResolvedValue(null);
+      User.findById.mockReturnValue(createFindByIdQuery(null));
 
       await protect(request, response, next);
 
@@ -144,7 +150,9 @@ describe("authMiddleware", () => {
       const databaseError = new Error("Database offline");
 
       jwt.verify.mockReturnValue({ id: "user-1" });
-      User.findById.mockRejectedValue(databaseError);
+      User.findById.mockReturnValue(
+        createFindByIdQuery(databaseError, { reject: true }),
+      );
 
       await protect(request, response, next);
 

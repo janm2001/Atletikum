@@ -1,5 +1,6 @@
 const {
   validateCreateWorkoutLogRequest,
+  validateGetWorkoutLogsRequest,
   validateGetLatestWorkoutLogRequest,
 } = require("../validators/workoutLogValidator");
 
@@ -49,7 +50,9 @@ describe("workoutLogValidator", () => {
     const emptyLoadRequest = createRequest();
     emptyLoadRequest.body.completedExercises[0].loadKg = "";
 
-    expect(() => validateCreateWorkoutLogRequest(emptyLoadRequest)).not.toThrow();
+    expect(() =>
+      validateCreateWorkoutLogRequest(emptyLoadRequest),
+    ).not.toThrow();
 
     const negativeLoadRequest = createRequest();
     negativeLoadRequest.body.completedExercises[0].loadKg = -5;
@@ -71,5 +74,31 @@ describe("workoutLogValidator", () => {
         params: { workoutId: validWorkoutId },
       }),
     ).not.toThrow();
+  });
+
+  it("applies default pagination when query params are missing", () => {
+    const request = { query: {} };
+
+    expect(() => validateGetWorkoutLogsRequest(request)).not.toThrow();
+    expect(request.validatedQuery.page).toBe(1);
+    expect(request.validatedQuery.limit).toBe(30);
+  });
+
+  it("normalizes numeric pagination query params", () => {
+    const request = { query: { page: "2", limit: "15" } };
+
+    expect(() => validateGetWorkoutLogsRequest(request)).not.toThrow();
+    expect(request.validatedQuery.page).toBe(2);
+    expect(request.validatedQuery.limit).toBe(15);
+  });
+
+  it("rejects non-integer pagination query params", () => {
+    expect(() =>
+      validateGetWorkoutLogsRequest({ query: { page: "1.5" } }),
+    ).toThrow("Parametar page mora biti pozitivan cijeli broj.");
+
+    expect(() =>
+      validateGetWorkoutLogsRequest({ query: { limit: "3.14" } }),
+    ).toThrow("Parametar limit mora biti cijeli broj između 1 i 100.");
   });
 });
