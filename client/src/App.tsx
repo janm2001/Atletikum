@@ -10,6 +10,7 @@ import { UserProvider } from "./context/UserContext";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Suspense } from "react";
 import SpinnerComponent from "./components/SpinnerComponent/SpinnerComponent.tsx";
+import AppErrorBoundary from "./components/ErrorBoundary/AppErrorBoundary";
 import { router } from "./routes.tsx";
 import { queryClient } from "./lib/queryClient";
 import { appCssVariablesResolver, appTheme } from "./theme/appTheme";
@@ -24,9 +25,11 @@ function App() {
       <Notifications position="top-right" />
       <UserProvider>
         <QueryClientProvider client={queryClient}>
-          <Suspense fallback={<SpinnerComponent />}>
-            <RouterProvider router={router} />
-          </Suspense>
+          <AppErrorBoundary>
+            <Suspense fallback={<SpinnerComponent />}>
+              <RouterProvider router={router} />
+            </Suspense>
+          </AppErrorBoundary>
         </QueryClientProvider>
       </UserProvider>
     </MantineProvider>

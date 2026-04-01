@@ -50,7 +50,9 @@ describe("workoutLogValidator", () => {
     const emptyLoadRequest = createRequest();
     emptyLoadRequest.body.completedExercises[0].loadKg = "";
 
-    expect(() => validateCreateWorkoutLogRequest(emptyLoadRequest)).not.toThrow();
+    expect(() =>
+      validateCreateWorkoutLogRequest(emptyLoadRequest),
+    ).not.toThrow();
 
     const negativeLoadRequest = createRequest();
     negativeLoadRequest.body.completedExercises[0].loadKg = -5;

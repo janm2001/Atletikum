@@ -65,7 +65,10 @@ const validateGetWorkoutLogsRequest = (request) => {
     });
 
     if (!Number.isInteger(parsedPage)) {
-      throw new AppError("Parametar page mora biti pozitivan cijeli broj.", 400);
+      throw new AppError(
+        "Parametar page mora biti pozitivan cijeli broj.",
+        400,
+      );
     }
   }
 
@@ -77,7 +80,10 @@ const validateGetWorkoutLogsRequest = (request) => {
     });
 
     if (!Number.isInteger(parsedLimit)) {
-      throw new AppError("Parametar limit mora biti cijeli broj između 1 i 100.", 400);
+      throw new AppError(
+        "Parametar limit mora biti cijeli broj između 1 i 100.",
+        400,
+      );
     }
   }
 

@@ -10,7 +10,6 @@ interface UserProviderProps {
 }
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const [loading] = useState(false);
   const [authState, setAuthState] = useState<{
     user: User | null;
     token: string | null;
@@ -63,17 +62,31 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   };
 
   useEffect(() => {
-    if (!authState.token) return;
+    if (!authState.token) {
+      return;
+    }
+
+    let active = true;
+
     getMe()
       .then((freshUser) => {
+        if (!active) {
+          return;
+        }
+
         setAuthState((prev) => ({ ...prev, user: freshUser }));
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(freshUser));
       })
       .catch(() => {
         // Silently ignore – stale localStorage data is better than crashing
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    return () => {
+      active = false;
+    };
+  }, [authState.token]);
+
+  const loading = Boolean(authState.token) && authState.user === null;
 
   return (
     <UserContext.Provider

@@ -11,11 +11,14 @@ const router = express.Router();
 router.use(protect);
 
 router.get("/me", userController.getMe);
-router.get("/gamification-status", gamificationController.getGamificationStatus);
 router.get(
-	"/xp-history",
-	validate(validateGetXpHistoryRequest),
-	xpHistoryController.getXpHistory,
+  "/gamification-status",
+  gamificationController.getGamificationStatus,
+);
+router.get(
+  "/xp-history",
+  validate(validateGetXpHistoryRequest),
+  xpHistoryController.getXpHistory,
 );
 
 module.exports = router;

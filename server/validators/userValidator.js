@@ -33,7 +33,10 @@ const validateGetXpHistoryRequest = (request) => {
     });
 
     if (!Number.isInteger(parsedOffset)) {
-      throw new AppError("Parametar offset mora biti nenegativan cijeli broj.", 400);
+      throw new AppError(
+        "Parametar offset mora biti nenegativan cijeli broj.",
+        400,
+      );
     }
   }
 
