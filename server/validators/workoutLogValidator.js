@@ -1,5 +1,6 @@
 const AppError = require("../utils/AppError");
 const {
+  validateIntegerInRange,
   validateNumberInRange,
   validateObjectId,
   validateOptionalNonNegativeNumber,
@@ -59,36 +60,21 @@ const validateGetWorkoutLogsRequest = (request) => {
   let parsedLimit = DEFAULT_WORKOUT_LOGS_LIMIT;
 
   if (page !== undefined) {
-    parsedPage = validateNumberInRange(page, {
+    parsedPage = validateIntegerInRange(page, {
       min: 1,
       message: "Parametar page mora biti pozitivan cijeli broj.",
     });
-
-    if (!Number.isInteger(parsedPage)) {
-      throw new AppError(
-        "Parametar page mora biti pozitivan cijeli broj.",
-        400,
-      );
-    }
   }
 
   if (limit !== undefined) {
-    parsedLimit = validateNumberInRange(limit, {
+    parsedLimit = validateIntegerInRange(limit, {
       min: 1,
       max: 100,
       message: "Parametar limit mora biti cijeli broj između 1 i 100.",
     });
-
-    if (!Number.isInteger(parsedLimit)) {
-      throw new AppError(
-        "Parametar limit mora biti cijeli broj između 1 i 100.",
-        400,
-      );
-    }
   }
 
-  request.query.page = parsedPage;
-  request.query.limit = parsedLimit;
+  request.validatedQuery = { page: parsedPage, limit: parsedLimit };
 };
 
 module.exports = {

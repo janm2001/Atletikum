@@ -5,16 +5,16 @@ describe("userValidator", () => {
     const request = { query: {} };
 
     expect(() => validateGetXpHistoryRequest(request)).not.toThrow();
-    expect(request.query.limit).toBe(50);
-    expect(request.query.offset).toBe(0);
+    expect(request.validatedQuery.limit).toBe(50);
+    expect(request.validatedQuery.offset).toBe(0);
   });
 
   it("normalizes valid xp history query values", () => {
     const request = { query: { limit: "100", offset: "20" } };
 
     expect(() => validateGetXpHistoryRequest(request)).not.toThrow();
-    expect(request.query.limit).toBe(100);
-    expect(request.query.offset).toBe(20);
+    expect(request.validatedQuery.limit).toBe(100);
+    expect(request.validatedQuery.offset).toBe(20);
   });
 
   it("rejects invalid limit values", () => {

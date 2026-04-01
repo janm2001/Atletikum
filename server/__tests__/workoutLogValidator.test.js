@@ -80,16 +80,16 @@ describe("workoutLogValidator", () => {
     const request = { query: {} };
 
     expect(() => validateGetWorkoutLogsRequest(request)).not.toThrow();
-    expect(request.query.page).toBe(1);
-    expect(request.query.limit).toBe(30);
+    expect(request.validatedQuery.page).toBe(1);
+    expect(request.validatedQuery.limit).toBe(30);
   });
 
   it("normalizes numeric pagination query params", () => {
     const request = { query: { page: "2", limit: "15" } };
 
     expect(() => validateGetWorkoutLogsRequest(request)).not.toThrow();
-    expect(request.query.page).toBe(2);
-    expect(request.query.limit).toBe(15);
+    expect(request.validatedQuery.page).toBe(2);
+    expect(request.validatedQuery.limit).toBe(15);
   });
 
   it("rejects non-integer pagination query params", () => {

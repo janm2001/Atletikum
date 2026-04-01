@@ -1,5 +1,5 @@
 import { Button, Container, Group, Text, Title } from "@mantine/core";
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, Fragment, type ErrorInfo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 type AppErrorBoundaryProps = {
@@ -8,6 +8,7 @@ type AppErrorBoundaryProps = {
 
 type AppErrorBoundaryState = {
   hasError: boolean;
+  resetKey: number;
 };
 
 const AppErrorFallback = ({ onReset }: { onReset: () => void }) => {
@@ -25,7 +26,7 @@ const AppErrorFallback = ({ onReset }: { onReset: () => void }) => {
         <Button variant="outline" color="teal" onClick={onReset}>
           {t("errors.generic.retry")}
         </Button>
-        <Button color="teal" onClick={() => (window.location.href = "/") }>
+        <Button color="teal" onClick={() => (window.location.href = "/")}>
           {t("errors.generic.backHome")}
         </Button>
       </Group>
@@ -39,10 +40,10 @@ class AppErrorBoundary extends Component<
 > {
   public constructor(props: AppErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, resetKey: 0 };
   }
 
-  public static getDerivedStateFromError(): AppErrorBoundaryState {
+  public static getDerivedStateFromError(): Partial<AppErrorBoundaryState> {
     return { hasError: true };
   }
 
@@ -53,7 +54,7 @@ class AppErrorBoundary extends Component<
   }
 
   private handleReset = () => {
-    this.setState({ hasError: false });
+    this.setState((prev) => ({ hasError: false, resetKey: prev.resetKey + 1 }));
   };
 
   public render() {
@@ -61,7 +62,7 @@ class AppErrorBoundary extends Component<
       return <AppErrorFallback onReset={this.handleReset} />;
     }
 
-    return this.props.children;
+    return <Fragment key={this.state.resetKey}>{this.props.children}</Fragment>;
   }
 }
 

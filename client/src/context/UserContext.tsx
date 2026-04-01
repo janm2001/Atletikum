@@ -78,7 +78,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(freshUser));
       })
       .catch(() => {
-        // Silently ignore – stale localStorage data is better than crashing
+        logout();
       });
 
     return () => {

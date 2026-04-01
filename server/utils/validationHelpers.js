@@ -72,7 +72,26 @@ const validateOptionalNonNegativeNumber = (
   return numericValue;
 };
 
+const validateIntegerInRange = (
+  value,
+  { min = -Infinity, max = Infinity, message, createError = createAppError },
+) => {
+  const numericValue = validateNumberInRange(value, {
+    min,
+    max,
+    message,
+    createError,
+  });
+
+  if (!Number.isInteger(numericValue)) {
+    throwValidationError(message, createError);
+  }
+
+  return numericValue;
+};
+
 module.exports = {
+  validateIntegerInRange,
   validateNumberInRange,
   validateObjectId,
   validateOptionalNonNegativeNumber,

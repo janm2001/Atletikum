@@ -1,7 +1,11 @@
 const validate = (validator) => {
   return (request, response, next) => {
-    validator(request);
-    next();
+    try {
+      validator(request);
+      next();
+    } catch (err) {
+      next(err);
+    }
   };
 };
 

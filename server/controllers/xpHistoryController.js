@@ -4,8 +4,8 @@ const { getUserXpHistory } = require("../services/xpLedgerService");
 exports.getXpHistory = asyncHandler(async (req, res) => {
   const result = await getUserXpHistory({
     userId: req.userId,
-    limit: req.query.limit,
-    offset: req.query.offset,
+    limit: req.validatedQuery.limit,
+    offset: req.validatedQuery.offset,
   });
 
   res.status(200).json({

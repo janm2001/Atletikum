@@ -16,8 +16,8 @@ exports.getDailyProgress = asyncHandler(async (req, res) => {
 exports.getMyWorkoutLogs = asyncHandler(async (req, res) => {
   const result = await workoutLogService.getMyWorkoutLogs({
     userId: req.userId,
-    page: req.query.page,
-    limit: req.query.limit,
+    page: req.validatedQuery.page,
+    limit: req.validatedQuery.limit,
   });
 
   res.status(200).json({
