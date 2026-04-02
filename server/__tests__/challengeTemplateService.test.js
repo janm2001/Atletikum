@@ -41,10 +41,7 @@ const {
   updateTemplate,
   publishTemplates,
 } = require("../services/challengeTemplateService");
-const {
-  makeLeanQuery,
-  makeSortLeanQuery,
-} = require("../testUtils/queryMocks");
+const { makeLeanQuery, makeSortLeanQuery } = require("../testUtils/queryMocks");
 
 const makeTemplate = (overrides = {}) => ({
   _id: "tmpl-1",
@@ -65,7 +62,10 @@ describe("getTemplates", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("returns all templates sorted by type", async () => {
-    const templates = [makeTemplate(), makeTemplate({ _id: "tmpl-2", type: "workout" })];
+    const templates = [
+      makeTemplate(),
+      makeTemplate({ _id: "tmpl-2", type: "workout" }),
+    ];
     ChallengeTemplate.find.mockReturnValue(makeSortLeanQuery(templates));
 
     const result = await getTemplates();
@@ -106,9 +106,7 @@ describe("createTemplate", () => {
   });
 
   it("throws 400 when required fields are missing", async () => {
-    await expect(
-      createTemplate({ type: "quiz" }),
-    ).rejects.toMatchObject({
+    await expect(createTemplate({ type: "quiz" })).rejects.toMatchObject({
       statusCode: 400,
       message: "Podaci predloška nisu ispravni.",
     });
@@ -178,9 +176,9 @@ describe("publishTemplates", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("throws 400 when effectiveFromWeekStart is missing", async () => {
-    await expect(
-      publishTemplates({}),
-    ).rejects.toMatchObject({ statusCode: 400 });
+    await expect(publishTemplates({})).rejects.toMatchObject({
+      statusCode: 400,
+    });
   });
 
   it("throws 400 when target week is current or past", async () => {
@@ -207,7 +205,12 @@ describe("publishTemplates", () => {
 
     const templates = [
       makeTemplate({ _id: "t1", type: "quiz" }),
-      makeTemplate({ _id: "t2", type: "workout", targetCount: 2, xpReward: 150 }),
+      makeTemplate({
+        _id: "t2",
+        type: "workout",
+        targetCount: 2,
+        xpReward: 150,
+      }),
     ];
 
     ChallengeTemplate.find

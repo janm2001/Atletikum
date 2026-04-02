@@ -290,7 +290,9 @@ describe("articleService", () => {
       file,
     });
 
-    expect(uploadArticleCoverImage).toHaveBeenCalledWith({ filePath: file.path });
+    expect(uploadArticleCoverImage).toHaveBeenCalledWith({
+      filePath: file.path,
+    });
     expect(Article.create).toHaveBeenCalledWith(
       expect.objectContaining({
         coverImage:

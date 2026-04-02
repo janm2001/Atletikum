@@ -229,7 +229,9 @@ describe("workoutLogService", () => {
         _id: "workout-1",
         title: "Power Session",
         requiredLevel: 2,
-        exercises: [{ exerciseId: "exercise-1", reps: "6", sets: 2, baseXp: 40 }],
+        exercises: [
+          { exerciseId: "exercise-1", reps: "6", sets: 2, baseXp: 40 },
+        ],
       }),
     });
     WorkoutLog.findOne.mockReturnValue(makeLeanQuery(existingLog));
@@ -238,7 +240,9 @@ describe("workoutLogService", () => {
       user: { _id: "user-1", level: 3, role: "user" },
       payload: {
         workoutId: "workout-1",
-        completedExercises: [{ exerciseId: "exercise-1", resultValue: 6, rpe: 7 }],
+        completedExercises: [
+          { exerciseId: "exercise-1", resultValue: 6, rpe: 7 },
+        ],
       },
       idempotencyKey: "same-key",
     });

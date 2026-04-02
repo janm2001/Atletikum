@@ -46,7 +46,10 @@ const { WorkoutLog } = require("../models/WorkoutLog");
 const { Workout } = require("../models/Workout");
 const { createWorkoutLog } = require("../services/workoutLogService");
 const { applyUserProgress } = require("../services/userProgressService");
-const { makeLeanQuery, makeSelectLeanQuery } = require("../testUtils/queryMocks");
+const {
+  makeLeanQuery,
+  makeSelectLeanQuery,
+} = require("../testUtils/queryMocks");
 
 describe("createWorkoutLog idempotency", () => {
   const user = { _id: "user-1", role: "user", level: 5 };
@@ -62,7 +65,9 @@ describe("createWorkoutLog idempotency", () => {
         _id: "workout-1",
         title: "Test Workout",
         requiredLevel: 1,
-        exercises: [{ exerciseId: "exercise-1", sets: 1, reps: "8", baseXp: 10 }],
+        exercises: [
+          { exerciseId: "exercise-1", sets: 1, reps: "8", baseXp: 10 },
+        ],
       }),
     });
     WorkoutLog.exists.mockResolvedValue(null);
