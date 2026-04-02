@@ -7,6 +7,7 @@ import {
     getWorkoutLogs,
 } from "@/api/workoutLogs";
 import { keys } from "@/lib/query-keys";
+import { invalidateQueryKeys } from "@/lib/query-invalidation";
 import type {
     WorkoutLog,
     WorkoutLogPayload,
@@ -39,28 +40,16 @@ export function useCreateWorkoutLog() {
 
     return useMutation<CreateWorkoutLogResult, Error, CreateWorkoutLogParams>({
         mutationFn: createWorkoutLog,
-        onSuccess: ({ workoutLog }) => {
-            queryClient.invalidateQueries({
-                queryKey: keys.workoutLogs.list(),
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.challenges.weekly(),
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.workoutLogs.latest(workoutLog.workoutId),
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.dailyProgress.current(),
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.weeklyPlan.current(),
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.leaderboard.all,
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.gamification.status(),
-            });
+        onSuccess: async ({ workoutLog }) => {
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.workoutLogs.list() },
+                { queryKey: keys.challenges.weekly() },
+                { queryKey: keys.workoutLogs.latest(workoutLog.workoutId) },
+                { queryKey: keys.dailyProgress.current() },
+                { queryKey: keys.weeklyPlan.current() },
+                { queryKey: keys.leaderboard.all },
+                { queryKey: keys.gamification.status() },
+            ]);
         },
     });
 }

@@ -7,6 +7,7 @@ import {
 } from "@/api/adminChallenges";
 import type { UpdateTemplatePayload } from "@/types/Challenge/challenge";
 import { keys } from "@/lib/query-keys";
+import { invalidateQueryKeys } from "@/lib/query-invalidation";
 
 export type {
     ChallengeTemplate,
@@ -27,10 +28,10 @@ export const useCreateChallengeTemplate = () => {
 
     return useMutation({
         mutationFn: createChallengeTemplate,
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: keys.adminChallenges.all,
-            });
+        onSuccess: async () => {
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.adminChallenges.all },
+            ]);
         },
     });
 };
@@ -46,10 +47,10 @@ export const useUpdateChallengeTemplate = () => {
             templateId: string;
             payload: UpdateTemplatePayload;
         }) => updateChallengeTemplate(templateId, payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: keys.adminChallenges.all,
-            });
+        onSuccess: async () => {
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.adminChallenges.all },
+            ]);
         },
     });
 };
@@ -59,13 +60,11 @@ export const usePublishChallengeTemplates = () => {
 
     return useMutation({
         mutationFn: publishChallengeTemplates,
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: keys.adminChallenges.all,
-            });
-            queryClient.invalidateQueries({
-                queryKey: keys.challenges.all,
-            });
+        onSuccess: async () => {
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.adminChallenges.all },
+                { queryKey: keys.challenges.all },
+            ]);
         },
     });
 };
