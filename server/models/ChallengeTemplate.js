@@ -1,10 +1,13 @@
 const mongoose = require("mongoose");
+const {
+  VALID_CHALLENGE_TEMPLATE_TYPES,
+} = require("../constants/challengeTypes");
 
 const challengeTemplateSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["quiz", "workout", "reading", "custom"],
+      enum: VALID_CHALLENGE_TEMPLATE_TYPES,
       required: true,
     },
     targetCount: {

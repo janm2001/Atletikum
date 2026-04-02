@@ -3,23 +3,9 @@ const MuscleGroup = require("../enums/MuscleGroup.enum");
 const {
   validateNumberInRange,
   validateObjectId,
+  validateOptionalString,
+  validateRequiredString,
 } = require("../utils/validationHelpers");
-
-const validateRequiredString = (value, fieldLabel) => {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new AppError(`${fieldLabel} je obavezno polje.`, 400);
-  }
-};
-
-const validateOptionalString = (value, fieldLabel) => {
-  if (value === undefined) {
-    return;
-  }
-
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new AppError(`${fieldLabel} mora biti tekst.`, 400);
-  }
-};
 
 const validateMuscleGroup = (value) => {
   if (!Object.values(MuscleGroup).includes(value)) {
