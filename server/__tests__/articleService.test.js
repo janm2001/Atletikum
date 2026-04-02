@@ -42,21 +42,12 @@ const {
   isCloudinaryStorageEnabled,
   uploadArticleCoverImage,
 } = require("../utils/cloudinaryUploads");
+const {
+  makeLeanQuery,
+  makeSelectLeanQuery,
+  makeSelectSortLimitLeanQuery,
+} = require("../testUtils/queryMocks");
 const articleService = require("../services/articleService");
-
-const createLeanQuery = (value) => ({
-  lean: jest.fn().mockResolvedValue(value),
-});
-const createArticleQuery = (value) => ({
-  select: jest.fn().mockReturnValue({
-    sort: jest.fn().mockReturnValue({
-      limit: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue(value),
-      }),
-      lean: jest.fn().mockResolvedValue(value),
-    }),
-  }),
-});
 
 describe("articleService", () => {
   beforeEach(() => {
@@ -64,11 +55,7 @@ describe("articleService", () => {
   });
 
   it("returns empty saved articles when user has no bookmarks", async () => {
-    ArticleBookmark.find.mockReturnValue({
-      select: jest
-        .fn()
-        .mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
-    });
+    ArticleBookmark.find.mockReturnValue(makeSelectLeanQuery([]));
 
     const result = await articleService.getAllArticles({
       userId: "user-1",
@@ -81,7 +68,7 @@ describe("articleService", () => {
 
   it("normalizes bookmark state when toggling a bookmark", async () => {
     ArticleBookmark.findOneAndUpdate.mockReturnValue(
-      createLeanQuery({
+      makeLeanQuery({
         isBookmarked: true,
         progressPercent: 25,
         isCompleted: false,
@@ -106,7 +93,7 @@ describe("articleService", () => {
 
   it("hydrates related exercises on article detail", async () => {
     Article.findById.mockReturnValue(
-      createLeanQuery({
+      makeLeanQuery({
         _id: "article-1",
         title: "Article",
         summary: "Summary",
@@ -116,10 +103,10 @@ describe("articleService", () => {
         relatedExerciseIds: ["exercise-2", "exercise-1"],
       }),
     );
-    Article.find.mockReturnValue(createArticleQuery([]));
-    ArticleBookmark.find.mockReturnValue(createLeanQuery([]));
+    Article.find.mockReturnValue(makeSelectSortLimitLeanQuery([]));
+    ArticleBookmark.find.mockReturnValue(makeLeanQuery([]));
     Exercise.find.mockReturnValue(
-      createLeanQuery([
+      makeLeanQuery([
         { _id: "exercise-1", title: "Sprint A" },
         { _id: "exercise-2", title: "Sprint B" },
       ]),

@@ -46,6 +46,7 @@ const { WorkoutLog } = require("../models/WorkoutLog");
 const { Workout } = require("../models/Workout");
 const { createWorkoutLog } = require("../services/workoutLogService");
 const { applyUserProgress } = require("../services/userProgressService");
+const { makeLeanQuery, makeSelectLeanQuery } = require("../testUtils/queryMocks");
 
 describe("createWorkoutLog idempotency", () => {
   const user = { _id: "user-1", role: "user", level: 5 };
@@ -65,11 +66,7 @@ describe("createWorkoutLog idempotency", () => {
       }),
     });
     WorkoutLog.exists.mockResolvedValue(null);
-    WorkoutLog.find.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue([]),
-      }),
-    });
+    WorkoutLog.find.mockReturnValue(makeSelectLeanQuery([]));
     WorkoutLog.create.mockResolvedValue({ _id: "log-1" });
     applyUserProgress.mockResolvedValue({
       user: { _id: "user-1", totalXp: 540, level: 5 },
@@ -86,9 +83,7 @@ describe("createWorkoutLog idempotency", () => {
       totalXpGained: 40,
     };
 
-    WorkoutLog.findOne.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(existingLog),
-    });
+    WorkoutLog.findOne.mockReturnValue(makeLeanQuery(existingLog));
 
     const result = await createWorkoutLog({
       user,
@@ -104,9 +99,7 @@ describe("createWorkoutLog idempotency", () => {
   });
 
   it("creates a new log when idempotency key differs", async () => {
-    WorkoutLog.findOne.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(null),
-    });
+    WorkoutLog.findOne.mockReturnValue(makeLeanQuery(null));
 
     await createWorkoutLog({
       user,
