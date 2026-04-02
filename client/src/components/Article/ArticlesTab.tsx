@@ -182,14 +182,28 @@ const ArticlesTab = () => {
         const formData = new FormData();
         formData.append("thumbnail", thumbnailFile);
 
-        const stringFields = ["title", "tag", "summary", "content", "sourceUrl", "sourceTitle", "author"] as const;
+        const stringFields = [
+          "title",
+          "tag",
+          "summary",
+          "content",
+          "sourceUrl",
+          "sourceTitle",
+          "author",
+        ] as const;
         for (const key of stringFields) {
           if (normalizedData[key]) formData.append(key, normalizedData[key]);
         }
 
-        const arrayFields = ["actionSummary", "relatedArticleIds", "relatedExerciseIds", "quiz"] as const;
+        const arrayFields = [
+          "actionSummary",
+          "relatedArticleIds",
+          "relatedExerciseIds",
+          "quiz",
+        ] as const;
         for (const key of arrayFields) {
-          if (normalizedData[key]?.length) formData.append(key, JSON.stringify(normalizedData[key]));
+          if (normalizedData[key]?.length)
+            formData.append(key, JSON.stringify(normalizedData[key]));
         }
 
         if (editingArticleId) {

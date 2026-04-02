@@ -117,18 +117,18 @@ const WorkoutTab = () => {
         message: t("admin.workouts.saveSuccess"),
       });
     } catch (error: unknown) {
-      handleActionError(error, t('admin.workouts.saveError'));
+      handleActionError(error, t("admin.workouts.saveError"));
     }
   };
 
   if (isLoading) return <SpinnerComponent />;
-  if (error) return <Text c="red">{t('admin.workouts.loadError')}</Text>;
+  if (error) return <Text c="red">{t("admin.workouts.loadError")}</Text>;
 
   return (
     <>
       <Group justify="flex-end" mb="md">
         <Button leftSection={<IconPlus size={16} />} onClick={handleOpenCreate}>
-          {t('admin.workouts.add')}
+          {t("admin.workouts.add")}
         </Button>
       </Group>
 
@@ -149,7 +149,11 @@ const WorkoutTab = () => {
       <WorkoutFormModal
         opened={isFormOpen}
         onClose={closeForm}
-        title={editingWorkoutId ? t('admin.workouts.editTitle') : t('admin.workouts.addTitle')}
+        title={
+          editingWorkoutId
+            ? t("admin.workouts.editTitle")
+            : t("admin.workouts.addTitle")
+        }
         actionError={actionError}
         initialValues={formValues}
         loading={createMutation.isPending || updateMutation.isPending}

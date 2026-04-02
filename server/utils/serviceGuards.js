@@ -10,7 +10,10 @@ const ensureResourceExists = (resource, notFoundMessage) => {
 
 const ensureAdminOrOwner = ({ ownerId, userId, userRole, message }) => {
   const isAdmin = userRole === "admin";
-  const isOwner = ownerId !== null && ownerId !== undefined && String(ownerId) === String(userId);
+  const isOwner =
+    ownerId !== null &&
+    ownerId !== undefined &&
+    String(ownerId) === String(userId);
 
   if (!isAdmin && !isOwner) {
     throw new AppError(message, 403);

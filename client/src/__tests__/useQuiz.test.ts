@@ -95,7 +95,7 @@ describe("useSubmitQuiz", () => {
       const existingCompletions = ["article-1"];
       expect(completionsUpdater?.(existingCompletions)).toBe(existingCompletions);
 
-      expect(invalidateQueries).toHaveBeenCalledTimes(4);
+      expect(invalidateQueries).toHaveBeenCalledTimes(5);
       expect(invalidateQueries).toHaveBeenNthCalledWith(1, {
         queryKey: keys.quiz.status("article-1"),
       });
@@ -107,6 +107,9 @@ describe("useSubmitQuiz", () => {
       });
       expect(invalidateQueries).toHaveBeenNthCalledWith(4, {
         queryKey: keys.gamification.status(),
+      });
+      expect(invalidateQueries).toHaveBeenNthCalledWith(5, {
+        queryKey: keys.leaderboard.all,
       });
     },
   );

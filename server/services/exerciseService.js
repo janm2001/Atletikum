@@ -1,18 +1,15 @@
-const AppError = require("../utils/AppError");
 const { Exercise } = require("../models/Exercise");
+const { ensureResourceExists } = require("../utils/serviceGuards");
 
 const getAllExercises = async () => {
   return Exercise.find().sort({ createdAt: -1 }).lean();
 };
 
 const getExerciseById = async (exerciseId) => {
-  const exercise = await Exercise.findById(exerciseId).lean();
-
-  if (!exercise) {
-    throw new AppError("Exercise not found", 404);
-  }
-
-  return exercise;
+  return ensureResourceExists(
+    await Exercise.findById(exerciseId).lean(),
+    "Exercise not found",
+  );
 };
 
 const createExercise = async (payload) => {
@@ -20,24 +17,20 @@ const createExercise = async (payload) => {
 };
 
 const updateExercise = async (exerciseId, payload) => {
-  const exercise = await Exercise.findByIdAndUpdate(exerciseId, payload, {
-    returnDocument: "after",
-    runValidators: true,
-  });
-
-  if (!exercise) {
-    throw new AppError("Exercise not found", 404);
-  }
-
-  return exercise;
+  return ensureResourceExists(
+    await Exercise.findByIdAndUpdate(exerciseId, payload, {
+      returnDocument: "after",
+      runValidators: true,
+    }),
+    "Exercise not found",
+  );
 };
 
 const deleteExercise = async (exerciseId) => {
-  const exercise = await Exercise.findByIdAndDelete(exerciseId);
-
-  if (!exercise) {
-    throw new AppError("Exercise not found", 404);
-  }
+  ensureResourceExists(
+    await Exercise.findByIdAndDelete(exerciseId),
+    "Exercise not found",
+  );
 };
 
 module.exports = {

@@ -104,32 +104,38 @@ const Workouts = () => {
     clearActionError();
   };
 
-  const handleOpenEdit = useCallback((workout: Workout) => {
-    openEditForm(workout._id);
-    setFormValues({
-      title: workout.title,
-      description: workout.description,
-      requiredLevel: workout.requiredLevel,
-      tags: workout.tags ?? [],
-      exercises: workout.exercises.map((exercise) => ({
-        exerciseId: getExerciseId(exercise.exerciseId),
-        sets: exercise.sets,
-        reps: exercise.reps,
-        rpe: exercise.rpe ?? "",
-        baseXp: 20,
-        progression: {
-          enabled: Boolean(exercise.progression?.enabled),
-          initialWeightKg: exercise.progression?.initialWeightKg ?? null,
-          incrementKg: exercise.progression?.incrementKg ?? 2.5,
-        },
-      })),
-    });
-    clearActionError();
-  }, [clearActionError, openEditForm]);
+  const handleOpenEdit = useCallback(
+    (workout: Workout) => {
+      openEditForm(workout._id);
+      setFormValues({
+        title: workout.title,
+        description: workout.description,
+        requiredLevel: workout.requiredLevel,
+        tags: workout.tags ?? [],
+        exercises: workout.exercises.map((exercise) => ({
+          exerciseId: getExerciseId(exercise.exerciseId),
+          sets: exercise.sets,
+          reps: exercise.reps,
+          rpe: exercise.rpe ?? "",
+          baseXp: 20,
+          progression: {
+            enabled: Boolean(exercise.progression?.enabled),
+            initialWeightKg: exercise.progression?.initialWeightKg ?? null,
+            incrementKg: exercise.progression?.incrementKg ?? 2.5,
+          },
+        })),
+      });
+      clearActionError();
+    },
+    [clearActionError, openEditForm],
+  );
 
-  const handleDeleteClick = useCallback((id: string) => {
-    requestDelete(id);
-  }, [requestDelete]);
+  const handleDeleteClick = useCallback(
+    (id: string) => {
+      requestDelete(id);
+    },
+    [requestDelete],
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingWorkoutId) return;

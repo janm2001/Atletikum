@@ -1,5 +1,9 @@
 const AppError = require("../utils/AppError");
 const { requireUserId } = require("../utils/userIdentity");
+const {
+  ensureAdminOrOwner,
+  ensureResourceExists,
+} = require("../utils/serviceGuards");
 const { Workout } = require("../models/Workout");
 const {
   attachWorkoutProgressions,
@@ -41,13 +45,12 @@ const ensureValidWorkoutProgressionConfig = (payload = {}) => {
 };
 
 const ensureCanManageWorkout = ({ workout, userId, userRole }) => {
-  const isAdmin = userRole === "admin";
-  const createdBy = workout.createdBy ? String(workout.createdBy) : null;
-  const isOwner = createdBy && createdBy === userId;
-
-  if (!isAdmin && !isOwner) {
-    throw new AppError("Nemate dozvolu za upravljanje ovim treningom.", 403);
-  }
+  ensureAdminOrOwner({
+    ownerId: workout.createdBy,
+    userId,
+    userRole,
+    message: "Nemate dozvolu za upravljanje ovim treningom.",
+  });
 };
 
 const buildWorkoutFilter = ({ userId, userRole, scope = "available" }) => {
@@ -102,10 +105,7 @@ const getWorkoutById = async ({ workoutId, user, userId }) => {
   const workout = await Workout.findById(workoutId).populate(
     ...workoutListPopulate,
   );
-
-  if (!workout) {
-    throw new AppError("Workout not found", 404);
-  }
+  ensureResourceExists(workout, "Workout not found");
 
   const createdBy = workout.createdBy ? String(workout.createdBy) : null;
   const isGlobal = createdBy === null;
@@ -147,10 +147,7 @@ const updateWorkout = async ({ workoutId, payload, user, userId }) => {
   const normalizedUserId = requireUserId({ userId, user });
   ensureValidWorkoutProgressionConfig(payload);
   const existingWorkout = await Workout.findById(workoutId);
-
-  if (!existingWorkout) {
-    throw new AppError("Workout not found", 404);
-  }
+  ensureResourceExists(existingWorkout, "Workout not found");
 
   ensureCanManageWorkout({
     workout: existingWorkout,
@@ -183,10 +180,7 @@ const updateWorkout = async ({ workoutId, payload, user, userId }) => {
 const deleteWorkout = async ({ workoutId, user, userId }) => {
   const normalizedUserId = requireUserId({ userId, user });
   const workout = await Workout.findById(workoutId);
-
-  if (!workout) {
-    throw new AppError("Workout not found", 404);
-  }
+  ensureResourceExists(workout, "Workout not found");
 
   ensureCanManageWorkout({
     workout,

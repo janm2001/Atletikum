@@ -21,6 +21,10 @@ const {
   getNextAvailableDaySlot,
 } = require("./dailyLimitService");
 const { getIsoWeekDay } = require("../utils/dateUtils");
+const {
+  ensureAdminOrOwner,
+  ensureResourceExists,
+} = require("../utils/serviceGuards");
 
 const DUPLICATE_WINDOW_MS = 60 * 1000;
 
@@ -66,9 +70,7 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
       Workout.findById(workoutId).lean(),
       session,
     );
-    if (!workoutDoc) {
-      throw new AppError("Workout nije pronađen.", 404);
-    }
+    ensureResourceExists(workoutDoc, "Workout nije pronađen.");
 
     if (idempotencyKey) {
       const existingLog = await attachSession(
@@ -119,13 +121,17 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
       session,
     });
 
-    const createdBy = workoutDoc.createdBy ? String(workoutDoc.createdBy) : null;
+    const createdBy = workoutDoc.createdBy
+      ? String(workoutDoc.createdBy)
+      : null;
     const isGlobal = createdBy === null;
-    const isOwner = createdBy === normalizedUserId;
-    const isAdmin = user.role === "admin";
-
-    if (!isGlobal && !isOwner && !isAdmin) {
-      throw new AppError("Workout nije pronađen.", 404);
+    if (!isGlobal) {
+      ensureAdminOrOwner({
+        ownerId: createdBy,
+        userId: normalizedUserId,
+        userRole: user.role,
+        message: "Workout nije pronađen.",
+      });
     }
 
     if (isGlobal && (user.level ?? 1) < (workoutDoc.requiredLevel ?? 1)) {
@@ -205,9 +211,16 @@ const createWorkoutLog = async ({ user, userId, payload, idempotencyKey }) => {
       description: `Workout: ${workoutDoc.title}`,
     });
 
-    await updateChallengeProgress({ userId: normalizedUserId, type: "workout", session });
+    await updateChallengeProgress({
+      userId: normalizedUserId,
+      type: "workout",
+      session,
+    });
 
-    await markDayComplete({ userId: normalizedUserId, day: getIsoWeekDay(new Date()) }).catch(() => {});
+    await markDayComplete({
+      userId: normalizedUserId,
+      day: getIsoWeekDay(new Date()),
+    }).catch(() => {});
 
     return {
       workoutLog,
