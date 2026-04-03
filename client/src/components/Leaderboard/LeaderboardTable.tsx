@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { IconFlame } from "@tabler/icons-react";
 import type { LeaderboardUser } from "@/hooks/useLeaderboard";
 import LeaderboardUserProfile from "./LeaderboardUserProfile";
+import LevelBadge from "@/components/Common/LevelBadge";
 
 const PAGE_SIZE = 10;
 
@@ -86,9 +87,7 @@ const LeaderboardTable = ({
                     />
                     <Box hiddenFrom="sm" mt={2}>
                       <Group gap={4}>
-                        <Badge variant="light" color="violet" size="xs">
-                          {t("common.levelBadge", { level: entry.level })}
-                        </Badge>
+                        <LevelBadge level={entry.level} size="xs" />
                         {entry.dailyStreak > 0 && (
                           <Badge
                             variant="light"

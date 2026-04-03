@@ -71,9 +71,7 @@ const WeeklyChallengeLeaderboard = () => {
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs">
-                        <Avatar src={entry.profilePicture} size={32} radius="xl">
-                          {entry.username.charAt(0).toUpperCase()}
-                        </Avatar>
+                        <Avatar src={entry.profilePicture} size={32} radius="xl" name={entry.username} />
                         <Text size="sm">
                           {entry.username}
                           {isMe && (

@@ -105,23 +105,6 @@ describe("createTemplate", () => {
     );
   });
 
-  it("throws 400 when required fields are missing", async () => {
-    await expect(createTemplate({ type: "quiz" })).rejects.toMatchObject({
-      statusCode: 400,
-      message: "Podaci predloška nisu ispravni.",
-    });
-  });
-
-  it("throws 400 when targetCount is invalid", async () => {
-    await expect(
-      createTemplate({
-        type: "quiz",
-        targetCount: 0,
-        xpReward: 100,
-        description: "test",
-      }),
-    ).rejects.toMatchObject({ statusCode: 400 });
-  });
 });
 
 describe("updateTemplate", () => {

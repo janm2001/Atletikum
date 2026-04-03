@@ -3,6 +3,7 @@ import { IconTrophy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { CelebrationPersonalBest } from "@/types/Celebration/celebration";
 import { formatCompletedExerciseResult } from "@/types/WorkoutLog/workoutLog";
+import CelebrationItemCard from "./CelebrationItemCard";
 
 interface CelebrationPersonalBestsCardProps {
   personalBests: CelebrationPersonalBest[];
@@ -24,33 +25,25 @@ const CelebrationPersonalBestsCard = ({
         </Group>
 
         {personalBests.map((personalBest, index) => (
-          <Card
+          <CelebrationItemCard
             key={`${personalBest.exerciseId}-${index}`}
-            withBorder
-            radius="md"
-            p="md"
-            w="100%"
-            style={{
-              borderColor: "var(--mantine-color-orange-5)",
-              backgroundColor: "var(--mantine-color-orange-light)",
-            }}
+            accentColor="orange"
+            align="center"
           >
-            <Group justify="space-between" align="center">
-              <div>
-                <Text fw={700}>
-                  {personalBest.exerciseName ??
-                    t("training.logs.unknownExercise")}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {formatCompletedExerciseResult(personalBest)} ·{" "}
-                  {t("common.rpeLabel", { value: personalBest.rpe })}
-                </Text>
-              </div>
-              <Badge color="orange" variant="light">
-                {t("training.logs.newPR")}
-              </Badge>
-            </Group>
-          </Card>
+            <div>
+              <Text fw={700}>
+                {personalBest.exerciseName ??
+                  t("training.logs.unknownExercise")}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {formatCompletedExerciseResult(personalBest)} ·{" "}
+                {t("common.rpeLabel", { value: personalBest.rpe })}
+              </Text>
+            </div>
+            <Badge color="orange" variant="light">
+              {t("training.logs.newPR")}
+            </Badge>
+          </CelebrationItemCard>
         ))}
       </Stack>
     </Card>

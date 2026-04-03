@@ -13,6 +13,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import LevelBadge from "@/components/Common/LevelBadge";
 import type { Workout } from "@/types/Workout/workout";
 import {
   getExerciseName,
@@ -106,13 +107,11 @@ const WorkoutCard = ({ workout, onDelete, onEdit }: WorkoutCardProps) => {
               {t("training.workouts.customWorkout")}
             </Badge>
           ) : (
-            <Badge
-              variant="light"
+            <LevelBadge
+              level={workout.requiredLevel}
               color={isLocked ? "red" : "violet"}
               className={classes.shrink0}
-            >
-              {t('common.levelBadge', { level: workout.requiredLevel })}
-            </Badge>
+            />
           )}
         </Group>
 

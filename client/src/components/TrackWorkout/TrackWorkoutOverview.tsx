@@ -1,6 +1,7 @@
-import { Badge, Box, Group, Progress, Text, Title } from "@mantine/core";
+import { Box, Group, Progress, Text, Title } from "@mantine/core";
 import type { Workout } from "@/types/Workout/workout";
 import { useTranslation } from "react-i18next";
+import LevelBadge from "@/components/Common/LevelBadge";
 
 type TrackWorkoutOverviewProps = {
   workout: Workout;
@@ -27,9 +28,7 @@ const TrackWorkoutOverview = ({
             {workout.description}
           </Text>
         </Box>
-        <Badge color="violet" variant="light" style={{ flexShrink: 0 }}>
-          {t('common.levelBadge', { level: workout.requiredLevel })}
-        </Badge>
+        <LevelBadge level={workout.requiredLevel} style={{ flexShrink: 0 }} />
       </Group>
 
       <Box>
