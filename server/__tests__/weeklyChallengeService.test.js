@@ -48,12 +48,11 @@ const {
   getChallengeHistory,
   getWeeklyLeaderboard,
 } = require("../services/weeklyChallengeService");
+const { makeLeanQuery } = require("../testUtils/queryMocks");
 
 const MONDAY = new Date("2026-03-16T10:00:00.000Z");
 const WEDNESDAY = new Date("2026-03-18T10:00:00.000Z");
 const SUNDAY = new Date("2026-03-22T23:59:59.999Z");
-
-const makeLean = (value) => ({ lean: jest.fn().mockResolvedValue(value) });
 
 const makeChallenges = () => [
   {
@@ -125,7 +124,7 @@ describe("getOrCreateWeeklyChallenges", () => {
 
   it("returns existing challenges when all 3 already exist for the week", async () => {
     const existing = makeChallenges();
-    WeeklyChallenge.find.mockReturnValue(makeLean(existing));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(existing));
 
     const result = await getOrCreateWeeklyChallenges(WEDNESDAY);
 
@@ -136,8 +135,8 @@ describe("getOrCreateWeeklyChallenges", () => {
 
   it("inserts missing challenges when none exist yet", async () => {
     WeeklyChallenge.find
-      .mockReturnValueOnce(makeLean([]))
-      .mockReturnValueOnce(makeLean(makeChallenges()));
+      .mockReturnValueOnce(makeLeanQuery([]))
+      .mockReturnValueOnce(makeLeanQuery(makeChallenges()));
 
     WeeklyChallenge.insertMany.mockResolvedValue([]);
 
@@ -157,8 +156,8 @@ describe("getOrCreateWeeklyChallenges", () => {
   it("inserts only missing challenge types when some already exist", async () => {
     const existingQuiz = [makeChallenges()[0]];
     WeeklyChallenge.find
-      .mockReturnValueOnce(makeLean(existingQuiz))
-      .mockReturnValueOnce(makeLean(makeChallenges()));
+      .mockReturnValueOnce(makeLeanQuery(existingQuiz))
+      .mockReturnValueOnce(makeLeanQuery(makeChallenges()));
 
     WeeklyChallenge.insertMany.mockResolvedValue([]);
 
@@ -179,8 +178,8 @@ describe("getUserChallengeStatus", () => {
   });
 
   it("returns challenges with zero progress when no progress docs exist", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
-    UserChallengeProgress.find.mockReturnValue(makeLean([]));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
+    UserChallengeProgress.find.mockReturnValue(makeLeanQuery([]));
 
     const result = await getUserChallengeStatus({
       userId: "user-1",
@@ -197,9 +196,9 @@ describe("getUserChallengeStatus", () => {
   });
 
   it("merges user progress into challenge data correctly", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
     UserChallengeProgress.find.mockReturnValue(
-      makeLean([
+      makeLeanQuery([
         {
           challengeId: "ch-quiz",
           currentCount: 2,
@@ -236,8 +235,8 @@ describe("getUserChallengeStatus", () => {
   });
 
   it("includes weekEnd on each challenge", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
-    UserChallengeProgress.find.mockReturnValue(makeLean([]));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
+    UserChallengeProgress.find.mockReturnValue(makeLeanQuery([]));
 
     const result = await getUserChallengeStatus({
       userId: "user-1",
@@ -256,7 +255,7 @@ describe("updateChallengeProgress", () => {
   });
 
   it("increments currentCount when challenge is not yet complete", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
     UserChallengeProgress.findOneAndUpdate.mockResolvedValue({
       _id: "progress-1",
       currentCount: 1,
@@ -275,7 +274,7 @@ describe("updateChallengeProgress", () => {
   });
 
   it("marks challenge completed but does NOT award XP when target is reached", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
     UserChallengeProgress.findOneAndUpdate
       .mockResolvedValueOnce({
         _id: "progress-1",
@@ -297,7 +296,7 @@ describe("updateChallengeProgress", () => {
   });
 
   it("does nothing when progress doc returns null (already completed)", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
     UserChallengeProgress.findOneAndUpdate.mockResolvedValue(null);
 
     await updateChallengeProgress({ userId: "user-1", type: "quiz" });
@@ -306,7 +305,7 @@ describe("updateChallengeProgress", () => {
   });
 
   it("does nothing when challenge type is not found", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean([]));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery([]));
 
     await updateChallengeProgress({ userId: "user-1", type: "quiz" });
 
@@ -331,7 +330,7 @@ describe("claimChallengeReward", () => {
 
   it("throws 404 when challenge is not found for current week", async () => {
     const objectId = "507f1f77bcf86cd799439011";
-    WeeklyChallenge.findOne.mockReturnValue(makeLean(null));
+    WeeklyChallenge.findOne.mockReturnValue(makeLeanQuery(null));
 
     await expect(
       claimChallengeReward({ userId: "user-1", challengeId: objectId }),
@@ -344,10 +343,20 @@ describe("claimChallengeReward", () => {
   it("throws 409 when challenge is not completed", async () => {
     const objectId = "507f1f77bcf86cd799439011";
     WeeklyChallenge.findOne.mockReturnValue(
-      makeLean({ _id: objectId, type: "quiz", xpReward: 100, weekStart: new Date() }),
+      makeLeanQuery({
+        _id: objectId,
+        type: "quiz",
+        xpReward: 100,
+        weekStart: new Date(),
+      }),
     );
     UserChallengeProgress.findOne.mockReturnValue(
-      makeLean({ userId: "user-1", challengeId: objectId, completed: false, claimed: false }),
+      makeLeanQuery({
+        userId: "user-1",
+        challengeId: objectId,
+        completed: false,
+        claimed: false,
+      }),
     );
 
     await expect(
@@ -361,10 +370,15 @@ describe("claimChallengeReward", () => {
   it("returns idempotent response when already claimed", async () => {
     const objectId = "507f1f77bcf86cd799439011";
     WeeklyChallenge.findOne.mockReturnValue(
-      makeLean({ _id: objectId, type: "quiz", xpReward: 100, weekStart: new Date() }),
+      makeLeanQuery({
+        _id: objectId,
+        type: "quiz",
+        xpReward: 100,
+        weekStart: new Date(),
+      }),
     );
     UserChallengeProgress.findOne.mockReturnValue(
-      makeLean({
+      makeLeanQuery({
         userId: "user-1",
         challengeId: objectId,
         completed: true,
@@ -394,7 +408,7 @@ describe("claimChallengeReward", () => {
   it("awards XP and returns celebration data on first claim", async () => {
     const objectId = "507f1f77bcf86cd799439011";
     WeeklyChallenge.findOne.mockReturnValue(
-      makeLean({
+      makeLeanQuery({
         _id: objectId,
         type: "quiz",
         xpReward: 100,
@@ -402,7 +416,7 @@ describe("claimChallengeReward", () => {
       }),
     );
     UserChallengeProgress.findOne.mockReturnValue(
-      makeLean({
+      makeLeanQuery({
         _id: "prog-1",
         userId: "user-1",
         challengeId: objectId,
@@ -434,7 +448,7 @@ describe("claimChallengeReward", () => {
     });
 
     // For the all-challenges bonus check
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
     UserChallengeProgress.find.mockReturnValue({
       session: jest.fn().mockReturnValue({
         lean: jest.fn().mockResolvedValue([
@@ -468,9 +482,14 @@ describe("claimChallengeReward", () => {
   it("throws 409 when no progress exists at all", async () => {
     const objectId = "507f1f77bcf86cd799439011";
     WeeklyChallenge.findOne.mockReturnValue(
-      makeLean({ _id: objectId, type: "quiz", xpReward: 100, weekStart: new Date() }),
+      makeLeanQuery({
+        _id: objectId,
+        type: "quiz",
+        xpReward: 100,
+        weekStart: new Date(),
+      }),
     );
-    UserChallengeProgress.findOne.mockReturnValue(makeLean(null));
+    UserChallengeProgress.findOne.mockReturnValue(makeLeanQuery(null));
 
     await expect(
       claimChallengeReward({ userId: "user-1", challengeId: objectId }),
@@ -492,12 +511,54 @@ describe("getChallengeHistory", () => {
   const week2End = new Date("2026-03-15T23:59:59.999Z");
 
   const makeHistoryChallenges = () => [
-    { _id: "w1-quiz", type: "quiz", targetCount: 3, xpReward: 100, weekStart: week1Start, weekEnd: week1End },
-    { _id: "w1-workout", type: "workout", targetCount: 2, xpReward: 150, weekStart: week1Start, weekEnd: week1End },
-    { _id: "w1-reading", type: "reading", targetCount: 5, xpReward: 75, weekStart: week1Start, weekEnd: week1End },
-    { _id: "w2-quiz", type: "quiz", targetCount: 3, xpReward: 100, weekStart: week2Start, weekEnd: week2End },
-    { _id: "w2-workout", type: "workout", targetCount: 2, xpReward: 150, weekStart: week2Start, weekEnd: week2End },
-    { _id: "w2-reading", type: "reading", targetCount: 5, xpReward: 75, weekStart: week2Start, weekEnd: week2End },
+    {
+      _id: "w1-quiz",
+      type: "quiz",
+      targetCount: 3,
+      xpReward: 100,
+      weekStart: week1Start,
+      weekEnd: week1End,
+    },
+    {
+      _id: "w1-workout",
+      type: "workout",
+      targetCount: 2,
+      xpReward: 150,
+      weekStart: week1Start,
+      weekEnd: week1End,
+    },
+    {
+      _id: "w1-reading",
+      type: "reading",
+      targetCount: 5,
+      xpReward: 75,
+      weekStart: week1Start,
+      weekEnd: week1End,
+    },
+    {
+      _id: "w2-quiz",
+      type: "quiz",
+      targetCount: 3,
+      xpReward: 100,
+      weekStart: week2Start,
+      weekEnd: week2End,
+    },
+    {
+      _id: "w2-workout",
+      type: "workout",
+      targetCount: 2,
+      xpReward: 150,
+      weekStart: week2Start,
+      weekEnd: week2End,
+    },
+    {
+      _id: "w2-reading",
+      type: "reading",
+      targetCount: 5,
+      xpReward: 75,
+      weekStart: week2Start,
+      weekEnd: week2End,
+    },
   ];
 
   const makeSortLimitLean = (data) => ({
@@ -518,11 +579,25 @@ describe("getChallengeHistory", () => {
   });
 
   it("returns weekly history grouped by week with progress", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeSortLimitLean(makeHistoryChallenges()));
-    UserChallengeProgress.find.mockReturnValue(makeLean([
-      { challengeId: "w1-quiz", currentCount: 3, completed: true, claimed: true },
-      { challengeId: "w1-workout", currentCount: 1, completed: false, claimed: false },
-    ]));
+    WeeklyChallenge.find.mockReturnValue(
+      makeSortLimitLean(makeHistoryChallenges()),
+    );
+    UserChallengeProgress.find.mockReturnValue(
+      makeLeanQuery([
+        {
+          challengeId: "w1-quiz",
+          currentCount: 3,
+          completed: true,
+          claimed: true,
+        },
+        {
+          challengeId: "w1-workout",
+          currentCount: 1,
+          completed: false,
+          claimed: false,
+        },
+      ]),
+    );
 
     const result = await getChallengeHistory({ userId: "user-1" });
 
@@ -541,11 +616,28 @@ describe("getChallengeHistory", () => {
   it("calculates 100% completion when all challenges are completed", async () => {
     const allCompleted = makeHistoryChallenges().slice(0, 3);
     WeeklyChallenge.find.mockReturnValue(makeSortLimitLean(allCompleted));
-    UserChallengeProgress.find.mockReturnValue(makeLean([
-      { challengeId: "w1-quiz", currentCount: 3, completed: true, claimed: true },
-      { challengeId: "w1-workout", currentCount: 2, completed: true, claimed: true },
-      { challengeId: "w1-reading", currentCount: 5, completed: true, claimed: true },
-    ]));
+    UserChallengeProgress.find.mockReturnValue(
+      makeLeanQuery([
+        {
+          challengeId: "w1-quiz",
+          currentCount: 3,
+          completed: true,
+          claimed: true,
+        },
+        {
+          challengeId: "w1-workout",
+          currentCount: 2,
+          completed: true,
+          claimed: true,
+        },
+        {
+          challengeId: "w1-reading",
+          currentCount: 5,
+          completed: true,
+          claimed: true,
+        },
+      ]),
+    );
 
     const result = await getChallengeHistory({ userId: "user-1" });
 
@@ -559,7 +651,9 @@ describe("getChallengeHistory", () => {
 
     await getChallengeHistory({ userId: "user-1", limit: 50 });
 
-    const limitCall = WeeklyChallenge.find.mock.results[0].value.sort.mock.results[0].value.limit;
+    const limitCall =
+      WeeklyChallenge.find.mock.results[0].value.sort.mock.results[0].value
+        .limit;
     expect(limitCall).toHaveBeenCalledWith(expect.any(Number));
   });
 });
@@ -570,7 +664,7 @@ describe("getWeeklyLeaderboard", () => {
   });
 
   it("returns empty ranking when no challenges exist for the week", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean([]));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery([]));
 
     const result = await getWeeklyLeaderboard({ userId: "user-1" });
 
@@ -580,7 +674,7 @@ describe("getWeeklyLeaderboard", () => {
   });
 
   it("returns ranked users from aggregation pipeline", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
 
     UserChallengeProgress.aggregate.mockResolvedValue([
       {
@@ -603,7 +697,7 @@ describe("getWeeklyLeaderboard", () => {
       },
     ]);
 
-    UserChallengeProgress.find.mockReturnValue(makeLean([]));
+    UserChallengeProgress.find.mockReturnValue(makeLeanQuery([]));
 
     const result = await getWeeklyLeaderboard({ userId: "user-1" });
 
@@ -617,7 +711,7 @@ describe("getWeeklyLeaderboard", () => {
   });
 
   it("returns currentUser outside ranking when not in top results", async () => {
-    WeeklyChallenge.find.mockReturnValue(makeLean(makeChallenges()));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery(makeChallenges()));
 
     UserChallengeProgress.aggregate.mockResolvedValue([
       {
@@ -631,9 +725,9 @@ describe("getWeeklyLeaderboard", () => {
       },
     ]);
 
-    UserChallengeProgress.find.mockReturnValue(makeLean([
-      { challengeId: "ch-quiz", claimed: true },
-    ]));
+    UserChallengeProgress.find.mockReturnValue(
+      makeLeanQuery([{ challengeId: "ch-quiz", claimed: true }]),
+    );
 
     const result = await getWeeklyLeaderboard({ userId: "user-1" });
 

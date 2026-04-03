@@ -10,6 +10,7 @@ import {
     removeCachedEntity,
     replaceCachedEntity,
 } from '@/lib/query-cache';
+import { invalidateQueryKeys } from '@/lib/query-invalidation';
 import { keys } from '../lib/query-keys';
 import { type Exercise } from '../types/Exercise/exercise';
 import type { ExercisePayload } from '@/types/Exercise/exerciseApi';
@@ -35,10 +36,9 @@ export function useCreateExercise() {
     return useMutation<Exercise, Error, ExercisePayload>({
         mutationFn: createExercise,
         onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: keys.exercises.list(),
-                exact: true,
-            });
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.exercises.list(), exact: true },
+            ]);
         },
     });
 }
@@ -68,10 +68,9 @@ export function useDeleteExercise() {
                 keys.exercises.list(),
                 (exercises) => removeCachedEntity(exercises, exerciseId),
             );
-            await queryClient.invalidateQueries({
-                queryKey: keys.exercises.detail(exerciseId),
-                exact: true,
-            });
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.exercises.detail(exerciseId), exact: true },
+            ]);
         },
     });
 }

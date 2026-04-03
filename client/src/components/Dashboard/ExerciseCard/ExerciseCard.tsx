@@ -2,6 +2,7 @@ import { Badge, Button, Card, Group, Image, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import type { Exercise } from "../../../types/Exercise/exercise";
 import { getMuscleGroupLabel } from "../../../enums/muscleGroup";
+import LevelBadge from "@/components/Common/LevelBadge";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -25,9 +26,7 @@ const ExerciseCard = ({ exercise }: ExerciseCardProps) => {
       <Stack gap="xs" mt="sm">
         <Group justify="space-between" align="flex-start">
           <Text fw={700}>{exercise.title}</Text>
-          <Badge variant="light" color="violet">
-            {t('common.levelBadge', { level: exercise.level })}
-          </Badge>
+          <LevelBadge level={exercise.level} />
         </Group>
 
         <Badge variant="dot" color="gray" w="fit-content">

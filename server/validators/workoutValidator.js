@@ -3,24 +3,10 @@ const {
   validateNumberInRange,
   validateObjectId,
   validateOptionalNonNegativeNumber,
+  validateOptionalString,
   validatePositiveNumber,
+  validateRequiredString,
 } = require("../utils/validationHelpers");
-
-const validateOptionalString = (value, fieldLabel) => {
-  if (value === undefined) {
-    return;
-  }
-
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new AppError(`${fieldLabel} mora biti tekst.`, 400);
-  }
-};
-
-const validateRequiredString = (value, fieldLabel) => {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new AppError(`${fieldLabel} je obavezno polje.`, 400);
-  }
-};
 
 const validateProgression = (progression, index) => {
   if (progression === undefined) {

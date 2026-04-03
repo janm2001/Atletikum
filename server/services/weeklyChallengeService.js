@@ -6,6 +6,7 @@ const { applyUserProgress } = require("./userProgressService");
 const { getLevelFromTotalXp } = require("../utils/leveling");
 const { runInTransaction } = require("../utils/mongoTransaction");
 const AppError = require("../utils/AppError");
+const { ensureResourceExists } = require("../utils/serviceGuards");
 
 const CHALLENGE_TEMPLATES = [
   {
@@ -177,14 +178,13 @@ const claimChallengeReward = async ({ userId, challengeId }) => {
   const now = new Date();
   const weekStart = startOfIsoWeek(now);
 
-  const challenge = await WeeklyChallenge.findOne({
-    _id: challengeId,
-    weekStart,
-  }).lean();
-
-  if (!challenge) {
-    throw new AppError("Izazov nije pronađen za trenutni tjedan.", 404);
-  }
+  const challenge = ensureResourceExists(
+    await WeeklyChallenge.findOne({
+      _id: challengeId,
+      weekStart,
+    }).lean(),
+    "Izazov nije pronađen za trenutni tjedan.",
+  );
 
   const progress = await UserChallengeProgress.findOne({
     userId,

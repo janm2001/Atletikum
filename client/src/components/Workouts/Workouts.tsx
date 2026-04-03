@@ -34,6 +34,8 @@ import {
 import type { WorkoutFormValues } from "@/schema/workout.schema";
 import WorkoutFormModal from "./WorkoutFormModal";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
+import useActionFeedback from "@/hooks/useActionFeedback";
+import useCrudDialogState from "@/hooks/useCrudDialogState";
 import classes from "./Workouts.module.css";
 import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
 
@@ -50,12 +52,18 @@ const Workouts = () => {
   const { data, isLoading, error } = useWorkouts("available");
   const { user } = useUser();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [opened, setOpened] = useState(false);
-  const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
-  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(
-    null,
-  );
-  const [actionError, setActionError] = useState("");
+  const {
+    isFormOpen,
+    editingId: editingWorkoutId,
+    deletingId: deletingWorkoutId,
+    openCreateForm,
+    openEditForm,
+    closeForm,
+    requestDelete,
+    clearDelete,
+  } = useCrudDialogState();
+  const { actionError, clearActionError, handleActionError } =
+    useActionFeedback();
   const [formValues, setFormValues] = useState<WorkoutFormValues>(
     getDefaultFormValues(),
   );
@@ -91,50 +99,62 @@ const Workouts = () => {
   const isAtCustomLimit = myCustomWorkouts.length >= MAX_CUSTOM_WORKOUTS;
 
   const handleOpenCreate = () => {
-    setEditingWorkoutId(null);
+    openCreateForm();
     setFormValues(getDefaultFormValues());
-    setActionError("");
-    setOpened(true);
+    clearActionError();
   };
 
-  const handleOpenEdit = useCallback((workout: Workout) => {
-    setEditingWorkoutId(workout._id);
-    setFormValues({
-      title: workout.title,
-      description: workout.description,
-      requiredLevel: workout.requiredLevel,
-      tags: workout.tags ?? [],
-      exercises: workout.exercises.map((exercise) => ({
-        exerciseId: getExerciseId(exercise.exerciseId),
-        sets: exercise.sets,
-        reps: exercise.reps,
-        rpe: exercise.rpe ?? "",
-        baseXp: 20,
-        progression: {
-          enabled: Boolean(exercise.progression?.enabled),
-          initialWeightKg: exercise.progression?.initialWeightKg ?? null,
-          incrementKg: exercise.progression?.incrementKg ?? 2.5,
-        },
-      })),
-    });
-    setActionError("");
-    setOpened(true);
-  }, []);
+  const handleOpenEdit = useCallback(
+    (workout: Workout) => {
+      openEditForm(workout._id);
+      setFormValues({
+        title: workout.title,
+        description: workout.description,
+        requiredLevel: workout.requiredLevel,
+        tags: workout.tags ?? [],
+        exercises: workout.exercises.map((exercise) => ({
+          exerciseId: getExerciseId(exercise.exerciseId),
+          sets: exercise.sets,
+          reps: exercise.reps,
+          rpe: exercise.rpe ?? "",
+          baseXp: 20,
+          progression: {
+            enabled: Boolean(exercise.progression?.enabled),
+            initialWeightKg: exercise.progression?.initialWeightKg ?? null,
+            incrementKg: exercise.progression?.incrementKg ?? 2.5,
+          },
+        })),
+      });
+      clearActionError();
+    },
+    [clearActionError, openEditForm],
+  );
 
-  const handleDeleteClick = useCallback((id: string) => {
-    setDeletingWorkoutId(id);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (id: string) => {
+      requestDelete(id);
+    },
+    [requestDelete],
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletingWorkoutId) return;
     try {
+      clearActionError();
       await deleteMutation.mutateAsync(deletingWorkoutId);
     } catch (error) {
-      console.error(error);
+      handleActionError(error, t("training.workouts.deleteError"));
     } finally {
-      setDeletingWorkoutId(null);
+      clearDelete();
     }
-  }, [deleteMutation, deletingWorkoutId]);
+  }, [
+    clearActionError,
+    clearDelete,
+    deleteMutation,
+    deletingWorkoutId,
+    handleActionError,
+    t,
+  ]);
 
   const handleSubmit = async (values: WorkoutFormValues) => {
     const customWorkoutValues = {
@@ -143,7 +163,7 @@ const Workouts = () => {
     };
 
     try {
-      setActionError("");
+      clearActionError();
       if (editingWorkoutId) {
         await updateMutation.mutateAsync({
           id: editingWorkoutId,
@@ -152,11 +172,10 @@ const Workouts = () => {
       } else {
         await createMutation.mutateAsync(customWorkoutValues);
       }
-      setOpened(false);
+      closeForm();
       setFormValues(getDefaultFormValues());
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      setActionError(err.response?.data?.message || t("common.saveError"));
+      handleActionError(error, t("common.saveError"));
     }
   };
 
@@ -270,8 +289,8 @@ const Workouts = () => {
         )}
 
         <WorkoutFormModal
-          opened={opened}
-          onClose={() => setOpened(false)}
+          opened={isFormOpen}
+          onClose={closeForm}
           title={
             editingWorkoutId
               ? t("training.form.editTitle")
@@ -286,7 +305,7 @@ const Workouts = () => {
 
         <ConfirmDeleteModal
           opened={!!deletingWorkoutId}
-          onClose={() => setDeletingWorkoutId(null)}
+          onClose={clearDelete}
           onConfirm={handleDeleteConfirm}
           title={t("training.workouts.deleteConfirmTitle")}
           message={t("training.workouts.confirmDelete")}

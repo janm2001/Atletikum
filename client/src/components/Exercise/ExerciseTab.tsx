@@ -14,10 +14,10 @@ import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
 import ActionFeedback from "@/components/Common/ActionFeedback";
 import useActionFeedback from "@/hooks/useActionFeedback";
+import useCrudDialogState from "@/hooks/useCrudDialogState";
 
 import ExercisesTable from "./ExercisesTable";
 import ConfirmDeleteModal from "@/components/Common/ConfirmDeleteModal";
-import { useState } from "react";
 import {
   useCreateExercise,
   useDeleteExercise,
@@ -46,13 +46,16 @@ const getDefaultFormValues = (): ExerciseInput => ({
 
 const ExerciseTab = () => {
   const { t } = useTranslation();
-  const [opened, setOpened] = useState(false);
-  const [editingExerciseId, setEditingExerciseId] = useState<string | null>(
-    null,
-  );
-  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
-    null,
-  );
+  const {
+    isFormOpen,
+    editingId: editingExerciseId,
+    deletingId: deletingExerciseId,
+    openCreateForm,
+    openEditForm,
+    closeForm,
+    requestDelete,
+    clearDelete,
+  } = useCrudDialogState();
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const { data, isLoading, error } = useExercises();
@@ -73,14 +76,13 @@ const ExerciseTab = () => {
   });
 
   const openCreateModal = () => {
-    setEditingExerciseId(null);
+    openCreateForm();
     clearActionError();
     reset(getDefaultFormValues());
-    setOpened(true);
   };
 
   const openEditModal = (exercise: Exercise) => {
-    setEditingExerciseId(exercise._id);
+    openEditForm(exercise._id);
     reset({
       title: exercise.title,
       description: exercise.description,
@@ -90,7 +92,6 @@ const ExerciseTab = () => {
       videoLink: exercise.videoLink ?? "",
     });
     clearActionError();
-    setOpened(true);
   };
 
   const handleSave = async (values: ExerciseInput) => {
@@ -115,7 +116,7 @@ const ExerciseTab = () => {
         await createExerciseMutation.mutateAsync(payload);
       }
 
-      setOpened(false);
+      closeForm();
       notifications.show({
         color: "green",
         message: t("admin.exercises.saveSuccess"),
@@ -126,7 +127,7 @@ const ExerciseTab = () => {
   };
 
   const handleDeleteClick = (exerciseId: string) => {
-    setDeletingExerciseId(exerciseId);
+    requestDelete(exerciseId);
   };
 
   const handleDeleteConfirm = async () => {
@@ -141,7 +142,7 @@ const ExerciseTab = () => {
     } catch (deleteError) {
       handleActionError(deleteError, t("admin.exercises.deleteError"));
     } finally {
-      setDeletingExerciseId(null);
+      clearDelete();
     }
   };
 
@@ -171,15 +172,15 @@ const ExerciseTab = () => {
       </Stack>
       <ConfirmDeleteModal
         opened={!!deletingExerciseId}
-        onClose={() => setDeletingExerciseId(null)}
+        onClose={clearDelete}
         onConfirm={handleDeleteConfirm}
         title={t("admin.exercises.deleteConfirmTitle")}
         message={t("admin.exercises.deleteConfirm")}
         loading={deleteExerciseMutation.isPending}
       />
       <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
+        opened={isFormOpen}
+        onClose={closeForm}
         title={
           editingExerciseId
             ? t("admin.exercises.editTitle")
@@ -253,7 +254,7 @@ const ExerciseTab = () => {
           />
 
           <Group justify="flex-end" mt="sm">
-            <Button variant="default" onClick={() => setOpened(false)}>
+            <Button variant="default" onClick={closeForm}>
               {t("common.cancel")}
             </Button>
             <Button

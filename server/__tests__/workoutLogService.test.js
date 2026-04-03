@@ -55,13 +55,12 @@ const {
   createWithSession,
   runInTransaction,
 } = require("../utils/mongoTransaction");
+const {
+  makeLeanQuery,
+  makeSelectLeanQuery,
+  makeSortLeanQuery,
+} = require("../testUtils/queryMocks");
 const workoutLogService = require("../services/workoutLogService");
-
-const createSelectQuery = (value) => ({
-  select: jest.fn().mockReturnValue({
-    lean: jest.fn().mockResolvedValue(value),
-  }),
-});
 
 describe("workoutLogService", () => {
   beforeEach(() => {
@@ -87,7 +86,7 @@ describe("workoutLogService", () => {
       rpe: 7,
       isPersonalBest: false,
     });
-    WorkoutLog.find.mockReturnValue(createSelectQuery([]));
+    WorkoutLog.find.mockReturnValue(makeSelectLeanQuery([]));
     flagPersonalBests.mockReturnValue([
       {
         exerciseId: "exercise-1",
@@ -205,11 +204,7 @@ describe("workoutLogService", () => {
 
   it("returns latest workout log by workout id for user", async () => {
     const latestLog = { _id: "log-2", workoutId: "workout-1" };
-    WorkoutLog.findOne.mockReturnValue({
-      sort: jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue(latestLog),
-      }),
-    });
+    WorkoutLog.findOne.mockReturnValue(makeSortLeanQuery(latestLog));
 
     const result = await workoutLogService.getLatestWorkoutLog({
       userId: "user-1",
@@ -234,18 +229,20 @@ describe("workoutLogService", () => {
         _id: "workout-1",
         title: "Power Session",
         requiredLevel: 2,
-        exercises: [{ exerciseId: "exercise-1", reps: "6", sets: 2, baseXp: 40 }],
+        exercises: [
+          { exerciseId: "exercise-1", reps: "6", sets: 2, baseXp: 40 },
+        ],
       }),
     });
-    WorkoutLog.findOne.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(existingLog),
-    });
+    WorkoutLog.findOne.mockReturnValue(makeLeanQuery(existingLog));
 
     const result = await workoutLogService.createWorkoutLog({
       user: { _id: "user-1", level: 3, role: "user" },
       payload: {
         workoutId: "workout-1",
-        completedExercises: [{ exerciseId: "exercise-1", resultValue: 6, rpe: 7 }],
+        completedExercises: [
+          { exerciseId: "exercise-1", resultValue: 6, rpe: 7 },
+        ],
       },
       idempotencyKey: "same-key",
     });

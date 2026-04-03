@@ -3,32 +3,7 @@ const { ChallengeTemplate } = require("../models/ChallengeTemplate");
 const { WeeklyChallenge } = require("../models/WeeklyChallenge");
 const { startOfIsoWeek, endOfIsoWeek } = require("./weeklyChallengeService");
 const AppError = require("../utils/AppError");
-
-const VALID_TYPES = ["quiz", "workout", "reading", "custom"];
-
-const validateTemplatePayload = ({
-  type,
-  targetCount,
-  xpReward,
-  description,
-}) => {
-  const errors = [];
-
-  if (type && !VALID_TYPES.includes(type)) {
-    errors.push(`type mora biti jedan od: ${VALID_TYPES.join(", ")}`);
-  }
-  if (targetCount !== undefined && (!Number.isInteger(targetCount) || targetCount < 1)) {
-    errors.push("targetCount mora biti cijeli broj >= 1");
-  }
-  if (xpReward !== undefined && (!Number.isInteger(xpReward) || xpReward < 1)) {
-    errors.push("xpReward mora biti cijeli broj >= 1");
-  }
-  if (description !== undefined && (typeof description !== "string" || description.length < 1 || description.length > 180)) {
-    errors.push("description mora biti tekst duljine 1-180 znakova");
-  }
-
-  return errors;
-};
+const { ensureResourceExists } = require("../utils/serviceGuards");
 
 const getTemplates = async ({ enabled } = {}) => {
   const filter = {};
@@ -43,15 +18,13 @@ const getTemplates = async ({ enabled } = {}) => {
   return templates.map(formatTemplate);
 };
 
-const createTemplate = async ({ type, targetCount, xpReward, description, enabled = true }) => {
-  const errors = validateTemplatePayload({ type, targetCount, xpReward, description });
-  if (!type || !targetCount || !xpReward || !description) {
-    errors.push("Sva obavezna polja moraju biti popunjena.");
-  }
-  if (errors.length > 0) {
-    throw new AppError("Podaci predloška nisu ispravni.", 400);
-  }
-
+const createTemplate = async ({
+  type,
+  targetCount,
+  xpReward,
+  description,
+  enabled = true,
+}) => {
   const template = await ChallengeTemplate.create({
     type,
     targetCount,
@@ -68,7 +41,13 @@ const updateTemplate = async ({ templateId, updates }) => {
     throw new AppError("Neispravan identifikator predloška.", 400);
   }
 
-  const allowedFields = ["type", "targetCount", "xpReward", "description", "enabled"];
+  const allowedFields = [
+    "type",
+    "targetCount",
+    "xpReward",
+    "description",
+    "enabled",
+  ];
   const sanitized = {};
   for (const key of allowedFields) {
     if (updates[key] !== undefined) {
@@ -80,20 +59,14 @@ const updateTemplate = async ({ templateId, updates }) => {
     throw new AppError("Podaci predloška nisu ispravni.", 400);
   }
 
-  const errors = validateTemplatePayload(sanitized);
-  if (errors.length > 0) {
-    throw new AppError("Podaci predloška nisu ispravni.", 400);
-  }
-
-  const template = await ChallengeTemplate.findByIdAndUpdate(
-    templateId,
-    { $set: sanitized },
-    { new: true, runValidators: true },
-  ).lean();
-
-  if (!template) {
-    throw new AppError("Predložak izazova nije pronađen.", 404);
-  }
+  const template = ensureResourceExists(
+    await ChallengeTemplate.findByIdAndUpdate(
+      templateId,
+      { $set: sanitized },
+      { new: true, runValidators: true },
+    ).lean(),
+    "Predložak izazova nije pronađen.",
+  );
 
   return formatTemplate(template);
 };
@@ -112,7 +85,9 @@ const publishTemplates = async ({ effectiveFromWeekStart }) => {
     throw new AppError("Podaci predloška nisu ispravni.", 400);
   }
 
-  const enabledTemplates = await ChallengeTemplate.find({ enabled: true }).lean();
+  const enabledTemplates = await ChallengeTemplate.find({
+    enabled: true,
+  }).lean();
 
   if (enabledTemplates.length === 0) {
     throw new AppError("Podaci predloška nisu ispravni.", 400);
@@ -193,10 +168,11 @@ const formatTemplate = (tmpl) => ({
   description: tmpl.description,
   enabled: tmpl.enabled,
   effectiveFromWeekStart: tmpl.effectiveFromWeekStart
-    ? tmpl.effectiveFromWeekStart.toISOString?.() ?? tmpl.effectiveFromWeekStart
+    ? (tmpl.effectiveFromWeekStart.toISOString?.() ??
+      tmpl.effectiveFromWeekStart)
     : null,
   effectiveToWeekStart: tmpl.effectiveToWeekStart
-    ? tmpl.effectiveToWeekStart.toISOString?.() ?? tmpl.effectiveToWeekStart
+    ? (tmpl.effectiveToWeekStart.toISOString?.() ?? tmpl.effectiveToWeekStart)
     : null,
   createdAt: tmpl.createdAt,
   updatedAt: tmpl.updatedAt,

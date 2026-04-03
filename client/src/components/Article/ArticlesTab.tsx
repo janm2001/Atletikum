@@ -22,6 +22,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ActionFeedback from "@/components/Common/ActionFeedback";
 import useActionFeedback from "@/hooks/useActionFeedback";
+import useCrudDialogState from "@/hooks/useCrudDialogState";
 import SpinnerComponent from "../SpinnerComponent/SpinnerComponent";
 import { useExercises } from "@/hooks/useExercise";
 import {
@@ -63,9 +64,16 @@ const getDefaultFormValues = (): ArticleFormValues => ({
 
 const ArticlesTab = () => {
   const { t } = useTranslation();
-  const [opened, setOpened] = useState(false);
-  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
-  const [deletingArticleId, setDeletingArticleId] = useState<string | null>(null);
+  const {
+    isFormOpen,
+    editingId: editingArticleId,
+    deletingId: deletingArticleId,
+    openCreateForm,
+    openEditForm,
+    closeForm,
+    requestDelete,
+    clearDelete,
+  } = useCrudDialogState();
   const { actionError, clearActionError, handleActionError } =
     useActionFeedback();
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -114,16 +122,15 @@ const ArticlesTab = () => {
   }, [fullArticle, editingArticleId, reset]);
 
   const handleOpenCreate = () => {
-    setEditingArticleId(null);
+    openCreateForm();
     reset(getDefaultFormValues());
     setThumbnailFile(null);
     setThumbnailPreview(null);
     clearActionError();
-    setOpened(true);
   };
 
   const handleOpenEdit = (article: ArticleSummary) => {
-    setEditingArticleId(article._id);
+    openEditForm(article._id);
     setThumbnailFile(null);
     setThumbnailPreview(article.coverImage || null);
     reset({
@@ -141,11 +148,10 @@ const ArticlesTab = () => {
       quiz: [],
     });
     clearActionError();
-    setOpened(true);
   };
 
   const handleDeleteClick = (id: string) => {
-    setDeletingArticleId(id);
+    requestDelete(id);
   };
 
   const handleDeleteConfirm = async () => {
@@ -157,13 +163,9 @@ const ArticlesTab = () => {
         message: t("admin.articles.deleteSuccess"),
       });
     } catch (err) {
-      notifications.show({
-        color: "red",
-        message: t("admin.articles.deleteError"),
-      });
-      console.error(err);
+      handleActionError(err, t("admin.articles.deleteError"));
     } finally {
-      setDeletingArticleId(null);
+      clearDelete();
     }
   };
 
@@ -180,14 +182,28 @@ const ArticlesTab = () => {
         const formData = new FormData();
         formData.append("thumbnail", thumbnailFile);
 
-        const stringFields = ["title", "tag", "summary", "content", "sourceUrl", "sourceTitle", "author"] as const;
+        const stringFields = [
+          "title",
+          "tag",
+          "summary",
+          "content",
+          "sourceUrl",
+          "sourceTitle",
+          "author",
+        ] as const;
         for (const key of stringFields) {
           if (normalizedData[key]) formData.append(key, normalizedData[key]);
         }
 
-        const arrayFields = ["actionSummary", "relatedArticleIds", "relatedExerciseIds", "quiz"] as const;
+        const arrayFields = [
+          "actionSummary",
+          "relatedArticleIds",
+          "relatedExerciseIds",
+          "quiz",
+        ] as const;
         for (const key of arrayFields) {
-          if (normalizedData[key]?.length) formData.append(key, JSON.stringify(normalizedData[key]));
+          if (normalizedData[key]?.length)
+            formData.append(key, JSON.stringify(normalizedData[key]));
         }
 
         if (editingArticleId) {
@@ -216,7 +232,7 @@ const ArticlesTab = () => {
           await createMutation.mutateAsync({ articleData: normalizedData });
         }
       }
-      setOpened(false);
+      closeForm();
       notifications.show({
         color: "green",
         message: t("admin.articles.saveSuccess"),
@@ -245,15 +261,15 @@ const ArticlesTab = () => {
 
       <ConfirmDeleteModal
         opened={!!deletingArticleId}
-        onClose={() => setDeletingArticleId(null)}
+        onClose={clearDelete}
         onConfirm={handleDeleteConfirm}
         title={t("admin.articles.deleteConfirmTitle")}
         message={t("admin.articles.deleteConfirm")}
         loading={deleteMutation.isPending}
       />
       <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
+        opened={isFormOpen}
+        onClose={closeForm}
         title={
           editingArticleId
             ? t("admin.articles.editTitle")
@@ -442,7 +458,7 @@ const ArticlesTab = () => {
               <QuizEditor />
 
               <Group justify="flex-end" mt="md">
-                <Button variant="default" onClick={() => setOpened(false)}>
+                <Button variant="default" onClick={closeForm}>
                   {t("common.cancel")}
                 </Button>
                 <Button

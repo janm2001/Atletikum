@@ -1,10 +1,8 @@
 import {
   ActionIcon,
-  Badge,
   Box,
   Button,
   Group,
-  HoverCard,
   Stack,
   Text,
   Title,
@@ -15,7 +13,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   IconBarbell,
   IconBook,
-  IconFlame,
   IconLayoutDashboard,
   IconLogout2,
   IconMenu2,
@@ -31,8 +28,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useGamificationStatus } from "@/hooks/useGamification";
 import { useUser } from "@/hooks/useUser";
 import atletikumIcon from "@/assets/atletikum_redesign2.png";
-import NavbarLevelDropdown from "./NavbarLevelDropdown";
-import NavbarStreakDropdown from "./NavbarStreakDropdown";
+import NavbarLevelControl from "./NavbarLevelControl";
+import NavbarStreakControl from "./NavbarStreakControl";
 import classes from "./Navbar.module.css";
 
 type NavItem = {
@@ -138,41 +135,15 @@ const Navbar = () => {
       </Group>
 
       <Group gap={8} visibleFrom="lg" wrap="nowrap">
-        <HoverCard width={250} shadow="md" position="bottom-end" withArrow>
-          <HoverCard.Target>
-            <Badge
-              variant="light"
-              color="stitch"
-              size="lg"
-              className={classes.surfaceControl}
-            >
-              {t("nav.levelBadge", { level: user?.level })}
-            </Badge>
-          </HoverCard.Target>
-          <HoverCard.Dropdown className={classes.hoverDropdown}>
-            <NavbarLevelDropdown
-              level={user?.level ?? 1}
-              totalXp={user?.totalXp ?? 0}
-            />
-          </HoverCard.Dropdown>
-        </HoverCard>
+        <NavbarLevelControl
+          level={user?.level ?? 1}
+          totalXp={user?.totalXp ?? 0}
+        />
 
-        <HoverCard width={250} shadow="md" position="bottom-end" withArrow>
-          <HoverCard.Target>
-            <Badge
-              size="lg"
-              variant="light"
-              color={gamification?.streakAtRisk ? "red" : "orange"}
-              leftSection={<IconFlame size={14} />}
-              className={classes.surfaceControl}
-            >
-              {user?.dailyStreak ?? 0}
-            </Badge>
-          </HoverCard.Target>
-          <HoverCard.Dropdown className={classes.hoverDropdown}>
-            <NavbarStreakDropdown {...streakDropdownProps} />
-          </HoverCard.Dropdown>
-        </HoverCard>
+        <NavbarStreakControl
+          {...streakDropdownProps}
+          iconSize={14}
+        />
 
         <ActionIcon
           variant="light"
@@ -248,39 +219,21 @@ const Navbar = () => {
 
             <Stack gap="sm">
               <Group gap="xs" mb={2}>
-                <HoverCard width={220} shadow="md" position="bottom" withArrow>
-                  <HoverCard.Target>
-                    <Badge
-                      variant="light"
-                      color="stitch"
-                      className={classes.surfaceControl}
-                    >
-                      {t("nav.levelBadge", { level: user?.level })}
-                    </Badge>
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown className={classes.hoverDropdown}>
-                    <NavbarLevelDropdown
-                      level={user?.level ?? 1}
-                      totalXp={user?.totalXp ?? 0}
-                    />
-                  </HoverCard.Dropdown>
-                </HoverCard>
+                <NavbarLevelControl
+                  level={user?.level ?? 1}
+                  totalXp={user?.totalXp ?? 0}
+                  hoverCardWidth={220}
+                  position="bottom"
+                  badgeSize="md"
+                />
 
-                <HoverCard width={220} shadow="md" position="bottom" withArrow>
-                  <HoverCard.Target>
-                    <Badge
-                      variant="light"
-                      color={gamification?.streakAtRisk ? "red" : "orange"}
-                      leftSection={<IconFlame size={12} />}
-                      className={classes.surfaceControl}
-                    >
-                      {user?.dailyStreak ?? 0}
-                    </Badge>
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown className={classes.hoverDropdown}>
-                    <NavbarStreakDropdown {...streakDropdownProps} />
-                  </HoverCard.Dropdown>
-                </HoverCard>
+                <NavbarStreakControl
+                  {...streakDropdownProps}
+                  hoverCardWidth={220}
+                  position="bottom"
+                  badgeSize="md"
+                  iconSize={12}
+                />
               </Group>
 
               {navItems.map((item) => {

@@ -10,6 +10,7 @@ import {
     removeCachedEntity,
     replaceCachedEntity,
 } from '@/lib/query-cache';
+import { invalidateQueryKeys } from '@/lib/query-invalidation';
 import { keys } from '../lib/query-keys';
 import type { Workout } from '@/types/Workout/workout';
 import type { WorkoutScope } from '@/types/Workout/workoutApi';
@@ -26,9 +27,9 @@ export function useCreateWorkout() {
     return useMutation({
         mutationFn: createWorkout,
         onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: keys.workouts.lists(),
-            });
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.workouts.lists() },
+            ]);
         },
     });
 }
@@ -38,9 +39,9 @@ export function useCreateCustomWorkout() {
     return useMutation({
         mutationFn: createCustomWorkout,
         onSuccess: async () => {
-            await queryClient.invalidateQueries({
-                queryKey: keys.workouts.lists(),
-            });
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.workouts.lists() },
+            ]);
         },
     });
 }

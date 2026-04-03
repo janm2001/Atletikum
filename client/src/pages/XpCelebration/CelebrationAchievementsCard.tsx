@@ -2,6 +2,7 @@ import { Badge, Card, Group, Stack, Text, Title } from "@mantine/core";
 import { IconTrophy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { NewAchievement } from "@/types/Achievement/achievement";
+import CelebrationItemCard from "./CelebrationItemCard";
 
 interface CelebrationAchievementsCardProps {
   achievements: NewAchievement[];
@@ -23,29 +24,17 @@ const CelebrationAchievementsCard = ({
         </Group>
 
         {achievements.map((ach) => (
-          <Card
-            key={ach._id}
-            withBorder
-            radius="md"
-            p="md"
-            w="100%"
-            style={{
-              borderColor: "var(--mantine-color-yellow-5)",
-              backgroundColor: "var(--mantine-color-yellow-light)",
-            }}
-          >
-            <Group justify="space-between">
-              <div>
-                <Text fw={700}>{ach.title}</Text>
-                <Text size="sm" c="dimmed">
-                  {ach.description}
-                </Text>
-              </div>
-              <Badge color="yellow" variant="filled">
-                {t("common.xpGained", { count: ach.xpReward })}
-              </Badge>
-            </Group>
-          </Card>
+          <CelebrationItemCard key={ach._id} accentColor="yellow">
+            <div>
+              <Text fw={700}>{ach.title}</Text>
+              <Text size="sm" c="dimmed">
+                {ach.description}
+              </Text>
+            </div>
+            <Badge color="yellow" variant="filled">
+              {t("common.xpGained", { count: ach.xpReward })}
+            </Badge>
+          </CelebrationItemCard>
         ))}
       </Stack>
     </Card>

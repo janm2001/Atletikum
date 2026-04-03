@@ -19,6 +19,7 @@ import {
   updateArticleBookmarkInDetail,
   updateArticleBookmarkInList,
 } from "@/lib/query-cache";
+import { invalidateQueryKeys } from "@/lib/query-invalidation";
 import { keys } from "../lib/query-keys";
 import type {
   Article,
@@ -111,9 +112,9 @@ export const useCreateArticle = () => {
   return useMutation({
     mutationFn: createArticle,
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.lists() }),
-        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.details() }),
+      await invalidateQueryKeys(queryClient, [
+        { queryKey: keys.knowledgeBase.lists() },
+        { queryKey: keys.knowledgeBase.details() },
       ]);
     },
   });
@@ -125,9 +126,9 @@ export const useUpdateArticle = () => {
   return useMutation({
     mutationFn: updateArticle,
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.lists() }),
-        queryClient.invalidateQueries({ queryKey: keys.knowledgeBase.details() }),
+      await invalidateQueryKeys(queryClient, [
+        { queryKey: keys.knowledgeBase.lists() },
+        { queryKey: keys.knowledgeBase.details() },
       ]);
     },
   });
@@ -147,9 +148,9 @@ export const useDeleteArticle = () => {
         { queryKey: keys.knowledgeBase.details() },
         (article) => removeArticleFromDetailCache(article, articleId),
       );
-      await queryClient.invalidateQueries({
-        queryKey: keys.knowledgeBase.details(),
-      });
+      await invalidateQueryKeys(queryClient, [
+        { queryKey: keys.knowledgeBase.details() },
+      ]);
     },
   });
 };
@@ -167,9 +168,9 @@ export const useToggleArticleBookmark = () => {
       syncArticleBookmarkState(queryClient, variables.articleId, bookmark, {
         removeFromSavedLists: !bookmark.isBookmarked,
       });
-      await queryClient.invalidateQueries({
-        queryKey: keys.knowledgeBase.saved(),
-      });
+      await invalidateQueryKeys(queryClient, [
+        { queryKey: keys.knowledgeBase.saved() },
+      ]);
     },
   });
 };
@@ -186,9 +187,9 @@ export const useUpdateArticleProgress = () => {
     onSuccess: (bookmark, variables) => {
       syncArticleBookmarkState(queryClient, variables.articleId, bookmark);
       if (variables.isCompleted) {
-        queryClient.invalidateQueries({
-          queryKey: keys.challenges.weekly(),
-        });
+        invalidateQueryKeys(queryClient, [
+          { queryKey: keys.challenges.weekly() },
+        ]);
       }
     },
   });

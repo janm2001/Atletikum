@@ -6,6 +6,7 @@ import {
     getWeeklyLeaderboard,
 } from "@/api/challenges";
 import { keys } from "@/lib/query-keys";
+import { invalidateQueryKeys } from "@/lib/query-invalidation";
 import { useUser } from "@/hooks/useUser";
 
 export type {
@@ -31,10 +32,12 @@ export const useClaimChallengeReward = () => {
 
     return useMutation({
         mutationFn: claimChallengeReward,
-        onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: keys.challenges.weekly() });
-            queryClient.invalidateQueries({ queryKey: keys.gamification.status() });
-            queryClient.invalidateQueries({ queryKey: keys.leaderboard.all });
+        onSuccess: async (data) => {
+            await invalidateQueryKeys(queryClient, [
+                { queryKey: keys.challenges.weekly() },
+                { queryKey: keys.gamification.status() },
+                { queryKey: keys.leaderboard.all },
+            ]);
             if (user) {
                 updateUser({
                     ...user,

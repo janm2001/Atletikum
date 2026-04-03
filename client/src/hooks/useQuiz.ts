@@ -3,6 +3,7 @@ import {
   addArticleToQuizCompletions,
   syncQuizStatusAfterSubmission,
 } from "@/lib/query-cache";
+import { invalidateQueryKeys } from "@/lib/query-invalidation";
 import {
   getMyQuizCompletions,
   getQuizStatus,
@@ -34,7 +35,7 @@ export const useSubmitQuiz = () => {
     { articleId: string; submittedAnswers: number[] }
   >({
     mutationFn: submitQuiz,
-    onSuccess: (result, variables) => {
+    onSuccess: async (result, variables) => {
       queryClient.setQueryData<QuizStatus | undefined>(
         keys.quiz.status(variables.articleId),
         () => syncQuizStatusAfterSubmission(result.data),
@@ -49,25 +50,13 @@ export const useSubmitQuiz = () => {
           ),
       );
 
-      queryClient.invalidateQueries({
-        queryKey: keys.quiz.status(variables.articleId),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: keys.quiz.completions(),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: keys.challenges.weekly(),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: keys.gamification.status(),
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: keys.leaderboard.all,
-      });
+      await invalidateQueryKeys(queryClient, [
+        { queryKey: keys.quiz.status(variables.articleId) },
+        { queryKey: keys.quiz.completions() },
+        { queryKey: keys.challenges.weekly() },
+        { queryKey: keys.gamification.status() },
+        { queryKey: keys.leaderboard.all },
+      ]);
     },
   });
 };

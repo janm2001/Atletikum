@@ -11,6 +11,9 @@ const {
   uploadArticleCoverImage,
 } = require("../utils/cloudinaryUploads");
 const AppError = require("../utils/AppError");
+const { ensureResourceExists } = require("../utils/serviceGuards");
+
+const ARTICLE_NOT_FOUND_MESSAGE = "Članak nije pronađen";
 
 const normalizeBookmarkState = (bookmark) => ({
   isBookmarked: Boolean(bookmark?.isBookmarked),
@@ -85,7 +88,9 @@ const extractUploadsPublicPath = (value) => {
   const basePath = String(value).split(/[?#]/, 1)[0];
   const normalizedPath = basePath.replace(/\\/g, "/");
   const lowerNormalizedPath = normalizedPath.toLowerCase();
-  const uploadsMarkerIndex = lowerNormalizedPath.indexOf(ARTICLE_UPLOADS_MARKER);
+  const uploadsMarkerIndex = lowerNormalizedPath.indexOf(
+    ARTICLE_UPLOADS_MARKER,
+  );
 
   if (uploadsMarkerIndex < 0) {
     return null;
@@ -126,7 +131,9 @@ const normalizeManualCoverImagePath = (coverImage) => {
       return trimmedCoverImage;
     }
 
-    const uploadsPublicPath = extractUploadsPublicPath(parsedAbsoluteUrl.pathname);
+    const uploadsPublicPath = extractUploadsPublicPath(
+      parsedAbsoluteUrl.pathname,
+    );
     return uploadsPublicPath ?? trimmedCoverImage;
   }
 
@@ -155,7 +162,11 @@ const sanitizeHtmlOptions = {
     img: ["src", "alt", "title", "width", "height", "loading"],
     iframe: ["src", "width", "height", "frameborder", "allowfullscreen"],
   },
-  allowedIframeHostnames: ["www.youtube.com", "youtube.com", "player.vimeo.com"],
+  allowedIframeHostnames: [
+    "www.youtube.com",
+    "youtube.com",
+    "player.vimeo.com",
+  ],
 };
 
 const normalizeArticlePayload = (payload) => {
@@ -265,11 +276,11 @@ const getAllArticles = async ({ userId, query }) => {
 
 const getArticleById = async ({ articleId, userId }) => {
   const article = await Article.findById(articleId).lean();
-  if (!article) {
-    throw new AppError("Članak nije pronađen", 404);
-  }
+  ensureResourceExists(article, ARTICLE_NOT_FOUND_MESSAGE);
 
-  const relatedExercisesPromise = getRelatedExercises(article.relatedExerciseIds);
+  const relatedExercisesPromise = getRelatedExercises(
+    article.relatedExerciseIds,
+  );
 
   const relatedIds =
     Array.isArray(article.relatedArticleIds) &&
@@ -322,7 +333,9 @@ const createArticle = async ({ payload, file }) => {
 
   if (file) {
     if (useCloudinaryStorage) {
-      uploadedCoverImage = await uploadArticleCoverImage({ filePath: file.path });
+      uploadedCoverImage = await uploadArticleCoverImage({
+        filePath: file.path,
+      });
       articleData.coverImage = uploadedCoverImage;
       await deleteUploadedRequestFile(file);
     } else {
@@ -345,7 +358,7 @@ const updateArticle = async ({ articleId, payload, file }) => {
   const existingArticle = await Article.findById(articleId);
   if (!existingArticle) {
     await deleteUploadedRequestFile(file);
-    throw new AppError("Članak nije pronađen", 404);
+    throw new AppError(ARTICLE_NOT_FOUND_MESSAGE, 404);
   }
 
   const updateData = normalizeArticlePayload(payload);
@@ -354,7 +367,9 @@ const updateArticle = async ({ articleId, payload, file }) => {
 
   if (file) {
     if (useCloudinaryStorage) {
-      uploadedCoverImage = await uploadArticleCoverImage({ filePath: file.path });
+      uploadedCoverImage = await uploadArticleCoverImage({
+        filePath: file.path,
+      });
       updateData.coverImage = uploadedCoverImage;
       await deleteUploadedRequestFile(file);
     } else {
@@ -370,7 +385,7 @@ const updateArticle = async ({ articleId, payload, file }) => {
 
     if (!article) {
       await deleteUploadedRequestFile(file);
-      throw new AppError("Članak nije pronađen", 404);
+      throw new AppError(ARTICLE_NOT_FOUND_MESSAGE, 404);
     }
 
     if (
@@ -391,10 +406,10 @@ const updateArticle = async ({ articleId, payload, file }) => {
 };
 
 const deleteArticle = async ({ articleId }) => {
-  const article = await Article.findByIdAndDelete(articleId);
-  if (!article) {
-    throw new AppError("Članak nije pronađen", 404);
-  }
+  const article = ensureResourceExists(
+    await Article.findByIdAndDelete(articleId),
+    ARTICLE_NOT_FOUND_MESSAGE,
+  );
 
   await deleteUploadByPublicPath(article.coverImage);
 };

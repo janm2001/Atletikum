@@ -41,11 +41,7 @@ const {
   updateTemplate,
   publishTemplates,
 } = require("../services/challengeTemplateService");
-
-const makeLean = (value) => ({ lean: jest.fn().mockResolvedValue(value) });
-const makeSortLean = (value) => ({
-  sort: jest.fn().mockReturnValue(makeLean(value)),
-});
+const { makeLeanQuery, makeSortLeanQuery } = require("../testUtils/queryMocks");
 
 const makeTemplate = (overrides = {}) => ({
   _id: "tmpl-1",
@@ -66,8 +62,11 @@ describe("getTemplates", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("returns all templates sorted by type", async () => {
-    const templates = [makeTemplate(), makeTemplate({ _id: "tmpl-2", type: "workout" })];
-    ChallengeTemplate.find.mockReturnValue(makeSortLean(templates));
+    const templates = [
+      makeTemplate(),
+      makeTemplate({ _id: "tmpl-2", type: "workout" }),
+    ];
+    ChallengeTemplate.find.mockReturnValue(makeSortLeanQuery(templates));
 
     const result = await getTemplates();
 
@@ -77,7 +76,7 @@ describe("getTemplates", () => {
   });
 
   it("filters by enabled status", async () => {
-    ChallengeTemplate.find.mockReturnValue(makeSortLean([]));
+    ChallengeTemplate.find.mockReturnValue(makeSortLeanQuery([]));
 
     await getTemplates({ enabled: true });
 
@@ -106,25 +105,6 @@ describe("createTemplate", () => {
     );
   });
 
-  it("throws 400 when required fields are missing", async () => {
-    await expect(
-      createTemplate({ type: "quiz" }),
-    ).rejects.toMatchObject({
-      statusCode: 400,
-      message: "Podaci predloška nisu ispravni.",
-    });
-  });
-
-  it("throws 400 when targetCount is invalid", async () => {
-    await expect(
-      createTemplate({
-        type: "quiz",
-        targetCount: 0,
-        xpReward: 100,
-        description: "test",
-      }),
-    ).rejects.toMatchObject({ statusCode: 400 });
-  });
 });
 
 describe("updateTemplate", () => {
@@ -132,7 +112,7 @@ describe("updateTemplate", () => {
 
   it("updates a template with valid data", async () => {
     const updated = makeTemplate({ xpReward: 200 });
-    ChallengeTemplate.findByIdAndUpdate.mockReturnValue(makeLean(updated));
+    ChallengeTemplate.findByIdAndUpdate.mockReturnValue(makeLeanQuery(updated));
 
     const result = await updateTemplate({
       templateId: "507f1f77bcf86cd799439011",
@@ -152,7 +132,7 @@ describe("updateTemplate", () => {
   });
 
   it("throws 404 when template not found", async () => {
-    ChallengeTemplate.findByIdAndUpdate.mockReturnValue(makeLean(null));
+    ChallengeTemplate.findByIdAndUpdate.mockReturnValue(makeLeanQuery(null));
 
     await expect(
       updateTemplate({
@@ -179,9 +159,9 @@ describe("publishTemplates", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("throws 400 when effectiveFromWeekStart is missing", async () => {
-    await expect(
-      publishTemplates({}),
-    ).rejects.toMatchObject({ statusCode: 400 });
+    await expect(publishTemplates({})).rejects.toMatchObject({
+      statusCode: 400,
+    });
   });
 
   it("throws 400 when target week is current or past", async () => {
@@ -195,7 +175,7 @@ describe("publishTemplates", () => {
     const futureWeek = new Date();
     futureWeek.setUTCDate(futureWeek.getUTCDate() + 14);
 
-    ChallengeTemplate.find.mockReturnValue(makeLean([]));
+    ChallengeTemplate.find.mockReturnValue(makeLeanQuery([]));
 
     await expect(
       publishTemplates({ effectiveFromWeekStart: futureWeek.toISOString() }),
@@ -208,14 +188,21 @@ describe("publishTemplates", () => {
 
     const templates = [
       makeTemplate({ _id: "t1", type: "quiz" }),
-      makeTemplate({ _id: "t2", type: "workout", targetCount: 2, xpReward: 150 }),
+      makeTemplate({
+        _id: "t2",
+        type: "workout",
+        targetCount: 2,
+        xpReward: 150,
+      }),
     ];
 
     ChallengeTemplate.find
-      .mockReturnValueOnce(makeLean(templates))
-      .mockReturnValueOnce(makeLean(templates.map((t) => ({ ...t, version: 2 }))));
+      .mockReturnValueOnce(makeLeanQuery(templates))
+      .mockReturnValueOnce(
+        makeLeanQuery(templates.map((t) => ({ ...t, version: 2 }))),
+      );
 
-    WeeklyChallenge.find.mockReturnValue(makeLean([]));
+    WeeklyChallenge.find.mockReturnValue(makeLeanQuery([]));
     WeeklyChallenge.insertMany.mockResolvedValue([]);
     ChallengeTemplate.updateMany.mockResolvedValue({});
 
@@ -239,10 +226,10 @@ describe("publishTemplates", () => {
     futureWeek.setUTCDate(futureWeek.getUTCDate() + 14);
 
     const templates = [makeTemplate({ _id: "t1", type: "quiz" })];
-    ChallengeTemplate.find.mockReturnValueOnce(makeLean(templates));
+    ChallengeTemplate.find.mockReturnValueOnce(makeLeanQuery(templates));
 
     WeeklyChallenge.find.mockReturnValue(
-      makeLean([{ _id: "existing", type: "quiz", weekStart: futureWeek }]),
+      makeLeanQuery([{ _id: "existing", type: "quiz", weekStart: futureWeek }]),
     );
 
     await expect(

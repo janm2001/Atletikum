@@ -17,11 +17,7 @@ const coerceFiniteNumber = (value, message, createError = createAppError) => {
   return numericValue;
 };
 
-const validateObjectId = (
-  value,
-  fieldName,
-  createError = createAppError,
-) => {
+const validateObjectId = (value, fieldName, createError = createAppError) => {
   if (!mongoose.Types.ObjectId.isValid(value)) {
     throwValidationError(`${fieldName} nije valjan.`, createError);
   }
@@ -72,6 +68,30 @@ const validateOptionalNonNegativeNumber = (
   return numericValue;
 };
 
+const validateRequiredString = (
+  value,
+  fieldLabel,
+  createError = createAppError,
+) => {
+  if (typeof value !== "string" || value.trim() === "") {
+    throwValidationError(`${fieldLabel} je obavezno polje.`, createError);
+  }
+};
+
+const validateOptionalString = (
+  value,
+  fieldLabel,
+  createError = createAppError,
+) => {
+  if (value === undefined) {
+    return;
+  }
+
+  if (typeof value !== "string" || value.trim() === "") {
+    throwValidationError(`${fieldLabel} mora biti tekst.`, createError);
+  }
+};
+
 const validateIntegerInRange = (
   value,
   { min = -Infinity, max = Infinity, message, createError = createAppError },
@@ -95,5 +115,7 @@ module.exports = {
   validateNumberInRange,
   validateObjectId,
   validateOptionalNonNegativeNumber,
+  validateOptionalString,
   validatePositiveNumber,
+  validateRequiredString,
 };
