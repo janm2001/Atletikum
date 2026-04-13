@@ -87,7 +87,7 @@ exports.updateReadingProgress = asyncHandler(async (req, res) => {
   if (bookmark.isCompleted) {
     // Fire-and-forget; reading progress is not transactional
     updateChallengeProgress({ userId: req.userId, type: "reading" }).catch(
-      () => {},
+      (err) => console.error("[ChallengeProgress:reading]", err),
     );
   }
 

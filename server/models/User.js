@@ -67,6 +67,7 @@ userSchema.index(
   { unique: true, collation: { locale: "en", strength: 2 } },
 );
 userSchema.index({ totalXp: -1 });
+userSchema.index({ dailyStreak: -1 });
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;

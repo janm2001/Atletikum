@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ActionIcon,
   Badge,
@@ -31,13 +32,10 @@ import type {
   CreateTemplatePayload,
 } from "@/types/Challenge/challenge";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
-
-const TEMPLATE_TYPE_OPTIONS = [
-  { value: "quiz", label: "Kvizovi" },
-  { value: "workout", label: "Treninzi" },
-  { value: "reading", label: "Čitanje" },
-  { value: "custom", label: "Prilagođeno" },
-];
+import {
+  challengeTemplateSchema,
+  type TemplateFormValues,
+} from "@/schema/challengeTemplate.schema";
 
 const getNextMondays = (count: number) => {
   const today = new Date();
@@ -61,14 +59,6 @@ const getNextMondays = (count: number) => {
   });
 };
 
-interface TemplateFormValues {
-  type: ChallengeTemplateType;
-  targetCount: number;
-  xpReward: number;
-  description: string;
-  enabled: boolean;
-}
-
 const defaultValues = (): TemplateFormValues => ({
   type: "quiz",
   targetCount: 3,
@@ -87,8 +77,15 @@ const ChallengeTemplateManager = () => {
     weekOptions[0]?.value ?? null,
   );
 
+  const templateTypeOptions = useMemo(() => [
+    { value: "quiz", label: t("challenges.templateTypes.quiz") },
+    { value: "workout", label: t("challenges.templateTypes.workout") },
+    { value: "reading", label: t("challenges.templateTypes.reading") },
+    { value: "custom", label: t("challenges.templateTypes.custom") },
+  ], [t]);
+
   const { control, handleSubmit, reset, formState: { isSubmitting } } =
-    useForm<TemplateFormValues>({ defaultValues: defaultValues() });
+    useForm<TemplateFormValues>({ resolver: zodResolver(challengeTemplateSchema), defaultValues: defaultValues() });
 
   const { data: templates, isLoading } = useChallengeTemplates();
   const createMutation = useCreateChallengeTemplate();
@@ -186,7 +183,7 @@ const ChallengeTemplateManager = () => {
               <Table.Tr key={template.id}>
                 <Table.Td>
                   <Badge size="sm" variant="light">
-                    {TEMPLATE_TYPE_OPTIONS.find((o) => o.value === template.type)
+                    {templateTypeOptions.find((o) => o.value === template.type)
                       ?.label ?? template.type}
                   </Badge>
                 </Table.Td>
@@ -249,7 +246,7 @@ const ChallengeTemplateManager = () => {
               render={({ field }) => (
                 <Select
                   label={t("admin.challenges.form.type")}
-                  data={TEMPLATE_TYPE_OPTIONS}
+                  data={templateTypeOptions}
                   value={field.value}
                   onChange={(v) => field.onChange((v as ChallengeTemplateType) ?? "quiz")}
                 />

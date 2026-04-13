@@ -530,6 +530,12 @@
   },
 
   "challenges": {
+    "templateTypes": {
+      "quiz": "Kvizovi",
+      "workout": "Treninzi",
+      "reading": "Čitanje",
+      "custom": "Prilagođeno"
+    },
     "claim": {
       "button": "Preuzmi nagradu",
       "success": "Nagrada preuzeta! +{{xp}} XP",
@@ -788,7 +794,8 @@
       "title": "Ups! Nešto je pošlo po zlu.",
       "defaultMessage": "Dogodila se neočekivana greška.",
       "backHome": "Vrati se na početnu",
-      "retry": "Pokušaj ponovno"
+      "retry": "Pokušaj ponovno",
+      "timeout": "Zahtjev je prekoračio vremensko ograničenje. Pokušajte ponovo."
     }
   },
 
@@ -907,6 +914,11 @@
       "rpeRequired": "Unesi RPE",
       "rpeMin": "RPE mora biti najmanje 1",
       "rpeMax": "RPE može biti najviše 10"
+    },
+    "challengeTemplate": {
+      "typeRequired": "Vrsta izazova je obavezna",
+      "targetCountMin": "Cilj mora biti najmanje 1",
+      "xpRewardMin": "XP nagrada ne može biti negativna"
     }
   }
 }
