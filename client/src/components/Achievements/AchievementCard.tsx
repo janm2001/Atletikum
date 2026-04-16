@@ -39,7 +39,7 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
             {achievement.title}
           </Text>
           <Text size="xs">{achievement.description}</Text>
-          <Text size="xs" c="teal">
+          <Text size="xs" c="violet">
             +{achievement.xpReward} XP
           </Text>
           {achievement.isUnlocked && achievement.unlockedAt && (
@@ -89,7 +89,7 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
               isAlmostUnlocked
                 ? "yellow"
                 : achievement.isUnlocked
-                  ? "teal"
+                  ? "violet"
                   : "gray"
             }
           >
@@ -100,8 +100,8 @@ export const AchievementCard = memo(({ achievement }: AchievementCardProps) => {
           </Text>
           {achievement.isUnlocked ? (
             <Group gap={4}>
-              <IconCheck size={14} color="var(--mantine-color-teal-6)" />
-              <Badge size="xs" color="teal" variant="light">
+              <IconCheck size={14} color="var(--mantine-color-violet-6)" />
+              <Badge size="xs" color="violet" variant="light">
                 +{achievement.xpReward} XP
               </Badge>
             </Group>
