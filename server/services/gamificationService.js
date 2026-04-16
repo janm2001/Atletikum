@@ -35,8 +35,13 @@ const getGamificationStatus = (user, { now = new Date() } = {}) => {
     Math.round((xpInLevel / xpForNextLevel) * 100),
   );
 
-  const quizXpEstimate = 5 * 25;
-  const workoutXpEstimate = 6 * 15;
+  const QUIZ_QUESTIONS_PER_SESSION = 5;
+  const QUIZ_XP_PER_QUESTION = 25;
+  const WORKOUT_SETS_PER_SESSION = 6;
+  const WORKOUT_XP_PER_SET = 15;
+
+  const quizXpEstimate = QUIZ_QUESTIONS_PER_SESSION * QUIZ_XP_PER_QUESTION;
+  const workoutXpEstimate = WORKOUT_SETS_PER_SESSION * WORKOUT_XP_PER_SET;
 
   const fastestXpAction =
     quizXpEstimate >= workoutXpEstimate ? "quiz" : "workout";

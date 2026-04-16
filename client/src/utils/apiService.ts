@@ -1,5 +1,6 @@
 import axios from "axios";
 import { STORAGE_KEYS } from "../constants/storageKeys";
+import i18n from "../i18n";
 
 const DEFAULT_API_BASE_URL = "http://localhost:5001/api/v1";
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
@@ -31,7 +32,7 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.code === "ECONNABORTED" || error.code === "ERR_CANCELED") {
-            return Promise.reject(new Error("Zahtjev je prekoračio vremensko ograničenje. Pokušajte ponovo."));
+            return Promise.reject(new Error(i18n.t("errors.generic.timeout")));
         }
         if (error.response?.status === 401) {
             const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
