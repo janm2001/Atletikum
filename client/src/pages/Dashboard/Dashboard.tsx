@@ -7,6 +7,9 @@ import { useArticles } from "../../hooks/useArticle";
 import { useWorkouts } from "../../hooks/useWorkout";
 import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 import { useWeeklyChallenges } from "@/hooks/useChallenges";
+import { useDailyProgress } from "@/hooks/useDailyProgress";
+import { useWeeklyPlan } from "@/hooks/useWeeklyPlan";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
 import DashboardStatsGrid from "@/components/Dashboard/DashboardStatsGrid";
@@ -35,12 +38,18 @@ const Dashboard = () => {
     useWeeklyRecommendations();
   const { data: weeklyChallenges, isLoading: challengesLoading } =
     useWeeklyChallenges();
+  const { isLoading: dailyProgressLoading } = useDailyProgress();
+  const { isLoading: weeklyPlanLoading } = useWeeklyPlan();
+  const { isLoading: leaderboardLoading } = useLeaderboard();
 
   const isLoading =
     articlesLoading ||
     workoutsLoading ||
     recommendationsLoading ||
-    challengesLoading;
+    challengesLoading ||
+    dailyProgressLoading ||
+    weeklyPlanLoading ||
+    leaderboardLoading;
 
   const level = user?.level ?? 1;
 
