@@ -1,7 +1,9 @@
 const {
   validateRegisterRequest,
+  validateLoginRequest,
   validateResetPasswordRequest,
 } = require("../validators/authValidator");
+const { AUTH_MESSAGES } = require("../utils/authMessages");
 
 describe("authValidator", () => {
   it("normalizes register username, email, and training frequency", () => {
@@ -33,8 +35,20 @@ describe("authValidator", () => {
     };
 
     expect(() => validateRegisterRequest(request)).toThrow(
-      "Lozinka mora sadržavati barem jedno veliko slovo",
+      AUTH_MESSAGES.passwordUppercase,
     );
+  });
+
+  it("accepts login identifier when email is provided", () => {
+    const request = {
+      body: {
+        username: " Jan@Example.com ",
+        password: "Strong123!",
+      },
+    };
+
+    expect(() => validateLoginRequest(request)).not.toThrow();
+    expect(request.body.username).toBe("jan@example.com");
   });
 
   it("rejects invalid reset token formats", () => {
@@ -44,7 +58,7 @@ describe("authValidator", () => {
     };
 
     expect(() => validateResetPasswordRequest(request)).toThrow(
-      "Token za reset lozinke nije valjan",
+      AUTH_MESSAGES.resetTokenInvalid,
     );
   });
 
@@ -55,7 +69,7 @@ describe("authValidator", () => {
     };
 
     expect(() => validateResetPasswordRequest(request)).toThrow(
-      "Lozinka može imati najviše 32 znaka",
+      AUTH_MESSAGES.passwordMax,
     );
   });
 });

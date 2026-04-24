@@ -1,5 +1,6 @@
 const rateLimit = require("express-rate-limit");
 const { ipKeyGenerator } = require("express-rate-limit");
+const { AUTH_MESSAGES } = require("../utils/authMessages");
 
 const standardRateLimitOptions = {
   legacyHeaders: false,
@@ -19,9 +20,7 @@ const authLimiter = rateLimit({
   ...standardRateLimitOptions,
   windowMs: 15 * 60 * 1000,
   max: 20,
-  message: createRateLimitMessage(
-    "Previše zahtjeva s ove IP adrese. Pokušajte ponovo za 15 minuta.",
-  ),
+  message: createRateLimitMessage(AUTH_MESSAGES.rateLimitAuth),
 });
 
 const quizSubmissionLimiter = rateLimit({
