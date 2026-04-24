@@ -32,6 +32,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const authService = require("../services/authService");
+const { AUTH_MESSAGES } = require("../utils/authMessages");
 
 const mockFindOneResult = (value) => {
   User.findOne.mockReturnValue({
@@ -94,7 +95,7 @@ describe("authService", () => {
       authService.login({ username: "", password: "" }),
     ).rejects.toMatchObject({
       statusCode: 400,
-      message: "Molimo unesite username i lozinku",
+      message: AUTH_MESSAGES.loginCredentialsRequired,
     });
   });
 
@@ -106,7 +107,25 @@ describe("authService", () => {
       authService.login({ username: "jan", password: "wrong" }),
     ).rejects.toMatchObject({
       statusCode: 401,
-      message: "Pogrešni podaci",
+      message: AUTH_MESSAGES.loginInvalidCredentials,
+    });
+  });
+
+  it("logs in user with email provided in username field", async () => {
+    mockFindOneResult({ _id: "user-1", password: "hash" });
+    bcrypt.compare.mockResolvedValue(true);
+    jwt.sign.mockReturnValue("signed-token");
+    sanitizeUser.mockReturnValue({ _id: "user-1", username: "jan" });
+
+    const result = await authService.login({
+      username: "JAN@example.com",
+      password: "Strong123!",
+    });
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: "jan@example.com" });
+    expect(result).toEqual({
+      token: "signed-token",
+      user: { _id: "user-1", username: "jan" },
     });
   });
 
@@ -136,7 +155,7 @@ describe("authService", () => {
     expect(save).toHaveBeenCalledWith({ validateBeforeSave: false });
     expect(result).toEqual({
       message:
-        "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.",
+        AUTH_MESSAGES.resetRequestGeneric,
     });
   });
 
@@ -150,7 +169,7 @@ describe("authService", () => {
 
     expect(result).toEqual({
       message:
-        "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.",
+        AUTH_MESSAGES.resetRequestGeneric,
     });
     expect(crypto.randomBytes).not.toHaveBeenCalled();
   });
@@ -176,7 +195,7 @@ describe("authService", () => {
     });
     expect(save).toHaveBeenCalled();
     expect(result).toEqual({
-      message: "Lozinka je uspješno promijenjena.",
+      message: AUTH_MESSAGES.resetPasswordSuccess,
     });
   });
 });

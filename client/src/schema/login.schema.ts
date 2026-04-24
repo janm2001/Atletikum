@@ -5,7 +5,7 @@ import { passwordSchema } from "./password.schema";
 const t = (key: string) => i18next.t(key);
 
 export const loginSchema = z.object({
-    username: z.string().min(3, t("validation.usernameMin")),
+    username: z.string().trim().min(3, t("validation.usernameMin")),
     password: passwordSchema,
 });
 

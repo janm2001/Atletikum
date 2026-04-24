@@ -18,6 +18,7 @@ jest.mock("jsonwebtoken", () => {
 const { User } = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { protect, restrictTo } = require("../middleware/authMiddleware");
+const { AUTH_MESSAGES } = require("../utils/authMessages");
 
 describe("authMiddleware", () => {
   const createFindByIdQuery = (result, options = {}) => ({
@@ -43,7 +44,7 @@ describe("authMiddleware", () => {
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 401,
-          message: "Niste prijavljeni. Molimo prijavite se.",
+          message: AUTH_MESSAGES.authRequired,
         }),
       );
     });
@@ -89,7 +90,7 @@ describe("authMiddleware", () => {
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 401,
-          message: "Token je istekao. Molimo prijavite se ponovno.",
+          message: AUTH_MESSAGES.tokenExpired,
         }),
       );
     });
@@ -112,7 +113,7 @@ describe("authMiddleware", () => {
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 401,
-          message: "Nevažeći token ili neautoriziran pristup.",
+          message: AUTH_MESSAGES.invalidToken,
         }),
       );
     });
@@ -134,7 +135,7 @@ describe("authMiddleware", () => {
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 401,
-          message: "Korisnik više ne postoji.",
+          message: AUTH_MESSAGES.userNoLongerExists,
         }),
       );
     });
@@ -174,7 +175,7 @@ describe("authMiddleware", () => {
       expect(next).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 403,
-          message: "Nemate dozvolu za ovu radnju.",
+          message: AUTH_MESSAGES.unauthorizedRole,
         }),
       );
     });

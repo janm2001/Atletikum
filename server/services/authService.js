@@ -6,14 +6,15 @@ const { getClientUrl, getJwtSecret, getNodeEnv } = require("../config/env");
 const { sanitizeUser } = require("../utils/sanitizeUser");
 const AppError = require("../utils/AppError");
 const { sendPasswordResetEmail } = require("../utils/emailService");
+const { AUTH_MESSAGES } = require("../utils/authMessages");
 
-const PASSWORD_RESET_REQUEST_MESSAGE =
-  "Ako uneseni podaci odgovaraju korisniku, upute za reset lozinke su pripremljene.";
+const PASSWORD_RESET_REQUEST_MESSAGE = AUTH_MESSAGES.resetRequestGeneric;
 
 // Pre-computed dummy hash used to ensure constant-time response on login
 // regardless of whether the username exists (prevents username enumeration via timing).
 const DUMMY_HASH =
   "$2b$12$invaliddummyhashfortimingprotection.AAAAAAAAAAAAAAAAAAA";
+const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 
 const signToken = (id) => {
   return jwt.sign({ id }, getJwtSecret(), { expiresIn: "7d" });
@@ -59,16 +60,24 @@ const register = async ({
 
 const login = async ({ username, password }) => {
   if (!username || !password) {
-    throw new AppError("Molimo unesite username i lozinku", 400);
+    throw new AppError(AUTH_MESSAGES.loginCredentialsRequired, 400);
   }
 
-  const user = await User.findOne({ username: String(username).trim() }).collation({ locale: "en", strength: 2 });
+  const normalizedIdentifier = String(username).trim();
+  const loginQuery = EMAIL_REGEX.test(normalizedIdentifier)
+    ? { email: normalizedIdentifier.toLowerCase() }
+    : { username: normalizedIdentifier };
+
+  const user = await User.findOne(loginQuery).collation({
+    locale: "en",
+    strength: 2,
+  });
   if (!user) {
     await bcrypt.compare(password, DUMMY_HASH); // constant-time: prevent username enumeration
-    throw new AppError("Pogrešni podaci", 401);
+    throw new AppError(AUTH_MESSAGES.loginInvalidCredentials, 401);
   }
   if (!(await bcrypt.compare(password, user.password))) {
-    throw new AppError("Pogrešni podaci", 401);
+    throw new AppError(AUTH_MESSAGES.loginInvalidCredentials, 401);
   }
 
   return {
@@ -79,7 +88,7 @@ const login = async ({ username, password }) => {
 
 const requestPasswordReset = async ({ username, email }) => {
   if (!username || !email) {
-    throw new AppError("Molimo unesite korisničko ime i email adresu", 400);
+    throw new AppError(AUTH_MESSAGES.resetRequestFieldsRequired, 400);
   }
 
   const normalizedUsername = String(username).trim();
@@ -112,7 +121,7 @@ const requestPasswordReset = async ({ username, email }) => {
 
 const resetPassword = async ({ token, password }) => {
   if (!token || !password) {
-    throw new AppError("Nedostaje token ili nova lozinka", 400);
+    throw new AppError(AUTH_MESSAGES.resetPasswordFieldsRequired, 400);
   }
 
   const normalizedToken = String(token).trim();
@@ -122,10 +131,7 @@ const resetPassword = async ({ token, password }) => {
   });
 
   if (!user) {
-    throw new AppError(
-      "Poveznica za reset lozinke nije valjana ili je istekla",
-      400,
-    );
+    throw new AppError(AUTH_MESSAGES.resetPasswordInvalidOrExpired, 400);
   }
 
   user.password = password;
@@ -134,7 +140,7 @@ const resetPassword = async ({ token, password }) => {
   await user.save();
 
   return {
-    message: "Lozinka je uspješno promijenjena.",
+    message: AUTH_MESSAGES.resetPasswordSuccess,
   };
 };
 
