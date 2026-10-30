@@ -64,6 +64,8 @@ export interface Article {
   bookmark?: ArticleBookmarkState;
   quiz?: QuizQuestion[];
   author: string;
+  audience?: "children" | "coaches";
+  editorialNote?: string;
   createdAt: string;
   updatedAt: string;
 }

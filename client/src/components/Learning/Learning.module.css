@@ -1,0 +1,21 @@
+.hero { padding: clamp(24px, 5vw, 52px); border-radius: 28px; background: linear-gradient(130deg, var(--app-surface) 40%, var(--mantine-color-violet-light)); border: 1px solid var(--app-border-subtle); }
+.eyebrow { color: var(--mantine-color-violet-light-color); letter-spacing: .12em; font-weight: 700; font-size: 12px; }
+.heroTitle { font-size: clamp(30px, 5vw, 48px); line-height: 1.1; letter-spacing: -.03em; max-width: 680px; }
+.heroBody { max-width: 560px; color: var(--app-text-muted); }
+.lessonCard { background: var(--app-surface); border: 1px solid var(--app-border-subtle); border-radius: 20px; padding: 24px; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.lessonCard a { margin-top: auto; }
+.lessonLayout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.stage { border-radius: 20px; background: var(--mantine-color-violet-light); padding: 20px; }
+.motion { width: 100%; height: 290px; display: block; }
+.motion .body { stroke: var(--mantine-color-violet-light-color); }
+.motion .limb { stroke: var(--mantine-color-text); }
+.motion .bench { stroke: var(--app-text-muted); }
+.steps { display: flex; flex-wrap: wrap; gap: 8px; }
+.steps button { flex: 1; min-width: 72px; min-height: 44px; }
+.cue { min-height: 175px; }
+.answer { white-space: normal; height: auto; min-height: 54px; text-align: left; padding: 14px 18px; }
+.answer span { white-space: normal; }
+.note { padding: 16px 20px; border-left: 3px solid var(--mantine-color-violet-5); background: var(--app-surface-raised); border-radius: 0 12px 12px 0; }
+.dayChoice { display: flex; gap: 10px; flex-wrap: wrap; }
+.dayChoice button { min-height: 44px; }
+@media (max-width: 600px) { .lessonLayout { grid-template-columns: 1fr; gap: 20px; } .cue { min-height: 0; } .motion { height: 230px; } .hero { padding: 24px 20px; } }

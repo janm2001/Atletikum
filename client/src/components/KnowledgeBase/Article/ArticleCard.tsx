@@ -75,6 +75,7 @@ export const ArticleCard = ({
 
       <Group justify="space-between" mt="md" mb="xs">
         <Group gap="xs">
+          <Badge color="gray" variant="light">{article.audience === "children" ? "Za mlade sportaše" : "Za roditelje i trenere"}</Badge>
           <Badge color={tagColors[article.tag] || "blue"} variant="light">
             {getArticleTagLabel(article.tag)}
           </Badge>

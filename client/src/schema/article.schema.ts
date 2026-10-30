@@ -55,6 +55,8 @@ export const articleSchema = z.object({
       },
     ),
   author: z.string().optional(),
+  audience: z.enum(["children", "coaches"]).optional(),
+  editorialNote: z.string().optional(),
   relatedArticleIds: z.array(z.string()).optional(),
   relatedExerciseIds: z.array(z.string()).optional(),
   quiz: z.array(quizQuestionSchema).optional(),

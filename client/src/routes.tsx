@@ -72,6 +72,18 @@ export const router = createBrowserRouter([
         lazy: lazyRoute(() => import("./pages/Settings/Settings.tsx")),
       },
       {
+        path: "vjestine",
+        lazy: lazyRoute(() => import("./pages/Learning/Skills.tsx")),
+      },
+      {
+        path: "vjestine/:lessonId",
+        lazy: lazyRoute(() => import("./pages/Learning/MovementLesson.tsx")),
+      },
+      {
+        path: "moj-put",
+        lazy: lazyRoute(() => import("./pages/Learning/Skills.tsx")),
+      },
+      {
         path: "zapis-treninga",
         lazy: lazyRoute(() => import("./pages/TrainingLogs/TrainingLogs.tsx")),
       },

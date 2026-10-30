@@ -17,6 +17,7 @@ export type BookmarkPayload = {
 };
 
 export type ArticleQueryOptions = {
+    audience?: "children" | "coaches";
     tags?: string[];
     savedOnly?: boolean;
     q?: string;

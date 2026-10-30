@@ -1,6 +1,6 @@
-import { Container, SimpleGrid, Stack } from "@mantine/core";
+import { Alert, Button, Container, Group, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import SpinnerComponent from "@/components/SpinnerComponent/SpinnerComponent";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useArticles, useToggleArticleBookmark } from "../../hooks/useArticle";
@@ -11,25 +11,23 @@ import type {
   KnowledgeBaseSortOption,
 } from "@/types/Article/knowledgeBase";
 import { ArticleCard } from "@/components/KnowledgeBase/Article/ArticleCard";
-import { XpProgressSection } from "@/components/XpProgress/XpProgressSection";
 import QueryErrorMessage from "@/components/Common/QueryErrorMessage";
 import KnowledgeBaseEmptyState from "@/components/KnowledgeBase/KnowledgeBaseEmptyState";
 import KnowledgeBaseFilters from "@/components/KnowledgeBase/KnowledgeBaseFilters";
-import KnowledgeBaseHeader from "@/components/KnowledgeBase/KnowledgeBaseHeader";
-import DashboardRevisionCard from "@/components/Dashboard/DashboardRevisionCard";
-import { useWeeklyRecommendations } from "@/hooks/useRecommendations";
 
 const KnowledgeBase = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const audience = searchParams.get("publika") === "coaches" ? "coaches" : "children";
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [articleFilter, setArticleFilter] =
     useState<KnowledgeBaseArticleFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<KnowledgeBaseSortOption>("newest");
 
-  const { data: recommendations } = useWeeklyRecommendations();
   const { data, isLoading, error } = useArticles({
+    audience,
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     savedOnly: articleFilter === "saved",
   });
@@ -79,8 +77,13 @@ const KnowledgeBase = () => {
   return (
     <Container size="xl" py="xl">
       <Stack gap="md">
-        <KnowledgeBaseHeader />
-        <XpProgressSection variant="brain" />
+        <Title order={1}>Učenje i blogovi</Title>
+        <Text c="dimmed">Male lekcije za djecu. Više konteksta za odrasle koji ih prate.</Text>
+        <Group role="group" aria-label="Publika sadržaja">
+          <Button variant={audience === "children" ? "filled" : "light"} aria-pressed={audience === "children"} onClick={() => setSearchParams({})}>Za mlade sportaše</Button>
+          <Button variant={audience === "coaches" ? "filled" : "light"} aria-pressed={audience === "coaches"} onClick={() => setSearchParams({ publika: "coaches" })}>Za roditelje i trenere</Button>
+        </Group>
+        {audience === "children" ? <Alert color="violet" title="Kreni od kratkih lekcija"><Stack><Text>Upoznaj pokret, provjeri što si naučio/la i vježbaj uz trenera.</Text><Button component={Link} to="/vjestine" variant="light">Otvori školu pokreta</Button></Stack></Alert> : <Alert color="orange" title="Trkačka edukacija za odrasle"><Stack><Text>Napredni primjeri opisuju trening iskusnih trkača. Nisu plan za djecu od 8 do 12 godina. Kviz provjerava razumijevanje članka, a ne spremnost za taj trening.</Text><Button component={Link} to="/zapis-treninga" variant="light" color="gray" w="fit-content">Postojeći dnevnik treninga</Button></Stack></Alert>}
         <KnowledgeBaseFilters
           articleFilter={articleFilter}
           onArticleFilterChange={setArticleFilter}
@@ -90,12 +93,6 @@ const KnowledgeBase = () => {
           onSearchQueryChange={setSearchQuery}
           sortBy={sortBy}
           onSortByChange={setSortBy}
-        />
-        <DashboardRevisionCard
-          revision={recommendations?.revision}
-          onStartRevision={(articleId) =>
-            navigate(`/edukacija/${articleId}/kviz`)
-          }
         />
         {isLoading ? (
           <SpinnerComponent size="lg" fullHeight={false} />

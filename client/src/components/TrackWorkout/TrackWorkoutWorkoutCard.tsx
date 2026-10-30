@@ -29,6 +29,7 @@ import type {
   TrackWorkoutMetric,
 } from "@/types/Workout/trackWorkout";
 import { useTranslation } from "react-i18next";
+import ExerciseDemonstration from "@/components/Exercise/ExerciseDemonstration";
 
 type TrackWorkoutWorkoutCardProps = {
   currentExercise: Workout["exercises"][number];
@@ -116,6 +117,7 @@ const TrackWorkoutWorkoutCard = ({
           </Text>
         )}
 
+        <ExerciseDemonstration key={getExerciseId(currentExercise.exerciseId)} title={currentExerciseName} videoLink={exerciseById.get(getExerciseId(currentExercise.exerciseId))?.videoLink} />
         <form onSubmit={onSubmit}>
           <Stack gap="xs">
             {canGoPreviousExercise && onPreviousExercise && (

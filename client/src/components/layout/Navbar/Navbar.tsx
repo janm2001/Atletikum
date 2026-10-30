@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { Link, useLocation } from "react-router-dom";
 import {
-  IconBarbell,
+  IconPlant,
   IconBook,
   IconLayoutDashboard,
   IconLogout2,
@@ -19,17 +19,13 @@ import {
   IconMoon,
   IconSettings,
   IconSun,
-  IconTrophy,
   IconUser,
   IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
-import { useGamificationStatus } from "@/hooks/useGamification";
 import { useUser } from "@/hooks/useUser";
 import atletikumIcon from "@/assets/atletikum_redesign2.png";
-import NavbarLevelControl from "./NavbarLevelControl";
-import NavbarStreakControl from "./NavbarStreakControl";
 import classes from "./Navbar.module.css";
 
 type NavItem = {
@@ -45,20 +41,19 @@ const Navbar = () => {
   const [opened, setOpened] = useState(false);
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("dark");
-  const { data: gamification } = useGamificationStatus();
 
   const isDark = computedColorScheme === "dark";
 
   const navItems = useMemo<NavItem[]>(
     () => [
-      { to: "/pregled", label: t("nav.overview"), icon: IconLayoutDashboard },
+      { to: "/pregled", label: "Danas", icon: IconLayoutDashboard },
       {
-        to: "/zapis-treninga",
-        label: t("nav.trainingLogs"),
-        icon: IconBarbell,
+        to: "/vjestine",
+        label: "Vještine",
+        icon: IconPlant,
       },
-      { to: "/edukacija", label: t("nav.education"), icon: IconBook },
-      { to: "/ljestvica", label: t("nav.leaderboard"), icon: IconTrophy },
+      { to: "/moj-put", label: "Moj put", icon: IconUser },
+      { to: "/edukacija", label: "Učenje", icon: IconBook },
       ...(user?.role === "admin"
         ? [{ to: "/upravljanje", label: t("nav.admin"), icon: IconSettings }]
         : []),
@@ -82,13 +77,6 @@ const Navbar = () => {
 
   const toggleColorScheme = () => {
     setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
-  };
-
-  const streakDropdownProps = {
-    streakAtRisk: gamification?.streakAtRisk ?? false,
-    hasActivityToday: gamification?.hasActivityToday ?? false,
-    streakExpiresAt: gamification?.streakExpiresAt ?? null,
-    dailyStreak: user?.dailyStreak ?? 0,
   };
 
   const close = () => setOpened(false);
@@ -135,16 +123,6 @@ const Navbar = () => {
       </Group>
 
       <Group gap={8} visibleFrom="lg" wrap="nowrap">
-        <NavbarLevelControl
-          level={user?.level ?? 1}
-          totalXp={user?.totalXp ?? 0}
-        />
-
-        <NavbarStreakControl
-          {...streakDropdownProps}
-          iconSize={14}
-        />
-
         <ActionIcon
           variant="light"
           color="stitch"
@@ -218,24 +196,6 @@ const Navbar = () => {
             </Group>
 
             <Stack gap="sm">
-              <Group gap="xs" mb={2}>
-                <NavbarLevelControl
-                  level={user?.level ?? 1}
-                  totalXp={user?.totalXp ?? 0}
-                  hoverCardWidth={220}
-                  position="bottom"
-                  badgeSize="md"
-                />
-
-                <NavbarStreakControl
-                  {...streakDropdownProps}
-                  hoverCardWidth={220}
-                  position="bottom"
-                  badgeSize="md"
-                  iconSize={12}
-                />
-              </Group>
-
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.to);

@@ -1,4 +1,5 @@
-import { Badge, Button, Group, Modal, Stack, Text } from "@mantine/core";
+import { Badge, Group, Modal, Stack, Text } from "@mantine/core";
+import ExerciseDemonstration from "@/components/Exercise/ExerciseDemonstration";
 import type { Exercise } from "@/types/Exercise/exercise";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +21,7 @@ const TrackWorkoutExerciseDetailsModal = ({
       onClose={onClose}
       title={exercise?.title ?? t('training.track.exerciseDetails')}
       centered
+      size="lg"
     >
       {exercise ? (
         <Stack gap="xs">
@@ -34,17 +36,7 @@ const TrackWorkoutExerciseDetailsModal = ({
               Lvl {exercise.level}
             </Badge>
           </Group>
-          {exercise.videoLink && (
-            <Button
-              component="a"
-              href={exercise.videoLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="light"
-            >
-              {t('training.track.watchVideo')}
-            </Button>
-          )}
+          <ExerciseDemonstration key={exercise._id} title={exercise.title} videoLink={exercise.videoLink} />
         </Stack>
       ) : (
         <Text c="dimmed">{t('training.track.noExerciseDetails')}</Text>

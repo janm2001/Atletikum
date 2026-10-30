@@ -6,6 +6,10 @@ const {
 
 const validateGetArticlesRequest = (request) => {
   const { q } = request.query ?? {};
+  const { audience } = request.query ?? {};
+  if (audience !== undefined && !["children", "coaches"].includes(audience)) {
+    throw new AppError("Nepoznata publika članka.", 400);
+  }
 
   if (q !== undefined) {
     if (typeof q !== "string") {

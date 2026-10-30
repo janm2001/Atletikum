@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Button, Card, Center, Container, Group, Text, Title } from "@mantine/core";
+import { Alert, Button, Card, Center, Container, Group, Text, Title } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
 import SpinnerComponent from "../../components/SpinnerComponent/SpinnerComponent";
 import { useArticleDetail } from "../../hooks/useArticle";
@@ -75,6 +75,8 @@ const ArticleDetail = () => {
         onToggleBookmark={handleToggleBookmark}
       />
 
+      {article.audience !== "children" && <Alert color="orange" title="Za roditelje i trenere" mb="lg">Ovaj članak nije dječji plan treninga. Kviz provjerava razumijevanje teksta; rezultat ne odobrava izvođenje opisanog treninga.</Alert>}
+      {article.editorialNote && <Alert color="violet" title="Napomena uz izvorni tekst" mb="lg">{article.editorialNote}</Alert>}
       <ArticleContentSection
         title={article.title}
         coverImage={article.coverImage}
