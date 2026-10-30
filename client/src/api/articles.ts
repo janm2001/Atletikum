@@ -22,6 +22,7 @@ export async function getArticles(
 
     const { data } = await apiClient.get<ArticlesResponse>(API_URL, {
         params: {
+            ...(options?.audience ? { audience: options.audience } : {}),
             ...(tags && tags.length > 0 ? { tag: tags } : {}),
             ...(savedOnly ? { saved: true } : {}),
             ...(q ? { q } : {}),

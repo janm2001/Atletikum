@@ -1,6 +1,5 @@
-import { Button, Card, Group, Stack, Text, Title } from "@mantine/core";
-import { IconBolt, IconBrain, IconBarbell } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
+import { Button, Card, Stack, Text, Title } from "@mantine/core";
+import { IconCheck } from "@tabler/icons-react";
 
 interface CelebrationWhatsNextCardProps {
   isQuiz: boolean;
@@ -9,59 +8,14 @@ interface CelebrationWhatsNextCardProps {
   onNavigate: (path: string) => void;
 }
 
-const CelebrationWhatsNextCard = ({
-  isQuiz,
-  xpRemaining,
-  nextLevel,
-  onNavigate,
-}: CelebrationWhatsNextCardProps) => {
-  const { t } = useTranslation();
-
-  return (
-    <Card withBorder radius="lg" shadow="sm" p="xl" w="100%">
-      <Stack align="center" gap="md">
-        <Group gap="xs">
-          <IconBolt size={24} color="var(--mantine-color-yellow-5)" />
-          <Title order={3}>{t("celebration.whatNext")}</Title>
-        </Group>
-
-        <Text size="sm" c="dimmed" ta="center">
-          {t("celebration.xpToLevel", {
-            xp: xpRemaining,
-            level: nextLevel,
-          })}
-        </Text>
-
-        <Group gap="sm">
-          {isQuiz ? (
-            <Button
-              leftSection={<IconBarbell size={16} />}
-              variant="gradient"
-              gradient={{ from: "violet", to: "grape", deg: 135 }}
-              onClick={() => onNavigate("/zapis-treninga")}
-            >
-              {t("celebration.doWorkout")}
-            </Button>
-          ) : (
-            <Button
-              leftSection={<IconBrain size={16} />}
-              variant="gradient"
-              gradient={{ from: "blue", to: "violet", deg: 135 }}
-              onClick={() => onNavigate("/edukacija")}
-            >
-              {t("celebration.doQuiz")}
-            </Button>
-          )}
-        </Group>
-
-        <Text size="xs" c="dimmed">
-          {isQuiz
-            ? t("celebration.workoutSuggestion")
-            : t("celebration.quizSuggestion")}
-        </Text>
-      </Stack>
-    </Card>
-  );
-};
-
+const CelebrationWhatsNextCard = ({ onNavigate }: CelebrationWhatsNextCardProps) => (
+  <Card withBorder radius="lg" shadow="sm" p="xl" w="100%">
+    <Stack align="center" gap="md">
+      <IconCheck size={28} color="var(--mantine-color-teal-6)" />
+      <Title order={3}>Dovršeno. Za danas je dovoljno.</Title>
+      <Text size="sm" c="dimmed" ta="center">Ne trebaš dodatni trening radi bodova. Odmor je dio napretka.</Text>
+      <Button color="violet" onClick={() => onNavigate("/pregled")}>Povratak na moj dan</Button>
+    </Stack>
+  </Card>
+);
 export default CelebrationWhatsNextCard;

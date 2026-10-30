@@ -8,17 +8,12 @@ import {
   Title,
   Text,
   Anchor,
-  Select,
-  Slider,
-  Group,
-  Badge,
   Box,
   Stack,
 } from "@mantine/core";
 import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
-import { getTrainingFocusOptions } from "../../enums/trainingFocus";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   registerSchema,
@@ -37,7 +32,6 @@ const Register = () => {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -46,14 +40,9 @@ const Register = () => {
       email: "",
       password: "",
       passwordConfirm: "",
-      trainingFrequency: 3,
-      focus: "snaga",
+      trainingFrequency: 0,
+      focus: "mobilnost",
     },
-  });
-
-  const trainingFrequency = useWatch({
-    control,
-    name: "trainingFrequency",
   });
 
   const handleRegister = async (formData: RegisterInput) => {
@@ -209,60 +198,7 @@ const Register = () => {
                 mb="md"
               />
 
-              <Controller
-                control={control}
-                name="focus"
-                render={({ field }) => (
-                  <Select
-                    label={t("auth.register.trainingFocus")}
-                    placeholder={t("auth.register.trainingFocusPlaceholder")}
-                    data={getTrainingFocusOptions()}
-                    value={field.value}
-                    onChange={(value) => field.onChange(value)}
-                    error={errors.focus?.message}
-                    required
-                    mb="md"
-                  />
-                )}
-              />
-
-              <div>
-                <Group justify="space-between" mb="xs">
-                  <Text size="sm" fw={500}>
-                    {t("auth.register.trainingFrequency", {
-                      count: trainingFrequency,
-                    })}
-                  </Text>
-                  <Badge color="violet" variant="dot">
-                    {t("auth.register.trainingFrequencyBadge", {
-                      count: trainingFrequency,
-                    })}
-                  </Badge>
-                </Group>
-                <Controller
-                  control={control}
-                  name="trainingFrequency"
-                  render={({ field }) => (
-                    <Slider
-                      value={field.value}
-                      onChange={field.onChange}
-                      min={0}
-                      max={7}
-                      step={1}
-                      marks={[
-                        { value: 0, label: "0" },
-                        { value: 7, label: "7" },
-                      ]}
-                      mb="md"
-                    />
-                  )}
-                />
-                {errors.trainingFrequency?.message && (
-                  <Text c="red" size="sm" mt="xs" mb="md">
-                    {errors.trainingFrequency.message}
-                  </Text>
-                )}
-              </div>
+              <Text size="sm" c="dimmed">Račun pripremi uz roditelja ili skrbnika. Za učenje ne trebaš odabrati broj treninga tjedno; raspored vježbanja dogovori s trenerom.</Text>
 
               {error && (
                 <Text c="red" size="sm" mt="sm" mb="md">

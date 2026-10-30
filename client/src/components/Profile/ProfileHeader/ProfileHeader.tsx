@@ -40,7 +40,7 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
             {user?.username}
           </Text>
           <Badge size="lg" variant="light" color="violet">
-            {t("nav.levelBadge", { level: user?.level ?? 1 })}
+            Škola pokreta
           </Badge>
         </Stack>
       </Stack>

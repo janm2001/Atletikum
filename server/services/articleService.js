@@ -222,6 +222,9 @@ const getRelatedExercises = async (relatedExerciseIds) => {
 
 const buildArticleFilter = async ({ userId, query }) => {
   const filter = {};
+  if (query.audience === "children") filter.audience = "children";
+  // Legacy articles have not been reviewed for children.
+  if (query.audience === "coaches") filter.audience = { $ne: "children" };
   const savedOnly = query.saved === "true";
 
   if (query.tag) {
@@ -291,6 +294,7 @@ const getArticleById = async ({ articleId, userId }) => {
   let relatedArticles = [];
   if (relatedIds.length > 0) {
     relatedArticles = await Article.find({
+      ...(article.audience === "children" ? { audience: "children" } : {}),
       _id: {
         $in: relatedIds.filter((id) => String(id) !== String(article._id)),
       },
@@ -301,6 +305,7 @@ const getArticleById = async ({ articleId, userId }) => {
 
   if (relatedArticles.length === 0) {
     relatedArticles = await Article.find({
+      ...(article.audience === "children" ? { audience: "children" } : {}),
       tag: article.tag,
       _id: { $ne: article._id },
     })

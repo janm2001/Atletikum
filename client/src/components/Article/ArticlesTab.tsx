@@ -59,6 +59,8 @@ const getDefaultFormValues = (): ArticleFormValues => ({
   relatedArticleIds: [],
   relatedExerciseIds: [],
   author: "Atletikum Tim",
+  audience: "coaches",
+  editorialNote: "",
   quiz: [],
 });
 
@@ -116,6 +118,8 @@ const ArticlesTab = () => {
         relatedArticleIds: fullArticle.relatedArticleIds ?? [],
         relatedExerciseIds: fullArticle.relatedExerciseIds ?? [],
         author: fullArticle.author || "Atletikum Tim",
+        audience: fullArticle.audience ?? "coaches",
+        editorialNote: fullArticle.editorialNote ?? "",
         quiz: fullArticle.quiz ?? [],
       });
     }
@@ -145,6 +149,8 @@ const ArticlesTab = () => {
       relatedArticleIds: article.relatedArticleIds ?? [],
       relatedExerciseIds: article.relatedExerciseIds ?? [],
       author: article.author || "Atletikum Tim",
+      audience: article.audience ?? "coaches",
+      editorialNote: article.editorialNote ?? "",
       quiz: [],
     });
     clearActionError();
@@ -190,6 +196,8 @@ const ArticlesTab = () => {
           "sourceUrl",
           "sourceTitle",
           "author",
+          "audience",
+          "editorialNote",
         ] as const;
         for (const key of stringFields) {
           if (normalizedData[key]) formData.append(key, normalizedData[key]);
@@ -314,6 +322,8 @@ const ArticlesTab = () => {
                 )}
               />
 
+              <Controller name="audience" control={control} render={({ field }) => <Select {...field} label="Za koga je članak?" description="Dječje lekcije označi tek nakon stručnog pregleda sadržaja za dob 8–12 godina." data={[{ value: "coaches", label: "Za roditelje i trenere" }, { value: "children", label: "Za djecu (8–12)" }]} allowDeselect={false} />} />
+              <Textarea label="Urednička napomena" {...register("editorialNote")} />
               <Textarea
                 label={t("admin.articles.summary")}
                 placeholder={t("admin.articles.summaryPlaceholder")}

@@ -79,7 +79,7 @@ const syncArticleBookmarkState = (
   );
 };
 
-export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean; q?: string }) => {
+export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean; q?: string; audience?: "children" | "coaches" }) => {
   const tags = options?.tags;
   const savedOnly = options?.savedOnly ?? false;
   const q = options?.q?.trim() ?? "";
@@ -93,8 +93,8 @@ export const useArticles = (options?: { tags?: string[]; savedOnly?: boolean; q?
   const effectiveKey = q ? [...baseKey, "search", q] : baseKey;
 
   return useQuery({
-    queryKey: effectiveKey,
-    queryFn: () => getArticles({ tags, savedOnly, q: q || undefined }),
+    queryKey: options?.audience ? [...effectiveKey, "audience", options.audience] : effectiveKey,
+    queryFn: () => getArticles({ tags, savedOnly, q: q || undefined, audience: options?.audience }),
   });
 };
 

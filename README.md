@@ -1,5 +1,19 @@
 # Atletikum
 
+## Škola pokreta (8–12 godina)
+
+Početni ekran `/pregled` prikazuje jednu kratku lekciju ili završetak dana. `/vjestine` sadrži vođene lekcije, a `/moj-put` trajno naučene lekcije. Odmor i propušteni dani ne brišu taj napredak. Završavanje lekcije ne dodaje trening XP, ne povećava opterećenje i ne potvrđuje tehniku pokreta.
+
+- `/api/v1/learning` sprema napredak prijavljenog korisnika u `LearningJourney`. Dnevni status koristi zonu `Europe/Zagreb`; pri ponavljanju se lekcije ne dupliciraju.
+- Ilustracija „Sjedni i ustani” služi upoznavanju pokreta. Stvarnu izvedbu i količinu vježbanja vodi trener. Za konačnu biblioteku potrebne su stručno pregledane snimke.
+- Video demonstracije dostupne su unutar treninga i detalja vježbe; vanjski sadržaj učitava se tek na zahtjev. Podržani su YouTube, Vimeo i HTTPS MP4/WebM.
+- Članci imaju publiku `children` ili `coaches`. Postojeći članci bez oznake pripadaju sadržaju za odrasle; admin bira dječju publiku nakon stručnog pregleda. To je razvrstavanje sadržaja, ne sustav roditeljskih ovlasti.
+- Autorski blogovi „Norwegian Singles Method” i „Hill training guide” čuvaju izvorni engleski tekst, uz hrvatski sažetak, urednički kontekst i po pet pitanja. Povezane vježbe su prazne. Slike iz Notiona nisu uvezene.
+
+Provjera novih blogova: `cd server` pa `npm run seed:author-blogs`. Uvoz: `npm run seed:author-blogs -- --apply`. Skripta dodaje samo nedostajuće zapise i ne prepisuje postojeće članke. Za novo sučelje potrebno je pokrenuti i ažurirani backend.
+
+Prva verzija ne uključuje povezane račune roditelja/trenera, dodjeljivanje individualnih planova ili procjenu tehnike kamerom. Postojeći dnevnik treninga dostupan je iz biblioteke za roditelje i trenere.
+
 Atletikum je gamificirana fitness aplikacija za praćenje treninga, napretka i edukacije. Izgrađena je na MERN stacku (MongoDB, Express, React, Node.js) s XP/level sustavom, nizovima (streak), bedževima, zapisima treninga, bazom znanja s kvizovima i admin panelom.
 
 ---
